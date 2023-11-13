@@ -1,5 +1,6 @@
 data/repos
 data/results
+data/pretrained_model
 tests/
 *__pycache_*
 .vscode/settings.json

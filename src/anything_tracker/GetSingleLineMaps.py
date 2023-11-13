@@ -1,3 +1,4 @@
+from anything_tracker.EmbeddingSimilarityAssignment import EmbeddingSimilarityAssignment
 from anything_tracker.LineMap import LineMap
 
 
@@ -52,10 +53,17 @@ class GetSingleLineMaps():
             if all_no_change_mark == False:
                 # Scenario 1.1
                 if len(self.base_real_changed_line_numbers) == len(self.target_real_changed_line_numbers) == 1:
-                    single_line_hunk_maps = LineMap(self.base_real_changed_line_numbers[0], self.target_real_changed_line_numbers[0])
+                    single_line_hunk_maps = LineMap(self.base_real_changed_line_numbers[0], self.base_real_changed_hunk_source[0], \
+                            self.target_real_changed_line_numbers[0], self.target_real_changed_hunk_source[0])
                     self.single_line_maps.append(single_line_hunk_maps)
                 else: # Scenario 1.2, multi-line hunk maps, need to check similarities
                     print("1.2")
+                    embedding_similarity = EmbeddingSimilarityAssignment(self.base_real_changed_hunk_source, \
+                            self.target_real_changed_hunk_source, \
+                            self.base_real_changed_line_numbers, self.target_real_changed_line_numbers)
+                    embedding_similarity.get_line_level_similarity_matrix()
+                    hungarian_line_maps = embedding_similarity.hungarian_assignment()
+                    self.single_line_maps.extend(hungarian_line_maps)
         else:
             # Scenario 4: interest element not changed
             print("4, LocateNoChange")

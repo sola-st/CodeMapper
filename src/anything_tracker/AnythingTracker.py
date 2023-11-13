@@ -51,7 +51,7 @@ if __name__ == "__main__":
     base_commit = "3c571df"
     target_commit = "dc1df75"
     file_path = "greeting.py"
-    interest_element_character_range = [12, 0, 12, 20]
+    interest_element_character_range = [13, 0, 13, 20]
     # interest_line_range = range(12, 13)
     interest_line_range = character_range_to_line_range(interest_element_character_range)
     main(repo_dir, base_commit, target_commit, file_path, interest_line_range)
