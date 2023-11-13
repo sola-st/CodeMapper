@@ -1,0 +1,6 @@
+data/repos
+data/results
+tests/
+*__pycache_*
+.vscode/settings.json
+pyproject.toml
