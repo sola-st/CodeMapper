@@ -1,6 +1,7 @@
 from sentence_transformers import SentenceTransformer, util
 import numpy as np
 from scipy.optimize import linear_sum_assignment
+from anything_tracker.CommmonFunctions import all_elements_to_maps
 
 from anything_tracker.LineMap import LineMap
 
@@ -65,8 +66,7 @@ class EmbeddingSimilarityAssignment:
             base_line_source_copy.remove(base_line_source)
         
         if base_line_number_copy:
-            for num, source in zip(base_line_number_copy, base_line_source_copy):
-                hungarian_line_delete_line_map = LineMap(num, source, "", "")
-                self.hungarian_line_maps.append(hungarian_line_delete_line_map)
+            deleted_line_maps = all_elements_to_maps(base_line_number_copy, base_line_source_copy, "base")
+            self.hungarian_line_maps.extend(deleted_line_maps)
 
         return self.hungarian_line_maps

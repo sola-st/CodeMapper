@@ -1,3 +1,4 @@
+from anything_tracker.CommmonFunctions import all_elements_to_maps
 from anything_tracker.EmbeddingSimilarityAssignment import EmbeddingSimilarityAssignment
 from anything_tracker.LineMap import LineMap
 
@@ -51,8 +52,16 @@ class GetSingleLineMaps():
             all_no_change_mark = self.check_whether_line_real_changed()
             print("3")
             if all_no_change_mark == False:
-                # Scenario 1.1
-                if len(self.base_real_changed_line_numbers) == len(self.target_real_changed_line_numbers) == 1:
+                base_len = len(self.base_real_changed_line_numbers)
+                target_len = len(self.target_real_changed_line_numbers)
+                # here the base and target will not be empty at the same time
+                if  base_len == 0: # no lines deleted
+                    added_line_maps = all_elements_to_maps(self.target_real_changed_line_numbers, self.target_real_changed_hunk_source, "target")
+                    self.single_line_maps.extend(added_line_maps)
+                elif target_len == 0:
+                    deleted_line_maps = all_elements_to_maps(self.base_real_changed_line_numbers, self.base_real_changed_hunk_source, "base")
+                    self.single_line_maps.extend(deleted_line_maps)
+                elif base_len == target_len == 1: # Scenario 1.1
                     single_line_hunk_maps = LineMap(self.base_real_changed_line_numbers[0], self.base_real_changed_hunk_source[0], \
                             self.target_real_changed_line_numbers[0], self.target_real_changed_hunk_source[0])
                     self.single_line_maps.append(single_line_hunk_maps)
