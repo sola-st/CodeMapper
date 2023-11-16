@@ -1,8 +1,8 @@
 import argparse
-from anything_tracker.GetSingleLineMaps import GetSingleLineMaps
-
-from anything_tracker.GitDiffToTargetChangedHunk import GitDiffToTargetChangedHunk
+from anything_tracker.ComputeCandidateHunks import ComputeCandidateHunks
+from anything_tracker.GetDiffResults import GetDiffResults
 from anything_tracker.LineMap import show_maps
+from anything_tracker.SubHunk import show_hunk
 
 
 parser = argparse.ArgumentParser(description="Track anything you want between two different versions.")
@@ -29,15 +29,40 @@ def character_range_to_line_range(interest_element_character_range):
     return interest_line_range
 
 def main(repo_dir, base_commit, target_commit, file_path, interest_line_range):
-    # run git diff to get changed hunks
-    init = GitDiffToTargetChangedHunk(repo_dir, base_commit, target_commit, file_path, interest_line_range)
-    hunk_info = init.run_git_diff()
-    # from changed hunk to line maps
-    second = GetSingleLineMaps(interest_line_range, hunk_info)
-    single_line_maps = second.further_process_target_change_hunk()
-    for map in single_line_maps:
+    all_line_maps = []
+    all_fine_grained_base_hunks = []
+    all_intra_file_candidate_hunks = []
+
+    # Step 1: Run git diff to get changed hunks
+    diff_init = GetDiffResults(repo_dir, base_commit, target_commit, file_path, interest_line_range)
+    intra_file_hunk_pairs = diff_init.run_git_diff()
+
+    # Step 2: Get fine grained hunks and candidate hunks
+    for hunk_info in intra_file_hunk_pairs:
+        candidate_init = ComputeCandidateHunks(interest_line_range, hunk_info)
+        fine_grained_base_hunks, intra_file_candidate_hunks, single_line_maps = candidate_init.get_fine_grained_base_hunk_and_candidate_hunks()
+        all_intra_file_candidate_hunks.extend(intra_file_candidate_hunks)
+        if fine_grained_base_hunks:
+            all_fine_grained_base_hunks.extend(fine_grained_base_hunks)
+        if single_line_maps:  # All are no changed lines, and been mapped
+            all_line_maps = single_line_maps
+            break
+
+    # Step 3: Calculate similarities for the candidate hunks
+
+
+    print("** maps")
+    for map in all_line_maps:
         show_maps(map)
-    # TODO how to organize the maps
+
+    print("** base")
+    for hunk in all_fine_grained_base_hunks:
+        show_hunk(hunk)
+
+    print("** candidate")
+    for hunk in all_intra_file_candidate_hunks:
+        show_hunk(hunk)
+    # TODO process all_line_maps to get character level mappings
 
 
 if __name__ == "__main__":

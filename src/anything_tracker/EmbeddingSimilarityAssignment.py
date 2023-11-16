@@ -1,7 +1,7 @@
 from sentence_transformers import SentenceTransformer, util
 import numpy as np
 from scipy.optimize import linear_sum_assignment
-from anything_tracker.CommmonFunctions import all_elements_to_maps
+from anything_tracker.CommonFunctions import all_elements_to_maps
 
 from anything_tracker.LineMap import LineMap
 
@@ -21,7 +21,7 @@ class EmbeddingSimilarityAssignment:
         self.model = SentenceTransformer("data/pretrained_model")
 
         self.hungarian_line_maps = []
-        # a list to store all the calculated similarities, each element is a list for single line.
+        # A list to store all the calculated similarities, each element is a list for single line.
         self.base_line_level_similarity_matrix = []
 
     def get_embeddings(self, hunk):
