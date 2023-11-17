@@ -1,8 +1,9 @@
 import argparse
 from anything_tracker.ComputeCandidateHunks import ComputeCandidateHunks
+from anything_tracker.ComputeSimilarityScores import ComputeSimilarityScores
 from anything_tracker.GetDiffResults import GetDiffResults
-from anything_tracker.LineMap import show_maps
-from anything_tracker.SubHunk import show_hunk
+from anything_tracker.LineMap import show_line_map
+from anything_tracker.Hunk import show_hunk
 
 
 parser = argparse.ArgumentParser(description="Track anything you want between two different versions.")
@@ -49,11 +50,15 @@ def main(repo_dir, base_commit, target_commit, file_path, interest_line_range):
             break
 
     # Step 3: Calculate similarities for the candidate hunks
-
+    # all indicates all the hunks related to current interest element
+    similarity_init = ComputeSimilarityScores(all_fine_grained_base_hunks, all_intra_file_candidate_hunks)
+    hungarian_hunk_maps = similarity_init.hungarian_assignment_hunk_level()
+    hungarian_line_maps = similarity_init.hungarian_assignment_line_level()
+    all_line_maps.extend(hungarian_line_maps)
 
     print("** maps")
     for map in all_line_maps:
-        show_maps(map)
+        show_line_map(map)
 
     print("** base")
     for hunk in all_fine_grained_base_hunks:

@@ -1,5 +1,6 @@
+from anything_tracker.Line import Line
 from anything_tracker.LineMap import LineMap
-from anything_tracker.SubHunk import SubHunk
+from anything_tracker.Hunk import Hunk
 
 
 class ComputeCandidateHunks():
@@ -47,7 +48,7 @@ class ComputeCandidateHunks():
         # Get intra_file_candidate_hunks
         is_target_consecutive = check_consecutive(self.target_real_changed_line_numbers)
         if is_target_consecutive == True:
-            sub_hunk = SubHunk(self.target_real_changed_line_numbers, self.target_real_changed_hunk_source)
+            sub_hunk = Hunk(self.target_real_changed_line_numbers, self.target_real_changed_hunk_source)
             self.intra_file_candidate_hunks.append(sub_hunk)
         else:
             self.get_sub_hunk_line_numbers_source(self.target_real_changed_line_numbers, self.target_real_changed_hunk_source, "target")
@@ -61,12 +62,14 @@ class ComputeCandidateHunks():
         for line_num in self.interest_line_numbers_list:
             if line_num not in self.base_real_changed_line_numbers:# In changed hunk, but not changed
                 # Find the mapped line numbers in version 2
-                for base_line_number, base_line in zip(self.base_hunk_range, self.base_hunk_source):
+                for base_line_number, base_line_source in zip(self.base_hunk_range, self.base_hunk_source):
                     if base_line_number == line_num:
-                        # interest_line = base_line
-                        index_in_target_hunk = self.target_hunk_source.index(base_line)
+                        # interest_line = base_line_source
+                        index_in_target_hunk = self.target_hunk_source.index(base_line_source)
                         target_line_number = target_hunk_range_to_list[index_in_target_hunk]
-                        single_line_map_base_to_target = LineMap(base_line_number, base_line, target_line_number, base_line)
+                        base_line = Line(base_line_number, base_line_source)
+                        target_line = Line(target_line_number, base_line_source)
+                        single_line_map_base_to_target = LineMap(base_line, target_line)
                         self.single_line_maps.append(single_line_map_base_to_target)
                         self.interest_line_numbers_list.remove(line_num)
                         break
@@ -93,10 +96,10 @@ class ComputeCandidateHunks():
                     sub_hunk = []
             sub_hunk_line_numbers.append(numbers_list[i])
             sub_hunk_line_sources.append(source_list[i])
-            sub_hunk = SubHunk(sub_hunk_line_numbers, sub_hunk_line_sources)
+            sub_hunk = Hunk(sub_hunk_line_numbers, sub_hunk_line_sources)
 
         if sub_hunk_line_numbers:
-            sub_hunk = SubHunk(sub_hunk_line_numbers, sub_hunk_line_sources)
+            sub_hunk = Hunk(sub_hunk_line_numbers, sub_hunk_line_sources)
             sub_hunks.append(sub_hunk)
 
         if run_filter:
@@ -115,8 +118,3 @@ class ComputeCandidateHunks():
 def check_consecutive(numbers_list):
     # Return True or False
     return sorted(numbers_list) == list(range(min(numbers_list), max(numbers_list)+1))
-
-
-    
-
-    

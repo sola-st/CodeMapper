@@ -35,7 +35,7 @@ class GetDiffResults():
             * commit_a can be newer or older than commit_b.
             * do not need to check out to the corresponding commit.
         '''
-
+        # TODO think about copied files
         # If the file is deleted, the target commit [may] has no corresponding character range.
         # Why [may], the interest element may moved to another file.
         get_deleted_files_command = f"git diff --name-only --diff-filter=D {self.base_commit} {self.target_commit}"

@@ -1,11 +1,15 @@
-class LineMap():
-    def __init__(self, base_line_number, base_line_source, target_line_number, target_line_source):
-        self.base_line_number = base_line_number
-        self.base_line_source = base_line_source
-        self.target_line_number = target_line_number
-        self.target_line_source = target_line_source
+from anything_tracker.Line import show_line
 
-def show_maps(__value: object):
-    print(f"[{__value.base_line_number}, {__value.base_line_source}]")
+
+class LineMap():
+    def __init__(self, base_line, target_line):
+        self.base_line = base_line
+        self.target_line = target_line
+
+def show_line_map(__value: object):
+    print("--------------------------------------------")
+    show_line(__value.base_line)
     print("maps to")
-    print(f"[{__value.target_line_number}, {__value.target_line_source}]")
+    show_line(__value.target_line)
+    print("--------------------------------------------")
+    print()
