@@ -44,7 +44,8 @@ class SearchLinesToCandidateRegion():
         self.source_region_lines = self.get_source_region_lines()
         target_file_lines = self.checkout_to_read_file(self.target_commit)
         # Find the candidate_region_ranges 
-        self.mappings = [[i, j] for i, a in enumerate(target_file_lines) for j, b in zip(self.interest_line_numbers, self.source_region_lines) if a != "\n" and a.strip() == b.strip()]
+        self.mappings = [[i, j] for i, a in enumerate(target_file_lines)
+                for j, b in zip(self.interest_line_numbers, self.source_region_lines) if a != "\n" and a.strip() == b.strip()] # if a != "\n" and 
 
         if self.mappings:
             for idx_map in self.mappings:
@@ -57,7 +58,7 @@ class SearchLinesToCandidateRegion():
                 self.candidate_region_line_sources.append(target_file_lines[target_idx])
         
         # Get candidate ranges
-        is_consecutive = self.check_consecutive()
+        is_consecutive = check_consecutive(self.candidate_region_line_numbers)
         if is_consecutive == False:
             candidate_regions = self.get_sub_ranges()
         else:
@@ -65,11 +66,6 @@ class SearchLinesToCandidateRegion():
             candidate_regions = CandidateRegion(region_line_index_map , self.candidate_region_line_sources)
 
         return candidate_regions
-    
-    def check_consecutive(self):
-        # Return True or False
-        return sorted(self.candidate_region_line_numbers) == \
-                list(range(min(self.candidate_region_line_numbers), max(self.candidate_region_line_numbers)+1))
 
     def get_sub_ranges(self):
         sub_range_base_line_numbers = []
@@ -93,19 +89,22 @@ class SearchLinesToCandidateRegion():
                     region_line_index_map = []
                     sub_range = []
 
-            sub_range_base_line_numbers.append(self.mappings[i][1])
+            if sub_range_target_line_numbers:
+                # is_duplicate = len(sub_range_base_line_numbers) == len(list(set(sub_range_base_line_numbers)))
+                is_base_consecutive = check_consecutive(sub_range_base_line_numbers)
+                if is_base_consecutive == False: 
+                    region_line_index_map = RegionLineIndexMap(sub_range_base_line_numbers, sub_range_target_line_numbers)
+                    sub_range = CandidateRegion(region_line_index_map, sub_range_line_sources) 
+                    sub_ranges.append(sub_range)
+                    sub_range_base_line_numbers = []
+                    sub_range_target_line_numbers = []
+                    sub_range_line_sources = []
+                    region_line_index_map = []
+                    sub_range = []
+
+            sub_range_base_line_numbers.append(self.source_region_line_numbers[i])
             sub_range_target_line_numbers.append(self.candidate_region_line_numbers[i])
             sub_range_line_sources.append(self.candidate_region_line_sources[i])
-
-            if sub_range_target_line_numbers and len(sub_range_target_line_numbers) % source_region_len == 0:
-                region_line_index_map = RegionLineIndexMap(sub_range_base_line_numbers, sub_range_target_line_numbers)
-                sub_range = CandidateRegion(region_line_index_map, sub_range_line_sources) 
-                sub_ranges.append(sub_range)
-                sub_range_base_line_numbers = []
-                sub_range_target_line_numbers = []
-                sub_range_line_sources = []
-                region_line_index_map = []
-                sub_range = []
 
         if sub_range_target_line_numbers:
             region_line_index_map = RegionLineIndexMap(sub_range_base_line_numbers, sub_range_target_line_numbers)
@@ -113,3 +112,8 @@ class SearchLinesToCandidateRegion():
             sub_ranges.append(sub_range)
 
         return sub_ranges
+    
+    
+def check_consecutive(number_list):
+    # Return True or False
+    return sorted(number_list) == list(range(min(number_list), max(number_list)+1))

@@ -10,7 +10,7 @@ class CandidateRegion():
         self.line_sources = candidate_region_line_sources
 
 def show_candidate_region(__value: object):
-    print(f"Base line index: {__value.region_line_index_map.base_line_index}.")
-    print(f"Target line index: {__value.region_line_index_map.target_line_index}.")
+    print(f"Source line index: {__value.region_line_index_map.base_line_index}.")
+    print(f"Candidate line index: {__value.region_line_index_map.target_line_index}.")
     print(f"Candidate region: {__value.line_sources}")
     print()
