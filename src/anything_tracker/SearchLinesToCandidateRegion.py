@@ -37,7 +37,7 @@ class SearchLinesToCandidateRegion():
         source_region_lines = self.get_source_region_lines()
         target_file_lines = self.checkout_to_read_file(self.target_commit)
         # Find the candidate_region_ranges
-        mappings = [[i, j] for i, a in enumerate(target_file_lines) for j, b in enumerate(source_region_lines) if a == b]
+        mappings = [[i, j] for i, a in enumerate(target_file_lines) for j, b in enumerate(source_region_lines) if a.strip() == b.strip()]
 
         candidate_regions = []
         candidate_region_line_numbers = []
@@ -55,7 +55,7 @@ class SearchLinesToCandidateRegion():
         # Get candidate ranges
         is_consecutive = check_consecutive(candidate_region_line_numbers)
         if is_consecutive == False:
-            candidate_regions = get_sub_ranges(candidate_region_line_numbers, candidate_region_line_sources)
+            candidate_regions = get_sub_ranges(candidate_region_line_numbers, candidate_region_line_sources, len(source_region_lines))
         else:
             candidate_regions = CandidateRegion(candidate_region_line_numbers, candidate_region_line_sources)
 
@@ -66,7 +66,7 @@ def check_consecutive(numbers_list):
     # Return True or False
     return sorted(numbers_list) == list(range(min(numbers_list), max(numbers_list)+1))
 
-def get_sub_ranges(numbers_list, source_list):
+def get_sub_ranges(numbers_list, source_list, source_region_len):
     sub_range_line_numbers = []
     sub_range_line_sources = []
     sub_range = []
@@ -82,6 +82,13 @@ def get_sub_ranges(numbers_list, source_list):
                 sub_range = []
         sub_range_line_numbers.append(numbers_list[i])
         sub_range_line_sources.append(source_list[i])
+        
+        if sub_range_line_numbers and len(sub_range_line_numbers) % source_region_len == 0:
+            sub_range = CandidateRegion(sub_range_line_numbers, sub_range_line_sources) 
+            sub_ranges.append(sub_range)
+            sub_range_line_numbers = []
+            sub_range_line_sources = []
+            sub_range = []
 
     if sub_range_line_numbers:
         sub_range = CandidateRegion(sub_range_line_numbers, sub_range_line_sources)
