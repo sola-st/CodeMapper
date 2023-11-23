@@ -1,5 +1,5 @@
 import subprocess
-from anything_tracker.CandidateRegion import CandidateRegion
+from anything_tracker.CandidateRegion import CandidateRegion, RegionLineIndexMap
 
 
 class GitDiffToCandidateRegion():
@@ -11,7 +11,7 @@ class GitDiffToCandidateRegion():
         self.interest_line_range = meta.interest_line_range
 
         self.diff_result = ""
-        self.target_hunk_line_numbers = []
+        self.target_hunk_range = []
         self.target_hunk_source = [] # contains all the lines shown in the diff results
 
     def run_git_diff(self):
@@ -64,6 +64,7 @@ class GitDiffToCandidateRegion():
                     break
 
         # start to get changed hunks with "git diff" command
+        # TODO Consider using options, like --diff-algorithm=histogram, --color-moved=plain
         commit_diff_command = f"git diff {self.base_commit} {self.target_commit} -- {self.file_path}"
         if renamed_file_path: # rename happens
             commit_diff_command = f"git diff {self.base_commit}:{self.file_path} {self.target_commit}:{renamed_file_path}"
@@ -93,7 +94,8 @@ class GitDiffToCandidateRegion():
                 # line numbers starts at 1, step is the absolute numbers of lines.
                 if target_hunk_mark == True:
                     # base_hunk_range and target_hunk_range appending done
-                    candidate_region = CandidateRegion(self.target_hunk_line_numbers, self.target_hunk_source)
+                    region_line_index_map = RegionLineIndexMap(None, self.target_hunk_range)
+                    candidate_region = CandidateRegion(region_line_index_map, self.target_hunk_source)
                     candidate_regions.append(candidate_region)
                     self.clear()
                     if all_covered_mark == True:
@@ -119,7 +121,7 @@ class GitDiffToCandidateRegion():
                     target_start = int(target_tmp[0])
                     target_step = int(target_tmp[1])
                     target_end = target_start + target_step + 1
-                    self.target_hunk_line_numbers = list(range(target_start, target_end))
+                    self.target_hunk_range = range(target_start, target_end)
                     target_line_number = target_start
                     
             if target_hunk_mark == True and not diff_line.startswith("@@"):
@@ -130,8 +132,9 @@ class GitDiffToCandidateRegion():
 
                 self.target_hunk_source.append(diff_line)
                 target_line_number +=1
-        if self.target_hunk_line_numbers:
-            candidate_region = CandidateRegion(self.target_hunk_line_numbers, self.target_hunk_source)
+        if list(self.target_hunk_range):
+            region_line_index_map = RegionLineIndexMap(None, self.target_hunk_range)
+            candidate_region = CandidateRegion(region_line_index_map, self.target_hunk_source)
             candidate_regions.append(candidate_region)
             self.clear()
         return candidate_regions

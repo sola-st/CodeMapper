@@ -49,17 +49,29 @@ if __name__ == "__main__":
 
     # one-click test, 
     '''
-    https://github.com/rails/rails/commit/2edcda85764d369d4f46b034f0e9694f63e93e30
+    Test 1: https://github.com/rails/rails/commit/2edcda85764d369d4f46b034f0e9694f63e93e30
     Expected candidate 4 regions:
      * 2 exactly the same with specified line 13. --> lines 13 and 24.
      * 2 ignore the whitespace before the line. (1 from unchanged lines, another one from diff hunk) --> lines 39, 52(added line)
     '''
     repo_dir = "data/repos/rails"
-    base_commit = "550c5d2"
-    target_commit = "2edcda8"
-    file_path = "activestorage/test/jobs/transform_job_test.rb"
+    # test 1, single-line source region and continuous multi-line source region
+    # base_commit = "550c5d2"
+    # target_commit = "2edcda8"
+    # file_path = "activestorage/test/jobs/transform_job_test.rb"
+    # # interest_line_range = range(46, 47) # start at 1, the candidates include a diff hunk
+    # interest_line_range = range(13, 15)
+    # interest_line_range = range(interest_line_range.start - 1 , interest_line_range.stop - 1)
+    # main(repo_dir, base_commit, target_commit, file_path, interest_line_range)
+
+    # test 2, discontinuous multi-line source region
+    # https://github.com/rails/rails/commit/8ec3843cd8253e0ea92839d5c3a6a68a7a39e297
+    base_commit = "01492e3"
+    target_commit = "8ec3843"
+    file_path = "activemodel/lib/active_model/attribute_methods.rb"
     # interest_line_range = range(46, 47) # start at 1, the candidates include a diff hunk
-    interest_line_range = range(13, 14)
+    interest_line_range = range(229, 232)
+    # interest_line_range = range(235, 238)
     interest_line_range = range(interest_line_range.start - 1 , interest_line_range.stop - 1)
     main(repo_dir, base_commit, target_commit, file_path, interest_line_range)
     print("Done.")
