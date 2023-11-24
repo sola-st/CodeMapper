@@ -76,27 +76,14 @@ class SearchLinesToCandidateRegion():
         '''
 
         self.get_source_region_characters() # get self.source_region_characters
+        print(self.source_region_characters)
         self.target_file_lines = self.checkout_to_read_file(self.target_commit)
 
         # Find the candidate_region_ranges, character level
         if self.source_region_in_single_line == True:
             self.get_source_region_ranges_in_single_line()
         else:
-            line_level_mappings = []
-            start_middle_line_mappings = []
-            if self.no_middle_section == False:
-                # map start section and middle section at line level
-                start_middle_line_mappings = [[j, i] for i, a in enumerate(self.target_file_lines)
-                        for j, b in zip(self.interest_line_numbers[:-1], self.source_region_characters[:-1]) if a != "\n" and a == b]
-            # map end section at line level
-            j = self.interest_line_numbers[-1]
-            b = self.source_region_characters[-1]
-            end_line_mappings = [[j, i] for i, a in enumerate(self.target_file_lines) if a != "\n" and a.startswith(b)]
-
-            line_level_mappings.extend(start_middle_line_mappings)
-            line_level_mappings.extend(end_line_mappings)
-            if line_level_mappings:
-                self.get_source_region_ranges_in_multi_line(line_level_mappings)
+            self.get_source_region_ranges_in_multi_line()
 
         return self.candidate_regions
 
@@ -127,24 +114,70 @@ class SearchLinesToCandidateRegion():
                     candidate_region_character_range_object, candidate_region_character_source)
             self.candidate_regions.append(candidate_region)
 
-    # TODO finished the changes on multiple line mappings
-    # def get_source_region_ranges_in_multi_line(self, line_level_mappings):
-    #     for idx_map in line_level_mappings:
-    #         # idx_map format: [[0, 1], [1, 2]]
-    #         # [0, 1] = [base_index, target_index]
-    #         base_line_idx = idx_map[0]
-    #         target_line_idx = idx_map[1]
+    def get_source_region_ranges_in_multi_line(self):
+        start_line_candidate_character_ranges = []
+        middle_line_mappings = []
+        end_line_candidate_character_ranges = []
 
-    #         self.candidate_region_line_sources.append(self.target_file_lines[target_idx])
+        mapped_start_line_character_start_idx = None # the mapped character start index for 1st line of source region
+        mapped_end_line_character_end_idx = None # the mapped character end index for the last line of source region
+
+        interest_start_line_num = self.interest_line_numbers[0]
+        interest_end_line_num = self.interest_line_numbers[-1]
+        for target_line_num, target_line in enumerate(self.target_file_lines):
+            if target_line != "\n":
+                for base_line_num, base_line_characters in zip(self.interest_line_numbers, self.source_region_characters):
+                    # start section
+                    if base_line_num == interest_start_line_num:
+                        if target_line.endswith(base_line_characters):
+                            target_line_len = len(target_line)
+                            mapped_start_line_character_start_idx = target_line_len - len(base_line_characters)
+                            end_idx = target_line_len + 1
+                            start_line_candidate_character_ranges.append([target_line_num, mapped_start_line_character_start_idx, target_line_num, end_idx])
+                    elif base_line_num < interest_end_line_num:
+                        # middle section 
+                        if base_line_characters == target_line:
+                            middle_line_mappings.append([base_line_num, target_line_num])
+                    else:
+                        # end section : map end section at line level
+                        if target_line.startswith(base_line_characters):
+                            mapped_end_line_character_end_idx = len(target_line) - len(base_line_characters)
+                            end_line_candidate_character_ranges.append([target_line_num, 0, target_line_num, mapped_end_line_character_end_idx])
+        # TODO 1. get all the empty line in base file, will used to concatenate the separated lines.
+        # 2. computer the occurrences of mapped lines. Basic idea, if a line only appears once, it exactly where the source region should mapped to.
+        # print("s")
+        # print(start_line_candidate_character_ranges)
+        # print("m")
+        # print(middle_line_mappings)
+        # print("e")
+        # print(end_line_candidate_character_ranges)
+        # exit()
+
+        ####
+        # self.source_region_line_numbers = []
+        # self.candidate_regions = []
+        # self.candidate_region_line_numbers = []
+        # self.candidate_region_line_sources = []
+        # self.mappings = [] 
+
+        # last_line_num_in_source_region = self.interest_line_numbers[-1]
+        # for idx_map in line_level_mappings:
+        #     # idx_map format: [[0, 1], [1, 2]]
+        #     # [0, 1] = [base_index, target_index]
+        #     base_line_idx = idx_map[0]
+        #     target_line_idx = idx_map[1]
+        #     self.source_region_line_numbers.append(base_line_idx)
+        #     self.candidate_region_line_numbers.append(target_line_idx)
+        #     self.candidate_region_line_sources.append(self.target_file_lines[target_line_idx])
         
-    #     # Get candidate ranges
-    #     is_consecutive = check_consecutive(self.candidate_region_line_numbers)
-    #     if is_consecutive == False:
-    #         candidate_regions = self.get_sub_ranges()
-    #     else:
-    #         region_line_index_map = RegionLineIndexMap(self.source_region_line_numbers, self.candidate_region_line_numbers)
-    #         candidate_regions = CandidateRegion(region_line_index_map , self.candidate_region_line_sources)
+        # # Get candidate ranges
+        # is_consecutive = check_consecutive(self.candidate_region_line_numbers)
+        # if is_consecutive == False:
+        #     candidate_regions = self.get_sub_ranges()
+        # else:
+        #     candidate_regions = CandidateRegion(self.source_region_line_numbers, self.candidate_region_line_numbers, self.candidate_region_line_sources)
 
+    # TODO update this function
     def get_sub_ranges(self):
         sub_range_base_line_numbers = []
         sub_range_target_line_numbers = []
@@ -157,8 +190,7 @@ class SearchLinesToCandidateRegion():
         for i in range(candidate_regions_len):
             if self.candidate_region_line_numbers[i] != self.candidate_region_line_numbers[i-1] + 1:
                 if sub_range_target_line_numbers:
-                    region_line_index_map = RegionLineIndexMap(sub_range_base_line_numbers, sub_range_target_line_numbers)
-                    sub_range = CandidateRegion(region_line_index_map, sub_range_line_sources) 
+                    sub_range = CandidateRegion(sub_range_base_line_numbers, sub_range_target_line_numbers, sub_range_line_sources) 
                     sub_ranges.append(sub_range)
                     sub_range_base_line_numbers = []
                     sub_range_target_line_numbers = []
@@ -170,8 +202,7 @@ class SearchLinesToCandidateRegion():
                 # is_duplicate = len(sub_range_base_line_numbers) == len(list(set(sub_range_base_line_numbers)))
                 is_base_consecutive = check_consecutive(sub_range_base_line_numbers)
                 if is_base_consecutive == False: 
-                    region_line_index_map = RegionLineIndexMap(sub_range_base_line_numbers, sub_range_target_line_numbers)
-                    sub_range = CandidateRegion(region_line_index_map, sub_range_line_sources) 
+                    sub_range = CandidateRegion(sub_range_base_line_numbers, sub_range_target_line_numbers, sub_range_line_sources) 
                     sub_ranges.append(sub_range)
                     sub_range_base_line_numbers = []
                     sub_range_target_line_numbers = []
