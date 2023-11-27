@@ -76,7 +76,7 @@ class SearchLinesToCandidateRegion():
         '''
 
         self.get_source_region_characters() # get self.source_region_characters
-        print(self.source_region_characters)
+        # print(self.source_region_characters)
         self.target_file_lines = self.checkout_to_read_file(self.target_commit)
 
         # Find the candidate_region_ranges, character level
@@ -173,12 +173,23 @@ class SearchLinesToCandidateRegion():
         candidate_region_range = None
         the_only_start = False
         the_only_end = False
-        # check if the start or end line only has 1 element.
-        if len(start_line_numbers) == 1:
-            the_only_start = True
-        if len(end_line_numbers) == 1:
-            the_only_end = True
+        no_start = False
+        no_end = False
 
+        # check if the start or end line only has 1 element.
+        start_candidate_num = len(start_line_numbers)
+        end_candidate_num = len(end_line_numbers)
+
+        if start_candidate_num == 1:
+            the_only_start = True
+        elif start_candidate_num == 0:
+            no_start = True
+        if end_candidate_num == 1:
+            the_only_end = True
+        elif end_candidate_num == 0:
+            no_end = True
+
+        # TODO Better logic or separate the code, so far current function is too long.
         # Scenario 1: results only one reasonable candidate
         if the_only_start == True and the_only_end == True:
             the_only_start_map = self.start_line_candidate_character_ranges[0] 
@@ -197,12 +208,14 @@ class SearchLinesToCandidateRegion():
                 # Only one middle lines candidate
                 if len(middle_line_number_groups) == 1:
                     middle_line_numbers = middle_line_number_groups[0] 
-                    selected_start_line_number, s_idx = nearest_number(middle_line_numbers[0], start_line_numbers)
-                    selected_end_line_number, e_idx = nearest_number(middle_line_numbers[0], end_line_numbers)
-                    candidate_region_range = [selected_start_line_number, 
-                                            self.start_line_candidate_character_ranges[s_idx].characters_start_idx,
-                                            selected_end_line_number, 
-                                            self.end_line_candidate_character_ranges[e_idx].characters_end_idx]
+                    if no_start == False and no_end == False:
+                        selected_start_line_number, s_idx = nearest_number(middle_line_numbers[0], start_line_numbers)
+                        selected_end_line_number, e_idx = nearest_number(middle_line_numbers[-1], end_line_numbers)
+                        candidate_region_range = [selected_start_line_number, 
+                                                self.start_line_candidate_character_ranges[s_idx].characters_start_idx,
+                                                selected_end_line_number, 
+                                                self.end_line_candidate_character_ranges[e_idx].characters_end_idx]
+                    # else:  # TODO check the overlap with git diff
                 else:
                     if the_only_start == True: # Scenario 2
                         start_line_number = start_line_numbers[0]
@@ -224,9 +237,30 @@ class SearchLinesToCandidateRegion():
                                             self.start_line_candidate_character_ranges[s_idx].characters_start_idx,
                                             end_line_number, 
                                             self.end_line_candidate_character_ranges[0].characters_end_idx]
-            self.append_candidate_region(candidate_region_range)
+            else:
+                if the_only_start == True: 
+                    start_line_number = start_line_numbers[0]
+                    if no_end == False:
+                        # no middle lines, from start to end
+                        selected_end_line_number, e_idx = nearest_number(start_line_number, end_line_numbers, False)
+                        candidate_region_range = [start_line_number, 
+                                            self.start_line_candidate_character_ranges[0].characters_start_idx,
+                                            selected_end_line_number, 
+                                            self.end_line_candidate_character_ranges[e_idx].characters_end_idx]
+                else: # the_only_end == True:
+                    end_line_number = end_line_numbers[0]
+                    if no_start == False:
+                        # from middle to start
+                        selected_start_line_number, s_idx = nearest_number(end_line_number, start_line_numbers)
+                        candidate_region_range = [selected_start_line_number, 
+                                            self.start_line_candidate_character_ranges[s_idx].characters_start_idx,
+                                            end_line_number, 
+                                            self.end_line_candidate_character_ranges[0].characters_end_idx]
+            if candidate_region_range != None:
+                self.append_candidate_region(candidate_region_range)
 
         else: # Scenario 4
+            # TODO
             print("multiple candidates")
 
     def append_candidate_region(self, candidate_region_range):

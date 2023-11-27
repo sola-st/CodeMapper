@@ -17,3 +17,9 @@ def show_candidate_region(__value: object):
 
     print(f"Candidate region: {__value.character_sources}")
     print()
+
+def get_candidate_region_range(__value: object):
+    if isinstance(__value.source_region_character_range, list): # for git diff
+        return __value.candidate_region_character_range
+    else:  # For searching lines
+        return __value.candidate_region_character_range.four_element_list
