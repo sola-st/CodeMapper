@@ -147,8 +147,8 @@
         "mapping": {
             "old_file": "imgui_widgets.cpp",
             "new_file": "imgui_widgets.cpp",
-            "old_range": "[5612, 9, 5447, 317]",
-            "new_range": "[5612, 9, 5452, 349]",
+            "old_range": "[5447, 9, 5450, 317]",
+            "new_range": "[5447, 9, 5452, 349]",
             "change_operation": "modify",
             "kind": "if-else block"
         }
@@ -301,8 +301,8 @@
         "mapping": {
             "old_file": "README.md",
             "new_file": "README.md",
-            "old_range": "[34, 1, 27, 213]",
-            "new_range": "[34, 1, 27, 213]",
+            "old_range": "[34, 1, 34, 213]",
+            "new_range": "[34, 1, 34, 213]",
             "change_operation": "intra-line modify",
             "kind": "NL sentences" 
         }

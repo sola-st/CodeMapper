@@ -135,7 +135,6 @@ class SearchLinesToCandidateRegion():
                             target_line_len = len(target_line)
                             mapped_start_line_character_start_idx = target_line_len - len(base_line_characters)
                             end_idx = target_line_len + 1
-                            # start_line_candidate_character_ranges.append([target_line_num, mapped_start_line_character_start_idx, target_line_num, end_idx])
                             self.start_line_candidate_character_ranges.append(CharacterRange([target_line_num, 
                                     mapped_start_line_character_start_idx, target_line_num, end_idx]))
                             start_line_numbers.append(target_line_num)
@@ -144,13 +143,13 @@ class SearchLinesToCandidateRegion():
                         if base_line_characters == target_line:
                             self.middle_line_mappings.append([base_line_num, target_line_num])
                     else:
-                        # end section : map end section at line level
+                        # end section: map end section at line level
                         if target_line.startswith(base_line_characters):
                             mapped_end_line_character_end_idx = len(base_line_characters) - 1
                             self.end_line_candidate_character_ranges.append(CharacterRange([target_line_num, 
                                     0, target_line_num, mapped_end_line_character_end_idx]))
                             end_line_numbers.append(target_line_num)
-        # TODO get all the empty line in base file, will used to concatenate the separated lines.
+        # TODO optional: get all the empty line in base file, will used to concatenate the separated lines.
         self.connect_sections_to_get_complete_candidates(start_line_numbers, end_line_numbers)
 
     def connect_sections_to_get_complete_candidates(self, start_line_numbers, end_line_numbers):
@@ -199,7 +198,7 @@ class SearchLinesToCandidateRegion():
             candidate_region_range = [
                 the_only_start_map.start_line_idx, the_only_start_map.characters_start_idx,
                 the_only_end_map.end_line_idx, the_only_end_map.characters_end_idx]
-            self.append_candidate_region(candidate_region_range)
+            self.append_exactly_mapped_candidate_region(candidate_region_range)
 
         elif the_only_start == True or the_only_end == True: 
             if self.middle_line_mappings:
@@ -218,29 +217,31 @@ class SearchLinesToCandidateRegion():
                     # else:  # TODO check the overlap with git diff
                 else:
                     if the_only_start == True: # Scenario 2
-                        start_line_number = start_line_numbers[0]
-                        # from start to middle
-                        nearest_list = find_nearest_list(start_line_number, middle_line_number_groups, False)
-                        # from middle to end
-                        selected_end_line_number, e_idx = nearest_number(nearest_list[-1], nearest_list, False)
-                        candidate_region_range = [start_line_number, 
-                                            self.start_line_candidate_character_ranges[0].characters_start_idx,
-                                            selected_end_line_number, 
-                                            self.end_line_candidate_character_ranges[e_idx].characters_end_idx]
+                        if no_end == False:
+                            start_line_number = start_line_numbers[0]
+                            # from start to middle
+                            nearest_list = find_nearest_list(start_line_number, middle_line_number_groups, False)
+                            # from middle to end
+                            selected_end_line_number, e_idx = nearest_number(nearest_list[-1], end_line_numbers, False)
+                            candidate_region_range = [start_line_number, 
+                                                self.start_line_candidate_character_ranges[0].characters_start_idx,
+                                                selected_end_line_number, 
+                                                self.end_line_candidate_character_ranges[e_idx].characters_end_idx]
                     else: # the_only_end == True:# Scenario 3
-                        end_line_number = end_line_numbers[0]
-                        # from end to middle
-                        nearest_list = find_nearest_list(end_line_number, middle_line_number_groups)
-                        # from middle to start
-                        selected_start_line_number, s_idx = nearest_number(nearest_list[0], start_line_numbers)
-                        candidate_region_range = [selected_start_line_number, 
-                                            self.start_line_candidate_character_ranges[s_idx].characters_start_idx,
-                                            end_line_number, 
-                                            self.end_line_candidate_character_ranges[0].characters_end_idx]
+                        if no_start == False:
+                            end_line_number = end_line_numbers[0]
+                            # from end to middle
+                            nearest_list = find_nearest_list(end_line_number, middle_line_number_groups)
+                            # from middle to start
+                            selected_start_line_number, s_idx = nearest_number(nearest_list[0], start_line_numbers)
+                            candidate_region_range = [selected_start_line_number, 
+                                                self.start_line_candidate_character_ranges[s_idx].characters_start_idx,
+                                                end_line_number, 
+                                                self.end_line_candidate_character_ranges[0].characters_end_idx]
             else:
                 if the_only_start == True: 
-                    start_line_number = start_line_numbers[0]
                     if no_end == False:
+                        start_line_number = start_line_numbers[0]
                         # no middle lines, from start to end
                         selected_end_line_number, e_idx = nearest_number(start_line_number, end_line_numbers, False)
                         candidate_region_range = [start_line_number, 
@@ -248,8 +249,8 @@ class SearchLinesToCandidateRegion():
                                             selected_end_line_number, 
                                             self.end_line_candidate_character_ranges[e_idx].characters_end_idx]
                 else: # the_only_end == True:
-                    end_line_number = end_line_numbers[0]
                     if no_start == False:
+                        end_line_number = end_line_numbers[0]
                         # from middle to start
                         selected_start_line_number, s_idx = nearest_number(end_line_number, start_line_numbers)
                         candidate_region_range = [selected_start_line_number, 
@@ -257,19 +258,50 @@ class SearchLinesToCandidateRegion():
                                             end_line_number, 
                                             self.end_line_candidate_character_ranges[0].characters_end_idx]
             if candidate_region_range != None:
-                self.append_candidate_region(candidate_region_range)
+                self.append_exactly_mapped_candidate_region(candidate_region_range)
 
         else: # Scenario 4
-            # TODO
-            print("multiple candidates")
+            print(f"multiple candidates: {self.file_path, self.interest_line_numbers}\n")
+            self.search_line_for_all_source_lines()
 
-    def append_candidate_region(self, candidate_region_range):
+    def search_line_for_all_source_lines(self):
+        source_region_line_numbers = []
+        candidate_region_line_numbers = []
+
+        mappings = [[i, j] for i, a in enumerate(self.target_file_lines)
+                for j, b in zip(self.interest_line_numbers, self.source_region_characters) if a != "\n" and a.strip() == b.strip()] 
+
+        if mappings:
+            for idx_map in mappings:
+                base_idx = idx_map[1]
+                target_idx = idx_map[0]
+                source_region_line_numbers.append(base_idx)
+                candidate_region_line_numbers.append(target_idx)
+        
+        # Get candidates
+        is_consecutive = check_consecutive(candidate_region_line_numbers)
+        if is_consecutive == False:
+            self.get_subset_of_specified_mappings(source_region_line_numbers, candidate_region_line_numbers, False)
+        else:
+            self.append_fuzzy_mapped_candidate_region(source_region_line_numbers, candidate_region_line_numbers)
+
+    def append_exactly_mapped_candidate_region(self, candidate_region_range):
         # range
         candidate_region_range_object = CharacterRange(candidate_region_range)
         # source
         candidate_region_source = self.get_candidate_region_characters(candidate_region_range_object)
         # candidate region
         candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range_object, candidate_region_source)
+        self.candidate_regions.append(candidate_region)
+
+    def append_fuzzy_mapped_candidate_region(self, base_line_numbers: list, candidate_line_numbers: list):
+        # range
+        base_region_range = range(base_line_numbers[0], base_line_numbers[-1] + 1)
+        candidate_region_range = range(candidate_line_numbers[0], candidate_line_numbers[-1] + 1)
+        # source
+        candidate_region_source = self.target_file_lines[candidate_region_range.start:candidate_region_range.stop]
+        # candidate region
+        candidate_region = CandidateRegion(base_region_range, candidate_region_range, candidate_region_source)
         self.candidate_regions.append(candidate_region)
 
     def group_middle_line_mappings(self):
@@ -281,53 +313,66 @@ class SearchLinesToCandidateRegion():
         '''
         
         # check continuity, and get subset of middle_line_mappings
-        self.source_region_line_numbers = []
-        self.candidate_regions = []
-        self.candidate_region_line_numbers = []
-        self.candidate_region_line_sources = []
+        middle_source_region_line_numbers = []
+        middle_candidate_region_line_numbers = []
 
         for idx_map in self.middle_line_mappings:
             # idx_map format: [[0, 1], [1, 2]]
             # [0, 1] = [base_index, target_index]
             base_line_idx = idx_map[0]
             target_line_idx = idx_map[1]
-            self.source_region_line_numbers.append(base_line_idx)
-            self.candidate_region_line_numbers.append(target_line_idx)
+            middle_source_region_line_numbers.append(base_line_idx)
+            middle_candidate_region_line_numbers.append(target_line_idx)
         
         # Get candidate line number list
         middle_line_number_groups = []
-        is_consecutive = check_consecutive(self.candidate_region_line_numbers)
+        is_consecutive = check_consecutive(middle_candidate_region_line_numbers)
         if is_consecutive == False:
-            middle_line_number_groups = self.get_sub_ranges_of_middle_mappings()
+            middle_line_number_groups = self.get_subset_of_specified_mappings(middle_source_region_line_numbers, middle_candidate_region_line_numbers)
         else:
-            middle_line_number_groups.append(self.candidate_region_line_numbers)
+            middle_line_number_groups.append(middle_candidate_region_line_numbers)
         
         return middle_line_number_groups
             
-    def get_sub_ranges_of_middle_mappings(self):
+    def get_subset_of_specified_mappings(self, source_region_line_numbers, candidate_region_line_numbers, only_middle_section=True):
+        # only_middle_section, True: compute sub-lists for middle mappings
+        #                       False: compute sub-lists for all candidate lines.
         sub_range_base_line_numbers = []
         sub_range_target_line_numbers = []
-        sub_ranges = []
+        sub_number_list = []
 
-        candidate_regions_len = len(self.candidate_region_line_numbers)
+        candidate_regions_len = len(candidate_region_line_numbers)
         for i in range(candidate_regions_len):
-            if self.candidate_region_line_numbers[i] != self.candidate_region_line_numbers[i-1] + 1:
+            if candidate_region_line_numbers[i] != candidate_region_line_numbers[i-1] + 1:
                 if sub_range_target_line_numbers:
-                    sub_ranges.append(sub_range_target_line_numbers)
+                    if only_middle_section == False:
+                        self.append_fuzzy_mapped_candidate_region(sub_range_base_line_numbers, sub_range_target_line_numbers)
+                    else:
+                        sub_number_list.append(sub_range_target_line_numbers)
                     sub_range_base_line_numbers = []
                     sub_range_target_line_numbers = []
 
             if sub_range_target_line_numbers:
                 is_base_consecutive = check_consecutive(sub_range_base_line_numbers)
                 if is_base_consecutive == False: 
-                    sub_ranges.append(sub_range_target_line_numbers)
+                    if only_middle_section == False:
+                        self.append_fuzzy_mapped_candidate_region(sub_range_base_line_numbers, sub_range_target_line_numbers)
+                    else:
+                        sub_number_list.append(sub_range_target_line_numbers)
                     sub_range_base_line_numbers = []
                     sub_range_target_line_numbers = []
 
-            sub_range_base_line_numbers.append(self.source_region_line_numbers[i])
-            sub_range_target_line_numbers.append(self.candidate_region_line_numbers[i])
+            sub_range_base_line_numbers.append(source_region_line_numbers[i])
+            sub_range_target_line_numbers.append(candidate_region_line_numbers[i])
+        
+        if sub_range_target_line_numbers:
+            if only_middle_section == False:
+                self.append_fuzzy_mapped_candidate_region(sub_range_base_line_numbers, sub_range_target_line_numbers)
+            else:
+                sub_number_list.append(sub_range_target_line_numbers)
 
-        return sub_ranges
+        if only_middle_section == True:      
+            return sub_number_list
     
     def get_candidate_region_characters(self, candidate_region_character_range):
         candidate_region_character_source = []
