@@ -86,7 +86,7 @@ class GitDiffToCandidateRegion():
         target_line_number = 0
         candidate_regions = []
         uncovered_lines = self.interest_line_numbers
-        changed_line_numbers_list = []
+        changed_line_numbers_list = self.interest_line_numbers
 
         diffs = self.diff_result.split("\n")
         for diff_line in diffs:
@@ -130,7 +130,7 @@ class GitDiffToCandidateRegion():
                         target_tmp = tmp[2].lstrip("+").split(",")
                         target_step = int(target_tmp[1])
                         move_steps = target_step - step
-                        changed_line_numbers_list = [(num + move_steps) for num in self.interest_line_numbers]
+                        changed_line_numbers_list = [(num + move_steps) for num in changed_line_numbers_list]
                     
             if target_hunk_mark == True and not diff_line.startswith("@@"):
                 if diff_line.startswith("-"):

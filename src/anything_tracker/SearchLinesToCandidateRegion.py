@@ -268,6 +268,7 @@ class SearchLinesToCandidateRegion():
         source_region_line_numbers = []
         candidate_region_line_numbers = []
 
+        # TODO how to do with special characters, like ")", "}". These will results a lof of inaccurate candidates.
         mappings = [[i, j] for i, a in enumerate(self.target_file_lines)
                 for j, b in zip(self.interest_line_numbers, self.source_region_characters) if a != "\n" and a.strip() == b.strip()] 
 
