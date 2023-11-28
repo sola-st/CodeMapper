@@ -86,6 +86,7 @@ class GitDiffToCandidateRegion():
         target_line_number = 0
         candidate_regions = []
         uncovered_lines = self.interest_line_numbers
+        changed_line_numbers_list = []
 
         diffs = self.diff_result.split("\n")
         for diff_line in diffs:
@@ -123,6 +124,13 @@ class GitDiffToCandidateRegion():
                     target_end = target_start + target_step + 1
                     self.target_hunk_range = range(target_start, target_end)
                     target_line_number = target_start
+                else: # no overlap
+                    if start + step < self.interest_line_numbers[0]:
+                        # current hunk changes before the source region, unchanged lines, line number changed.
+                        target_tmp = tmp[2].lstrip("+").split(",")
+                        target_step = int(target_tmp[1])
+                        move_steps = target_step - step
+                        changed_line_numbers_list = [(num + move_steps) for num in self.interest_line_numbers]
                     
             if target_hunk_mark == True and not diff_line.startswith("@@"):
                 if diff_line.startswith("-"):
@@ -137,6 +145,11 @@ class GitDiffToCandidateRegion():
             candidate_region = CandidateRegion([], self.target_hunk_range, self.target_hunk_source)
             candidate_regions.append(candidate_region)
             self.clear()
+
+        if changed_line_numbers_list:
+            candidate_region = CandidateRegion([], changed_line_numbers_list, "<LOCATION_HELPER>")
+            candidate_regions.append(candidate_region)
+
         return candidate_regions
     
     def clear(self):
