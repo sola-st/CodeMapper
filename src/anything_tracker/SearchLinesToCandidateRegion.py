@@ -1,7 +1,6 @@
-from git.repo import Repo
 from anything_tracker.CandidateRegion import CandidateRegion
-from os.path import join
 from anything_tracker.CharacterRange import CharacterRange
+from anything_tracker.utils.ReadFile import checkout_to_read_file
 
 
 class SearchLinesToCandidateRegion():
@@ -21,20 +20,13 @@ class SearchLinesToCandidateRegion():
 
         # return
         self.candidate_regions = []
-
-    def checkout_to_read_file(self, commit):
-        repo = Repo(self.repo_dir)
-        repo.git.checkout(commit, force=True)
-        with open(join(self.repo_dir, self.file_path)) as f:
-            file_lines= f.readlines()
-        return file_lines
     
     def get_source_region_characters(self):
         '''
         Initially get self.source_region_characters.
         '''
 
-        base_file_lines = self.checkout_to_read_file(self.base_commit)
+        base_file_lines = checkout_to_read_file(self.repo_dir, self.base_commit, self.file_path)
 
         # interest_character_range: start_line, start_character, end_line, end_character
         start_line_idx = self.interest_character_range.start_line_idx
@@ -77,7 +69,7 @@ class SearchLinesToCandidateRegion():
 
         self.get_source_region_characters() # get self.source_region_characters
         # print(self.source_region_characters)
-        self.target_file_lines = self.checkout_to_read_file(self.target_commit)
+        self.target_file_lines = checkout_to_read_file(self.repo_dir, self.target_commit, self.file_path)
 
         # Find the candidate_region_ranges, character level
         if self.source_region_in_single_line == True:
