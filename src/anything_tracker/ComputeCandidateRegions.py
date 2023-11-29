@@ -14,10 +14,11 @@ class ComputeCandidateRegions():
 
     def run(self):
         candidate_regions = []
-        diff_candidates = GitDiffToCandidateRegion(self).run_git_diff()
-        search_candidates = SearchLinesToCandidateRegion(self).search_maps()
+        diff_candidates, diff_hunks = GitDiffToCandidateRegion(self).run_git_diff()
+        search_candidates = SearchLinesToCandidateRegion(self, diff_hunks).search_maps()
         candidate_regions.extend(diff_candidates)
         candidate_regions.extend(search_candidates)
-        assert candidate_regions != []
+        if candidate_regions == []:
+            print("No candidate regions.")
 
         return candidate_regions

@@ -1,6 +1,7 @@
 import subprocess
 from anything_tracker.CandidateRegion import CandidateRegion
 from anything_tracker.CharacterRange import CharacterRange
+from anything_tracker.DiffHunk import DiffHunk
 from anything_tracker.utils.ReadFile import checkout_to_read_file
 
 
@@ -15,7 +16,6 @@ class GitDiffToCandidateRegion():
 
         self.diff_result = ""
         self.target_hunk_range = []
-        self.target_hunk_source = [] # contains all the lines shown in the diff results
 
     def run_git_diff(self):
         '''
@@ -94,6 +94,7 @@ class GitDiffToCandidateRegion():
         self.is_overlap_hunk = False
         all_covered_mark = False
         candidate_regions = []
+        diff_hunks = []
         uncovered_lines = self.interest_line_numbers
         changed_line_numbers_list = self.interest_line_numbers
 
@@ -101,17 +102,11 @@ class GitDiffToCandidateRegion():
         for diff_line in diffs:
             diff_line = diff_line.strip()
             if diff_line.startswith("@@"):
-                # Can be in format: @@ -168,14 +168,13 @@ or @@ -233 +236 @@
+                # Can be in format: @@ -168,14 +168,13 @@ | @@ -233 +236 @@ | @@ -235,2 +238 @@
                 # line numbers starts at 1, step is the absolute numbers of lines.
                 if self.is_overlap_hunk == True:
-                    # base_hunk_range and target_hunk_range appending done
-                    hunk_end = self.target_hunk_range.stop - 1
-                    heuristic_characters_end_idx = len(target_file_lines[hunk_end])
-                    character_range = CharacterRange(
-                                    [self.target_hunk_range.start, 0, 
-                                    hunk_end, heuristic_characters_end_idx])
-                    candidate_region = CandidateRegion(self.interest_character_range, character_range, self.target_hunk_source)
-                    candidate_regions.append(candidate_region)
+                    diff_hunk = DiffHunk(base_hunk_range.start, base_hunk_range.stop, self.target_hunk_range.start, self.target_hunk_range.stop)
+                    diff_hunks.append(diff_hunk)
                     self.clear()
                     if all_covered_mark == True:
                         return candidate_regions
@@ -127,44 +122,41 @@ class GitDiffToCandidateRegion():
                     if uncovered_lines == []:
                         all_covered_mark = True
                     self.target_hunk_range, target_step = get_diff_reported_range(tmp[2], False)
+
+                    if list(set(self.interest_line_numbers) - set(list(base_hunk_range))) == []: # fully covered by changed hunk
+                        # Heuristic: set character indices as 0 and the length of the last line in target range.
+                        hunk_end = self.target_hunk_range.stop - 1
+                        heuristic_characters_end_idx = len(target_file_lines[hunk_end])
+                        character_range = CharacterRange(
+                                        [self.target_hunk_range.start, 0, 
+                                        hunk_end, heuristic_characters_end_idx])
+                        candidate_region = CandidateRegion(self.interest_character_range, character_range, "<LOCATION_HELPER:DIFF_FULLY_COVER>")
+                        candidate_regions.append(candidate_region)
+                        self.clear()
                 else: # no overlap
                     if last_line_number < self.interest_line_numbers[0]:
                         # current hunk changes before the source region, unchanged lines, line number changed.
                         self.target_hunk_range, target_step = get_diff_reported_range(tmp[2], False)
                         move_steps = target_step - base_step
                         changed_line_numbers_list = [(num + move_steps) for num in changed_line_numbers_list]
-                    
-            if self.is_overlap_hunk == True and not diff_line.startswith("@@"):
-                if diff_line.startswith("-"):
-                    diff_line = diff_line.replace("-", "", 1)
-                elif diff_line.startswith("+"):
-                    diff_line = diff_line.replace("+", "", 1)
 
-                self.target_hunk_source.append(diff_line)
-
-        if list(set(self.interest_line_numbers) & set(base_hunk_range)):
-            # Heuristic: set character indices as 0 and the length of the last line in target range.
-            hunk_end = self.target_hunk_range.stop - 1
-            heuristic_characters_end_idx = len(target_file_lines[hunk_end])
-            character_range = CharacterRange(
-                            [self.target_hunk_range.start, 0, 
-                            hunk_end, heuristic_characters_end_idx])
-            candidate_region = CandidateRegion(self.interest_character_range, character_range, self.target_hunk_source)
-            candidate_regions.append(candidate_region)
+        if list(set(self.interest_line_numbers) & set(base_hunk_range)) and self.target_hunk_range:
+            diff_hunk = DiffHunk(base_hunk_range.start, base_hunk_range.stop, self.target_hunk_range.start, self.target_hunk_range.stop)
+            diff_hunks.append(diff_hunk)
             self.clear()
 
-        if changed_line_numbers_list != self.interest_line_numbers:
+        if changed_line_numbers_list != self.interest_line_numbers and not candidate_regions and not diff_hunks:
+            # No changed lines, with only line number changed.
             character_range = CharacterRange(
                     [changed_line_numbers_list[0], characters_start_idx, 
                     changed_line_numbers_list[-1], characters_end_idx])
             candidate_region = CandidateRegion(self.interest_character_range, character_range, "<LOCATION_HELPER:DIFF>")
             candidate_regions.append(candidate_region)
 
-        return candidate_regions
+        return candidate_regions, diff_hunks
     
     def clear(self):
         self.target_hunk_range = ""
-        self.target_hunk_source = []
         self.is_overlap_hunk = False
 
 
@@ -186,17 +178,16 @@ def get_diff_reported_range(meta_range, base=True):
     sep = "+"
     if base == True:
         sep = "-"
-    
 
     if "," in meta_range:
         tmp = meta_range.lstrip(sep).split(",")
-        start = int(tmp[0])
-        step = int(tmp[1])
-        end = start + step + 1
+        start = int(tmp[0]) - 1
+        step = int(tmp[1]) 
+        end = start + step
     else:
-        start = int(meta_range.lstrip(sep))
-        step = 0
-        end = start + 1
+        start = int(meta_range.lstrip(sep)) - 1
+        step = 1
+        end = start + step
 
     reported_range = range(start, end)
 
