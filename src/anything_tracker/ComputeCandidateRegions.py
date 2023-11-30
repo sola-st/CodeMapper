@@ -14,8 +14,8 @@ class ComputeCandidateRegions():
 
     def run(self):
         candidate_regions = []
-        diff_candidates, diff_hunks = GitDiffToCandidateRegion(self).run_git_diff()
-        search_candidates = SearchLinesToCandidateRegion(self, diff_hunks).search_maps()
+        diff_candidates, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks= GitDiffToCandidateRegion(self).run_git_diff()
+        search_candidates = SearchLinesToCandidateRegion(self, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks).search_maps()
         candidate_regions.extend(diff_candidates)
         candidate_regions.extend(search_candidates)
         if candidate_regions == []:

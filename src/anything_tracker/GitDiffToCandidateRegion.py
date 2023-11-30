@@ -14,9 +14,6 @@ class GitDiffToCandidateRegion():
         self.interest_character_range = meta.interest_character_range # object
         self.interest_line_numbers = meta.interest_line_numbers # list
 
-        self.diff_result = ""
-        self.target_hunk_range = []
-
     def run_git_diff(self):
         '''
         The self.target_commit refers to a new version where you want to know where the elements you're interested in are located. 
@@ -74,12 +71,12 @@ class GitDiffToCandidateRegion():
 
         result = subprocess.run(commit_diff_command, cwd=self.repo_dir, shell=True,
         stdout = subprocess.PIPE, universal_newlines=True)
-        self.diff_result = result.stdout
+        diff_result = result.stdout
 
-        candidate_regions = self.diff_result_to_target_changed_hunk()
-        return candidate_regions
+        candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks = self.diff_result_to_target_changed_hunk(diff_result)
+        return candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks
         
-    def diff_result_to_target_changed_hunk(self):
+    def diff_result_to_target_changed_hunk(self, diff_result):
         '''
         Analyze diff results, return target changed hunk range map, and the changed hunk sources.
         '''
@@ -91,74 +88,90 @@ class GitDiffToCandidateRegion():
         target_file_lines = checkout_to_read_file(self.repo_dir, self.target_commit, self.file_path)
 
         # for checking changed hunk
-        self.is_overlap_hunk = False
         all_covered_mark = False
         candidate_regions = []
-        diff_hunks = []
+        top_diff_hunks = []
+        middle_diff_hunks = []
+        bottom_diff_hunks = []
         uncovered_lines = self.interest_line_numbers
         changed_line_numbers_list = self.interest_line_numbers
 
-        diffs = self.diff_result.split("\n")
+        diffs = diff_result.split("\n")
         for diff_line in diffs:
             diff_line = diff_line.strip()
             if diff_line.startswith("@@"):
+                if all_covered_mark == True:
+                    break
                 # Can be in format: @@ -168,14 +168,13 @@ | @@ -233 +236 @@ | @@ -235,2 +238 @@
                 # line numbers starts at 1, step is the absolute numbers of lines.
-                if self.is_overlap_hunk == True:
-                    diff_hunk = DiffHunk(base_hunk_range.start, base_hunk_range.stop, self.target_hunk_range.start, self.target_hunk_range.stop)
-                    diff_hunks.append(diff_hunk)
-                    self.clear()
-                    if all_covered_mark == True:
-                        return candidate_regions
-                    else:
-                        self.is_overlap_hunk = False
-
                 tmp = diff_line.split(" ")
                 base_hunk_range, base_step, last_line_number = get_diff_reported_range(tmp[1])
-                if list(set(self.interest_line_numbers) & set(base_hunk_range)): # range overlap
-                    self.is_overlap_hunk =True
-
+                '''
+                Range overlapped or not:
+                 * overlap --> check how interest_line_numbers and base_hunk_range overlapped.
+                 * no overlap --> help to locate the unchanged lines.
+                '''
+                overlapped_line_numbers = list(set(self.interest_line_numbers) & set(base_hunk_range))
+                if overlapped_line_numbers: # range overlap
                     uncovered_lines = list(set(uncovered_lines) - set(base_hunk_range))
                     if uncovered_lines == []:
                         all_covered_mark = True
-                    self.target_hunk_range, target_step = get_diff_reported_range(tmp[2], False)
-
+                    target_hunk_range, target_step = get_diff_reported_range(tmp[2], False)
+                    '''
+                    check the position of the overlap: 
+                     * fully covered --> candidate region
+                     * top, middle, bottom of source ranges --> diff hunks
+                    '''
                     if list(set(self.interest_line_numbers) - set(list(base_hunk_range))) == []: # fully covered by changed hunk
                         # Heuristic: set character indices as 0 and the length of the last line in target range.
-                        hunk_end = self.target_hunk_range.stop - 1
+                        hunk_end = target_hunk_range.stop - 1
                         heuristic_characters_end_idx = len(target_file_lines[hunk_end])
-                        character_range = CharacterRange(
-                                        [self.target_hunk_range.start, 0, 
-                                        hunk_end, heuristic_characters_end_idx])
+                        character_range = CharacterRange([target_hunk_range.start, 0, hunk_end, heuristic_characters_end_idx])
                         candidate_region = CandidateRegion(self.interest_character_range, character_range, "<LOCATION_HELPER:DIFF_FULLY_COVER>")
                         candidate_regions.append(candidate_region)
-                        self.clear()
+                    else:
+                        location = locate_changes(overlapped_line_numbers, self.interest_line_numbers)
+                        diff_hunk = DiffHunk(base_hunk_range.start, base_hunk_range.stop, target_hunk_range.start, target_hunk_range.stop)
+                        if location == "top":
+                            top_diff_hunks.append(diff_hunk)
+                        elif location == "middle":
+                            middle_diff_hunks.append(diff_hunk)
+                        else:
+                            bottom_diff_hunks.append(diff_hunk)
                 else: # no overlap
                     if last_line_number < self.interest_line_numbers[0]:
-                        # current hunk changes before the source region, unchanged lines, line number changed.
-                        self.target_hunk_range, target_step = get_diff_reported_range(tmp[2], False)
+                        # current hunk changes before the source region, unchanged lines, update changed line numbers.
+                        target_hunk_range, target_step = get_diff_reported_range(tmp[2], False)
                         move_steps = target_step - base_step
                         changed_line_numbers_list = [(num + move_steps) for num in changed_line_numbers_list]
 
-        if list(set(self.interest_line_numbers) & set(base_hunk_range)) and self.target_hunk_range:
-            diff_hunk = DiffHunk(base_hunk_range.start, base_hunk_range.stop, self.target_hunk_range.start, self.target_hunk_range.stop)
-            diff_hunks.append(diff_hunk)
-            self.clear()
-
-        if changed_line_numbers_list != self.interest_line_numbers and not candidate_regions and not diff_hunks:
+        if changed_line_numbers_list != self.interest_line_numbers and \
+                not candidate_regions and \
+                not top_diff_hunks and \
+                not middle_diff_hunks and \
+                not bottom_diff_hunks:
             # No changed lines, with only line number changed.
             character_range = CharacterRange(
                     [changed_line_numbers_list[0], characters_start_idx, 
                     changed_line_numbers_list[-1], characters_end_idx])
-            candidate_region = CandidateRegion(self.interest_character_range, character_range, "<LOCATION_HELPER:DIFF>")
+            candidate_region = CandidateRegion(self.interest_character_range, character_range, "<LOCATION_HELPER:DIFF_NO_CHANGE>")
             candidate_regions.append(candidate_region)
 
-        return candidate_regions, diff_hunks
-    
-    def clear(self):
-        self.target_hunk_range = ""
-        self.is_overlap_hunk = False
+        return candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks
 
+
+def locate_changes(overlapped_line_numbers, interest_line_numbers):
+    location = None
+
+    overlapped_num = len(overlapped_line_numbers)
+    if interest_line_numbers[:overlapped_num] == overlapped_line_numbers:
+        location = "top"
+    elif interest_line_numbers[-overlapped_num:] == overlapped_line_numbers:
+        location = "bottom"
+    else:
+        location = "middle"
+
+    return location
 
 def get_diff_reported_range(meta_range, base=True):
     '''
