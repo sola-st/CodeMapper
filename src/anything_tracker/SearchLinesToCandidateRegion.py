@@ -63,16 +63,24 @@ class SearchLinesToCandidateRegion():
         Get candidates based on git diff identified overlapped changed hunks.
         Return a list of character ranges: candidate_regions.
 
+        [Top]
         Scenario 1: 
             top diff hunk + [optional] middle diff hunk(s) + no changed lines 
             --> candidate: top diff hunk + no changed lines (cover all line in between)
         Scenario 2: 
             top diff hunk + ... + bottom_diff_hunk
             --> candidate: top diff hunk + bottom_diff_hunk (cover all lines in between)
+        [Middle]
         Scenario 3: 
             no changed lines + middle diff hunk(s) + no changed lines 
             --> candidate: no changed lines + no changed lines (cover all line in between)
-        Scenario 4:
+        [Bottom]
+        Scenario 4: 
+            no changed lines + [optional] middle diff hunk(s) + no changed lines + bottom diff hunk
+            --> candidate: top diff hunk + no changed lines (cover all line in between)
+         * Also Scenario 2.
+        [Totally no change]
+        Scenario 5:
             no diff hunks
             --> candidate: exactly searched results
         '''
@@ -83,13 +91,13 @@ class SearchLinesToCandidateRegion():
         # print(self.source_region_characters)
         self.target_file_lines = checkout_to_read_file(self.repo_dir, self.target_commit, self.file_path)
 
-        if self.top_diff_hunks:
+        if self.top_diff_hunks: # Scenarios 1 and 2
             candidate_regions = self.combine_diff_and_search_ranges("top")
-        elif self.middle_diff_hunks:
-            candidate_regions = self.cover_changed_lines_in_between()
-        elif self.bottom_diff_hunks:
+        elif self.bottom_diff_hunks: # Scenario 4
             candidate_regions = self.combine_diff_and_search_ranges("bottom")
-        else: # Scenario 4: search exactly the same content
+        elif self.middle_diff_hunks: # Scenario 3
+            candidate_regions = self.cover_changed_lines_in_between()
+        else: # Scenario 5: search exactly the same content
             candidate_regions = self.search_exactly_mapped_context()
         
         return candidate_regions
@@ -109,16 +117,38 @@ class SearchLinesToCandidateRegion():
         '''
 
         unchanged_mapped_ranges = []
+        specified_diff_hunks = []
+        bottom_unchanged_line_numbers = []
 
         if location == "top":
             # Identify the unchanged line numbers
-            bottom_unchanged_line_numbers = self.get_first_and_last_unchanged_line_ranges(self.top_diff_hunks, True, False)
+            if not self.bottom_diff_hunks:
+                # Scenario 1
+                specified_diff_hunks.extend(self.top_diff_hunks)
+                if self.middle_diff_hunks:
+                    # also remove the changed lines in middle hunk when identify the unchanged lines
+                    specified_diff_hunks.extend(self.middle_diff_hunks)
+                bottom_unchanged_line_numbers = self.get_first_and_last_unchanged_line_1number(specified_diff_hunks, True, False)
+            else:
+                # Scenario 2: top diff hunk + ... + bottom diff hunk
+                candidate_region_top_bottom_with_changed_lines = []
+                bottom_hunk_end_line = self.bottom_diff_hunks[0].target_end_line_number - 1
+                character_end_index = len(self.target_file_lines[bottom_hunk_end_line]) - 1
+                region_range = [self.top_diff_hunks[0].target_start_line_number, 0, bottom_hunk_end_line, character_end_index]
+                candidate_region_range = CharacterRange(region_range)
+                candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, "<TOP_BOTTOM_OVERLAP>")
+                candidate_region_top_bottom_with_changed_lines.append(candidate_region)
+                return candidate_region_top_bottom_with_changed_lines
             # Map unchanged lines
             unchanged_lines = self.source_region_characters[-(len(bottom_unchanged_line_numbers)):]
             unchanged_str = "".join(unchanged_lines)
             unchanged_mapped_ranges = self.search_exactly_mapped_context(unchanged_str) 
         else: # "bottom"
-            top_unchanged_line_numbers = self.get_first_and_last_unchanged_line_ranges(self.bottom_diff_hunks, False, True)
+            # Scenario 4
+            specified_diff_hunks.extend(self.bottom_diff_hunks)
+            if self.middle_diff_hunks:
+                specified_diff_hunks.extend(self.middle_diff_hunks)
+            top_unchanged_line_numbers = self.get_first_and_last_unchanged_line_1number(specified_diff_hunks, False, True)
             unchanged_lines = self.source_region_characters[0: len(top_unchanged_line_numbers)]
             unchanged_str = "".join(unchanged_lines)
             unchanged_mapped_ranges = self.search_exactly_mapped_context(unchanged_str) 
@@ -131,24 +161,23 @@ class SearchLinesToCandidateRegion():
                 # In theory, only one top diff hunk, also only one bottom diff hunk
                 for mapped_range in unchanged_mapped_ranges: # unchanged_mapped_ranges is in order, start from smaller numbers
                     if diff_hunk.target_end_line_number <= mapped_range.start_line_idx:
-                        character_end_index = len(self.target_file_lines[mapped_range.end_line_idx])
-                        region_range = [diff_hunk.target_start_line_number, 0, mapped_range.end_line_idx, character_end_index]
+                        region_range = [diff_hunk.target_start_line_number, 0, mapped_range.end_line_idx, mapped_range.characters_end_idx -1]
                         candidate_region_range = CharacterRange(region_range)
                         candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, "<TOP_OVERLAP>")
                         candidate_region_top_with_changed_lines.append(candidate_region)
-                        assert candidate_region_top_with_changed_lines != []
                         return candidate_region_top_with_changed_lines
         else: # "bottom"
             candidate_region_bottom_with_changed_lines = []
-            # Expected candidate region: searched no changed ranges + top_diff_hunk
+            # Expected candidate region: searched no changed ranges + bottom_diff_hunk
             for diff_hunk in self.bottom_diff_hunks: 
                 for mapped_range in unchanged_mapped_ranges:
                     if diff_hunk.target_start_line_number >= mapped_range.end_line_idx:
-                        region_range = [diff_hunk.target_start_line_number, 0, mapped_range.end_line_idx, mapped_range.characters_end_idx]
+                        characters_end_idx = len(self.target_file_lines[diff_hunk.target_end_line_number]) - 1
+                        region_range = [mapped_range.start_line_idx, mapped_range.characters_start_idx,
+                                diff_hunk.target_end_line_number - 1, characters_end_idx]
                         candidate_region_range = CharacterRange(region_range)
                         candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, "<BOTTOM_OVERLAP>")
                         candidate_region_bottom_with_changed_lines.append(candidate_region)
-                        assert candidate_region_bottom_with_changed_lines != []
                         return candidate_region_bottom_with_changed_lines
             
     def cover_changed_lines_in_between(self):
@@ -166,7 +195,8 @@ class SearchLinesToCandidateRegion():
         candidate_region_cover_changed_lines = []
 
         # Identify the first and the last unchanged line number
-        first_unchanged_line_numbers, last_unchanged_line_numbers = self.get_first_and_last_unchanged_line_ranges(self.middle_diff_hunks)
+        # TODO updated to get unchanged lines are which able to cover "no lines" in base hunk
+        first_unchanged_line_numbers, last_unchanged_line_numbers = self.get_first_and_last_unchanged_line_1number(self.middle_diff_hunks)
 
         # Map unchanged line, cover the lines in between
         first_unchanged_lines = self.source_region_characters[0:len(first_unchanged_line_numbers)]
@@ -177,31 +207,43 @@ class SearchLinesToCandidateRegion():
         last_unchanged_mapped_ranges = self.search_exactly_mapped_context(last_unchanged_str) 
 
         # Map the first and the last ranges
-        for first_range in first_unchanged_mapped_ranges:
-            if first_range.start_line_idx < self.middle_diff_hunks[0].target_start_line_number:
-                # Find the instance with the closest range 
-                closest_last_range = min(
-                    filter(lambda x: x.end_line_idx > self.middle_diff_hunks[-1].target_end_line_number, last_unchanged_mapped_ranges),
-                    key=lambda x: first_range.start_line_idx - x.start_line_idx,
-                    default=None
-                )
-                character_end_index = len(self.target_file_lines[closest_last_range.end_line_idx])
-                region_range = [first_range.start_line_idx, 0, closest_last_range.end_line_idx, character_end_index]
-                candidate_region_range = CharacterRange(region_range)
-                candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, "<COVER_IN_BETWEEN>")
-                candidate_region_cover_changed_lines.append(candidate_region)
-                break
+        # Requirements 1: Expected first mapped range should starts earlier than the first middle changed hunk ends.
+        first_middle_hunk_start_line_number = self.middle_diff_hunks[0].target_start_line_number
+        updated_first_unchanged_mapped_ranges = [first_range for first_range in first_unchanged_mapped_ranges 
+                                                 if first_range.end_line_idx <= first_middle_hunk_start_line_number]
+        # Requirements 2: always get the closet first range (base: first middle changed hunk)
+        expected_first_range = updated_first_unchanged_mapped_ranges[-1]
+
+        # Requirements 3: Expected last mapped range should starts later than the last middle changed hunk ends.
+        last_middle_hunk_end_line_number = self.middle_diff_hunks[-1].target_end_line_number
+        updated_last_unchanged_mapped_ranges = [last_range for last_range in last_unchanged_mapped_ranges 
+                                                 if last_range.start_line_idx >= last_middle_hunk_end_line_number]
+        # Requirements 4: always get the closet last range ((base: last middle changed hunk))
+        expected_last_range = updated_last_unchanged_mapped_ranges[0]
+
+        # the line numbers in middle hunks help to locate the unchanged lines before and after
+        region_range = [expected_first_range.start_line_idx, 0, expected_last_range.end_line_idx, expected_last_range.characters_end_idx -1]
+        candidate_region_range = CharacterRange(region_range)
+        candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, "<COVER_IN_BETWEEN>")
+        candidate_region_cover_changed_lines.append(candidate_region)
         
         return candidate_region_cover_changed_lines
 
-    def get_first_and_last_unchanged_line_ranges(self, specified_diff_hunks, first=True, last=True):
+    def get_first_and_last_unchanged_line_1number(self, specified_diff_hunks, first=True, last=True):
         # get all the no changed line numbers
         changed_line_numbers = []
         for hunk in specified_diff_hunks:
             hunk_range = range(hunk.base_start_line_number, hunk.base_end_line_number)
             changed_line_numbers.extend(list(hunk_range))
-
+        # actually, changed_line_numbers can be empty
+        # set a number to catch the 2 expected unchanged parts.
+        # assert changed_line_numbers != []
         unchanged_line_numbers = list(set(self.interest_line_numbers) - set(changed_line_numbers))
+        if first == True and last == True:
+            if changed_line_numbers == []:
+                the_1st_top_hunk = specified_diff_hunks[-1]
+                the_1st_add_point = unchanged_line_numbers.index(the_1st_top_hunk.base_start_line_number) + 1
+                unchanged_line_numbers.insert(the_1st_add_point, -2)
         unchanged_num = len(unchanged_line_numbers)
 
         # Forward iteration, get first_unchanged_line_numbers
@@ -284,9 +326,7 @@ class SearchLinesToCandidateRegion():
                         line index 1, character index 4 (start at 0)
         '''
 
-        start_line_idx = None
         start_character_idx = None
-        end_line_idx= None
         end_character_idx = None
         candidate_region_with_only_unchanged_lines = []
 
@@ -298,33 +338,46 @@ class SearchLinesToCandidateRegion():
         target_check_start = 0
         pre_location = 0
         current_location = 0
+        is_new_loop = False
+        target_lines_len_list_len = len(target_lines_len_list)
 
         for idx in indices:
+            start_line_idx = None
+            end_line_idx= None
             candidate_characters_start_idx = idx
             candidate_characters_end_idx = candidate_characters_start_idx + source_region_character_str_len - 1 # Right closed
-            for line_idx, length in enumerate(target_lines_len_list[target_check_start:]):
-                current_location += length
-                if not start_line_idx and (candidate_characters_start_idx in range(pre_location, current_location)):
+            updated_lines_len_list = target_lines_len_list[target_check_start:]
+            for line_idx, length in zip(range(target_check_start, target_lines_len_list_len), updated_lines_len_list):
+                if is_new_loop == False:
+                    current_location += length
+                else: 
+                    is_new_loop = False
+                if candidate_characters_start_idx in range(pre_location, current_location):
                     start_line_idx = line_idx
                     start_character_idx = candidate_characters_start_idx - pre_location
-                if not end_line_idx and (candidate_characters_end_idx in range(pre_location, current_location)):
+                if candidate_characters_end_idx in range(pre_location, current_location):
                     end_line_idx = line_idx
                     end_character_idx = candidate_characters_end_idx - pre_location + 1
-                
+
+                pre_location = current_location
+
                 if start_line_idx and end_line_idx:
                     region_range = [start_line_idx, start_character_idx, end_line_idx, end_character_idx]
                     candidate_region_range = CharacterRange(region_range)
                     if partial_source_region == True:
                         character_ranges.append(candidate_region_range)
                     else:
+                        # region_range = [start_line_idx, start_character_idx, end_line_idx, end_character_idx - 1]
+                        # candidate_region_range = CharacterRange(region_range)
                         candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, "<LOCATION_HELPER:SEARCH>")
                         candidate_region_with_only_unchanged_lines.append(candidate_region)
+                    
+                    is_new_loop = True
+                    pre_location -=length # back to previous
                     break
 
-                pre_location = current_location
-
-            if end_line_idx != 0:
-                target_check_start = end_line_idx - 1 # the next location may start from the line where the previous location ends.
+            if end_line_idx:
+                target_check_start = end_line_idx # the next location may start from the line where the previous location ends.
 
         if partial_source_region == True:
             return character_ranges

@@ -31,7 +31,7 @@ def main(repo_dir, base_commit, target_commit, file_path, source_character_range
 
     if not candidate_regions:
         return
-
+    # TODO change to let all numbers start at 1.
     for i, candidate in enumerate(candidate_regions):
         # print(f"Candidate #{i}:")
         # show_candidate_region(candidate)
@@ -40,7 +40,7 @@ def main(repo_dir, base_commit, target_commit, file_path, source_character_range
         map = {
             "old_file": file_path,
             "new_file": file_path,
-            "old_range": str(interest_character_range),
+            "old_range": str(source_character_range),
             "new_range": str(get_candidate_region_range(candidate))
         }
         output_maps.append(map)

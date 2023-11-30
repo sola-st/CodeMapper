@@ -19,6 +19,6 @@ class ComputeCandidateRegions():
         candidate_regions.extend(diff_candidates)
         candidate_regions.extend(search_candidates)
         if candidate_regions == []:
-            print("No candidate regions.")
+            print(f"--No candidate regions.\n  {self.repo_dir}\n  {self.file_path}\n  {self.interest_character_range.four_element_list}\n")
 
         return candidate_regions
