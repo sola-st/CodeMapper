@@ -18,7 +18,7 @@ class ComputeCandidatesForAllSourceRegions():
         Each inner list contains repo_dir, base_commit, target_commit, file_path, and interest_character_range.
         """
         # create output folder
-        results_dir = join("data", "results", "tracked_maps")
+        results_dir = join("data", "results", "tracked_maps/final_index_2")
         if not os.path.exists(results_dir):
             os.makedirs(results_dir)
 

@@ -9,7 +9,7 @@ class ComputeCandidateRegions():
         self.target_commit = target_commit
         self.file_path = file_path
         self.interest_character_range = character_range_init = CharacterRange(interest_character_range)
-        interest_line_range = character_range_init.character_range_to_line_range()
+        interest_line_range = character_range_init.character_range_to_line_range() # all numbers starts at 1.
         self.interest_line_numbers = list(interest_line_range)
 
     def run(self):

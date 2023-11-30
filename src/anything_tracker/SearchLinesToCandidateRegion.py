@@ -32,26 +32,26 @@ class SearchLinesToCandidateRegion():
         end_line_idx = self.interest_character_range.end_line_idx
         characters_end_idx = self.interest_character_range.characters_end_idx
 
-        start_line = str(base_file_lines[start_line_idx])
+        start_line = str(base_file_lines[start_line_idx-1])
 
         if start_line_idx == end_line_idx: 
             # source region inside one line.
             # source region only records one line number, that is, the start and end are on the same line.
-            self.source_region_characters = start_line[characters_start_idx : characters_end_idx]
+            self.source_region_characters = start_line[characters_start_idx-1 : characters_end_idx]
         else:
             # source region covers multi-line
             # separate to 3 sections: start line, middle lines, and end line.
             # section 1: start line : the entire line is covered
-            characters_in_start_line = start_line[characters_start_idx:] 
+            characters_in_start_line = start_line[characters_start_idx-1:] 
            
             # section 2: middle lines : all covered
             characters_in_middle_lines= []
             if start_line_idx + 1 != end_line_idx:
-                characters_in_middle_lines = base_file_lines[start_line_idx + 1 : end_line_idx]
+                characters_in_middle_lines = base_file_lines[start_line_idx : end_line_idx - 1]
 
             # section 3: end line : [character index [0: specified_index]]
-            end_line = str(base_file_lines[end_line_idx]) 
-            characters_in_end_line = end_line[:characters_end_idx + 1]
+            end_line = str(base_file_lines[end_line_idx-1]) 
+            characters_in_end_line = end_line[:characters_end_idx]
 
             self.source_region_characters.append(characters_in_start_line) 
             self.source_region_characters.extend(characters_in_middle_lines) 
@@ -134,7 +134,7 @@ class SearchLinesToCandidateRegion():
                 candidate_region_top_bottom_with_changed_lines = []
                 bottom_hunk_end_line = self.bottom_diff_hunks[0].target_end_line_number - 1
                 character_end_index = len(self.target_file_lines[bottom_hunk_end_line]) - 1
-                region_range = [self.top_diff_hunks[0].target_start_line_number, 0, bottom_hunk_end_line, character_end_index]
+                region_range = [self.top_diff_hunks[0].target_start_line_number, 1, bottom_hunk_end_line, character_end_index]
                 candidate_region_range = CharacterRange(region_range)
                 candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, "<TOP_BOTTOM_OVERLAP>")
                 candidate_region_top_bottom_with_changed_lines.append(candidate_region)
@@ -161,7 +161,7 @@ class SearchLinesToCandidateRegion():
                 # In theory, only one top diff hunk, also only one bottom diff hunk
                 for mapped_range in unchanged_mapped_ranges: # unchanged_mapped_ranges is in order, start from smaller numbers
                     if diff_hunk.target_end_line_number <= mapped_range.start_line_idx:
-                        region_range = [diff_hunk.target_start_line_number, 0, mapped_range.end_line_idx, mapped_range.characters_end_idx -1]
+                        region_range = [diff_hunk.target_start_line_number, 1, mapped_range.end_line_idx, mapped_range.characters_end_idx]
                         candidate_region_range = CharacterRange(region_range)
                         candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, "<TOP_OVERLAP>")
                         candidate_region_top_with_changed_lines.append(candidate_region)
@@ -172,7 +172,7 @@ class SearchLinesToCandidateRegion():
             for diff_hunk in self.bottom_diff_hunks: 
                 for mapped_range in unchanged_mapped_ranges:
                     if diff_hunk.target_start_line_number >= mapped_range.end_line_idx:
-                        characters_end_idx = len(self.target_file_lines[diff_hunk.target_end_line_number]) - 1
+                        characters_end_idx = len(self.target_file_lines[diff_hunk.target_end_line_number - 2]) - 1 # to reduce the length of "\n"
                         region_range = [mapped_range.start_line_idx, mapped_range.characters_start_idx,
                                 diff_hunk.target_end_line_number - 1, characters_end_idx]
                         candidate_region_range = CharacterRange(region_range)
@@ -222,7 +222,8 @@ class SearchLinesToCandidateRegion():
         expected_last_range = updated_last_unchanged_mapped_ranges[0]
 
         # the line numbers in middle hunks help to locate the unchanged lines before and after
-        region_range = [expected_first_range.start_line_idx, 0, expected_last_range.end_line_idx, expected_last_range.characters_end_idx -1]
+        region_range = [expected_first_range.start_line_idx, self.interest_character_range.characters_start_idx,
+                        expected_last_range.end_line_idx, expected_last_range.characters_end_idx]
         candidate_region_range = CharacterRange(region_range)
         candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, "<COVER_IN_BETWEEN>")
         candidate_region_cover_changed_lines.append(candidate_region)
@@ -297,7 +298,7 @@ class SearchLinesToCandidateRegion():
         if source_region_character_str in target_file_lines_str:
             start_index = target_file_lines_str.find(source_region_character_str)
             while start_index != -1:
-                indices.append(start_index)
+                indices.append(start_index+1)
                 start_index = target_file_lines_str.find(source_region_character_str, start_index + 1)
         
         if indices:
@@ -335,27 +336,28 @@ class SearchLinesToCandidateRegion():
 
         target_lines_len_list = get_character_length_of_lines(self.target_file_lines)
 
-        target_check_start = 0
-        pre_location = 0
-        current_location = 0
+        target_check_start = 1
+        pre_location = 1
+        current_location = 1
         is_new_loop = False
-        target_lines_len_list_len = len(target_lines_len_list)
+        target_lines_len_list_len = len(target_lines_len_list) + 1
 
         for idx in indices:
             start_line_idx = None
             end_line_idx= None
             candidate_characters_start_idx = idx
             candidate_characters_end_idx = candidate_characters_start_idx + source_region_character_str_len - 1 # Right closed
-            updated_lines_len_list = target_lines_len_list[target_check_start:]
+            updated_lines_len_list = target_lines_len_list[target_check_start-1:]
             for line_idx, length in zip(range(target_check_start, target_lines_len_list_len), updated_lines_len_list):
                 if is_new_loop == False:
-                    current_location += length
+                    current_location += length 
                 else: 
                     is_new_loop = False
-                if candidate_characters_start_idx in range(pre_location, current_location):
+                current_location_border = current_location + 1
+                if candidate_characters_start_idx in range(pre_location, current_location_border):
                     start_line_idx = line_idx
-                    start_character_idx = candidate_characters_start_idx - pre_location
-                if candidate_characters_end_idx in range(pre_location, current_location):
+                    start_character_idx = candidate_characters_start_idx - pre_location + 1 # pre_location starts at 1, get the 1 back.
+                if candidate_characters_end_idx in range(pre_location, current_location_border):
                     end_line_idx = line_idx
                     end_character_idx = candidate_characters_end_idx - pre_location + 1
 
@@ -367,8 +369,6 @@ class SearchLinesToCandidateRegion():
                     if partial_source_region == True:
                         character_ranges.append(candidate_region_range)
                     else:
-                        # region_range = [start_line_idx, start_character_idx, end_line_idx, end_character_idx - 1]
-                        # candidate_region_range = CharacterRange(region_range)
                         candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, "<LOCATION_HELPER:SEARCH>")
                         candidate_region_with_only_unchanged_lines.append(candidate_region)
                     

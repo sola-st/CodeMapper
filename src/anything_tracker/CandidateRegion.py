@@ -13,6 +13,4 @@ def show_candidate_region(__value: object):
     print()
 
 def get_candidate_region_range(__value: object):
-    # TODO unify numbers starts at 1.
-    start_at_zero_numbers = [num+1 for num in __value.candidate_region_character_range.four_element_list]
-    return start_at_zero_numbers
+    return __value.candidate_region_character_range.four_element_list

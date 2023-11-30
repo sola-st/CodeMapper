@@ -81,6 +81,7 @@ class GitDiffToCandidateRegion():
         Analyze diff results, return target changed hunk range map, and the changed hunk sources.
         '''
         # for unchanged lines
+        # These values ​​that can actually be obtained. [character start, end]
         characters_start_idx = self.interest_character_range.characters_start_idx
         characters_end_idx = self.interest_character_range.characters_end_idx
 
@@ -94,7 +95,7 @@ class GitDiffToCandidateRegion():
         middle_diff_hunks = []
         bottom_diff_hunks = []
         uncovered_lines = self.interest_line_numbers
-        changed_line_numbers_list = self.interest_line_numbers
+        changed_line_numbers_list = self.interest_line_numbers # all numbers start at 1.
 
         diffs = diff_result.split("\n")
         for diff_line in diffs:
@@ -105,6 +106,7 @@ class GitDiffToCandidateRegion():
                 # Can be in format: @@ -168,14 +168,13 @@ | @@ -233 +236 @@ | @@ -235,2 +238 @@
                 # line numbers starts at 1, step is the absolute numbers of lines.
                 tmp = diff_line.split(" ")
+                # last_line_number is the actual line numbers, starts at 1.
                 base_hunk_range, base_step, last_line_number = get_diff_reported_range(tmp[1])
                 '''
                 Range overlapped or not:
@@ -129,8 +131,8 @@ class GitDiffToCandidateRegion():
                     if list(set(self.interest_line_numbers) - set(list(base_hunk_range))) == []: # fully covered by changed hunk
                         # Heuristic: set character indices as 0 and the length of the last line in target range.
                         hunk_end = target_hunk_range.stop - 1
-                        heuristic_characters_end_idx = len(target_file_lines[hunk_end])
-                        character_range = CharacterRange([target_hunk_range.start, 0, hunk_end, heuristic_characters_end_idx-1])
+                        heuristic_characters_end_idx = len(target_file_lines[hunk_end-1]) - 1 # to reduce the length of "\n"
+                        character_range = CharacterRange([target_hunk_range.start, 1, hunk_end, heuristic_characters_end_idx])
                         candidate_region = CandidateRegion(self.interest_character_range, character_range, "<LOCATION_HELPER:DIFF_FULLY_COVER>")
                         candidate_regions.append(candidate_region)
                     else:
@@ -169,7 +171,7 @@ def locate_changes(overlapped_line_numbers, interest_line_numbers):
     if overlapped_line_numbers[-1] == -1: # no lines in diff base hunks
         after_record_line = True
         overlapped_line_numbers = overlapped_line_numbers[:-1]
-
+    overlapped_line_numbers.sort()
     overlapped_num = len(overlapped_line_numbers)
     if interest_line_numbers[:overlapped_num] == overlapped_line_numbers:
         if after_record_line == True:
@@ -205,17 +207,16 @@ def get_diff_reported_range(meta_range, base=True):
 
     if "," in meta_range:
         tmp = meta_range.lstrip(sep).split(",")
-        start = int(tmp[0]) - 1
+        start = int(tmp[0])
         step = int(tmp[1]) 
-        end = start + step
     else:
-        start = int(meta_range.lstrip(sep)) - 1
+        start = int(meta_range.lstrip(sep))
         step = 1
-        end = start + step
+    end = start + step
 
-    reported_range = range(start, end)
+    reported_range = range(start, end) # [x, y)
 
     if base == True:
-        return reported_range, step, (start + step)
+        return reported_range, step, end-1
     else:
         return reported_range, step

@@ -20,18 +20,15 @@ def main(repo_dir, base_commit, target_commit, file_path, source_character_range
      * 1.2 exactly mapped characters
      * 1.3 ...
     '''
-    # preprocess
-    interest_character_range = [idx-1 for idx in source_character_range] # all numbers starts at 0.
 
-    # main steps
     output_maps = []
 
-    init = ComputeCandidateRegions(repo_dir, base_commit, target_commit, file_path, interest_character_range)
+    init = ComputeCandidateRegions(repo_dir, base_commit, target_commit, file_path, source_character_range)
     candidate_regions = init.run()
 
     if not candidate_regions:
         return
-    # TODO change to let all numbers start at 1.
+    
     for i, candidate in enumerate(candidate_regions):
         # print(f"Candidate #{i}:")
         # show_candidate_region(candidate)
