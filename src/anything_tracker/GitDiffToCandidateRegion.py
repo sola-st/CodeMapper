@@ -73,8 +73,13 @@ class GitDiffToCandidateRegion():
         stdout = subprocess.PIPE, universal_newlines=True)
         diff_result = result.stdout
 
+        # TODO check why and how to solve
+        is_large_diff = False
+        if diff_result == "":
+            is_large_diff = True
+
         candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks = self.diff_result_to_target_changed_hunk(diff_result)
-        return candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks
+        return candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, is_large_diff
         
     def diff_result_to_target_changed_hunk(self, diff_result):
         '''
@@ -138,12 +143,9 @@ class GitDiffToCandidateRegion():
                             continue
 
                         hunk_end = target_hunk_range.stop - 1
-                        if hunk_end > target_hunk_range.start:
-                            heuristic_characters_end_idx = len(target_file_lines[hunk_end-1]) - 1 # to reduce the length of "\n"
-                        else:
+                        if hunk_end <= target_hunk_range.start:
                             hunk_end = target_hunk_range.start
-                            heuristic_characters_end_idx = len(target_file_lines[hunk_end-1]) - 1
-
+                        heuristic_characters_end_idx = len(target_file_lines[hunk_end-1]) - 1 # to reduce the length of "\n"
                         character_range = CharacterRange([target_hunk_range.start, 1, hunk_end, heuristic_characters_end_idx])
                         candidate_region = CandidateRegion(self.interest_character_range, character_range, "<LOCATION_HELPER:DIFF_FULLY_COVER>")
                         candidate_regions.append(candidate_region)

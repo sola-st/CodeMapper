@@ -16,7 +16,7 @@
             "old_file": "superset/common/query_context_factory.py",
             "new_file": "superset/common/query_context_factory.py",
             "old_range": "[187, 21, 188, 56]",
-            "new_range": "[187, 21, 187, 57]",
+            "new_range": "[187, 21, 187, 56]",
             "change_operation": "modify",
             "kind": "if statement"
         }
@@ -72,7 +72,7 @@
             "new_file": ".buildkite/pipelines/periodic-packaging.yml",
             "old_range": "[10, 11, 26, 27]",
             "new_range": "[10, 11, 27, 27]",
-            "change_operation": "modify",
+            "change_operation": "insert 1 line",
             "kind": "yml setting-platform support block"
         }
     },

@@ -25,7 +25,7 @@ class ComputeCandidatesForAllSourceRegions():
         parameters = []
 
         # read maps file
-        oracle_file = join("data", "test_oracle", "change_maps_test.json")
+        oracle_file = join("data", "oracle", "change_maps.json")
         with open(oracle_file) as f:
             maps = json.load(f)
 

@@ -14,11 +14,14 @@ class ComputeCandidateRegions():
 
     def run(self):
         candidate_regions = []
-        diff_candidates, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks= GitDiffToCandidateRegion(self).run_git_diff()
+        diff_candidates, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, is_large_diff = GitDiffToCandidateRegion(self).run_git_diff()
         search_candidates = SearchLinesToCandidateRegion(self, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks).search_maps()
         candidate_regions.extend(diff_candidates)
         candidate_regions.extend(search_candidates)
         if candidate_regions == []:
-            print(f"--No candidate regions.\n  {self.repo_dir}\n  {self.file_path}\n  {self.interest_character_range.four_element_list}\n")
+            if is_large_diff == True:
+                print(f"--Large diff.\n  {self.repo_dir}\n  {self.file_path}\n  {self.interest_character_range.four_element_list}\n")
+            else:
+                print(f"--No candidate regions.\n  {self.repo_dir}\n  {self.file_path}\n  {self.interest_character_range.four_element_list}\n")
 
         return candidate_regions
