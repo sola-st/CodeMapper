@@ -130,8 +130,20 @@ class GitDiffToCandidateRegion():
                     '''
                     if list(set(self.interest_line_numbers) - set(list(base_hunk_range))) == []: # fully covered by changed hunk
                         # Heuristic: set character indices as 0 and the length of the last line in target range.
+                        if target_hunk_range.stop == target_hunk_range.start:
+                            # source region lines are deleted
+                            character_range = CharacterRange([0, 0, 0, 0])
+                            candidate_region = CandidateRegion(self.interest_character_range, character_range, "<LOCATION_HELPER:DIFF_DELETE>")
+                            candidate_regions.append(candidate_region)
+                            continue
+
                         hunk_end = target_hunk_range.stop - 1
-                        heuristic_characters_end_idx = len(target_file_lines[hunk_end-1]) - 1 # to reduce the length of "\n"
+                        if hunk_end > target_hunk_range.start:
+                            heuristic_characters_end_idx = len(target_file_lines[hunk_end-1]) - 1 # to reduce the length of "\n"
+                        else:
+                            hunk_end = target_hunk_range.start
+                            heuristic_characters_end_idx = len(target_file_lines[hunk_end-1]) - 1
+
                         character_range = CharacterRange([target_hunk_range.start, 1, hunk_end, heuristic_characters_end_idx])
                         candidate_region = CandidateRegion(self.interest_character_range, character_range, "<LOCATION_HELPER:DIFF_FULLY_COVER>")
                         candidate_regions.append(candidate_region)

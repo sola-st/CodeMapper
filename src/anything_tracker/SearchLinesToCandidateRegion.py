@@ -172,9 +172,22 @@ class SearchLinesToCandidateRegion():
             for diff_hunk in self.bottom_diff_hunks: 
                 for mapped_range in unchanged_mapped_ranges:
                     if diff_hunk.target_start_line_number >= mapped_range.end_line_idx:
-                        characters_end_idx = len(self.target_file_lines[diff_hunk.target_end_line_number - 2]) - 1 # to reduce the length of "\n"
-                        region_range = [mapped_range.start_line_idx, mapped_range.characters_start_idx,
-                                diff_hunk.target_end_line_number - 1, characters_end_idx]
+                        if diff_hunk.target_end_line_number == diff_hunk.target_start_line_number:
+                            # current hunk is empty
+                            end_line = diff_hunk.target_start_line_number - 1
+                            characters_end_idx = len(self.target_file_lines[end_line - 1]) - 1
+                            region_range = [mapped_range.start_line_idx, mapped_range.characters_start_idx, end_line, characters_end_idx]
+                            candidate_region_range = CharacterRange(region_range)
+                            candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, "<BOTTOM_OVERLAP_EMPTY>")
+                            candidate_region_bottom_with_changed_lines.append(candidate_region)
+
+                        if diff_hunk.target_end_line_number - 1 > diff_hunk.target_start_line_number:
+                            end_line = diff_hunk.target_end_line_number - 1
+                            characters_end_idx = len(self.target_file_lines[diff_hunk.target_end_line_number - 2]) - 1 # to reduce the length of "\n"
+                        else: # hunk range [187, 188)
+                            characters_end_idx = len(self.target_file_lines[diff_hunk.target_start_line_number - 1]) - 1
+                            end_line = diff_hunk.target_start_line_number
+                        region_range = [mapped_range.start_line_idx, mapped_range.characters_start_idx, end_line, characters_end_idx]
                         candidate_region_range = CharacterRange(region_range)
                         candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, "<BOTTOM_OVERLAP>")
                         candidate_region_bottom_with_changed_lines.append(candidate_region)

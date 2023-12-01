@@ -51,9 +51,7 @@ def main():
         if mapping["new_range"] != None:
             expected_character_range = json.loads(mapping["new_range"])
         else:
-            # TODO After update the code, remove this part.
-            distance.append("DELETE")
-            overlap.append("DELETE")
+            expected_character_range = [0, 0, 0, 0]
             continue
 
         json_results_file = join(candidates_dir, f"results_{i}.json")
