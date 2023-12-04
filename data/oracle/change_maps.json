@@ -145,8 +145,8 @@
     {
         "url": "https://github.com/ocornut/imgui/commit/8ee8513",
         "mapping": {
-            "old_file": "imgui_widgets.cpp",
-            "new_file": "imgui_widgets.cpp",
+            "old_file": "imgui.cpp",
+            "new_file": "imgui.cpp",
             "old_range": "[5447, 9, 5450, 317]",
             "new_range": "[5447, 9, 5452, 349]",
             "change_operation": "modify",
@@ -156,12 +156,12 @@
     {
         "url": "https://github.com/ocornut/imgui/commit/1ab63d9",
         "mapping": {
-            "old_file": "imgui_widgets.cpp",
-            "new_file": "imgui_widgets.cpp",
+            "old_file": "imgui.cpp",
+            "new_file": "imgui.cpp",
             "old_range": "[6092, 1, 6092, 101]",
             "new_range": "[6092, 1, 6092, 64]",
             "change_operation": "intra-line modify",
-            "kind": "if block"
+            "kind": "function definition"
         }
     },
     {
@@ -225,7 +225,7 @@
             "old_file": "cmd/common-main.go",
             "new_file": "cmd/common-main.go",
             "old_range": "[171, 5, 173, 5]",
-            "new_range": "[172, 5, 110, 176]",
+            "new_range": "[172, 5, 176, 5]",
             "change_operation": "modify",
             "kind": "if-else if block" 
         }
@@ -247,7 +247,7 @@
             "old_file": "actionpack/lib/action_dispatch/system_testing/browser.rb",
             "new_file": "actionpack/lib/action_dispatch/system_testing/browser.rb",
             "old_range": "[32, 7, 39, 9]",
-            "new_range": "[31, 7, 28, 9]",
+            "new_range": "[31, 7, 38, 9]",
             "change_operation": "intra-line modify",
             "kind": "function" 
         }

@@ -2,14 +2,14 @@ def get_absolute_char_position(line, char_index, line_lengths):
     return sum(line_lengths[:line - 1]) + char_index
 
 
-def longest_common_string(base_chars, candidate_chars):
-    table = [[0] * (len(candidate_chars) + 1) for _ in range(len(base_chars) + 1)]
+def longest_common_string(expected_chars, candidate_chars):
+    table = [[0] * (len(candidate_chars) + 1) for _ in range(len(expected_chars) + 1)]
     max_length = 0
     end_position = 0
 
-    for i in range(1, len(base_chars) + 1):
+    for i in range(1, len(expected_chars) + 1):
         for j in range(1, len(candidate_chars) + 1):
-            if base_chars[i - 1] == candidate_chars[j - 1]:
+            if expected_chars[i - 1] == candidate_chars[j - 1]:
                 table[i][j] = table[i - 1][j - 1] + 1
                 if table[i][j] > max_length:
                     max_length = table[i][j]
@@ -17,7 +17,7 @@ def longest_common_string(base_chars, candidate_chars):
             else:
                 table[i][j] = 0
 
-    lcs = base_chars[end_position - max_length:end_position]
+    lcs = expected_chars[end_position - max_length:end_position]
 
     return lcs
 
@@ -31,10 +31,10 @@ def calculate_overlap(location1, location2, line_lengths, target_lines_str):
     start_position2 = get_absolute_char_position(start_line2, start_char2, line_lengths)
     end_position2 = get_absolute_char_position(end_line2, end_char2, line_lengths)
 
-    base_chars = target_lines_str[start_position1:end_position1+1]
+    expected_chars = target_lines_str[start_position1:end_position1+1]
     candidate_chars = target_lines_str[start_position2:end_position2+1]
 
-    lcs = longest_common_string(base_chars, candidate_chars)
+    lcs = longest_common_string(expected_chars, candidate_chars)
 
     rate = "INIT"
     distance = "INIT"
@@ -50,8 +50,8 @@ def calculate_overlap(location1, location2, line_lengths, target_lines_str):
             rate = format(rate, '.4f')
 
         # distance
-        base_start_extra = base_chars.index(lcs) - 1
-        base_end_extra = len(base_chars) - base_start_extra - overlap_num
+        base_start_extra = expected_chars.index(lcs) - 1
+        base_end_extra = len(expected_chars) - base_start_extra - overlap_num
 
         candidate_start_extra = candidate_chars.index(lcs) - 1
         candidate_end_extra = len(candidate_chars) - candidate_start_extra - overlap_num

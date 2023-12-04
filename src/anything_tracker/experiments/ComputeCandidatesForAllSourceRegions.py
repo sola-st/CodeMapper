@@ -1,8 +1,7 @@
 import json
 from multiprocessing import Pool, cpu_count
-import os
+from anything_tracker.AnythingTracker import AnythingTracker
 from anything_tracker.experiments.SourceRepos import SourceRepos
-from anything_tracker.AnythingTracker import main as AnythingTracker
 from os.path import join
 
 from anything_tracker.utils.RepoUtils import get_parent_commit
@@ -17,10 +16,6 @@ class ComputeCandidatesForAllSourceRegions():
         Returns a list of parameter list.
         Each inner list contains repo_dir, base_commit, target_commit, file_path, and interest_character_range.
         """
-        # create output folder
-        results_dir = join("data", "results", "tracked_maps/candidate_regions")
-        if not os.path.exists(results_dir):
-            os.makedirs(results_dir)
 
         parameters = []
 
@@ -28,6 +23,8 @@ class ComputeCandidatesForAllSourceRegions():
         oracle_file = join("data", "oracle", "change_maps.json")
         with open(oracle_file) as f:
             maps = json.load(f)
+
+        result_dir_parent = join("data", "results", "tracked_maps", "candidate_regions")
 
         # get inputs for 
         for i, meta in enumerate(maps):
@@ -39,7 +36,7 @@ class ComputeCandidatesForAllSourceRegions():
             base_commit = get_parent_commit(repo_dir, target_commit)
             assert base_commit != ""
 
-            result_file = join(results_dir, f"results_{i}.json")
+            result_dir = join(result_dir_parent, str(i))
 
             mapping:dict = meta["mapping"]
             # TODO Change the oracle, or cover these cases.
@@ -53,7 +50,7 @@ class ComputeCandidatesForAllSourceRegions():
                 target_commit,
                 mapping["old_file"],
                 character_range_list,
-                result_file
+                result_dir
             ]
             parameters.append(parameter)
 
@@ -76,7 +73,7 @@ class ComputeCandidatesForAllSourceRegions():
             pool.map(wrapper, args_for_all_maps)
 
 def wrapper(args):
-    AnythingTracker(*args)
+    AnythingTracker(*args).run()
 
 if __name__ == "__main__":
     ComputeCandidatesForAllSourceRegions().run()

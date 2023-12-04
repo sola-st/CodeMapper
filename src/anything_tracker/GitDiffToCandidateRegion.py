@@ -2,7 +2,7 @@ import subprocess
 from anything_tracker.CandidateRegion import CandidateRegion
 from anything_tracker.CharacterRange import CharacterRange
 from anything_tracker.DiffHunk import DiffHunk
-from anything_tracker.utils.ReadFile import checkout_to_read_file
+from anything_tracker.utils.ReadFile import checkout_to_read_file, get_region_characters
 
 
 class GitDiffToCandidateRegion():
@@ -73,13 +73,8 @@ class GitDiffToCandidateRegion():
         stdout = subprocess.PIPE, universal_newlines=True)
         diff_result = result.stdout
 
-        # TODO check why and how to solve
-        is_large_diff = False
-        if diff_result == "":
-            is_large_diff = True
-
         candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks = self.diff_result_to_target_changed_hunk(diff_result)
-        return candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, is_large_diff
+        return candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks
         
     def diff_result_to_target_changed_hunk(self, diff_result):
         '''
@@ -138,7 +133,7 @@ class GitDiffToCandidateRegion():
                         if target_hunk_range.stop == target_hunk_range.start:
                             # source region lines are deleted
                             character_range = CharacterRange([0, 0, 0, 0])
-                            candidate_region = CandidateRegion(self.interest_character_range, character_range, "<LOCATION_HELPER:DIFF_DELETE>")
+                            candidate_region = CandidateRegion(self.interest_character_range, character_range, None, "<LOCATION_HELPER:DIFF_DELETE>")
                             candidate_regions.append(candidate_region)
                             continue
 
@@ -147,7 +142,8 @@ class GitDiffToCandidateRegion():
                             hunk_end = target_hunk_range.start
                         heuristic_characters_end_idx = len(target_file_lines[hunk_end-1]) - 1 # to reduce the length of "\n"
                         character_range = CharacterRange([target_hunk_range.start, 1, hunk_end, heuristic_characters_end_idx])
-                        candidate_region = CandidateRegion(self.interest_character_range, character_range, "<LOCATION_HELPER:DIFF_FULLY_COVER>")
+                        candidate_characters = get_region_characters(target_file_lines, character_range)
+                        candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, "<LOCATION_HELPER:DIFF_FULLY_COVER>")
                         candidate_regions.append(candidate_region)
                     else:
                         location = locate_changes(overlapped_line_numbers, self.interest_line_numbers)
@@ -156,7 +152,7 @@ class GitDiffToCandidateRegion():
                             top_diff_hunks.append(diff_hunk)
                         elif location == "middle":
                             middle_diff_hunks.append(diff_hunk)
-                        else: # "bottom"
+                        elif location == "bottom":
                             bottom_diff_hunks.append(diff_hunk)
                 else: # no overlap
                     if last_line_number < self.interest_line_numbers[0]:
@@ -172,7 +168,8 @@ class GitDiffToCandidateRegion():
                 not bottom_diff_hunks:
             # No changed lines, with only line number changed.
             character_range = CharacterRange([changed_line_numbers_list[0], characters_start_idx, changed_line_numbers_list[-1], characters_end_idx])
-            candidate_region = CandidateRegion(self.interest_character_range, character_range, "<LOCATION_HELPER:DIFF_NO_CHANGE>")
+            candidate_characters = get_region_characters(target_file_lines, character_range)
+            candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, "<LOCATION_HELPER:DIFF_NO_CHANGE>")
             candidate_regions.append(candidate_region)
 
         return candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks
