@@ -16,70 +16,93 @@ parser.add_argument("--target_commit", help="the commit to get the 2nd version o
 parser.add_argument("--file_path", help="the target file that you want to track", required=True)
 parser.add_argument("--source_character_range", nargs='+', type=int, help="a 4-element list, to show where to track", required=True)
 parser.add_argument("--results_dir", help="Directory to put the results", required=True)
+parser.add_argument("--expected_character_range", nargs='+', 
+                    type=int, help="a 4-element list, to show the expected character range", 
+                    required=False) # only for the regions that with ground truth
+
+
+def get_source_and_expected_region_characters(file_lines, character_range):
+    '''
+    Initially get source_region_characters and expected region characters.
+    '''
+    characters = []
+
+    # character_range: start_line, start_character, end_line, end_character
+    start_line_idx = character_range.start_line_idx
+    characters_start_idx = character_range.characters_start_idx
+    end_line_idx = character_range.end_line_idx
+    characters_end_idx = character_range.characters_end_idx
+
+    start_line = str(file_lines[start_line_idx-1])
+
+    if start_line_idx == end_line_idx: 
+        # the source or expected region is inside one line.
+        # only records one line number, that is, the start and end are on the same line.
+        characters = start_line[characters_start_idx-1 : characters_end_idx]
+    else:
+        # covers multi-line
+        # separate to 3 sections: start line, middle lines, and end line.
+        # section 1: start line : the entire line is covered
+        characters_in_start_line = start_line[characters_start_idx-1:] 
+    
+        # section 2: middle lines : all covered
+        characters_in_middle_lines= []
+        if start_line_idx + 1 != end_line_idx:
+            characters_in_middle_lines = file_lines[start_line_idx : end_line_idx - 1]
+
+        # section 3: end line : [character index [0: specified_index]]
+        end_line = str(file_lines[end_line_idx-1]) 
+        characters_in_end_line = end_line[:characters_end_idx]
+
+        characters.append(characters_in_start_line) 
+        characters.extend(characters_in_middle_lines) 
+        characters.append(characters_in_end_line) 
+
+    return characters
 
 
 class AnythingTracker():
-    def __init__(self, repo_dir, base_commit, target_commit, file_path, interest_character_range, results_dir):
+    def __init__(self, repo_dir, base_commit, target_commit, file_path, interest_character_range, results_dir, expected_character_range=None):
         self.repo_dir = repo_dir
         self.base_commit = base_commit
         self.target_commit = target_commit
         self.file_path = file_path
         self.source_character_range = interest_character_range
-        self.interest_character_range = character_range_init = CharacterRange(interest_character_range)
+        self.interest_character_range  = character_range_init = CharacterRange(interest_character_range)
         interest_line_range = character_range_init.character_range_to_line_range() # all numbers starts at 1.
         self.interest_line_numbers = list(interest_line_range)
         self.results_dir = results_dir
 
+        self.expected_character_range = expected_character_range
+        if expected_character_range != None:
+            self.expected_character_range = CharacterRange(expected_character_range)
+            
         self.source_region_characters = []
-
-    def get_source_region_characters(self):
-        '''
-        Initially get self.source_region_characters.
-        '''
-
-        base_file_lines = checkout_to_read_file(self.repo_dir, self.base_commit, self.file_path)
-
-        # interest_character_range: start_line, start_character, end_line, end_character
-        start_line_idx = self.interest_character_range.start_line_idx
-        characters_start_idx = self.interest_character_range.characters_start_idx
-        end_line_idx = self.interest_character_range.end_line_idx
-        characters_end_idx = self.interest_character_range.characters_end_idx
-
-        start_line = str(base_file_lines[start_line_idx-1])
-
-        if start_line_idx == end_line_idx: 
-            # source region inside one line.
-            # source region only records one line number, that is, the start and end are on the same line.
-            self.source_region_characters = start_line[characters_start_idx-1 : characters_end_idx]
-        else:
-            # source region covers multi-line
-            # separate to 3 sections: start line, middle lines, and end line.
-            # section 1: start line : the entire line is covered
-            characters_in_start_line = start_line[characters_start_idx-1:] 
         
-            # section 2: middle lines : all covered
-            characters_in_middle_lines= []
-            if start_line_idx + 1 != end_line_idx:
-                characters_in_middle_lines = base_file_lines[start_line_idx : end_line_idx - 1]
+    def write_regions_to_files(self, characters_to_write=None):
+        json_file = join(self.results_dir, "source.json")
+        to_write:str = ""
 
-            # section 3: end line : [character index [0: specified_index]]
-            end_line = str(base_file_lines[end_line_idx-1]) 
-            characters_in_end_line = end_line[:characters_end_idx]
+        if characters_to_write == None: # source region
+            source_region_characters_str = "".join(self.source_region_characters)
+            to_write = {
+                "source_file": self.file_path,
+                "source_range": str(self.source_character_range),
+                "source_characters": source_region_characters_str
+            }
+        else: # expected region
+            expected_region_characters_str = "".join(characters_to_write)
+            to_write = {
+                "expected_file": self.file_path,
+                "expected_range": str(self.expected_character_range.four_element_list),
+                "expected_characters": expected_region_characters_str
+            }
+            json_file = join(self.results_dir, "expect.json")
 
-            self.source_region_characters.append(characters_in_start_line) 
-            self.source_region_characters.extend(characters_in_middle_lines) 
-            self.source_region_characters.append(characters_in_end_line) 
-        
-        # write source characters to a JSON file.
-        source_region_characters_str = "".join(self.source_region_characters)
-        source = {
-            "source_file": self.file_path,
-            "source_range": str(self.source_character_range),
-            "source_characters": source_region_characters_str
-        }
-        source_json_file = join(self.results_dir, "source.json")
-        with open(source_json_file, "w") as ds:
-            json.dump(source, ds, indent=4, ensure_ascii=False)
+        # write region characters to a JSON file.
+        with open(json_file, "w") as ds:
+            json.dump(to_write, ds, indent=4, ensure_ascii=False)
+
 
     def run(self):
         ''' 
@@ -95,8 +118,16 @@ class AnythingTracker():
         output_maps = []
         candidate_regions = []
 
-        # Read source region characters, write source character to json files.
-        self.get_source_region_characters()
+        # Read source region characters, write source character to json files. [Also for expected regions]
+        self.base_file_lines = checkout_to_read_file(self.repo_dir, self.base_commit, self.file_path)
+        self.source_region_characters = get_source_and_expected_region_characters(self.base_file_lines, self.interest_character_range)
+        self.write_regions_to_files()
+
+        self.target_file_lines = checkout_to_read_file(self.repo_dir, self.target_commit, self.file_path)
+        if self.expected_character_range != None:
+            expected_region_characters: list = get_source_and_expected_region_characters(self.target_file_lines, self.expected_character_range)
+            self.write_regions_to_files(expected_region_characters)
+        
         # get candidates from git diff
         diff_candidates, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks = GitDiffToCandidateRegion(self).run_git_diff()
         # search to map characters
@@ -109,7 +140,7 @@ class AnythingTracker():
         
         for candidate in candidate_regions:
             # TODO update to cover rename cases
-            target_range= get_candidate_region_range(candidate)
+            target_range = get_candidate_region_range(candidate)
             map = {
                 "source_file": self.file_path,
                 "target_file": self.file_path,

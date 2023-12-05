@@ -40,18 +40,24 @@ class ComputeCandidatesForAllSourceRegions():
 
             mapping:dict = meta["mapping"]
             # TODO Change the oracle, or cover these cases.
-            if mapping["old_range"] == None:
+            if mapping["source_range"] == None:
                 continue
-            character_range_list = json.loads(mapping["old_range"])
+
+            character_range_list = json.loads(mapping["source_range"]) # source
 
             parameter = [
                 repo_dir,
                 base_commit,
                 target_commit,
-                mapping["old_file"],
+                mapping["source_file"],
                 character_range_list,
                 result_dir
             ]
+
+            if mapping["target_range"] != None:
+                expected_character_range_list = json.loads(mapping["target_range"])
+                parameter.append(expected_character_range_list)
+
             parameters.append(parameter)
 
         return parameters

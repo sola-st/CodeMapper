@@ -2,7 +2,7 @@ import subprocess
 from anything_tracker.CandidateRegion import CandidateRegion
 from anything_tracker.CharacterRange import CharacterRange
 from anything_tracker.DiffHunk import DiffHunk
-from anything_tracker.utils.ReadFile import checkout_to_read_file, get_region_characters
+from anything_tracker.utils.ReadFile import get_region_characters
 
 
 class GitDiffToCandidateRegion():
@@ -13,6 +13,7 @@ class GitDiffToCandidateRegion():
         self.file_path = meta.file_path
         self.interest_character_range = meta.interest_character_range # object
         self.interest_line_numbers = meta.interest_line_numbers # list
+        self.target_file_lines = meta.target_file_lines
 
     def run_git_diff(self):
         '''
@@ -85,9 +86,6 @@ class GitDiffToCandidateRegion():
         characters_start_idx = self.interest_character_range.characters_start_idx
         characters_end_idx = self.interest_character_range.characters_end_idx
 
-        # read target file, to get the character end index for ranges
-        target_file_lines = checkout_to_read_file(self.repo_dir, self.target_commit, self.file_path)
-
         # for checking changed hunk
         all_covered_mark = False
         candidate_regions = []
@@ -140,9 +138,9 @@ class GitDiffToCandidateRegion():
                         hunk_end = target_hunk_range.stop - 1
                         if hunk_end <= target_hunk_range.start:
                             hunk_end = target_hunk_range.start
-                        heuristic_characters_end_idx = len(target_file_lines[hunk_end-1]) - 1 # to reduce the length of "\n"
+                        heuristic_characters_end_idx = len(self.target_file_lines[hunk_end-1]) - 1 # to reduce the length of "\n"
                         character_range = CharacterRange([target_hunk_range.start, 1, hunk_end, heuristic_characters_end_idx])
-                        candidate_characters = get_region_characters(target_file_lines, character_range)
+                        candidate_characters = get_region_characters(self.target_file_lines, character_range)
                         candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, "<LOCATION_HELPER:DIFF_FULLY_COVER>")
                         candidate_regions.append(candidate_region)
                     else:
@@ -168,7 +166,7 @@ class GitDiffToCandidateRegion():
                 not bottom_diff_hunks:
             # No changed lines, with only line number changed.
             character_range = CharacterRange([changed_line_numbers_list[0], characters_start_idx, changed_line_numbers_list[-1], characters_end_idx])
-            candidate_characters = get_region_characters(target_file_lines, character_range)
+            candidate_characters = get_region_characters(self.target_file_lines, character_range)
             candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, "<LOCATION_HELPER:DIFF_NO_CHANGE>")
             candidate_regions.append(candidate_region)
 

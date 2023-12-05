@@ -42,12 +42,9 @@ def calculate_overlap(location1, location2, line_lengths, target_lines_str):
         # overlap percentage
         overlap_num = len(lcs)
         base = end_position1 - start_position1 + 1
-        if base <= 0:
-            print(location1, location2)
-            rate = "Wrong_line_indices"
-        else:
-            rate = overlap_num / base
-            rate = format(rate, '.4f')
+        assert base > 0
+        rate = overlap_num / base
+        rate = format(rate, '.4f')
 
         # distance
         base_start_extra = expected_chars.index(lcs) - 1

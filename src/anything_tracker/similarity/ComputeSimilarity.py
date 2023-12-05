@@ -1,4 +1,3 @@
-
 import json
 import os
 from  os.path import join
@@ -50,7 +49,7 @@ def write_source_target_pairs(pair_file, mapped_source_target_pairs):
 
 # Read source region and candidate regions
 def main():
-    results_parent_dir = join("data", "results", "tracked_maps", "candidate_regions_v2")
+    results_parent_dir = join("data", "results", "tracked_maps", "candidate_regions")
     results = os.listdir(results_parent_dir)
     for str_i in results:
         candidate_characters = []

@@ -2,10 +2,10 @@
     {
         "url": "https://github.com/apache/superset/commit/0f01d9b",
         "mapping": {
-            "old_file": "helm/superset/Chart.yaml",
-            "new_file": "helm/superset/Chart.yaml",
-            "old_range": "[32, 15, 32, 16]",
-            "new_range": "[32, 15, 32, 16]",
+            "source_file": "helm/superset/Chart.yaml",
+            "target_file": "helm/superset/Chart.yaml",
+            "source_range": "[32, 15, 32, 16]",
+            "target_range": "[32, 15, 32, 16]",
             "change_operation": "intra-line modify",
             "kind": "version"
         }
@@ -13,10 +13,10 @@
     {
         "url": "https://github.com/apache/superset/commit/ae703b4",
         "mapping": {
-            "old_file": "superset/common/query_context_factory.py",
-            "new_file": "superset/common/query_context_factory.py",
-            "old_range": "[187, 21, 188, 56]",
-            "new_range": "[187, 21, 187, 56]",
+            "source_file": "superset/common/query_context_factory.py",
+            "target_file": "superset/common/query_context_factory.py",
+            "source_range": "[187, 21, 188, 56]",
+            "target_range": "[187, 21, 187, 56]",
             "change_operation": "modify",
             "kind": "if statement"
         }
@@ -24,10 +24,10 @@
     {
         "url": "https://github.com/apache/superset/commit/ae703b4",
         "mapping": {
-            "old_file": "superset/common/query_object_factory.py",
-            "new_file": "superset/common/query_object_factory.py",
-            "old_range": "[19, 1, 19, 29]",
-            "new_range": null,
+            "source_file": "superset/common/query_object_factory.py",
+            "target_file": "superset/common/query_object_factory.py",
+            "source_range": "[19, 1, 19, 29]",
+            "target_range": null,
             "change_operation": "delete",
             "kind": "import statement"
         }
@@ -35,10 +35,10 @@
     {
         "url": "https://github.com/apache/superset/commit/ae703b4",
         "mapping": {
-            "old_file": "superset/common/query_object_factory.py",
-            "new_file": "superset/common/query_object_factory.py",
-            "old_range": "[19, 1, 31, 1]",
-            "new_range": "[19, 1, 24, 83]",
+            "source_file": "superset/common/query_object_factory.py",
+            "target_file": "superset/common/query_object_factory.py",
+            "source_range": "[19, 1, 31, 1]",
+            "target_range": "[19, 1, 24, 83]",
             "change_operation": "modify",
             "kind": "import block"
         }
@@ -46,10 +46,10 @@
     {
         "url": "https://github.com/elastic/elasticsearch/commit/e851b30",
         "mapping": {
-            "old_file": "server/src/main/java/org/elasticsearch/action/admin/cluster/desirednodes/TransportUpdateDesiredNodesAction.java",
-            "new_file": "server/src/main/java/org/elasticsearch/action/admin/cluster/desirednodes/TransportUpdateDesiredNodesAction.java",
-            "old_range": null,
-            "new_range": "[46, 5, 46, 48]",
+            "source_file": "server/src/main/java/org/elasticsearch/action/admin/cluster/desirednodes/TransportUpdateDesiredNodesAction.java",
+            "target_file": "server/src/main/java/org/elasticsearch/action/admin/cluster/desirednodes/TransportUpdateDesiredNodesAction.java",
+            "source_range": null,
+            "target_range": "[46, 5, 46, 48]",
             "change_operation": "add",
             "kind": "variable"
         }
@@ -57,10 +57,10 @@
     {
         "url": "https://github.com/elastic/elasticsearch/commit/e851b30",
         "mapping": {
-            "old_file": "server/src/main/java/org/elasticsearch/action/admin/cluster/desirednodes/TransportUpdateDesiredNodesAction.java",
-            "new_file": "server/src/main/java/org/elasticsearch/action/admin/cluster/desirednodes/TransportUpdateDesiredNodesAction.java",
-            "old_range": "[35, 1, 35, 52]",
-            "new_range": "[37, 1, 37, 52]",
+            "source_file": "server/src/main/java/org/elasticsearch/action/admin/cluster/desirednodes/TransportUpdateDesiredNodesAction.java",
+            "target_file": "server/src/main/java/org/elasticsearch/action/admin/cluster/desirednodes/TransportUpdateDesiredNodesAction.java",
+            "source_range": "[35, 1, 35, 52]",
+            "target_range": "[37, 1, 37, 52]",
             "change_operation": "move",
             "kind": "import statement"
         }
@@ -68,10 +68,10 @@
     {
         "url": "https://github.com/elastic/elasticsearch/commit/a36156e",
         "mapping": {
-            "old_file": ".buildkite/pipelines/periodic-packaging.yml",
-            "new_file": ".buildkite/pipelines/periodic-packaging.yml",
-            "old_range": "[10, 11, 26, 27]",
-            "new_range": "[10, 11, 27, 27]",
+            "source_file": ".buildkite/pipelines/periodic-packaging.yml",
+            "target_file": ".buildkite/pipelines/periodic-packaging.yml",
+            "source_range": "[10, 11, 26, 27]",
+            "target_range": "[10, 11, 27, 27]",
             "change_operation": "insert 1 line",
             "kind": "yml setting-platform support block"
         }
@@ -79,10 +79,10 @@
     {
         "url": "https://github.com/elastic/elasticsearch/commit/6e8d798",
         "mapping": {
-            "old_file": "modules/apm/src/test/java/org/elasticsearch/telemetry/apm/MeterRegistryConcurrencyTests.java",
-            "new_file": "modules/apm/src/test/java/org/elasticsearch/telemetry/apm/MeterRegistryConcurrencyTests.java",
-            "old_range": "[94, 5, 116, 5]",
-            "new_range": "[93, 5, 117, 5]",
+            "source_file": "modules/apm/src/test/java/org/elasticsearch/telemetry/apm/MeterRegistryConcurrencyTests.java",
+            "target_file": "modules/apm/src/test/java/org/elasticsearch/telemetry/apm/MeterRegistryConcurrencyTests.java",
+            "source_range": "[94, 5, 116, 5]",
+            "target_range": "[93, 5, 117, 5]",
             "change_operation": "modify",
             "kind": "function"
         }
@@ -90,10 +90,10 @@
     {
         "url": "https://github.com/facebook/react/commit/51ffd35",
         "mapping": {
-            "old_file": "scripts/rollup/build-all-release-channels.js",
-            "new_file": "scripts/rollup/build-all-release-channels.js",
-            "old_range": "[238, 3, 252, 3]",
-            "new_range": "[240, 3, 253, 3]",
+            "source_file": "scripts/rollup/build-all-release-channels.js",
+            "target_file": "scripts/rollup/build-all-release-channels.js",
+            "source_range": "[238, 3, 252, 3]",
+            "target_range": "[240, 3, 253, 3]",
             "change_operation": "modify",
             "kind": "if block"
         }
@@ -101,10 +101,10 @@
     {
         "url": "https://github.com/facebook/react/commit/97047a8",
         "mapping": {
-            "old_file": "scripts/rollup/build-all-release-channels.js",
-            "new_file": "scripts/rollup/build-all-release-channels.js",
-            "old_range": "[359, 1, 365, 1]",
-            "new_range": null,
+            "source_file": "scripts/rollup/build-all-release-channels.js",
+            "target_file": "scripts/rollup/build-all-release-channels.js",
+            "source_range": "[359, 1, 365, 1]",
+            "target_range": null,
             "change_operation": "delete",
             "kind": "function"
         }
@@ -112,10 +112,10 @@
     {
         "url": "https://github.com/facebook/react/commit/8039e6d",
         "mapping": {
-            "old_file": "fixtures/attribute-behavior/yarn.lock",
-            "new_file": "fixtures/attribute-behavior/yarn.lock",
-            "old_range": "[3946, 1, 3952, 109]",
-            "new_range": "[3946, 1, 3952, 110]",
+            "source_file": "fixtures/attribute-behavior/yarn.lock",
+            "target_file": "fixtures/attribute-behavior/yarn.lock",
+            "source_range": "[3946, 1, 3952, 109]",
+            "target_range": "[3946, 1, 3952, 110]",
             "change_operation": "intra-line modify",
             "kind": "version"
         }
@@ -123,10 +123,10 @@
     {
         "url": "https://github.com/facebook/react/commit/b8e47d9",
         "mapping": {
-            "old_file": "packages/react-dom/src/__tests__/ReactDOMForm-test.js",
-            "new_file": "packages/react-dom/src/__tests__/ReactDOMForm-test.js",
-            "old_range": "[81, 3, 95, 3]",
-            "new_range": "[81, 3, 95, 3]",
+            "source_file": "packages/react-dom/src/__tests__/ReactDOMForm-test.js",
+            "target_file": "packages/react-dom/src/__tests__/ReactDOMForm-test.js",
+            "source_range": "[81, 3, 95, 3]",
+            "target_range": "[81, 3, 95, 3]",
             "change_operation": "intra-line modify",
             "kind": "function"
         }
@@ -134,10 +134,10 @@
     {
         "url": "https://github.com/facebook/react/commit/b8e47d9",
         "mapping": {
-            "old_file": "packages/react-reconciler/src/ReactFiberHooks.js",
-            "new_file": "packages/react-reconciler/src/ReactFiberHooks.js",
-            "old_range": "[1918, 5, 1918, 24]",
-            "new_range": "[1918, 5, 1918, 46]",
+            "source_file": "packages/react-reconciler/src/ReactFiberHooks.js",
+            "target_file": "packages/react-reconciler/src/ReactFiberHooks.js",
+            "source_range": "[1918, 5, 1918, 24]",
+            "target_range": "[1918, 5, 1918, 46]",
             "change_operation": "intra-line modify",
             "kind": "single line"
         }
@@ -145,10 +145,10 @@
     {
         "url": "https://github.com/ocornut/imgui/commit/8ee8513",
         "mapping": {
-            "old_file": "imgui.cpp",
-            "new_file": "imgui.cpp",
-            "old_range": "[5447, 9, 5450, 317]",
-            "new_range": "[5447, 9, 5452, 349]",
+            "source_file": "imgui.cpp",
+            "target_file": "imgui.cpp",
+            "source_range": "[5447, 9, 5450, 317]",
+            "target_range": "[5447, 9, 5452, 349]",
             "change_operation": "modify",
             "kind": "if-else block"
         }
@@ -156,10 +156,10 @@
     {
         "url": "https://github.com/ocornut/imgui/commit/1ab63d9",
         "mapping": {
-            "old_file": "imgui.cpp",
-            "new_file": "imgui.cpp",
-            "old_range": "[6092, 1, 6092, 101]",
-            "new_range": "[6092, 1, 6092, 64]",
+            "source_file": "imgui.cpp",
+            "target_file": "imgui.cpp",
+            "source_range": "[6092, 1, 6092, 101]",
+            "target_range": "[6092, 1, 6092, 64]",
             "change_operation": "intra-line modify",
             "kind": "function definition"
         }
@@ -167,10 +167,10 @@
     {
         "url": "https://github.com/ocornut/imgui/commit/f96c544",
         "mapping": {
-            "old_file": "imgui_tables.cpp",
-            "new_file": "imgui_tables.cpp",
-            "old_range": null,
-            "new_range": "[3170, 5, 3171, 101]",
+            "source_file": "imgui_tables.cpp",
+            "target_file": "imgui_tables.cpp",
+            "source_range": null,
+            "target_range": "[3170, 5, 3171, 101]",
             "change_operation": "add",
             "kind": "if block"
         }
@@ -178,10 +178,10 @@
     {
         "url": "https://github.com/ocornut/imgui/commit/99913b5",
         "mapping": {
-            "old_file": "imgui.cpp",
-            "new_file": "imgui.cpp",
-            "old_range": "[9144, 1, 9144, 86]",
-            "new_range": "[9144, 1, 9144, 95]",
+            "source_file": "imgui.cpp",
+            "target_file": "imgui.cpp",
+            "source_range": "[9144, 1, 9144, 86]",
+            "target_range": "[9144, 1, 9144, 95]",
             "change_operation": "add",
             "kind": "function declaration" 
         }
@@ -189,10 +189,10 @@
     {
         "url": "https://github.com/minio/minio/commit/03dc65e",
         "mapping": {
-            "old_file": "cmd/bucket-targets.go",
-            "new_file": "cmd/bucket-targets.go",
-            "old_range": "[44, 1, 51, 1]",
-            "new_range": "[57, 1, 66, 1]",
+            "source_file": "cmd/bucket-targets.go",
+            "target_file": "cmd/bucket-targets.go",
+            "source_range": "[44, 1, 51, 1]",
+            "target_range": "[57, 1, 66, 1]",
             "change_operation": "modify",
             "kind": "struct" 
         }
@@ -200,10 +200,10 @@
     {
         "url": "https://github.com/minio/minio/commit/03dc65e",
         "mapping": {
-            "old_file": "cmd/bucket-targets.go",
-            "new_file": "cmd/bucket-targets.go",
-            "old_range": "[502, 13, 504, 13]",
-            "new_range": "[578, 13, 580, 13]",
+            "source_file": "cmd/bucket-targets.go",
+            "target_file": "cmd/bucket-targets.go",
+            "source_range": "[502, 13, 504, 13]",
+            "target_range": "[578, 13, 580, 13]",
             "change_operation": "move",
             "kind": "if block" 
         }
@@ -211,10 +211,10 @@
     {
         "url": "https://github.com/minio/minio/commit/c2fedb4",
         "mapping": {
-            "old_file": "cmd/event-notification.go",
-            "new_file": "cmd/event-notification.go",
-            "old_range": "[104, 9, 110, 9]",
-            "new_range": "[104, 9, 110, 9]",
+            "source_file": "cmd/event-notification.go",
+            "target_file": "cmd/event-notification.go",
+            "source_range": "[104, 9, 110, 9]",
+            "target_range": "[104, 9, 110, 9]",
             "change_operation": "intra-line modify",
             "kind": "for loop" 
         }
@@ -222,10 +222,10 @@
     {
         "url": "https://github.com/minio/minio/commit/06f59ad",
         "mapping": {
-            "old_file": "cmd/common-main.go",
-            "new_file": "cmd/common-main.go",
-            "old_range": "[171, 5, 173, 5]",
-            "new_range": "[172, 5, 176, 5]",
+            "source_file": "cmd/common-main.go",
+            "target_file": "cmd/common-main.go",
+            "source_range": "[171, 5, 173, 5]",
+            "target_range": "[172, 5, 176, 5]",
             "change_operation": "modify",
             "kind": "if-else if block" 
         }
@@ -233,10 +233,10 @@
     {
         "url": "https://github.com/minio/minio/commit/ad44fe8",
         "mapping": {
-            "old_file": "docs/orchestration/docker-compose/docker-compose.yaml",
-            "new_file": "docs/orchestration/docker-compose/docker-compose.yaml",
-            "old_range": "[5, 3, 5, 57]",
-            "new_range": "[5, 3, 5, 57]",
+            "source_file": "docs/orchestration/docker-compose/docker-compose.yaml",
+            "target_file": "docs/orchestration/docker-compose/docker-compose.yaml",
+            "source_range": "[5, 3, 5, 57]",
+            "target_range": "[5, 3, 5, 57]",
             "change_operation": "intra-line modify",
             "kind": "version" 
         }
@@ -244,10 +244,10 @@
     {
         "url": "https://github.com/rails/rails/commit/3162afe",
         "mapping": {
-            "old_file": "actionpack/lib/action_dispatch/system_testing/browser.rb",
-            "new_file": "actionpack/lib/action_dispatch/system_testing/browser.rb",
-            "old_range": "[32, 7, 39, 9]",
-            "new_range": "[31, 7, 38, 9]",
+            "source_file": "actionpack/lib/action_dispatch/system_testing/browser.rb",
+            "target_file": "actionpack/lib/action_dispatch/system_testing/browser.rb",
+            "source_range": "[32, 7, 39, 9]",
+            "target_range": "[31, 7, 38, 9]",
             "change_operation": "intra-line modify",
             "kind": "function" 
         }
@@ -255,10 +255,10 @@
     {
         "url": "https://github.com/rails/rails/commit/3162afe",
         "mapping": {
-            "old_file": "actionpack/lib/action_dispatch/system_testing/browser.rb",
-            "new_file": "actionpack/lib/action_dispatch/system_testing/browser.rb",
-            "old_range": null,
-            "new_range": "[73, 9, 78, 11]",
+            "source_file": "actionpack/lib/action_dispatch/system_testing/browser.rb",
+            "target_file": "actionpack/lib/action_dispatch/system_testing/browser.rb",
+            "source_range": null,
+            "target_range": "[73, 9, 78, 11]",
             "change_operation": "add",
             "kind": "function merge commit, special" 
         }
@@ -266,10 +266,10 @@
     {
         "url": "https://github.com/rails/rails/commit/8bf1353",
         "mapping": {
-            "old_file": "activestorage/app/models/active_storage/blob.rb",
-            "new_file": "activestorage/app/models/active_storage/blob.rb",
-            "old_range": "[20, 3, 22, 23]",
-            "new_range": "[172, 3, 174, 11]",
+            "source_file": "activestorage/app/models/active_storage/blob.rb",
+            "target_file": "activestorage/app/models/active_storage/blob.rb",
+            "source_range": "[20, 3, 22, 23]",
+            "target_range": "[172, 3, 174, 23]",
             "change_operation": "move",
             "kind": "include block, special, not regular movement" 
         }
@@ -277,10 +277,10 @@
     {
         "url": "https://github.com/rails/rails/commit/f522f99",
         "mapping": {
-            "old_file": "guides/bug_report_templates/action_mailbox_gem.rb",
-            "new_file": "guides/bug_report_templates/action_mailbox_gem.rb",
-            "old_range": "[20, 1, 39, 3]",
-            "new_range": "[20, 1, 41, 3]",
+            "source_file": "guides/bug_report_templates/action_mailbox_gem.rb",
+            "target_file": "guides/bug_report_templates/action_mailbox_gem.rb",
+            "source_range": "[20, 1, 39, 3]",
+            "target_range": "[20, 1, 41, 3]",
             "change_operation": "modify",
             "kind": "class" 
         }
@@ -288,10 +288,10 @@
     {
         "url": "https://github.com/laravel/laravel/commit/8e5f0e5",
         "mapping": {
-            "old_file": "database/factories/UserFactory.php",
-            "new_file": "database/factories/UserFactory.php",
-            "old_range": "[18, 5, 27, 5]",
-            "new_range": "[18, 5, 27, 5]",
+            "source_file": "database/factories/UserFactory.php",
+            "target_file": "database/factories/UserFactory.php",
+            "source_range": "[18, 5, 27, 5]",
+            "target_range": "[18, 5, 27, 5]",
             "change_operation": "intra-line modify",
             "kind": "function" 
         }
@@ -299,10 +299,10 @@
     {
         "url": "https://github.com/laravel/laravel/commit/78243dd",
         "mapping": {
-            "old_file": "README.md",
-            "new_file": "README.md",
-            "old_range": "[34, 1, 34, 213]",
-            "new_range": "[34, 1, 34, 213]",
+            "source_file": "README.md",
+            "target_file": "README.md",
+            "source_range": "[34, 1, 34, 213]",
+            "target_range": "[34, 1, 34, 213]",
             "change_operation": "intra-line modify",
             "kind": "NL sentences" 
         }
@@ -310,10 +310,10 @@
     {
         "url": "https://github.com/laravel/laravel/commit/74c5a01",
         "mapping": {
-            "old_file": "config/database.php",
-            "new_file": "config/database.php",
-            "old_range": "[46, 9, 64, 10]",
-            "new_range": "[46, 9, 64, 10]",
+            "source_file": "config/database.php",
+            "target_file": "config/database.php",
+            "source_range": "[46, 9, 64, 10]",
+            "target_range": "[46, 9, 64, 10]",
             "change_operation": "intra-line modify",
             "kind": "mysql setting block" 
         }
@@ -321,10 +321,10 @@
     {
         "url": "https://github.com/laravel/laravel/commit/3604726",
         "mapping": {
-            "old_file": "package.json",
-            "new_file": "package.json",
-            "old_range": "[10, 31, 10, 40]",
-            "new_range": "[10, 31, 10, 40]",
+            "source_file": "package.json",
+            "target_file": "package.json",
+            "source_range": "[10, 31, 10, 40]",
+            "target_range": "[10, 31, 10, 40]",
             "change_operation": "intra-line modify",
             "kind": "version" 
         }

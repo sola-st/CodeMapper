@@ -1,6 +1,6 @@
 from anything_tracker.CandidateRegion import CandidateRegion
 from anything_tracker.CharacterRange import CharacterRange
-from anything_tracker.utils.ReadFile import checkout_to_read_file, get_region_characters
+from anything_tracker.utils.ReadFile import get_region_characters
 
 
 class SearchLinesToCandidateRegion():
@@ -12,6 +12,7 @@ class SearchLinesToCandidateRegion():
         self.interest_character_range = meta.interest_character_range # class instance
         self.interest_line_numbers = meta.interest_line_numbers # list
         self.source_region_characters= meta.source_region_characters
+        self.target_file_lines = meta.target_file_lines
 
         self.top_diff_hunk = None
         if top_diff_hunks:
@@ -24,7 +25,7 @@ class SearchLinesToCandidateRegion():
             self.bottom_diff_hunk = bottom_diff_hunks[0] # DiffHunk 
 
         self.source_character_lens = []
-        self.target_file_lines = []
+        
 
     def search_maps(self):
         '''
@@ -56,7 +57,6 @@ class SearchLinesToCandidateRegion():
 
         candidate_regions = []
         # print(self.source_region_characters)
-        self.target_file_lines = checkout_to_read_file(self.repo_dir, self.target_commit, self.file_path)
         self.target_lines_len_list = get_character_length_of_lines(self.target_file_lines)
 
         if self.top_diff_hunk:
@@ -319,6 +319,7 @@ class SearchLinesToCandidateRegion():
                 character_del = len(truncated_character)
         else:
             source_region_character_str = "".join(self.source_region_characters)
+            target_file_lines_str = "".join(self.target_file_lines)
 
         source_region_character_str_len = len(source_region_character_str)
 
