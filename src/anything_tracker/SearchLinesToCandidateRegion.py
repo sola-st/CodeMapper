@@ -56,17 +56,20 @@ class SearchLinesToCandidateRegion():
         '''
 
         candidate_regions = []
-        # print(self.source_region_characters)
         self.target_lines_len_list = get_character_length_of_lines(self.target_file_lines)
 
+        # 1) locate candidates with the help of git diff
         if self.top_diff_hunk:
             candidate_regions = self.combine_diff_and_search_ranges("top")
         elif self.bottom_diff_hunk: # Scenario 4
             candidate_regions = self.combine_diff_and_search_ranges("bottom")
         elif self.middle_diff_hunks: # Scenario 3
             candidate_regions = self.cover_changed_lines_in_between()
-        else: # Scenario 5: search exactly the same content
-            candidate_regions = self.search_exactly_mapped_context()
+
+        # 2) locate candidates by searching exactly mapped regions
+        # Scenario 5: search exactly the same content
+        searched_candidate_regions = self.search_exactly_mapped_context()
+        candidate_regions.extend(searched_candidate_regions)
         
         return candidate_regions
     
