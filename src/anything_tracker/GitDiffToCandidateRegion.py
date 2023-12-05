@@ -2,6 +2,7 @@ import subprocess
 from anything_tracker.CandidateRegion import CandidateRegion
 from anything_tracker.CharacterRange import CharacterRange
 from anything_tracker.DiffHunk import DiffHunk
+from anything_tracker.utils.FineGrainedWhitespace import fine_grained_changes
 from anything_tracker.utils.ReadFile import get_region_characters
 
 
@@ -11,6 +12,7 @@ class GitDiffToCandidateRegion():
         self.base_commit = meta.base_commit
         self.target_commit = meta.target_commit
         self.file_path = meta.file_path
+        self.source_region_characters = meta.source_region_characters # list
         self.interest_character_range = meta.interest_character_range # object
         self.interest_line_numbers = meta.interest_line_numbers # list
         self.target_file_lines = meta.target_file_lines
@@ -138,11 +140,25 @@ class GitDiffToCandidateRegion():
                         hunk_end = target_hunk_range.stop - 1
                         if hunk_end <= target_hunk_range.start:
                             hunk_end = target_hunk_range.start
+                        marker = "<LOCATION_HELPER:DIFF_FULLY_COVER>"
                         heuristic_characters_end_idx = len(self.target_file_lines[hunk_end-1]) - 1 # to reduce the length of "\n"
                         character_range = CharacterRange([target_hunk_range.start, 1, hunk_end, heuristic_characters_end_idx])
                         candidate_characters = get_region_characters(self.target_file_lines, character_range)
-                        candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, "<LOCATION_HELPER:DIFF_FULLY_COVER>")
+                        candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, marker)
                         candidate_regions.append(candidate_region)
+
+                        # fine-grained map
+                        check_char = " "
+                        source_1st_line_str = self.source_region_characters[0]
+                        candidate_1st_line_str = self.target_file_lines[target_hunk_range.start-1]
+                        lstrip_num = fine_grained_changes(source_1st_line_str, candidate_1st_line_str, check_char)
+                        if lstrip_num != None:
+                            marker += "<FIND_GRAINED>"
+                            region_range = [target_hunk_range.start, 1 + lstrip_num, hunk_end, heuristic_characters_end_idx]
+                            candidate_region_range = CharacterRange(region_range)
+                            candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
+                            candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
+                            candidate_regions.append(candidate_region)
                     else:
                         location = locate_changes(overlapped_line_numbers, self.interest_line_numbers)
                         diff_hunk = DiffHunk(base_hunk_range.start, base_hunk_range.stop, target_hunk_range.start, target_hunk_range.stop)

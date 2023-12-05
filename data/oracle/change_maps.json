@@ -137,7 +137,7 @@
             "source_file": "packages/react-reconciler/src/ReactFiberHooks.js",
             "target_file": "packages/react-reconciler/src/ReactFiberHooks.js",
             "source_range": "[1918, 5, 1918, 24]",
-            "target_range": "[1918, 5, 1918, 46]",
+            "target_range": "[1918, 27, 1918, 46]",
             "change_operation": "intra-line modify",
             "kind": "single line"
         }
@@ -181,8 +181,8 @@
             "source_file": "imgui.cpp",
             "target_file": "imgui.cpp",
             "source_range": "[9144, 1, 9144, 86]",
-            "target_range": "[9144, 1, 9144, 95]",
-            "change_operation": "add",
+            "target_range": "[9163, 1, 9163, 86]",
+            "change_operation": "move",
             "kind": "function declaration" 
         }
     },

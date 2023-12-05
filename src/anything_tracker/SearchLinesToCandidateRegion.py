@@ -1,5 +1,6 @@
 from anything_tracker.CandidateRegion import CandidateRegion
 from anything_tracker.CharacterRange import CharacterRange
+from anything_tracker.utils.FineGrainedWhitespace import fine_grained_changes
 from anything_tracker.utils.ReadFile import get_region_characters
 
 
@@ -158,6 +159,19 @@ class SearchLinesToCandidateRegion():
         candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
         candidate_region_top_bottom_with_changed_lines.append(candidate_region)
 
+        # fine grained
+        check_char = " "
+        source_1st_line_str = self.source_region_characters[0]
+        candidate_1st_line_str = self.target_file_lines[range_start_line-1]
+        lstrip_num = fine_grained_changes(source_1st_line_str, candidate_1st_line_str, check_char)
+        if lstrip_num != None:
+            marker += "<FIND_GRAINED>"
+            region_range = [range_start_line, range_start_char + lstrip_num, range_end_line, range_end_char]
+            candidate_region_range = CharacterRange(region_range)
+            candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
+            candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
+            candidate_region_top_bottom_with_changed_lines.append(candidate_region)
+
         return candidate_region_top_bottom_with_changed_lines
 
     def top_overlap(self, unchanged_mapped_ranges):
@@ -165,16 +179,33 @@ class SearchLinesToCandidateRegion():
         # Expected candidate region: top_diff_hunk + searched no changed ranges
         for mapped_range in unchanged_mapped_ranges: # unchanged_mapped_ranges is in order, start from smaller numbers
             if self.top_diff_hunk.target_end_line_number <= mapped_range.start_line_idx:
+                top_hunk_start_line_idx = self.top_diff_hunk.target_start_line_number
                 region_range = [self.top_diff_hunk.target_start_line_number, 1, mapped_range.end_line_idx, mapped_range.characters_end_idx]
                 marker = "<TOP_OVERLAP>"
                 if self.top_diff_hunk.target_start_line_number == self.top_diff_hunk.target_end_line_number:      
                     # = no change, exactly map
-                    region_range = [self.top_diff_hunk.target_start_line_number+1, 1, mapped_range.end_line_idx, mapped_range.characters_end_idx]
+                    top_hunk_start_line_idx = self.top_diff_hunk.target_start_line_number+1
                     marker += "<TOP_DELETE>"
+                region_range = [top_hunk_start_line_idx, 1, mapped_range.end_line_idx, mapped_range.characters_end_idx]
                 candidate_region_range = CharacterRange(region_range)
                 candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
                 candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
                 candidate_region_top_with_changed_lines.append(candidate_region)
+                # fine-grained
+                # "\t" is for go, language specific
+                # TODO check if there is a encode way to unify all
+                check_char = " "
+                source_1st_line_str = self.source_region_characters[0]
+                candidate_1st_line_str = self.target_file_lines[top_hunk_start_line_idx-1]
+                lstrip_num = fine_grained_changes(source_1st_line_str, candidate_1st_line_str, check_char)
+                if lstrip_num != None:
+                    marker += "<FIND_GRAINED>"
+                    region_range = [top_hunk_start_line_idx, 1 + lstrip_num, mapped_range.end_line_idx, mapped_range.characters_end_idx]
+                    candidate_region_range = CharacterRange(region_range)
+                    candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
+                    candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
+                    candidate_region_top_with_changed_lines.append(candidate_region)
+
                 return candidate_region_top_with_changed_lines
     
     def bottom_overlap(self, unchanged_mapped_ranges):
