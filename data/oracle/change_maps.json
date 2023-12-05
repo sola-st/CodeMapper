@@ -147,9 +147,9 @@
         "mapping": {
             "source_file": "imgui.cpp",
             "target_file": "imgui.cpp",
-            "source_range": "[5447, 9, 5450, 317]",
-            "target_range": "[5447, 9, 5452, 349]",
-            "change_operation": "modify",
+            "source_range": "[5447, 5, 5450, 96]",
+            "target_range": "[5449, 10, 5452, 96]",
+            "change_operation": "modify and move",
             "kind": "if-else block"
         }
     },
