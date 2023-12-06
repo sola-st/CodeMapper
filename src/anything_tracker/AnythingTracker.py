@@ -91,12 +91,18 @@ class AnythingTracker():
                 "source_characters": source_region_characters_str
             }
         else: # expected region
-            expected_region_characters_str = "".join(characters_to_write)
             to_write = {
                 "expected_file": self.file_path,
-                "expected_range": str(self.expected_character_range.four_element_list),
-                "expected_characters": expected_region_characters_str
+                "expected_range": None,
+                "expected_characters": None
             }
+            if characters_to_write != "DELETED":
+                expected_region_characters_str = "".join(characters_to_write)
+                to_write = {
+                    "expected_file": self.file_path,
+                    "expected_range": str(self.expected_character_range.four_element_list),
+                    "expected_characters": expected_region_characters_str
+                }
             json_file = join(self.results_dir, "expect.json")
 
         # write region characters to a JSON file.
@@ -124,9 +130,10 @@ class AnythingTracker():
         self.write_regions_to_files()
 
         self.target_file_lines = checkout_to_read_file(self.repo_dir, self.target_commit, self.file_path)
+        expected_region_characters = "DELETED"
         if self.expected_character_range != None:
             expected_region_characters: list = get_source_and_expected_region_characters(self.target_file_lines, self.expected_character_range)
-            self.write_regions_to_files(expected_region_characters)
+        self.write_regions_to_files(expected_region_characters)
         
         # get candidates from git diff
         diff_candidates, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks = GitDiffToCandidateRegion(self).run_git_diff()

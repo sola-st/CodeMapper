@@ -39,7 +39,6 @@ class ComputeCandidatesForAllSourceRegions():
             result_dir = join(result_dir_parent, str(i))
 
             mapping:dict = meta["mapping"]
-            # TODO Change the oracle, or cover these cases.
             if mapping["source_range"] == None:
                 continue
 
@@ -53,10 +52,10 @@ class ComputeCandidatesForAllSourceRegions():
                 character_range_list,
                 result_dir
             ]
-
+            expected_character_range_list = None
             if mapping["target_range"] != None:
                 expected_character_range_list = json.loads(mapping["target_range"])
-                parameter.append(expected_character_range_list)
+            parameter.append(expected_character_range_list)
 
             parameters.append(parameter)
 
