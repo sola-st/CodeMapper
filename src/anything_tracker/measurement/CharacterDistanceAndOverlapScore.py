@@ -21,44 +21,58 @@ def longest_common_string(expected_chars, candidate_chars):
 
     return lcs
 
-def calculate_overlap(location1, location2, line_lengths, target_lines_str):
+def calculate_overlap(expected_location, predicted_location, line_lengths, target_lines_str):
     # Get absolute positions for both start and end of each location
-    start_line1, start_char1, end_line1, end_char1 = location1
-    start_line2, start_char2, end_line2, end_char2 = location2
+    start_line1, start_char1, end_line1, end_char1 = expected_location
+    start_line2, start_char2, end_line2, end_char2 = predicted_location
 
-    start_position1 = get_absolute_char_position(start_line1, start_char1, line_lengths)
-    end_position1 = get_absolute_char_position(end_line1, end_char1, line_lengths)
-    start_position2 = get_absolute_char_position(start_line2, start_char2, line_lengths)
-    end_position2 = get_absolute_char_position(end_line2, end_char2, line_lengths)
+    expected_start_char = get_absolute_char_position(start_line1, start_char1, line_lengths)
+    expected_end_char = get_absolute_char_position(end_line1, end_char1, line_lengths)
+    predicted_start_char = get_absolute_char_position(start_line2, start_char2, line_lengths)
+    predicted_end_char = get_absolute_char_position(end_line2, end_char2, line_lengths)
 
-    expected_chars = target_lines_str[start_position1:end_position1+1]
-    candidate_chars = target_lines_str[start_position2:end_position2+1]
+    expected_chars = target_lines_str[expected_start_char:expected_end_char+1]
+    candidate_chars = target_lines_str[predicted_start_char:predicted_end_char+1]
 
     lcs = longest_common_string(expected_chars, candidate_chars)
 
-    rate = "INIT"
-    distance = "INIT"
-    if lcs:
-        # overlap percentage
-        overlap_num = len(lcs)
-        base = end_position1 - start_position1 + 1
-        assert base > 0
-        rate = overlap_num / base
-        rate = format(rate, '.4f')
+    # overlap percentage
+    recall = 0 
+    precision = 0
+    f1_score = 0
 
-        # distance
-        base_start_extra = expected_chars.index(lcs) - 1
-        base_end_extra = len(expected_chars) - base_start_extra - overlap_num
+    # distance
+    pre_distance = 0
+    post_distance = 0
+    distance = 0
 
-        candidate_start_extra = candidate_chars.index(lcs) - 1
-        candidate_end_extra = len(candidate_chars) - candidate_start_extra - overlap_num
+    assert lcs != "" # otherwise, predicted location quality is poor
 
-        pre_distance = candidate_start_extra - base_start_extra
-        post_distance = candidate_end_extra - base_end_extra
+    # overlap percentage
+    overlap_num = len(lcs)
+    expected_len = expected_end_char - expected_start_char + 1
+    recall = overlap_num / expected_len
+    formatted_recall = round(recall, 4)
 
-        distance = abs(pre_distance) + abs(post_distance)
-    else: 
-        distance = "Bad_quality_map"
-        rate = "Bad_quality_map"
+    predicted_len = predicted_end_char - predicted_start_char + 1
+    assert predicted_len > 0
+    precision = overlap_num / predicted_len
+    formatted_precision = round(precision, 4)
 
-    return distance, rate
+    # distance
+    base_start_extra = expected_chars.index(lcs) - 1
+    base_end_extra = len(expected_chars) - base_start_extra - overlap_num
+
+    candidate_start_extra = candidate_chars.index(lcs) - 1
+    candidate_end_extra = len(candidate_chars) - candidate_start_extra - overlap_num
+
+    pre_distance = abs(candidate_start_extra - base_start_extra)
+    post_distance = abs(candidate_end_extra - base_end_extra)
+
+    distance = pre_distance + post_distance
+
+    if precision + recall != 0:
+        f1_score = 2 * (precision * recall) / (precision + recall)
+        formatted_f1_score = round(f1_score, 4)
+
+    return pre_distance, post_distance, distance, formatted_recall, formatted_precision, formatted_f1_score

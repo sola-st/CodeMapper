@@ -93,7 +93,7 @@
             "source_file": "scripts/rollup/build-all-release-channels.js",
             "target_file": "scripts/rollup/build-all-release-channels.js",
             "source_range": "[238, 3, 252, 3]",
-            "target_range": "[240, 3, 253, 3]",
+            "target_range": "[239, 3, 253, 3]",
             "change_operation": "modify",
             "kind": "if block"
         }

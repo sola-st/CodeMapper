@@ -154,10 +154,10 @@ class GitDiffToCandidateRegion():
                         if lstrip_num != None or tab_del_num != None:
                             marker += "<FIND_GRAINED>"
                             fine_grained_start_char = 0
-                        if lstrip_num != None:
-                            fine_grained_start_char = 1 + lstrip_num
-                        if  tab_del_num != None:
-                            fine_grained_start_char = 1 + tab_del_num
+                            if lstrip_num != None:
+                                fine_grained_start_char = 1 + lstrip_num
+                            if  tab_del_num != None:
+                                fine_grained_start_char = 1 + tab_del_num
                             region_range = [target_hunk_range.start, fine_grained_start_char, hunk_end, heuristic_characters_end_idx]
                             candidate_region_range = CharacterRange(region_range)
                             candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)

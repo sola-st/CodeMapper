@@ -25,14 +25,12 @@ def main():
     maps = load_json_file(oracle_file)
 
     results = []
-    results.append(["Ground truth index", "Number of candidates", "Exact match", "Distance", "Overlap Percentage"])
+    results.append(["Ground truth index", "Candidate region index", "Exact matched locations", 
+                    "Pre-distance", "Post-distance", "Overall distance", 
+                    "Recall", "Precision", "F1-score"])
 
     for i, meta in enumerate(maps):
-        match = []
-        distance = []
-        overlap = []
         target_lines = []
-
         url = meta["url"]
         tmp = url.split("/")
         repo_name = tmp[-3]
@@ -53,33 +51,21 @@ def main():
         else:
             expected_character_range = [0, 0, 0, 0]
 
-        candidate_num = 0
         json_results_file = join(candidates_dir, f"{i}/candidates.json")
-        if os.path.exists(json_results_file):
-            with open(json_results_file, 'r') as f:
-                candidate_regions = json.load(f)
+        assert os.path.exists(json_results_file) == True
 
-            candidate_num = len(candidate_regions)
-            for candidate in candidate_regions:
-                candidate_character_range = json.loads(candidate["target_range"])
-                if expected_character_range == candidate_character_range:
-                    match.append(candidate_character_range)
-                    distance.append(0)
-                    overlap.append(1.0)
-                else:
-                    # compute distance
-                    # # TODO also separate distance
-                    # compute overlap percentage
-                    dist, rate = calculate_overlap(expected_character_range, candidate_character_range, target_lines_len_list, target_lines_str)
-                    distance.append(dist)
-                    overlap.append(rate)
-                    match.append("-")
-        else:
-            match.append("Fail")
-            distance.append("Fail")
-            overlap.append("Fail")
-        
-        results.append([i, candidate_num, match, distance, overlap])
+        with open(json_results_file, 'r') as f:
+            candidate_regions = json.load(f)
+
+        for j, candidate in enumerate(candidate_regions):
+            candidate_character_range = json.loads(candidate["target_range"])
+            if expected_character_range == candidate_character_range:
+                results.append([i, j, candidate_character_range, 0, 0, 0, 1, 1, 1])
+            else:
+                # compute distance and overlap percentage
+                pre_distance, post_distance, distance, recall, precision, f1_score = \
+                        calculate_overlap(expected_character_range, candidate_character_range, target_lines_len_list, target_lines_str)
+                results.append([i, j,"-", pre_distance, post_distance, distance, recall, precision, f1_score])
 
     write_results(results, "measurement_results.csv")
 
