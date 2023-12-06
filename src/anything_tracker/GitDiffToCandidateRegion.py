@@ -148,13 +148,17 @@ class GitDiffToCandidateRegion():
                         candidate_regions.append(candidate_region)
 
                         # fine-grained map
-                        check_char = " "
                         source_1st_line_str = self.source_region_characters[0]
                         candidate_1st_line_str = self.target_file_lines[target_hunk_range.start-1]
-                        lstrip_num = fine_grained_changes(source_1st_line_str, candidate_1st_line_str, check_char)
-                        if lstrip_num != None:
+                        lstrip_num, tab_del_num = fine_grained_changes(source_1st_line_str, candidate_1st_line_str)
+                        if lstrip_num != None or tab_del_num != None:
                             marker += "<FIND_GRAINED>"
-                            region_range = [target_hunk_range.start, 1 + lstrip_num, hunk_end, heuristic_characters_end_idx]
+                            fine_grained_start_char = 0
+                        if lstrip_num != None:
+                            fine_grained_start_char = 1 + lstrip_num
+                        if  tab_del_num != None:
+                            fine_grained_start_char = 1 + tab_del_num
+                            region_range = [target_hunk_range.start, fine_grained_start_char, hunk_end, heuristic_characters_end_idx]
                             candidate_region_range = CharacterRange(region_range)
                             candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
                             candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)

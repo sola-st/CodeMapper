@@ -213,8 +213,8 @@
         "mapping": {
             "source_file": "cmd/event-notification.go",
             "target_file": "cmd/event-notification.go",
-            "source_range": "[104, 9, 110, 9]",
-            "target_range": "[104, 9, 110, 9]",
+            "source_range": "[104, 3, 110, 3]",
+            "target_range": "[104, 3, 110, 3]",
             "change_operation": "intra-line modify",
             "kind": "for loop" 
         }
@@ -224,8 +224,8 @@
         "mapping": {
             "source_file": "cmd/common-main.go",
             "target_file": "cmd/common-main.go",
-            "source_range": "[171, 5, 173, 5]",
-            "target_range": "[172, 5, 176, 5]",
+            "source_range": "[171, 2, 173, 2]",
+            "target_range": "[172, 2, 176, 2]",
             "change_operation": "modify",
             "kind": "if-else if block" 
         }

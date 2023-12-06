@@ -160,13 +160,17 @@ class SearchLinesToCandidateRegion():
         candidate_region_top_bottom_with_changed_lines.append(candidate_region)
 
         # fine grained
-        check_char = " "
         source_1st_line_str = self.source_region_characters[0]
         candidate_1st_line_str = self.target_file_lines[range_start_line-1]
-        lstrip_num = fine_grained_changes(source_1st_line_str, candidate_1st_line_str, check_char)
-        if lstrip_num != None:
+        lstrip_num, tab_del_num = fine_grained_changes(source_1st_line_str, candidate_1st_line_str)
+        if lstrip_num != None or tab_del_num != None:
             marker += "<FIND_GRAINED>"
-            region_range = [range_start_line, range_start_char + lstrip_num, range_end_line, range_end_char]
+            fine_grained_range_start_char = 0
+            if lstrip_num != None:
+                fine_grained_range_start_char = range_start_char + lstrip_num
+            if  tab_del_num != None:
+                fine_grained_range_start_char = range_start_char + tab_del_num
+            region_range = [range_start_line, fine_grained_range_start_char, range_end_line, range_end_char]
             candidate_region_range = CharacterRange(region_range)
             candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
             candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
@@ -194,13 +198,17 @@ class SearchLinesToCandidateRegion():
                 # fine-grained
                 # "\t" is for go, language specific
                 # TODO check if there is a encode way to unify all
-                check_char = " "
                 source_1st_line_str = self.source_region_characters[0]
                 candidate_1st_line_str = self.target_file_lines[top_hunk_start_line_idx-1]
-                lstrip_num = fine_grained_changes(source_1st_line_str, candidate_1st_line_str, check_char)
-                if lstrip_num != None:
+                lstrip_num, tab_del_num = fine_grained_changes(source_1st_line_str, candidate_1st_line_str)
+                if lstrip_num != None or tab_del_num != None:
                     marker += "<FIND_GRAINED>"
-                    region_range = [top_hunk_start_line_idx, 1 + lstrip_num, mapped_range.end_line_idx, mapped_range.characters_end_idx]
+                    fine_grained_start_char = 0
+                    if lstrip_num != None:
+                        fine_grained_start_char = 1 + lstrip_num
+                    if  tab_del_num != None:
+                        fine_grained_start_char = 1 + tab_del_num
+                    region_range = [top_hunk_start_line_idx, fine_grained_start_char, mapped_range.end_line_idx, mapped_range.characters_end_idx]
                     candidate_region_range = CharacterRange(region_range)
                     candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
                     candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
