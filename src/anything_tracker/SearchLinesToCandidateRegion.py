@@ -132,7 +132,7 @@ class SearchLinesToCandidateRegion():
         candidate_region_top_bottom_with_changed_lines = []
 
         # 5 base values
-        range_start_line = self.top_diff_hunk.target_start_line_number,
+        range_start_line = self.top_diff_hunk.target_start_line_number
         range_start_char = 1
         range_end_line = self.bottom_diff_hunk.target_end_line_number - 1
         range_end_char = len(self.target_file_lines[range_end_line-1]) - 1
@@ -299,6 +299,7 @@ class SearchLinesToCandidateRegion():
         # set a number to catch the 2 expected unchanged parts.
         # assert changed_line_numbers != []
         unchanged_line_numbers = list(set(self.interest_line_numbers) - set(changed_line_numbers))
+        unchanged_line_numbers.sort()
         if first == True and last == True: # cover lines in between
             for hunk in specified_diff_hunks:
                 if hunk.base_start_line_number == hunk.base_end_line_number:

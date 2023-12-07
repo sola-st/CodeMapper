@@ -46,8 +46,11 @@ def calculate_overlap(expected_location, predicted_location, line_lengths, targe
     post_distance = 0
     distance = 0
 
-    assert lcs != "" # otherwise, predicted location quality is poor
-
+    if lcs == "": # predicted location quality is poor
+        return "B","B", "B", "B", "B", "B" # [B]ad quality
+        # may from git diff [without options which can detect movement], it mis-identified that the source region is deleted, 
+        # but actually it may be moved to another location.
+    
     # overlap percentage
     overlap_num = len(lcs)
     expected_len = expected_end_char - expected_start_char + 1

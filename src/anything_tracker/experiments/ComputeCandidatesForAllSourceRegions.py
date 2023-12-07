@@ -11,39 +11,46 @@ class ComputeCandidatesForAllSourceRegions():
     """
     Computes candidate region for all the source regions.
     """
+    def __init__(self, oracle_file, result_dir_parent, is_data_reversed=False):
+        self.oracle_file = oracle_file
+        self.result_dir_parent = result_dir_parent
+        # False --> original data
+        # True --> reversed data
+        self.is_data_reversed = is_data_reversed 
+
+    def get_base_target_commit_ids(self, repo_dir, child_commit):
+        parent_commit = get_parent_commit(repo_dir, child_commit)
+        if self.is_data_reversed == True:
+            return child_commit, parent_commit
+        else:
+            return parent_commit, child_commit
+        
     def get_meta_inputs(self):
         """
         Returns a list of parameter list.
         Each inner list contains repo_dir, base_commit, target_commit, file_path, and interest_character_range.
         """
-
         parameters = []
 
-        # read maps file
-        oracle_file = join("data", "oracle", "change_maps.json")
-        with open(oracle_file) as f:
+        with open(self.oracle_file) as f:
             maps = json.load(f)
 
-        result_dir_parent = join("data", "results", "tracked_maps", "candidate_regions")
-
-        # get inputs for 
+        # get inputs for computing candidates
         for i, meta in enumerate(maps):
             url = meta["url"]
             tmp = url.split("/")
             repo_name = tmp[-3]
-            target_commit = tmp[-1]
+            child_commit = tmp[-1]
             repo_dir = join("data", "repos", repo_name)
-            base_commit = get_parent_commit(repo_dir, target_commit)
+            base_commit, target_commit = self.get_base_target_commit_ids(repo_dir, child_commit)
             assert base_commit != ""
-
-            result_dir = join(result_dir_parent, str(i))
+            result_dir = join(self.result_dir_parent, str(i))
 
             mapping:dict = meta["mapping"]
             if mapping["source_range"] == None:
                 continue
 
-            character_range_list = json.loads(mapping["source_range"]) # source
-
+            character_range_list = json.loads(mapping["source_range"])
             parameter = [
                 repo_dir,
                 base_commit,
@@ -56,7 +63,6 @@ class ComputeCandidatesForAllSourceRegions():
             if mapping["target_range"] != None:
                 expected_character_range_list = json.loads(mapping["target_range"])
             parameter.append(expected_character_range_list)
-
             parameters.append(parameter)
 
         return parameters
@@ -79,6 +85,5 @@ class ComputeCandidatesForAllSourceRegions():
 
 def wrapper(args):
     AnythingTracker(*args).run()
-
-if __name__ == "__main__":
-    ComputeCandidatesForAllSourceRegions().run()
+    source_region_index = args[-2].split('/')[-1]
+    print(f"Compute candidates is done, source region #{source_region_index}.")
