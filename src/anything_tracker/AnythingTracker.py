@@ -38,7 +38,7 @@ def get_source_and_expected_region_characters(file_lines, character_range):
     if start_line_idx == end_line_idx: 
         # the source or expected region is inside one line.
         # only records one line number, that is, the start and end are on the same line.
-        characters = start_line[characters_start_idx-1 : characters_end_idx]
+        characters.append(start_line[characters_start_idx-1 : characters_end_idx])
     else:
         # covers multi-line
         # separate to 3 sections: start line, middle lines, and end line.

@@ -164,7 +164,7 @@ class SearchLinesToCandidateRegion():
         candidate_1st_line_str = self.target_file_lines[range_start_line-1]
         lstrip_num, tab_del_num = fine_grained_changes(source_1st_line_str, candidate_1st_line_str)
         if lstrip_num != None or tab_del_num != None:
-            marker += "<FIND_GRAINED>"
+            marker += "<FIND_GRAINED_WS>"
             fine_grained_range_start_char = 0
             if lstrip_num != None:
                 fine_grained_range_start_char = range_start_char + lstrip_num
@@ -202,7 +202,7 @@ class SearchLinesToCandidateRegion():
                 candidate_1st_line_str = self.target_file_lines[top_hunk_start_line_idx-1]
                 lstrip_num, tab_del_num = fine_grained_changes(source_1st_line_str, candidate_1st_line_str)
                 if lstrip_num != None or tab_del_num != None:
-                    marker += "<FIND_GRAINED>"
+                    marker += "<FIND_GRAINED_WS>"
                     fine_grained_start_char = 0
                     if lstrip_num != None:
                         fine_grained_start_char = 1 + lstrip_num
