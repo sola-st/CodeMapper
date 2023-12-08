@@ -133,7 +133,7 @@ class SearchLinesToCandidateRegion():
 
         # 5 base values
         range_start_line = self.top_diff_hunk.target_start_line_number
-        range_start_char = 1
+        range_start_char = self.top_diff_hunk.target_start_character
         range_end_line = self.bottom_diff_hunk.target_end_line_number - 1
         range_end_char = len(self.target_file_lines[range_end_line-1]) - 1
         marker = "<TOP_BOTTOM_OVERLAP>"
@@ -151,7 +151,9 @@ class SearchLinesToCandidateRegion():
             marker += "<BOTTOM_DELETE>"
         elif self.bottom_diff_hunk.target_end_line_number - 1 == self.bottom_diff_hunk.target_start_line_number:
                 range_end_line = self.bottom_diff_hunk.target_start_line_number
-                range_end_char = len(self.target_file_lines[range_end_line-1]) - 1
+                range_end_char = self.bottom_diff_hunk.target_end_character
+                if range_end_char == 0:
+                    range_end_char = len(self.target_file_lines[range_end_line-1]) - 1
 
         region_range = [range_start_line, range_start_char, range_end_line, range_end_char]
         candidate_region_range = CharacterRange(region_range)
@@ -184,13 +186,14 @@ class SearchLinesToCandidateRegion():
         for mapped_range in unchanged_mapped_ranges: # unchanged_mapped_ranges is in order, start from smaller numbers
             if self.top_diff_hunk.target_end_line_number <= mapped_range.start_line_idx:
                 top_hunk_start_line_idx = self.top_diff_hunk.target_start_line_number
-                region_range = [self.top_diff_hunk.target_start_line_number, 1, mapped_range.end_line_idx, mapped_range.characters_end_idx]
+                top_hunk_start_character_idx = self.top_diff_hunk.target_start_character
+                region_range = [self.top_diff_hunk.target_start_line_number, top_hunk_start_character_idx, mapped_range.end_line_idx, mapped_range.characters_end_idx]
                 marker = "<TOP_OVERLAP>"
                 if self.top_diff_hunk.target_start_line_number == self.top_diff_hunk.target_end_line_number:      
                     # = no change, exactly map
                     top_hunk_start_line_idx = self.top_diff_hunk.target_start_line_number+1
                     marker += "<TOP_DELETE>"
-                region_range = [top_hunk_start_line_idx, 1, mapped_range.end_line_idx, mapped_range.characters_end_idx]
+                region_range = [top_hunk_start_line_idx, top_hunk_start_character_idx, mapped_range.end_line_idx, mapped_range.characters_end_idx]
                 candidate_region_range = CharacterRange(region_range)
                 candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
                 candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
@@ -205,9 +208,9 @@ class SearchLinesToCandidateRegion():
                     marker += "<FIND_GRAINED_WS>"
                     fine_grained_start_char = 0
                     if lstrip_num != None:
-                        fine_grained_start_char = 1 + lstrip_num
+                        fine_grained_start_char = top_hunk_start_character_idx + lstrip_num
                     if  tab_del_num != None:
-                        fine_grained_start_char = 1 + tab_del_num
+                        fine_grained_start_char = top_hunk_start_character_idx + tab_del_num
                     region_range = [top_hunk_start_line_idx, fine_grained_start_char, mapped_range.end_line_idx, mapped_range.characters_end_idx]
                     candidate_region_range = CharacterRange(region_range)
                     candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
@@ -221,10 +224,12 @@ class SearchLinesToCandidateRegion():
         # Expected candidate region: searched no changed ranges + bottom_diff_hunk
         for mapped_range in unchanged_mapped_ranges:
             if self.bottom_diff_hunk.target_start_line_number >= mapped_range.end_line_idx:
+                characters_end_idx = self.bottom_diff_hunk.target_end_character
+                end_line = self.bottom_diff_hunk.target_start_line_number - 1
                 if self.bottom_diff_hunk.target_end_line_number == self.bottom_diff_hunk.target_start_line_number:
                     # current hunk is empty
-                    end_line = self.bottom_diff_hunk.target_start_line_number - 1
-                    characters_end_idx = len(self.target_file_lines[end_line]) - 1
+                    if characters_end_idx == 0 :
+                        characters_end_idx = len(self.target_file_lines[end_line]) - 1
                     region_range = [mapped_range.start_line_idx, mapped_range.characters_start_idx, self.bottom_diff_hunk.target_end_line_number, characters_end_idx]
                     candidate_region_range = CharacterRange(region_range)
                     candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
@@ -232,12 +237,14 @@ class SearchLinesToCandidateRegion():
                     candidate_region_bottom_with_changed_lines.append(candidate_region)
                     return candidate_region_bottom_with_changed_lines
 
-                if self.bottom_diff_hunk.target_end_line_number - 1 > self.bottom_diff_hunk.target_start_line_number:
-                    end_line = self.bottom_diff_hunk.target_end_line_number - 1
-                    characters_end_idx = len(self.target_file_lines[self.bottom_diff_hunk.target_end_line_number - 2]) - 1 # to reduce the length of "\n"
-                else: # hunk range [187, 188)
-                    characters_end_idx = len(self.target_file_lines[self.bottom_diff_hunk.target_start_line_number - 1]) - 1
-                    end_line = self.bottom_diff_hunk.target_start_line_number
+                # if self.bottom_diff_hunk.target_end_line_number - 1 > self.bottom_diff_hunk.target_start_line_number:
+                #     end_line = self.bottom_diff_hunk.target_end_line_number - 1
+                #     if characters_end_idx == 0 :
+                #         characters_end_idx = len(self.target_file_lines[end_line -1]) - 1 # to reduce the length of "\n"
+                # else: # hunk range [187, 188)
+                #     end_line = self.bottom_diff_hunk.target_start_line_number
+                #     if characters_end_idx == 0 :
+                #         characters_end_idx = len(self.target_file_lines[end_line - 1]) - 1
                 region_range = [mapped_range.start_line_idx, mapped_range.characters_start_idx, end_line, characters_end_idx]
                 candidate_region_range = CharacterRange(region_range)
                 candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)

@@ -96,6 +96,9 @@ class GitDiffToCandidateRegion():
         # for character start and end
         candidate_character_start_idx = 0
         candidate_character_end_idx = 0
+        # only run once
+        candidate_character_start_idx_done = False
+        candidate_character_end_idx_done = False
 
         # for checking changed hunk
         all_covered_mark = False
@@ -128,11 +131,13 @@ class GitDiffToCandidateRegion():
                     if overlapped_line_numbers:
                         overlapped_line_numbers.append(-1)
                 if overlapped_line_numbers: # range overlap
-                    if self.interest_first_number in overlapped_line_numbers:
+                    if self.interest_first_number in overlapped_line_numbers and candidate_character_start_idx_done == False:
                         candidate_character_start_idx = self.fine_grained_start_and_end_character_indices(diff_line_num, base_hunk_range, True)
+                        candidate_character_start_idx_done = True
 
-                    if self.interest_last_number in overlapped_line_numbers:
+                    if self.interest_last_number in overlapped_line_numbers and candidate_character_end_idx_done == False:
                         candidate_character_end_idx = self.fine_grained_start_and_end_character_indices(diff_line_num, base_hunk_range, False)
+                        candidate_character_end_idx_done = True
 
                     uncovered_lines = list(set(uncovered_lines) - set(base_hunk_range))
                     if uncovered_lines == []:
@@ -156,32 +161,18 @@ class GitDiffToCandidateRegion():
                         if hunk_end <= target_hunk_range.start:
                             hunk_end = target_hunk_range.start
                         marker = "<LOCATION_HELPER:DIFF_FULLY_COVER>"
+                        if candidate_character_end_idx == 0:
+                            candidate_character_end_idx = len(self.target_file_lines[hunk_end-1]) - 1 # to reduce the length of "\n"
 
-                        # check if whitespaces can be fine-grained 
-                        source_1st_line_str = self.source_region_characters[0]
-                        candidate_1st_line_str = self.target_file_lines[target_hunk_range.start-1]
-                        lstrip_num, tab_del_num = fine_grained_changes(source_1st_line_str, candidate_1st_line_str)
-                        if lstrip_num != None or tab_del_num != None:
-                            marker += "<FIND_GRAINED_WS>"
-                            if lstrip_num != None:
-                                candidate_character_start_idx += lstrip_num
-                            if  tab_del_num != None:
-                                candidate_character_start_idx += tab_del_num
-                            region_range = [target_hunk_range.start, candidate_character_start_idx, hunk_end, candidate_character_end_idx]
-                            candidate_region_range = CharacterRange(region_range)
-                            candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
-                            candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
-                            candidate_regions.append(candidate_region)
-                        else:
-                            # no fine-grained result, keep the basic one.
-                            character_range = CharacterRange([target_hunk_range.start, candidate_character_start_idx, hunk_end, candidate_character_end_idx])
-                            candidate_characters = get_region_characters(self.target_file_lines, character_range)
-                            candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, marker)
-                            candidate_regions.append(candidate_region)
+                        character_range = CharacterRange([target_hunk_range.start, candidate_character_start_idx, hunk_end, candidate_character_end_idx])
+                        candidate_characters = get_region_characters(self.target_file_lines, character_range)
+                        candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, marker)
+                        candidate_regions.append(candidate_region)
                     else:
                         location = locate_changes(overlapped_line_numbers, self.interest_line_numbers)
-                        # TODO Add character indices
-                        diff_hunk = DiffHunk(base_hunk_range.start, base_hunk_range.stop, target_hunk_range.start, target_hunk_range.stop)
+                        diff_hunk = DiffHunk(base_hunk_range.start, base_hunk_range.stop, 
+                                             target_hunk_range.start, target_hunk_range.stop,
+                                             candidate_character_start_idx, candidate_character_end_idx)
                         if location == "top":
                             top_diff_hunks.append(diff_hunk)
                         elif location == "middle":
@@ -218,82 +209,99 @@ class GitDiffToCandidateRegion():
             without this function, the candidate region will starts from character 1
             with this function, it will be more closer to 12.
         '''
-        specified_line_number_idx = list(base_hunk_range).index(self.interest_first_number)
+
+        specified_line_number_idx = None
+        base_list:list = list(base_hunk_range)
+        if base_list == []: # delete hunk
+            specified_line_number_idx = 0
+        else:
+            if is_start == True:
+                specified_line_number_idx = base_list.index(self.interest_first_number)
+            else:
+                specified_line_number_idx = base_list.index(self.interest_last_number)
         interest_first_line_characters_in_diff = self.diffs[diff_line_num + specified_line_number_idx + 1]
         splits = interest_first_line_characters_in_diff.split("\033")
+        splits = [i for i in splits if not i == "[m"]
+        if splits[-1].startswith("[m"):
+            splits[-1] = splits[-1][2:]
 
-        candidate_color_character_idx = 0
+        candidate_color_character_idx = None
         source_pre_characters_len = 0
         candidate_pre_characters_len = 0
         pre_1_s = ""
         pre_1_s_len = 0
         pre_in_color = False
-        is_last_s = False
+        fit_condition = False
         
         for i, s in enumerate(splits):
-            if s != "[m":
-                if is_start == True:
-                    if source_pre_characters_len > self.characters_start_idx: # the closest one before the source start
-                        candidate_color_character_idx = self.fine_grained_return_helper( 
-                                pre_in_color, pre_1_s, pre_1_s_len, is_start, candidate_pre_characters_len) 
-                else:
-                    if source_pre_characters_len > self.characters_end_idx:
-                        candidate_color_character_idx = self.fine_grained_return_helper( 
-                                pre_in_color, pre_1_s, pre_1_s_len, is_start, candidate_pre_characters_len)
-                        
-                if candidate_color_character_idx != 0:
+            if is_start == True:
+                if source_pre_characters_len >= self.characters_start_idx: # the closest one before the source start
+                    candidate_color_character_idx = self.fine_grained_return_helper( 
+                            pre_in_color, pre_1_s, pre_1_s_len, is_start, candidate_pre_characters_len) 
+            else:
+                if source_pre_characters_len == self.characters_end_idx:
+                    s_len = len(s)
+                    if "[32m" in s:
+                        s_len = len(s[6:-2])
+                    candidate_color_character_idx = candidate_pre_characters_len + s_len
                     return candidate_color_character_idx
+                elif source_pre_characters_len >= self.characters_end_idx:
+                    fit_condition = True
+                    in_color = False
+                    ns = ""
+                    ns_len = 0
+                    if "[32m" in s:
+                        ns = s[6:-2]
+                        ns_len = len(ns)
+                        candidate_pre_characters_len += ns_len
+                        in_color == True
+                    candidate_color_character_idx = self.fine_grained_return_helper( 
+                            in_color, ns, ns_len, is_start, candidate_pre_characters_len)
 
-                if "[31m" in s: # delete. eg,.[31m[-0.10.11-]
-                    pre_1_s = s[6:-2]
-                    pre_1_s_len = len(pre_1_s)
-                    source_pre_characters_len += pre_1_s_len
-                    pre_in_color = True
-                elif "[32m" in s: # add. eg,. [32m{+0.10.12+}
-                    pre_1_s = s[6:-2]
-                    pre_1_s_len = len(pre_1_s)
-                    candidate_pre_characters_len += pre_1_s_len
-                    pre_in_color = True
-                else:
-                    pre_1_s = s
-                    pre_1_s_len = len(s)
-                    source_pre_characters_len += pre_1_s_len
-                    candidate_pre_characters_len += pre_1_s_len
-                    pre_in_color = False
-                
-                if pre_in_color == True and i + 2 == len(splits): # the -1 is [m
-                    is_last_s = True
-                elif pre_in_color == False and i + 1 == len(splits):
-                    is_last_s = True
+            if candidate_color_character_idx != None:
+                return candidate_color_character_idx
 
-                if is_last_s == True:
-                    if is_start == True:
-                        candidate_color_character_idx = self.fine_grained_return_helper(
-                                pre_in_color, pre_1_s, pre_1_s_len, is_start, candidate_pre_characters_len)
-                        assert candidate_color_character_idx != 0
-                        return candidate_color_character_idx
-                    else:
-                        candidate_color_character_idx = self.fine_grained_return_helper( 
-                                pre_in_color, pre_1_s, pre_1_s_len, is_start, candidate_pre_characters_len)
-                        assert candidate_color_character_idx != 0
-                        return candidate_color_character_idx
+            if "[31m" in s: # delete. eg,.[31m[-0.10.11-]
+                pre_1_s = s[6:-2]
+                pre_1_s_len = len(pre_1_s)
+                source_pre_characters_len += pre_1_s_len
+                pre_in_color = True
+            elif "[32m" in s: # add. eg,. [32m{+0.10.12+}
+                pre_1_s = s[6:-2]
+                pre_1_s_len = len(pre_1_s)
+                candidate_pre_characters_len += pre_1_s_len
+                pre_in_color = True
+            else:
+                pre_1_s = s
+                pre_1_s_len = len(s)
+                source_pre_characters_len += pre_1_s_len
+                candidate_pre_characters_len += pre_1_s_len
+                pre_in_color = False
 
+        if fit_condition == False:
+            if pre_in_color == True:
+                candidate_color_character_idx = candidate_pre_characters_len
+            else:
+                overlapped_num = compute_overlap(self.interest_last_characters, pre_1_s)
+                candidate_color_character_idx = candidate_pre_characters_len - pre_1_s_len + overlapped_num
 
-    def fine_grained_return_helper(self, pre_in_color, pre_1_s, pre_1_s_len, is_start, candidate_pre_characters_len):
+            return candidate_color_character_idx
+
+    def fine_grained_return_helper(self, pre_in_color, pre_1_s, pre_1_s_len, is_start, candidate_pre_characters_len, updated=False):
         candidate_color_character_idx = 0
 
-        if is_start == True:
+        if is_start == True: # start line
             if pre_in_color == False:
                 overlapped_num = compute_overlap(pre_1_s, self.interest_first_characters) # string end vs. string start
                 candidate_color_character_idx = candidate_pre_characters_len - overlapped_num + 1 # starts at 1
             else:
-                candidate_color_character_idx = candidate_pre_characters_len - pre_1_s_len + 1 
-        else:
+                candidate_color_character_idx = candidate_pre_characters_len + 1 
+        else: # end line
             if pre_in_color == False:
                 overlapped_num = compute_overlap(self.interest_last_characters, pre_1_s)
-                candidate_color_character_idx = candidate_pre_characters_len - overlapped_num + 1
-            else:
-                candidate_color_character_idx = candidate_pre_characters_len
+                candidate_color_character_idx = candidate_pre_characters_len - (pre_1_s_len - overlapped_num) + 1
+            else: # if candidate_color_character_idx == 0, the last line was deleted
+                candidate_color_character_idx = candidate_pre_characters_len + pre_1_s_len
 
         return candidate_color_character_idx
 
