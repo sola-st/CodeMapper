@@ -132,14 +132,20 @@ class GitDiffToCandidateRegion():
                         overlapped_line_numbers.append(-1)
                 if overlapped_line_numbers: # range overlap
                     if self.interest_first_number in overlapped_line_numbers and candidate_character_start_idx_done == False:
-                        candidate_character_start_idx = self.fine_grained_start_and_end_character_indices(diff_line_num, base_hunk_range, True)
+                        if self.characters_start_idx == 1:
+                            candidate_character_start_idx = 1
+                        else:
+                            candidate_character_start_idx = self.fine_grained_start_and_end_character_indices(diff_line_num, base_hunk_range, True)
                         candidate_character_start_idx_done = True
 
                     if self.interest_last_number in overlapped_line_numbers and candidate_character_end_idx_done == False:
                         candidate_character_end_idx = self.fine_grained_start_and_end_character_indices(diff_line_num, base_hunk_range, False)
                         candidate_character_end_idx_done = True
 
-                    uncovered_lines = list(set(uncovered_lines) - set(base_hunk_range))
+                    base_hunk_range_list = list(base_hunk_range)
+                    if base_hunk_range.start == base_hunk_range.stop:
+                        base_hunk_range_list.append(base_hunk_range.start)
+                    uncovered_lines = list(set(uncovered_lines) - set(base_hunk_range_list))
                     if uncovered_lines == []:
                         all_covered_mark = True
                     target_hunk_range, target_step = get_diff_reported_range(tmp[2], False)
@@ -148,26 +154,33 @@ class GitDiffToCandidateRegion():
                      * fully covered --> candidate region
                      * top, middle, bottom of source ranges --> diff hunks
                     '''
-                    if list(set(self.interest_line_numbers) - set(list(base_hunk_range))) == []: # fully covered by changed hunk
-                        # Heuristic: set character indices as 0 and the length of the last line in target range.
-                        if target_hunk_range.stop == target_hunk_range.start:
-                            # source region lines are deleted
-                            character_range = CharacterRange([0, 0, 0, 0])
-                            candidate_region = CandidateRegion(self.interest_character_range, character_range, None, "<LOCATION_HELPER:DIFF_DELETE>")
+                    if list(set(self.interest_line_numbers) - set(base_hunk_range_list)) == []: 
+                        if base_hunk_range.start == base_hunk_range.stop: # no changed, bottom overlap
+                            diff_hunk = DiffHunk(base_hunk_range.start, base_hunk_range.stop, 
+                                             target_hunk_range.start, target_hunk_range.stop,
+                                             candidate_character_start_idx, candidate_character_end_idx)
+                            bottom_diff_hunks.append(diff_hunk)
+                        else:
+                            # fully covered by changed hunk
+                            # Heuristic: set character indices as 0 and the length of the last line in target range.
+                            if target_hunk_range.stop == target_hunk_range.start:
+                                # source region lines are deleted
+                                character_range = CharacterRange([0, 0, 0, 0])
+                                candidate_region = CandidateRegion(self.interest_character_range, character_range, None, "<LOCATION_HELPER:DIFF_DELETE>")
+                                candidate_regions.append(candidate_region)
+                                continue
+
+                            hunk_end = target_hunk_range.stop - 1
+                            if hunk_end <= target_hunk_range.start:
+                                hunk_end = target_hunk_range.start
+                            marker = "<LOCATION_HELPER:DIFF_FULLY_COVER>"
+                            if candidate_character_end_idx == 0:
+                                candidate_character_end_idx = len(self.target_file_lines[hunk_end-1]) - 1 # to reduce the length of "\n"
+
+                            character_range = CharacterRange([target_hunk_range.start, candidate_character_start_idx, hunk_end, candidate_character_end_idx])
+                            candidate_characters = get_region_characters(self.target_file_lines, character_range)
+                            candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, marker)
                             candidate_regions.append(candidate_region)
-                            continue
-
-                        hunk_end = target_hunk_range.stop - 1
-                        if hunk_end <= target_hunk_range.start:
-                            hunk_end = target_hunk_range.start
-                        marker = "<LOCATION_HELPER:DIFF_FULLY_COVER>"
-                        if candidate_character_end_idx == 0:
-                            candidate_character_end_idx = len(self.target_file_lines[hunk_end-1]) - 1 # to reduce the length of "\n"
-
-                        character_range = CharacterRange([target_hunk_range.start, candidate_character_start_idx, hunk_end, candidate_character_end_idx])
-                        candidate_characters = get_region_characters(self.target_file_lines, character_range)
-                        candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, marker)
-                        candidate_regions.append(candidate_region)
                     else:
                         location = locate_changes(overlapped_line_numbers, self.interest_line_numbers)
                         diff_hunk = DiffHunk(base_hunk_range.start, base_hunk_range.stop, 
@@ -221,9 +234,10 @@ class GitDiffToCandidateRegion():
                 specified_line_number_idx = base_list.index(self.interest_last_number)
         interest_first_line_characters_in_diff = self.diffs[diff_line_num + specified_line_number_idx + 1]
         splits = interest_first_line_characters_in_diff.split("\033")
-        splits = [i for i in splits if not i == "[m"]
-        if splits[-1].startswith("[m"):
-            splits[-1] = splits[-1][2:]
+        splits = [s for s in splits if not s == "[m"]
+        for i, s in enumerate(splits):
+            if s.startswith("[m"):
+                splits[i] = s[2:]
 
         candidate_color_character_idx = None
         source_pre_characters_len = 0
@@ -245,18 +259,17 @@ class GitDiffToCandidateRegion():
                         s_len = len(s[6:-2])
                     candidate_color_character_idx = candidate_pre_characters_len + s_len
                     return candidate_color_character_idx
-                elif source_pre_characters_len >= self.characters_end_idx:
+                elif source_pre_characters_len > self.characters_end_idx:
                     fit_condition = True
-                    in_color = False
-                    ns = ""
-                    ns_len = 0
                     if "[32m" in s:
                         ns = s[6:-2]
                         ns_len = len(ns)
                         candidate_pre_characters_len += ns_len
-                        in_color == True
-                    candidate_color_character_idx = self.fine_grained_return_helper( 
-                            in_color, ns, ns_len, is_start, candidate_pre_characters_len)
+                        in_color = True
+                        candidate_color_character_idx = self.fine_grained_return_helper( 
+                                in_color, ns, ns_len, is_start, candidate_pre_characters_len)
+                    else:
+                        candidate_color_character_idx = candidate_pre_characters_len + len(s)
 
             if candidate_color_character_idx != None:
                 return candidate_color_character_idx
@@ -297,11 +310,10 @@ class GitDiffToCandidateRegion():
             else:
                 candidate_color_character_idx = candidate_pre_characters_len + 1 
         else: # end line
+            # TODO move in color part
             if pre_in_color == False:
                 overlapped_num = compute_overlap(self.interest_last_characters, pre_1_s)
                 candidate_color_character_idx = candidate_pre_characters_len - (pre_1_s_len - overlapped_num) + 1
-            else: # if candidate_color_character_idx == 0, the last line was deleted
-                candidate_color_character_idx = candidate_pre_characters_len + pre_1_s_len
 
         return candidate_color_character_idx
 
