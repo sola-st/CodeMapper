@@ -83,7 +83,7 @@ class GitDiffToCandidateRegion():
         #     commit_diff_command = f"git diff {self.base_commit}:{self.file_path} {self.target_commit}:{renamed_file_path}"
 
         result = subprocess.run(commit_diff_command, cwd=self.repo_dir, shell=True,
-        stdout = subprocess.PIPE, universal_newlines=True)
+                stdout = subprocess.PIPE, universal_newlines=True)
         diff_result = result.stdout
 
         candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks = self.diff_result_to_target_changed_hunk(diff_result)
