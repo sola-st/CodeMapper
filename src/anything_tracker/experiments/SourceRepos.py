@@ -18,7 +18,7 @@ class SourceRepos():
         except:
             return False
 
-    def get_repo_dirs(self) -> List[str]:
+    def get_repo_dirs(self, return_git_urls=False):
         """
         Returns a list with the directories of all repositories.
         If the repositories are not yet cloned, this method clones them first.
@@ -41,9 +41,12 @@ class SourceRepos():
                 makedirs(repo_dir)
                 Repo.clone_from(git_url, repo_dir)
             repo_dirs.append(repo_dir)
-
-        # return list of repo dirs
-        return repo_dirs
+            
+        if return_git_urls == True:
+            return repo_dirs, git_urls
+        else:
+            # return list of repo dirs
+            return repo_dirs
 
     def checkout_latest_commits(self) -> Dict[str, str]:
         """
