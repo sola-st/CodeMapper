@@ -70,7 +70,10 @@ class SearchLinesToCandidateRegion():
         # 2) locate candidates by searching exactly mapped regions
         # Scenario 5: search exactly the same content
         searched_candidate_regions = self.search_exactly_mapped_context()
-        candidate_regions.extend(searched_candidate_regions)
+        if candidate_regions == None:
+            candidate_regions = searched_candidate_regions
+        else:
+            candidate_regions.extend(searched_candidate_regions)
         
         return candidate_regions
     

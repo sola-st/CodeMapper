@@ -126,7 +126,7 @@ class RandomlyGenerateData():
         source_repo_init.checkout_latest_commits()
 
         # generate data start.
-        for repo_dir, repo_url in zip(repo_dirs[:2], repo_git_urls[:2]):
+        for repo_dir, repo_url in zip(repo_dirs, repo_git_urls):
             repo = Repo(repo_dir)
             print(f"Data generation starts for: {repo_dir}")
             # step 1: randomly select several commits from the latest 100 commits.
