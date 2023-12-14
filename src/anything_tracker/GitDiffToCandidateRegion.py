@@ -175,7 +175,7 @@ class GitDiffToCandidateRegion():
                                 hunk_end = target_hunk_range.start
                             marker = "<LOCATION_HELPER:DIFF_FULLY_COVER>"
                             if candidate_character_end_idx == 0:
-                                candidate_character_end_idx = len(self.target_file_lines[hunk_end-1]) - 1 # to reduce the length of "\n"
+                                candidate_character_end_idx = len(self.target_file_lines[hunk_end-1])
 
                             character_range = CharacterRange([target_hunk_range.start, candidate_character_start_idx, hunk_end, candidate_character_end_idx])
                             candidate_characters = get_region_characters(self.target_file_lines, character_range)

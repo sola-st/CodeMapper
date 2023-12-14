@@ -135,7 +135,7 @@ class SearchLinesToCandidateRegion():
         range_start_line = self.top_diff_hunk.target_start_line_number
         range_start_char = self.top_diff_hunk.target_start_character
         range_end_line = self.bottom_diff_hunk.target_end_line_number - 1
-        range_end_char = len(self.target_file_lines[range_end_line-1]) - 1
+        range_end_char = len(self.target_file_lines[range_end_line-1])
         marker = "<TOP_BOTTOM_OVERLAP>"
 
         # update the 5 values
@@ -153,7 +153,7 @@ class SearchLinesToCandidateRegion():
                 range_end_line = self.bottom_diff_hunk.target_start_line_number
                 range_end_char = self.bottom_diff_hunk.target_end_character
                 if range_end_char == 0:
-                    range_end_char = len(self.target_file_lines[range_end_line-1]) - 1
+                    range_end_char = len(self.target_file_lines[range_end_line-1])
 
         region_range = [range_start_line, range_start_char, range_end_line, range_end_char]
         candidate_region_range = CharacterRange(region_range)
@@ -226,7 +226,7 @@ class SearchLinesToCandidateRegion():
                 end_line = self.bottom_diff_hunk.target_end_line_number - 1
                 characters_end_idx = self.bottom_diff_hunk.target_end_character
                 if characters_end_idx == 0 :
-                        characters_end_idx = len(self.target_file_lines[end_line -1]) - 1
+                        characters_end_idx = len(self.target_file_lines[end_line])
                 if self.bottom_diff_hunk.target_end_line_number == self.bottom_diff_hunk.target_start_line_number:
                     # current hunk is empty
                     region_range = [mapped_range.start_line_idx, mapped_range.characters_start_idx, self.bottom_diff_hunk.target_end_line_number, characters_end_idx]
