@@ -118,7 +118,7 @@ class SearchLinesToCandidateRegion():
             specified_diff_hunks.append(self.bottom_diff_hunk)
             if self.middle_diff_hunks:
                 specified_diff_hunks.extend(self.middle_diff_hunks)
-            top_unchanged_line_numbers = self.get_first_and_last_unchanged_line_numbers(specified_diff_hunks, False, True)
+            top_unchanged_line_numbers = self.get_first_and_last_unchanged_line_numbers(specified_diff_hunks, True, False)
             unchanged_lines = self.source_region_characters[0: len(top_unchanged_line_numbers)]
             unchanged_str = "".join(unchanged_lines)
             unchanged_mapped_ranges = self.search_exactly_mapped_context(unchanged_str, "keep_upper_part", [self.bottom_diff_hunk]) 
@@ -128,7 +128,7 @@ class SearchLinesToCandidateRegion():
             candidate_region_top_with_changed_lines = self.top_overlap(unchanged_mapped_ranges)
             return candidate_region_top_with_changed_lines
         else: # "bottom"
-            candidate_region_bottom_with_changed_lines =self.bottom_overlap(unchanged_mapped_ranges)
+            candidate_region_bottom_with_changed_lines = self.bottom_overlap(unchanged_mapped_ranges)
             return candidate_region_bottom_with_changed_lines
             
     def top_bottom_overlap(self):
@@ -146,6 +146,7 @@ class SearchLinesToCandidateRegion():
         if self.top_diff_hunk.target_start_line_number == self.top_diff_hunk.target_end_line_number:      
             # = bottom overlap 
             range_start_line = self.top_diff_hunk.target_start_line_number+1
+            range_start_char = self.interest_character_range.characters_start_idx
             marker += "<TOP_DELETE>"
 
         # check if bottom hunk is a delete hunk, from non-empty lines to None.
@@ -163,24 +164,6 @@ class SearchLinesToCandidateRegion():
         candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
         candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
         candidate_region_top_bottom_with_changed_lines.append(candidate_region)
-
-        # fine grained
-        source_1st_line_str = self.source_region_characters[0]
-        candidate_1st_line_str = self.target_file_lines[range_start_line-1]
-        lstrip_num, tab_del_num = fine_grained_changes(source_1st_line_str, candidate_1st_line_str)
-        if lstrip_num != None or tab_del_num != None:
-            marker += "<FIND_GRAINED_WS>"
-            fine_grained_range_start_char = 0
-            if lstrip_num != None:
-                fine_grained_range_start_char = range_start_char + lstrip_num
-            if  tab_del_num != None:
-                fine_grained_range_start_char = range_start_char + tab_del_num
-            region_range = [range_start_line, fine_grained_range_start_char, range_end_line, range_end_char]
-            candidate_region_range = CharacterRange(region_range)
-            candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
-            candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
-            candidate_region_top_bottom_with_changed_lines.append(candidate_region)
-
         return candidate_region_top_bottom_with_changed_lines
 
     def top_overlap(self, unchanged_mapped_ranges):
@@ -190,35 +173,19 @@ class SearchLinesToCandidateRegion():
             if self.top_diff_hunk.target_end_line_number <= mapped_range.start_line_idx:
                 top_hunk_start_line_idx = self.top_diff_hunk.target_start_line_number
                 top_hunk_start_character_idx = self.top_diff_hunk.target_start_character
+                if top_hunk_start_character_idx == 0:
+                    top_hunk_start_character_idx = 1
                 region_range = [self.top_diff_hunk.target_start_line_number, top_hunk_start_character_idx, mapped_range.end_line_idx, mapped_range.characters_end_idx]
                 marker = "<TOP_OVERLAP>"
-                if self.top_diff_hunk.target_start_line_number == self.top_diff_hunk.target_end_line_number:      
-                    # = no change, exactly map
-                    top_hunk_start_line_idx = self.top_diff_hunk.target_start_line_number+1
+                if self.top_diff_hunk.target_start_line_number == self.top_diff_hunk.target_end_line_number:   
+                    top_hunk_start_line_idx = self.top_diff_hunk.target_start_line_number+1   
+                    top_hunk_start_character_idx = self.interest_character_range.characters_start_idx
                     marker += "<TOP_DELETE>"
                 region_range = [top_hunk_start_line_idx, top_hunk_start_character_idx, mapped_range.end_line_idx, mapped_range.characters_end_idx]
                 candidate_region_range = CharacterRange(region_range)
                 candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
                 candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
                 candidate_region_top_with_changed_lines.append(candidate_region)
-                # fine-grained
-                # "\t" is for go, language specific
-                # TODO check if there is a encode way to unify all
-                source_1st_line_str = self.source_region_characters[0]
-                candidate_1st_line_str = self.target_file_lines[top_hunk_start_line_idx-1]
-                lstrip_num, tab_del_num = fine_grained_changes(source_1st_line_str, candidate_1st_line_str)
-                if lstrip_num != None or tab_del_num != None:
-                    marker += "<FIND_GRAINED_WS>"
-                    if lstrip_num != None:
-                        top_hunk_start_character_idx = top_hunk_start_character_idx + lstrip_num
-                    if  tab_del_num != None:
-                        top_hunk_start_character_idx = top_hunk_start_character_idx + tab_del_num
-                    region_range = [top_hunk_start_line_idx, top_hunk_start_character_idx, mapped_range.end_line_idx, mapped_range.characters_end_idx]
-                    candidate_region_range = CharacterRange(region_range)
-                    candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
-                    candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
-                    candidate_region_top_with_changed_lines.append(candidate_region)
-
                 return candidate_region_top_with_changed_lines
     
     def bottom_overlap(self, unchanged_mapped_ranges):
@@ -301,11 +268,11 @@ class SearchLinesToCandidateRegion():
         # assert changed_line_numbers != []
         unchanged_line_numbers = list(set(self.interest_line_numbers) - set(changed_line_numbers))
         unchanged_line_numbers.sort()
-        if first == True and last == True: # cover lines in between
-            for hunk in specified_diff_hunks:
-                if hunk.base_start_line_number == hunk.base_end_line_number:
-                    break_point = unchanged_line_numbers.index(hunk.base_start_line_number) + 1
-                    unchanged_line_numbers.insert(break_point, -2)
+        # if first == True and last == True: # cover lines in between
+        for hunk in specified_diff_hunks:
+            if hunk.base_start_line_number == hunk.base_end_line_number:
+                break_point = unchanged_line_numbers.index(hunk.base_start_line_number) + 1
+                unchanged_line_numbers.insert(break_point, -2)
         unchanged_num = len(unchanged_line_numbers)
 
         # Forward iteration, get first_unchanged_line_numbers
@@ -342,7 +309,7 @@ class SearchLinesToCandidateRegion():
         elif first == False and last == True:
             return last_unchanged_line_numbers
 
-    def search_exactly_mapped_context(self, partial_source_region_str=None, truncate=None, specified_hunk=None):
+    def search_exactly_mapped_context(self, partial_source_region_str=None, truncate=None, specified_hunks=None):
         # Find the candidate_region_ranges, character level
         candidate_region_with_only_unchanged_lines = []
 
@@ -354,10 +321,14 @@ class SearchLinesToCandidateRegion():
             source_region_character_str = partial_source_region_str
             target_file_lines_str = "".join(self.target_file_lines)
             if truncate == "keep_upper_part":
-                first_middle_hunk_start_line_number = specified_hunk[0].target_start_line_number
-                target_file_lines_str = "".join(self.target_file_lines[:first_middle_hunk_start_line_number])
+                specified_hunk = specified_hunks[0]
+                first_middle_hunk_start_line_number = specified_hunk.target_start_line_number
+                target_file_lines_str = "".join(self.target_file_lines[:first_middle_hunk_start_line_number-1])
+                if specified_hunk.target_start_line_number == specified_hunk.target_end_line_number:
+                    # empty target hunk
+                    target_file_lines_str = "".join(self.target_file_lines[:first_middle_hunk_start_line_number])
             else:
-                last_middle_hunk_end_line_number = specified_hunk[-1].target_end_line_number
+                last_middle_hunk_end_line_number = specified_hunks[-1].target_end_line_number
                 target_file_lines_str = "".join(self.target_file_lines[(last_middle_hunk_end_line_number - 1):])
                 truncated_character = "".join(self.target_file_lines[:(last_middle_hunk_end_line_number- 1)])
                 character_del = len(truncated_character)
@@ -429,7 +400,7 @@ class SearchLinesToCandidateRegion():
                 else: 
                     is_new_loop = False
                 current_location_border = current_location + 1
-                if candidate_characters_start_idx in range(pre_location, current_location_border):
+                if candidate_characters_start_idx in range(pre_location, current_location_border) and start_line_idx == None:
                     start_line_idx = line_idx
                     start_character_idx = candidate_characters_start_idx - pre_location
                 if candidate_characters_end_idx in range(pre_location, current_location_border):

@@ -310,7 +310,6 @@ class GitDiffToCandidateRegion():
             else:
                 candidate_color_character_idx = candidate_pre_characters_len + 1 
         else: # end line
-            # TODO move in color part
             if pre_in_color == False:
                 overlapped_num = compute_overlap(self.interest_last_characters, pre_1_s)
                 candidate_color_character_idx = candidate_pre_characters_len - (pre_1_s_len - overlapped_num) + 1
