@@ -52,7 +52,8 @@ class RandomlyGenerateData():
         self.max_line_step = 20 # source range step
         # to make sure the generated source range have a probability that involves in changed lines
         self.close_to_range_factor = 5 # a factor that close to change hunk line numbers
-        self.selection_rate = 0.9 # percentage of selected start line numbers close or is changed line numbers
+        self.change_or_not_selection_rate = 0.9  # percentage of selected start line numbers is changed or not
+        # self.overlap_or_not_selection_rate = 0.9  # percentage of selected start line numbers close or is changed line numbers
 
     def select_random_files(self, repo_dir, base_commit, target_commit):
         # get modified files list
@@ -73,22 +74,19 @@ class RandomlyGenerateData():
         # start line
         start_line_num = None
         file_contents_len = len(file_contents)
-        if random.random() < self.selection_rate:
-            selected_range = random.choice(hint_ranges)
-            start_line_num = random.randint(selected_range.start, selected_range.stop)
-            kind = "may change"
-        else: # get a line closer or is changed line
-            start_line_num = random.choice(
-                [
-                    num for num in range(1, file_contents_len + 1)
-                    if all(
-                        num < hint_range.start - self.close_to_range_factor or
-                        num > hint_range.stop + self.close_to_range_factor
-                        for hint_range in hint_ranges
-                    )
-                ]
-            )
-            kind = "may no changed"
+        selected_range = random.choice(hint_ranges)
+        if random.random() < self.change_or_not_selection_rate:
+            start_line_num = random.randint(selected_range.start, selected_range.stop-1)
+            kind = "changed"
+        else: # get a line closer to changed lines
+            close_line_numbers = []
+            pre_nums = list(range(selected_range.start - self.close_to_range_factor, selected_range.start))
+            post_nums = list(range(selected_range.stop, selected_range.stop + self.close_to_range_factor))
+            close_line_numbers.extend(pre_nums)
+            close_line_numbers.extend(post_nums)
+            start_line_num = random.choice(close_line_numbers)
+            kind = "may no change"
+        
         # end line
         end_line_num = 0 
         max_end = start_line_num + self.max_line_step
