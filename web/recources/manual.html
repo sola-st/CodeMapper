@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,700">
+    <link rel="stylesheet" href="css/fontawesome.min.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/templatemo-style.css">
+</head>
+
+<body id="defaultPage">
+    <div class="" id="home">
+        <nav class="navbar navbar-expand-xl">
+            <div class="container h-100">
+                <a class="navbar-brand" href="index.html">
+                    <h1 class="tm-site-title mb-0">Anything Tracker</h1>
+                </a>
+                <button class="navbar-toggler ml-auto mr-0" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="fas fa-bars tm-nav-icon"></i>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mx-auto h-100">
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown">
+                            <label for="modeSelect">Mode:</label>
+                            <select id="modeSelect" onchange="changeMode(this)">
+                                <option value="auto">Auto</option>
+                                <option value="manual" selected>Manual</option>
+                            </select>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </nav>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <p class="text-white mt-5 mb-5">Enter your text in the boxes, let's start tracking.</p>
+                </div>
+            </div>
+            <div class="row tm-content-row">
+                <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 tm-block-col">
+                    <div class="tm-bg-primary-dark tm-block tm-block-taller tm-block-overflow">
+                        <h2 class="tm-block-title">Base version</h2>
+                        <div class="tm-notification-items">
+                            <textarea id="codeTextarea" style="width: 100%; height: 100%;"></textarea>
+                        </div>
+                        <br>
+                        <button id="startTrack">Track</button>
+                    </div>
+                </div>
+                
+                <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 tm-block-col">
+                    <div class="tm-bg-primary-dark tm-block tm-block-taller tm-block-overflow">
+                        <h2 class="tm-block-title">Target version</h2>
+                        <div class="tm-notification-items">
+                            <textarea id="targetCodeTextarea" style="width: 100%; height: 100%;"></textarea>
+                        </div>
+                        <br>
+                        <button id="feedback_good">Good</button>
+                        <button id="feedback_bad">Bad</button>
+                        <button id="save">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/change-modes.js"></script>
+    <script src="js/receive-text.js"></script>
+    <script src="js/get-source-start-track.js"></script>
+</body>
+
+</html>
