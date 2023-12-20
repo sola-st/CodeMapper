@@ -53,8 +53,9 @@ class FineGrainLineCharacterIndices():
                 # no color, no change
                 no_change_line_idx = self.target_hunk_range.start + specified_line_number_idx
                 no_change_line = self.target_file_lines[no_change_line_idx]
-                fine_grained_character_idx = no_change_line.index(self.interest_line_characters)
-                return fine_grained_character_idx, specified_line_number_idx + 1
+                if self.interest_line_characters in no_change_line:
+                    fine_grained_character_idx = no_change_line.index(self.interest_line_characters)
+                    return fine_grained_character_idx, specified_line_number_idx + 1
             elif "[32m" in interest_line_characters_in_diff and not interest_line_characters_in_diff.endswith("[m"):
                 # added characters mixed with no change characters
                 possible_diff_lines.append(interest_line_characters_in_diff)

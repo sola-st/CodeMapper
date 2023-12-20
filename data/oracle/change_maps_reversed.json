@@ -159,7 +159,7 @@
             "source_file": "imgui.cpp",
             "target_file": "imgui.cpp",
             "source_range": "[6092, 1, 6092, 64]",
-            "target_range": "[6092, 1, 6092, 102]",
+            "target_range": "[6092, 1, 6092, 100]",
             "change_operation": "intra-line modify",
             "kind": "function definition"
         }
