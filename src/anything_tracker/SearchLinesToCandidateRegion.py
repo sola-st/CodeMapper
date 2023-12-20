@@ -1,15 +1,10 @@
 from anything_tracker.CandidateRegion import CandidateRegion
 from anything_tracker.CharacterRange import CharacterRange
-from anything_tracker.utils.FineGrainedWhitespace import fine_grained_changes
 from anything_tracker.utils.ReadFile import get_region_characters
 
 
 class SearchLinesToCandidateRegion():
     def __init__(self, meta, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks):
-        self.repo_dir = meta.repo_dir
-        self.base_commit = meta.base_commit
-        self.target_commit = meta.target_commit
-        self.file_path = meta.file_path
         self.interest_character_range = meta.interest_character_range # class instance
         self.interest_line_numbers = meta.interest_line_numbers # list
         self.source_region_characters= meta.source_region_characters

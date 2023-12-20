@@ -179,3 +179,8 @@ class AnythingTracker():
         target_json_file = join(self.results_dir, "target.json")
         with open(target_json_file, "w") as ds:
             json.dump(target_json, ds, indent=4, ensure_ascii=False)
+
+
+if __name__ == "__main__":
+    args = parser.parse_args()
+    AnythingTracker(args.repo_dir, args.base_commit, args.target_commit, args.file_path, args.source_character_range, args.results_dir).run()
