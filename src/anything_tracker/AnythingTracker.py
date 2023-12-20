@@ -4,6 +4,7 @@ import os
 from os.path import join
 from anything_tracker.CandidateRegion import get_candidate_region_range
 from anything_tracker.CharacterRange import CharacterRange
+from anything_tracker.ComputeTargetRegion import ComputeTargetRegion
 from anything_tracker.GitDiffToCandidateRegion import GitDiffToCandidateRegion
 from anything_tracker.SearchLinesToCandidateRegion import SearchLinesToCandidateRegion
 from anything_tracker.utils.ReadFile import checkout_to_read_file
@@ -79,16 +80,15 @@ class AnythingTracker():
             
         self.source_region_characters = []
         
-    def write_regions_to_files(self, characters_to_write=None):
+    def write_regions_to_files(self, characters_to_write, is_source=True):
         json_file = join(self.results_dir, "source.json")
         to_write:str = ""
 
-        if characters_to_write == None: # source region
-            source_region_characters_str = "".join(self.source_region_characters)
+        if is_source == True: # source region
             to_write = {
                 "source_file": self.file_path,
                 "source_range": str(self.source_character_range),
-                "source_characters": source_region_characters_str
+                "source_characters": characters_to_write
             }
         else: # expected region
             to_write = {
@@ -97,11 +97,10 @@ class AnythingTracker():
                 "expected_characters": None
             }
             if characters_to_write != "DELETED":
-                expected_region_characters_str = "".join(characters_to_write)
                 to_write = {
                     "expected_file": self.file_path,
                     "expected_range": str(self.expected_character_range.four_element_list),
-                    "expected_characters": expected_region_characters_str
+                    "expected_characters": characters_to_write
                 }
             json_file = join(self.results_dir, "expect.json")
 
@@ -127,13 +126,14 @@ class AnythingTracker():
         # Read source region characters, write source character to json files. [Also for expected regions]
         self.base_file_lines = checkout_to_read_file(self.repo_dir, self.base_commit, self.file_path)
         self.source_region_characters = get_source_and_expected_region_characters(self.base_file_lines, self.interest_character_range)
-        self.write_regions_to_files()
+        source_region_characters_str = "".join(self.source_region_characters)
+        self.write_regions_to_files(source_region_characters_str)
 
         self.target_file_lines = checkout_to_read_file(self.repo_dir, self.target_commit, self.file_path)
-        expected_region_characters = "DELETED"
         if self.expected_character_range != None:
             expected_region_characters: list = get_source_and_expected_region_characters(self.target_file_lines, self.expected_character_range)
-        self.write_regions_to_files(expected_region_characters)
+            expected_region_characters_str = "".join(expected_region_characters)
+            self.write_regions_to_files(expected_region_characters_str, False)
         
         # get candidates from git diff
         diff_candidates, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks = GitDiffToCandidateRegion(self).run_git_diff()
@@ -157,15 +157,27 @@ class AnythingTracker():
                 "kind": candidate.marker
             }
             output_maps.append(map)
-
-        # TODO Other steps
-
         # write candidates to a JSON file.
         candidate_json_file = join(self.results_dir, "candidates.json")
         with open(candidate_json_file, "w") as ds:
             json.dump(output_maps, ds, indent=4, ensure_ascii=False)
- 
 
-if __name__ == "__main__":
-    args = parser.parse_args()
-    AnythingTracker(args.repo_dir, args.base_commit, args.target_commit, args.file_path, args.source_character_range, args.results_dir).run()
+        # Select top-1 candidate
+        if source_region_characters_str == None or candidate_regions == None:
+            print()
+        target_candidate, target_candidate_edit_distance, target_candidate_bleu_score = ComputeTargetRegion(
+                source_region_characters_str, candidate_regions).run()
+        target_json = {
+            "source_file": self.file_path,
+            "target_file": self.file_path,
+            "source_range": str(self.source_character_range),
+            "target_range": str(target_candidate.candidate_region_character_range),
+            "target_characters" : target_candidate.character_sources,
+            "kind": candidate.marker,
+            "levenshtein_distance" : target_candidate_edit_distance,
+            "bleu": target_candidate_bleu_score
+        }
+        # write target candidate to a single Json file.
+        target_json_file = join(self.results_dir, "target.json")
+        with open(target_json_file, "w") as ds:
+            json.dump(target_json, ds, indent=4, ensure_ascii=False)
