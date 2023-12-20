@@ -163,8 +163,6 @@ class AnythingTracker():
             json.dump(output_maps, ds, indent=4, ensure_ascii=False)
 
         # Select top-1 candidate
-        if source_region_characters_str == None or candidate_regions == None:
-            print()
         target_candidate, target_candidate_edit_distance, target_candidate_bleu_score = ComputeTargetRegion(
                 source_region_characters_str, candidate_regions).run()
         target_json = {
