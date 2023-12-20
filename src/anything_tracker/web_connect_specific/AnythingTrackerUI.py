@@ -1,4 +1,3 @@
-import os
 from anything_tracker.CharacterRange import CharacterRange
 from anything_tracker.ComputeTargetRegion import ComputeTargetRegion
 from anything_tracker.SearchLinesToCandidateRegion import SearchLinesToCandidateRegion, get_character_length_of_lines
@@ -8,7 +7,7 @@ from anything_tracker.web_connect_specific.GitDiffToCandidateRegionUI import Git
 
 class AnythingTracker():
     def __init__(self, source_file_lines:str, target_file_lines:str, 
-                source_start, source_end, source_region_characters:str, results_dir):
+                source_start, source_end, source_region_characters:str):
         self.source_file_lines = source_file_lines
         self.target_file_lines = target_file_lines
 
@@ -24,13 +23,7 @@ class AnythingTracker():
         interest_line_range = character_range_init.character_range_to_line_range() # all numbers starts at 1.
         self.interest_line_numbers = list(interest_line_range)
             
-        self.results_dir = results_dir
-
     def run(self):
-        # create output folder
-        if not os.path.exists(self.results_dir):
-            os.makedirs(self.results_dir)
-
         candidate_regions = []
         # get candidates from git diff
         diff_candidates, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks = GitDiffToCandidateRegionUI(self).run_git_diff()
@@ -45,4 +38,4 @@ class AnythingTracker():
         source_region_characters_str = "".join(self.source_region_characters)
         target_candidate, target_candidate_edit_distance, target_candidate_bleu_score = ComputeTargetRegion(
                 source_region_characters_str, candidate_regions).run()
-        return target_candidate
+        return target_candidate.character_sources
