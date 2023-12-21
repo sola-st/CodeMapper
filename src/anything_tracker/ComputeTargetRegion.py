@@ -5,7 +5,7 @@ def compute_highest_trade_off_score(edit_dists, bleu_scores):
     # Calculate average score for each key
     averages = {}
     for key in edit_dists.keys():
-        averages[key] = bleu_scores[key] - edit_dists[key]
+        averages[key] = (bleu_scores[key] + edit_dists[key]) / 2
     # Find the key with the highest average score
     max_key = max(averages, key=averages.get)
     # max_score = averages[max_key]
@@ -17,6 +17,8 @@ class ComputeTargetRegion():
         self.candidate_regions = candidate_regions
 
     def levenshtein_distance(self, candidate_characters):
+        # step 1: compute edit distance
+        # step 2: Normalizing metrics to a scale of 0 to 1
         m, n = len(self.source_region_characters), len(candidate_characters)
         matrix = [[0] * (n + 1) for _ in range(m + 1)]
 
@@ -33,7 +35,10 @@ class ComputeTargetRegion():
                     matrix[i][j - 1] + 1,      # Insertion
                     matrix[i - 1][j - 1] + cost  # Substitution
                 )
-        return matrix[m][n]
+        # Normalize the edit distance by dividing it by the maximum possible edit distance. 
+        distance = matrix[m][n]
+        normalized_distance = 1- distance/max(m,n)
+        return normalized_distance
 
     def bleu_score(self, candidate_characters):
         return nltk.translate.bleu_score.sentence_bleu([candidate_characters], self.source_region_characters)
