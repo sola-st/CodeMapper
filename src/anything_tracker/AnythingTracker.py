@@ -179,7 +179,7 @@ class AnythingTracker():
         # write target candidate to a single Json file.
         target_json_file = join(self.results_dir, "target.json")
         with open(target_json_file, "w") as ds:
-            json.dump(target_json, ds, indent=4, ensure_ascii=False)
+            json.dump([target_json], ds, indent=4, ensure_ascii=False)
 
 
 if __name__ == "__main__":

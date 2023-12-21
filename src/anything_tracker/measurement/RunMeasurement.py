@@ -8,10 +8,11 @@ from anything_tracker.utils.ReadFile import checkout_to_read_file
 
 
 class RunMeasurement():
-    def __init__(self, oracle_file, candidates_dir, results_csv_file_name):
+    def __init__(self, oracle_file, candidates_dir, results_csv_file_name, measurement=None):
         self.oracle_file = oracle_file
         self.candidates_dir = candidates_dir
         self.results_csv_file_name = results_csv_file_name
+        self.measurement = measurement # "target.json" or "candidates.json"
 
     def load_json_file(self):
         with open(self.oracle_file) as f:
@@ -46,7 +47,7 @@ class RunMeasurement():
             else:
                 expected_character_range = [0, 0, 0, 0]
 
-            json_results_file = join(self.candidates_dir, f"{i}/candidates.json")
+            json_results_file = join(self.candidates_dir, f"{i}/{self.measurement}")
             assert os.path.exists(json_results_file) == True
 
             with open(json_results_file, 'r') as f:
