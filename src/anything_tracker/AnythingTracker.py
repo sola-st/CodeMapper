@@ -140,6 +140,14 @@ class AnythingTracker():
         # search to map characters
         search_candidates = SearchLinesToCandidateRegion(self, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks).search_maps()
         candidate_regions.extend(diff_candidates)
+        # A heuristic check
+        # If source region is a single word, it could occurred in many place, 
+        # force not to search if it involved in change hunks
+        # Indeed, not only single words, also for the short phrases, but there is not a good way to detect if is proper.
+        if (top_diff_hunks != [] or middle_diff_hunks != [] or bottom_diff_hunks != []) or diff_candidates:
+            source_region_characters_str = "".join(self.source_region_characters).strip()
+            if len(self.interest_line_numbers) == 1 and not " " in source_region_characters_str:
+                search_candidates = [] #  discard the candidates from searching
         candidate_regions.extend(search_candidates)
         if candidate_regions == []:
             print(f"--No candidate regions.\n  {self.repo_dir}\n  {self.file_path}\n  {self.interest_character_range.four_element_list}\n")
