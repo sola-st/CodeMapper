@@ -5,7 +5,7 @@ def compute_highest_trade_off_score(edit_dists, bleu_scores):
     # Calculate average score for each key
     averages = {}
     for key in edit_dists.keys():
-        averages[key] = (bleu_scores[key] - edit_dists[key]) / 2
+        averages[key] = bleu_scores[key] - edit_dists[key]
     # Find the key with the highest average score
     max_key = max(averages, key=averages.get)
     # max_score = averages[max_key]
