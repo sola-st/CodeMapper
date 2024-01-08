@@ -24,8 +24,18 @@ function highlight(color) {
   span.dataset.endOffset = endOffset;
 
   // Calculate line and character numbers
-  const textContent = range.commonAncestorContainer.textContent;
+  // const div = document.getElementById("codeTextarea");
+  // const allContents = div.innerHTML;
+  // console.log(allContents)
+  // const divTarget = document.getElementById("targetCodeTextarea");
+  // const allTargetContents = divTarget.innerHTML;
 
+  // const textContentAll = range.commonAncestorContainer.textContent;
+
+  // const startLine = allContents.substr(0, startOffset).split('\n').length;
+  // const endLine = allContents.substr(0, endOffset).split('\n').length;
+
+  const textContent = range.commonAncestorContainer.textContent;
   const startLine = textContent.substr(0, startOffset).split('\n').length;
   const endLine = textContent.substr(0, endOffset).split('\n').length;
   const startCharacter = startOffset - textContent.lastIndexOf('\n', startOffset - 1);

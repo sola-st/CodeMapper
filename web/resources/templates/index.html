@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,700">
-    <link rel="stylesheet" href="css/fontawesome.min.css">
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/templatemo-style.css">
+    <!-- <link rel="stylesheet" href="static/fontawesome.min.css"> -->
+    <link rel="stylesheet" href="static/bootstrap.min.css">
+    <link rel="stylesheet" href="static/templatemo-style.css">
     <style>
         .highlight {
           background-color: yellow;
@@ -83,8 +83,12 @@
                             </div>
                         </div>
                         <br>
-                        <button onclick="saveAnnotations()">Annotation</button>
-                        <button id="startTrack">Track</button>
+                        <!-- <button onclick="saveAnnotations()">Annotation</button> -->
+                        <!-- <button id="startTrack">Track</button> -->
+                        <form id="startProjectForm">
+                            <button id="startTrack" onclick="startProject()">Track</button>
+                        </form>
+                        <div id="result">results</div>
                     </div>
                 </div>
                 
@@ -105,10 +109,11 @@
         </div>
     </div>
 
-    <script src="js/change-modes.js"></script>
-    <script src="js/receive-text.js"></script>
-    <script src="js/get-source-start-track.js"></script>
-    <script src="js/highlight-ranges.js"></script>
+    <script src="static/change-modes.js"></script>
+    <script src="static/receive-text.js"></script>
+    <!-- <script src="static/get-source-start-track.js"></script> -->
+    <script src="static/highlight-ranges.js"></script>
+    <script src="static/run-tracker.js"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/marked@2.1.3"></script> -->
 
 </body>
