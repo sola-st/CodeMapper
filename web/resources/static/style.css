@@ -1,0 +1,120 @@
+html {
+  font-size: 16px;
+  overflow-x: hidden;
+}
+body {
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  background-color: transparent;
+  overflow-x: hidden;
+}
+a {
+  transition: all 0.3s ease;
+}
+a:focus,
+a:hover {
+  text-decoration: none;
+}
+
+button:focus {
+  outline: 0;
+}
+.navbar-brand {
+  display: flex;
+  align-items: center;
+}
+.tm-site-title {
+  display: inline-block;
+  text-transform: uppercase;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: black;
+}
+.navbar {
+  height: 60px;
+  background-color: #708da8; 
+  /* #567086; */
+  padding: 0;
+}
+.navbar .container {
+  position: relative;
+}
+.tm-block-col {
+  margin-bottom: 10px;
+}
+.tm-block {
+  padding: 5px;
+  min-height: 900px;
+  height: 100%;
+  width: 98%;
+  max-height: 1200px;
+}
+/* .content-block {
+  display: flex;
+  min-height: 900px;
+  height: 100%;
+  width: 98%;
+  max-height: 1200px;
+} */
+.container .highlightedDiv{
+  /* width: 100%; */
+  height: 100%;
+  flex-grow: 1;
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
+.tm-block-overflow {
+  overflow: hidden;
+}
+.tm-block-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: black;
+  margin-left: 10px;
+  margin-bottom: 10px;
+}
+.tm-content-row {
+  justify-content: space-between;
+  margin-left: -20px;
+  margin-right: -20px;
+}
+.tm-notification-items {
+  display: flex;
+  overflow-y: scroll;
+  -webkit-box-shadow: 1px 1px 5px 0 #455c71;
+  -moz-box-shadow: 1px 1px 5px 0 #455c71;
+  box-shadow: 1px 1px 5px 0 #455c71;
+  height: 90%;
+}
+.tm-bg-primary-dark {
+  background-color: transparent;
+}
+.tm-bg-gray {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+.navbar-toggler {
+  border-color: #708da8;
+  box-shadow: rgba(255, 255, 255, 0.1) 0 1px 1px 2px;
+  border-radius: 0;
+  padding: 10px 15px;
+  transition: all 0.2s ease;
+}
+.lineNumberContainer {
+  counter-reset: linenumber;
+  padding-right: 10px; 
+  font-family: monospace;
+}
+
+.lineNumber {
+  counter-increment: linenumber;
+  color: #999; 
+}
+
+.lineNumber::before {
+  content: counter(linenumber);
+  display: inline-block;
+  width: 2em; 
+  height: 100%;
+  text-align: right;
+  margin-right: 5px; 
+}

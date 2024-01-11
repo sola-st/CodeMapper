@@ -7,8 +7,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,700">
     <!-- <link rel="stylesheet" href="static/fontawesome.min.css"> -->
-    <link rel="stylesheet" href="static/bootstrap.min.css">
-    <link rel="stylesheet" href="static/templatemo-style.css">
+    <link rel="stylesheet" href="../static/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/style.css">
     <style>
         .highlight {
           background-color: yellow;
@@ -21,7 +21,7 @@
         <nav class="navbar navbar-expand-xl">
             <div class="container h-100">
                 <a class="navbar-brand" href="index.html">
-                    <h1 class="tm-site-title mb-0">Anything Tracker</h1>
+                    <h2 class="tm-site-title mb-0">Anything Tracker</h2>
                 </a>
                 <button class="navbar-toggler ml-auto mr-0" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                     aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,29 +46,12 @@
         </nav>
         <div class="container">
             <br>
-            <div class="row">
+            <div class="myrow">
                 <div class="col">
                     <label>Repository Link:<input id="repo"></label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
                     <label>Base Commit:<input id="baseCommit"></label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
                     <label>Target Commit:<input id="targetCommit"></label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
                     <label>File Path:<input id="filePath"></label>
-                </div>
-            </div>
-            <br>
-            <div class="row">
-                <div class="col">
                     <button id="loadData">Load Data</button>
                 </div>
             </div>
@@ -77,18 +60,20 @@
             <div class="row tm-content-row">
                 <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 tm-block-col">
                     <div class="tm-bg-primary-dark tm-block tm-block-taller tm-block-overflow">
-                        <h2 class="tm-block-title">Base version</h2>
+                        <h3 class="tm-block-title">Base version</h3>
                         <div class="tm-notification-items">
+                            <div class="lineNumberContainer" id="baseLineNumber">
+                            </div>
                             <div class="highlightedDiv" id="codeTextarea" contenteditable="true" onmouseup="highlight('yellow')">
                             </div>
                         </div>
                         <br>
-                        <!-- <button onclick="saveAnnotations()">Annotation</button> -->
-                        <!-- <button id="startTrack">Track</button> -->
-                        <form id="startProjectForm">
-                            <button id="startTrack" onclick="startProject()">Track</button>
-                        </form>
-                        <div id="result">results</div>
+                        <div class="myrow">
+                            <button onclick="saveAnnotations()">Annotation</button>
+                            <form id="startProjectForm">
+                                <button id="startTrack" onclick="startProject()">Track</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
                 
@@ -96,6 +81,8 @@
                     <div class="tm-bg-primary-dark tm-block tm-block-taller tm-block-overflow">
                         <h2 class="tm-block-title">Target version</h2>
                         <div class="tm-notification-items">
+                            <div class="lineNumberContainer"  id="targetLineNumber">
+                            </div>
                             <div class="highlightedDiv" id="targetCodeTextarea" contenteditable="true" onmouseup="highlight('yellow')">
                             </div>
                         </div>
@@ -109,12 +96,13 @@
         </div>
     </div>
 
-    <script src="static/change-modes.js"></script>
-    <script src="static/receive-text.js"></script>
+    <script src="../static/change-modes.js"></script>
+    <script src="../static/receive-text.js"></script>
     <!-- <script src="static/get-source-start-track.js"></script> -->
-    <script src="static/highlight-ranges.js"></script>
-    <script src="static/run-tracker.js"></script>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/marked@2.1.3"></script> -->
+    <script src="../static/highlight-ranges.js"></script>
+    <script src="../static/run-tracker.js"></script>
+    <script src="../static/add-base-line-num.js"></script>
+    <script src="../static/add-target-line-num.js"></script>
 
 </body>
 
