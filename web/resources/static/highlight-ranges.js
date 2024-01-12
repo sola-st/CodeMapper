@@ -2,14 +2,12 @@ let tempSource = [];
 let tempTarget = [];
 let memoryStack = [];
 
-function getCursorPosition(node, offset) {
+function getCursorPosition(element, offset) {
     var line = 1;
     var character = 1;
 
-    var text = node.textContent;
+    var text = element.innerText;
     var lines = text.split('\n');
-    console.log("**lines: ", lines);
-    console.log("**lenle: ", line.length);
 
     for (var i = 0; i < lines.length; i++) {
         var lineLength = lines[i].length + 1; 
@@ -27,15 +25,14 @@ function getCursorPosition(node, offset) {
 function getSelectedTextPosition(highlightedDiv) {
     var selection = getSelectedText(highlightedDiv);
     if (selection.text !== '') {
-        var startNode = window.getSelection().anchorNode;
-        var endNode = window.getSelection().focusNode;
+        var id = highlightedDiv.id;
 
-        var startPosition = getCursorPosition(startNode, selection.startOffset + 1);
-        var endPosition = getCursorPosition(endNode, selection.endOffset);
+        const element = document.getElementById(id);
+        var startPosition = getCursorPosition(element, selection.startOffset + 1);
+        var endPosition = getCursorPosition(element, selection.endOffset);
 
         console.log("RR: ", startPosition.line, startPosition.character, endPosition.line, endPosition.character);
         
-        var id = highlightedDiv.id;
         // const data = {
         //     selectedText: selection.text,
         //     selectionRange: [startPosition.line, startPosition.character, endPosition.line, endPosition.character].toString()
