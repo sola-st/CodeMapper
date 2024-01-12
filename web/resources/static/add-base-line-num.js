@@ -6,8 +6,8 @@ function updateLineNumbers() {
     lineNumberContainer.innerHTML = '';
 
     var len = lines.length;
-    console.log("hhhhh:" + lines.length);
-    console.log("hhhhh:" + lines);
+    // console.log("hhhhh:" + lines.length);
+    // console.log("hhhhh:" + lines);
     if (lines.length > 1 && lines[-1] == "") {
         len = len - 1;
     }

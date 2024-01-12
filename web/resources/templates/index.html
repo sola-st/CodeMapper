@@ -11,7 +11,15 @@
     <link rel="stylesheet" href="../static/style.css">
     <style>
         .highlight {
-          background-color: yellow;
+          background-color: lightgreen;
+        }
+        .highlightedDiv{
+            /* width: 100%; */
+            height: 100%;
+            flex-grow: 1;
+            background-color: transparent;
+            border: none;
+            outline: none;
         }
     </style>
 </head>
@@ -64,12 +72,12 @@
                         <div class="tm-notification-items">
                             <div class="lineNumberContainer" id="baseLineNumber">
                             </div>
-                            <div class="highlightedDiv" id="codeTextarea" contenteditable="true" onmouseup="highlight('yellow')">
-                            </div>
+                            <div class="highlightedDiv" id="codeTextarea" contenteditable="true"></div>
                         </div>
                         <br>
                         <div class="myrow">
-                            <button onclick="saveAnnotations()">Annotation</button>
+                            <button onclick="pushToMemory()">Push to Memory</button>
+                            <button onclick="saveAnnotations()">Save Annotation</button>
                             <form id="startProjectForm">
                                 <button id="startTrack" onclick="startProject()">Track</button>
                             </form>
@@ -83,8 +91,8 @@
                         <div class="tm-notification-items">
                             <div class="lineNumberContainer"  id="targetLineNumber">
                             </div>
-                            <div class="highlightedDiv" id="targetCodeTextarea" contenteditable="true" onmouseup="highlight('yellow')">
-                            </div>
+                            <div class="highlightedDiv" id="targetCodeTextarea" contenteditable="true"></div>
+                                <!--  onmouseup="highlight('yellow')" -->
                         </div>
                         <br>
                         <button id="feedback_good">Good</button>

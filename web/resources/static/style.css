@@ -48,21 +48,6 @@ button:focus {
   width: 98%;
   max-height: 1200px;
 }
-/* .content-block {
-  display: flex;
-  min-height: 900px;
-  height: 100%;
-  width: 98%;
-  max-height: 1200px;
-} */
-.container .highlightedDiv{
-  /* width: 100%; */
-  height: 100%;
-  flex-grow: 1;
-  background-color: transparent;
-  border: none;
-  outline: none;
-}
 .tm-block-overflow {
   overflow: hidden;
 }

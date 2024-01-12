@@ -1,90 +1,142 @@
-function highlight(color) {
-  const selection = window.getSelection();
-  const range = selection.getRangeAt(0);
+let tempSource = [];
+let tempTarget = [];
+let memoryStack = [];
 
-  // Check if the selection is already highlighted
-  const isHighlighted = range.commonAncestorContainer.parentElement.style.backgroundColor === color;
+function getCursorPosition(node, offset) {
+    var line = 1;
+    var character = 1;
 
-  // Remove highlighting if the same text is reselected
-  if (isHighlighted) {
-    const parentElement = range.commonAncestorContainer.parentElement;
-    parentElement.outerHTML = parentElement.innerHTML;
-    return;
-  }
+    var text = node.textContent;
+    var lines = text.split('\n');
+    console.log("**lines: ", lines);
+    console.log("**lenle: ", line.length);
 
-  // Create a new span and apply highlighting
-  const span = document.createElement('span');
-  span.style.backgroundColor = color;
+    for (var i = 0; i < lines.length; i++) {
+        var lineLength = lines[i].length + 1; 
+        if (offset <= lineLength) {
+            character = offset;
+            break;
+        }
+        offset -= lineLength;
+        line++;
+    }
 
-  // Save the start and end locations of the selection
-  const startOffset = range.startOffset;
-  const endOffset = range.endOffset;
-
-  span.dataset.startOffset = startOffset;
-  span.dataset.endOffset = endOffset;
-
-  // Calculate line and character numbers
-  // const div = document.getElementById("codeTextarea");
-  // const allContents = div.innerHTML;
-  // console.log(allContents)
-  // const divTarget = document.getElementById("targetCodeTextarea");
-  // const allTargetContents = divTarget.innerHTML;
-
-  // const textContentAll = range.commonAncestorContainer.textContent;
-
-  // const startLine = allContents.substr(0, startOffset).split('\n').length;
-  // const endLine = allContents.substr(0, endOffset).split('\n').length;
-
-  const textContent = range.commonAncestorContainer.textContent;
-  const startLine = textContent.substr(0, startOffset).split('\n').length;
-  const endLine = textContent.substr(0, endOffset).split('\n').length;
-  const startCharacter = startOffset - textContent.lastIndexOf('\n', startOffset - 1);
-  const endCharacter = endOffset - textContent.lastIndexOf('\n', endOffset - 1);
-
-  span.dataset.startLine = startLine;
-  span.dataset.startCharacter = startCharacter;
-  span.dataset.endLine = endLine;
-  span.dataset.endCharacter = endCharacter;
-
-  range.surroundContents(span);
+    return { line: line, character: character };
 }
 
+function getSelectedTextPosition(highlightedDiv) {
+    var selection = getSelectedText(highlightedDiv);
+    if (selection.text !== '') {
+        var startNode = window.getSelection().anchorNode;
+        var endNode = window.getSelection().focusNode;
 
-function saveAnnotations() {
-  const highlightedSpans = document.querySelectorAll('.highlightedDiv span');
-  
-  if (highlightedSpans.length === 0) {
-    console.error('No highlighted texts to save.');
-    return;
+        var startPosition = getCursorPosition(startNode, selection.startOffset + 1);
+        var endPosition = getCursorPosition(endNode, selection.endOffset);
+
+        console.log("RR: ", startPosition.line, startPosition.character, endPosition.line, endPosition.character);
+        
+        var id = highlightedDiv.id;
+        // const data = {
+        //     selectedText: selection.text,
+        //     selectionRange: [startPosition.line, startPosition.character, endPosition.line, endPosition.character].toString()
+        // };
+        const data = [startPosition.line, startPosition.character, endPosition.line, endPosition.character].toString();
+
+        if (id == "codeTextarea") {
+            tempSource.push(data);
+        } else if (id == "targetCodeTextarea"){
+            tempTarget.push(data);
+        }
+    }
+}
+
+function highlightSelectedText(highlightedDiv) {
+    var selection = getSelectedText(highlightedDiv);
+    if (selection.text !== '') {
+        // Remove existing highlights within the specific div
+        var existingHighlights = highlightedDiv.querySelectorAll(".highlight");
+        existingHighlights.forEach(function (highlight) {
+            highlight.classList.remove("highlight");
+        });
+
+        // Apply new highlight
+        var range = window.getSelection().getRangeAt(0);
+        var span = document.createElement("span");
+        span.className = "highlight";
+        // range.surroundContents(span);
+        // span.style.backgroundColor = color;
+        span.appendChild(range.extractContents());
+        range.insertNode(span);
+
+        console.log("Selected Text: ", selection.text);
+        getSelectedTextPosition(highlightedDiv);
+    }
+}
+
+function getSelectedText(highlightedDiv) {
+    var selectedText = "";
+    var startOffset = -1;
+    var endOffset = -1;
+
+    if (window.getSelection) {
+        var selection = window.getSelection();
+        selectedText = selection.toString();
+        var range = selection.getRangeAt(0);
+
+        var preSelectionRange = document.createRange();
+        preSelectionRange.selectNodeContents(highlightedDiv);
+        preSelectionRange.setEnd(range.startContainer, range.startOffset);
+        startOffset = preSelectionRange.toString().length;
+
+        endOffset = startOffset + range.toString().length;
+    } else if (document.selection && document.selection.type != "Control") {
+        var range = document.selection.createRange();
+        selectedText = range.text;
+        startOffset = 0; 
+        endOffset = selectedText.length;
+    }
+
+    return { text: selectedText, startOffset: startOffset, endOffset: endOffset };
+}
+
+document.querySelectorAll(".highlightedDiv").forEach(function (highlightedDiv) {
+    highlightedDiv.addEventListener("mouseup", function () {
+        highlightSelectedText(highlightedDiv);
+    });
+});
+
+function pushToMemory() {
+    var desiredSource = tempSource.pop();
+    var desiredTarget = tempTarget.pop();
+    console.log('Temporary data pairs:', [desiredSource, desiredTarget]);
+    memoryStack.push({
+        mapping: {
+            source_range: desiredSource,
+            target_range: desiredTarget
+        }
+    });
+    removeHighlights("codeTextarea");
+    removeHighlights("targetCodeTextarea");
   }
 
-  const annotations = [];
-  const lastTwoSpans = Array.from(highlightedSpans).slice(-2);
-
-  lastTwoSpans.forEach(span => {
-    const text = span.innerText;
-    const startLine = span.dataset.startLine;
-    const startCharacter = span.dataset.startCharacter;
-    const endLine = span.dataset.endLine;
-    const endCharacter = span.dataset.endCharacter;
-
-    annotations.push({
-      range: text,
-      position: {
-        startLine,
-        startCharacter,
-        endLine,
-        endCharacter
-      }
-    });
+function removeHighlights(id) {
+  var allHighlights = document.getElementById(id).querySelectorAll(".highlight");
+  allHighlights.forEach(function (highlight) {
+      highlight.classList.remove("highlight");
   });
+}
 
-  const jsonContent = JSON.stringify(annotations, null, 2);
+function saveAnnotations() {
+    // download the annotations as a JSON file
+    var jsonString = JSON.stringify(memoryStack, null, 2);
+    var blob = new Blob([jsonString], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
 
-  // Save the JSON file to a specified local folder (modify the path accordingly)
-  const blob = new Blob([jsonContent], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'annotations.json';
-  a.click();
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "annotations.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
