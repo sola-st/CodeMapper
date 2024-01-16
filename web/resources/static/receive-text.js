@@ -2,10 +2,6 @@ let repoLink;
 let baseCommit;
 let targetCommit;
 let filePath;
-
-let baseFileContent;
-let targetFileContent;
-
 let HighlightedDiv = document.getElementById('codeTextarea');
 let targetHighlightedDiv = document.getElementById('targetCodeTextarea');
 
@@ -34,12 +30,13 @@ function getFileContents(url, target = false) {
       const fileContent = atob(data.content);
       const formattedContent = formatCodeContent(fileContent);
       if (target == false) {
-        baseFileContent = formattedContent;
-        HighlightedDiv.innerHTML = baseFileContent;
+        HighlightedDiv.innerHTML = formattedContent;
+        updateLineNumbers();
       } else {
-        targetFileContent = formattedContent;
-        targetHighlightedDiv.innerHTML = targetFileContent;
+        targetHighlightedDiv.innerHTML = formattedContent;
+        updateLineNumbersTarget();
       }
+     
     })
     .catch(error => {
       console.error('Error fetching file content:', error);

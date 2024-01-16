@@ -12,5 +12,4 @@ function updateLineNumbersTarget() {
     }
 }
 
-updateLineNumbersTarget();
 document.getElementById("targetCodeTextarea").addEventListener("input", updateLineNumbersTarget);

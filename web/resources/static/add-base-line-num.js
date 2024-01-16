@@ -6,8 +6,6 @@ function updateLineNumbers() {
     lineNumberContainer.innerHTML = '';
 
     var len = lines.length;
-    // console.log("hhhhh:" + lines.length);
-    // console.log("hhhhh:" + lines);
     if (lines.length > 1 && lines[-1] == "") {
         len = len - 1;
     }
@@ -17,9 +15,6 @@ function updateLineNumbers() {
         lineNumberContainer.appendChild(lineNumber);
     }
 }
-
-// Initial update
-updateLineNumbers();
 
 // Update line numbers on content change
 document.getElementById("codeTextarea").addEventListener("input", updateLineNumbers);

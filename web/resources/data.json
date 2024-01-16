@@ -1,0 +1,23 @@
+[
+    {
+        "url": "https://github.com/apache/superset",
+        "source_file": "helm/superset/Chart.yaml",
+        "target_file": "helm/superset/Chart.yaml",
+        "source_commit": "74dbada",
+        "target_commit": "0f01d9b"
+    },
+    {
+        "url": "https://github.com/apache/superset",
+        "source_file": "superset/common/query_context_factory.py",
+        "target_file": "superset/common/query_context_factory.py",
+        "source_commit": "5e6d05b",
+        "target_commit": "ae703b4"
+    },
+    {
+        "url": "https://github.com/elastic/elasticsearch",
+        "source_file": ".buildkite/pipelines/periodic-packaging.yml",
+        "target_file": ".buildkite/pipelines/periodic-packaging.yml",
+        "source_commit": "b0aca36",
+        "target_commit": "a36156e"
+    }
+]

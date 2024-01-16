@@ -76,7 +76,10 @@
                         </div>
                         <br>
                         <div class="myrow">
-                            <button onclick="pushToMemory()">Push to Memory</button>
+                            <input type="file" id="fileInput" accept=".json">
+                            <button onclick="readFile()">Read</button>
+                            <button onclick="showNext()">Next</button>
+                            <button onclick="pushToMemory()">Push</button>
                             <button onclick="saveAnnotations()">Save Annotation</button>
                             <form id="startProjectForm">
                                 <button id="startTrack" onclick="startProject()">Track</button>
@@ -111,7 +114,7 @@
     <script src="../static/run-tracker.js"></script>
     <script src="../static/add-base-line-num.js"></script>
     <script src="../static/add-target-line-num.js"></script>
-
+    <script src="../static/auto-next.js"></script>
 </body>
 
 </html>

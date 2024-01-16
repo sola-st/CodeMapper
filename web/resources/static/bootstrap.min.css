@@ -566,6 +566,10 @@ pre code {
     display: flex;
 }
 
+.myrow button {
+    margin-right: 5px;
+}
+
 .no-gutters {
     margin-right: 0;
     margin-left: 0

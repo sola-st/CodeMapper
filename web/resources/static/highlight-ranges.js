@@ -115,9 +115,14 @@ function pushToMemory() {
     var desiredTarget = tempTarget.pop();
     console.log('Temporary data pairs:', [desiredSource, desiredTarget]);
     memoryStack.push({
+        url: document.getElementById('repo').value,
         mapping: {
-            source_range: desiredSource,
-            target_range: desiredTarget
+            source_file: document.getElementById('filePath').value,
+            target_file: document.getElementById('filePath').value,
+            source_commit: document.getElementById('baseCommit').value,
+            target_commit: document.getElementById('targetCommit').value,
+            source_range: "["+desiredSource+"]",
+            target_range: "["+desiredTarget+"]"
         }
     });
     removeHighlights("codeTextarea");
