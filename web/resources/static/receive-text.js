@@ -16,9 +16,9 @@ document.getElementById("loadData").onclick = function(){
   filePath = document.getElementById('filePath').value;
   let user_repo_name = repoLink.replace(/^https:\/\/github\.com\//, '');
   const baseUrl = `https://api.github.com/repos/${user_repo_name}/contents/${filePath}?ref=${baseCommit}`;
-  getFileContents(baseUrl)
+  getFileContents(baseUrl);
   const targetUrl = `https://api.github.com/repos/${user_repo_name}/contents/${filePath}?ref=${targetCommit}`;
-  getFileContents(targetUrl, true)
+  getFileContents(targetUrl, true);
 }
 
 function getFileContents(url, target = false) {

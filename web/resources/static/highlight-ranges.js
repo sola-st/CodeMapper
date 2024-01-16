@@ -2,43 +2,45 @@ let tempSource = [];
 let tempTarget = [];
 let memoryStack = [];
 
-function getCursorPosition(element, offset) {
+function getCursorPosition(lines, offset, mark) {
     var line = 1;
     var character = 1;
+    var plus = 0; // count the added missing "\n"s
 
-    var text = element.innerText;
-    var lines = text.split('\n');
-
-    for (var i = 0; i < lines.length; i++) {
+    var line_counts = lines.length + 1;
+    for (var i = 0; i < line_counts; i++) {
         var lineLength = lines[i].length + 1; 
-        if (offset <= lineLength) {
+        if (offset < lineLength) {
             character = offset;
             break;
+        } 
+        // TODO solve the difference on "\n" between input and automatically received texts
+        else if (mark == "start") {
+            offset+=1; // add the missed length of "\n"
+            plus+=1;
         }
+        
         offset -= lineLength;
         line++;
     }
 
-    return { line: line, character: character };
+    return { line: line, character: character, plus: plus };
 }
 
 function getSelectedTextPosition(highlightedDiv) {
     var selection = getSelectedText(highlightedDiv);
     if (selection.text !== '') {
-        var id = highlightedDiv.id;
+        var text = highlightedDiv.innerText;
+        var lines = text.split('\n');
 
-        const element = document.getElementById(id);
-        var startPosition = getCursorPosition(element, selection.startOffset + 1);
-        var endPosition = getCursorPosition(element, selection.endOffset);
+        var startPosition = getCursorPosition(lines, selection.startOffset, "start");
+        selection.endOffset +=startPosition.plus; // real endOffset
+        var endPosition = getCursorPosition(lines, selection.endOffset, "end");
 
         console.log("RR: ", startPosition.line, startPosition.character, endPosition.line, endPosition.character);
-        
-        // const data = {
-        //     selectedText: selection.text,
-        //     selectionRange: [startPosition.line, startPosition.character, endPosition.line, endPosition.character].toString()
-        // };
         const data = [startPosition.line, startPosition.character, endPosition.line, endPosition.character].toString();
-
+        
+        var id = highlightedDiv.id;
         if (id == "codeTextarea") {
             tempSource.push(data);
         } else if (id == "targetCodeTextarea"){
@@ -58,12 +60,15 @@ function highlightSelectedText(highlightedDiv) {
 
         // Apply new highlight
         var range = window.getSelection().getRangeAt(0);
-        var span = document.createElement("span");
-        span.className = "highlight";
-        // range.surroundContents(span);
-        // span.style.backgroundColor = color;
-        span.appendChild(range.extractContents());
-        range.insertNode(span);
+        const hl = new Highlight();
+        hl.add(range);
+
+        var id = highlightedDiv.id;
+        if (id == "codeTextarea") {
+            CSS.highlights.set("source", hl);
+        } else if (id == "targetCodeTextarea"){
+            CSS.highlights.set("target", hl);
+        }
 
         console.log("Selected Text: ", selection.text);
         getSelectedTextPosition(highlightedDiv);
@@ -75,21 +80,24 @@ function getSelectedText(highlightedDiv) {
     var startOffset = -1;
     var endOffset = -1;
 
-    if (window.getSelection) {
-        var selection = window.getSelection();
+    var selection = window.getSelection();
+    if (selection) {
         selectedText = selection.toString();
         var range = selection.getRangeAt(0);
 
         var preSelectionRange = document.createRange();
         preSelectionRange.selectNodeContents(highlightedDiv);
         preSelectionRange.setEnd(range.startContainer, range.startOffset);
-        startOffset = preSelectionRange.toString().length;
 
-        endOffset = startOffset + range.toString().length;
+        // + 1 to let startOffset number starts at 1. 
+        startOffset = preSelectionRange.toString().length + 1;
+        // [startOffset, endOffset]
+        // let endOffset includes the end character
+        endOffset = startOffset + selectedText.toString().length - 1; 
     } else if (document.selection && document.selection.type != "Control") {
         var range = document.selection.createRange();
         selectedText = range.text;
-        startOffset = 0; 
+        startOffset = 1; 
         endOffset = selectedText.length;
     }
 

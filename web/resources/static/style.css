@@ -103,3 +103,11 @@ button:focus {
   text-align: right;
   margin-right: 5px; 
 }
+
+::highlight(source) {
+  background-color: orange;
+}
+
+::highlight(target) {
+  background-color: orchid;
+}
