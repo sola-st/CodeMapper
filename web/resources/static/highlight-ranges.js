@@ -117,9 +117,9 @@ function pushToMemory() {
     memoryStack.push({
         url: document.getElementById('repo').value,
         mapping: {
-            source_file: document.getElementById('filePath').value,
-            target_file: document.getElementById('filePath').value,
-            source_commit: document.getElementById('baseCommit').value,
+            source_file: document.getElementById('sourceFilePath').value,
+            target_file: document.getElementById('targetFilePath').value,
+            source_commit: document.getElementById('sourceCommit').value,
             target_commit: document.getElementById('targetCommit').value,
             source_range: "["+desiredSource+"]",
             target_range: "["+desiredTarget+"]"

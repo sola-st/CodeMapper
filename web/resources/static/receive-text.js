@@ -1,19 +1,20 @@
 let repoLink;
-let baseCommit;
+let sourceCommit;
 let targetCommit;
-let filePath;
+let sourceFilePath;
 let HighlightedDiv = document.getElementById('codeTextarea');
 let targetHighlightedDiv = document.getElementById('targetCodeTextarea');
 
 document.getElementById("loadData").onclick = function(){
   repoLink = document.getElementById('repo').value;
-  baseCommit = document.getElementById('baseCommit').value;
+  sourceCommit = document.getElementById('sourceCommit').value;
   targetCommit = document.getElementById('targetCommit').value;
-  filePath = document.getElementById('filePath').value;
+  sourceFilePath = document.getElementById('sourceFilePath').value;
+  targetFilePath = document.getElementById('sourceFilePath').value;
   let user_repo_name = repoLink.replace(/^https:\/\/github\.com\//, '');
-  const baseUrl = `https://api.github.com/repos/${user_repo_name}/contents/${filePath}?ref=${baseCommit}`;
+  const baseUrl = `https://api.github.com/repos/${user_repo_name}/contents/${sourceFilePath}?ref=${sourceCommit}`;
   getFileContents(baseUrl);
-  const targetUrl = `https://api.github.com/repos/${user_repo_name}/contents/${filePath}?ref=${targetCommit}`;
+  const targetUrl = `https://api.github.com/repos/${user_repo_name}/contents/${targetFilePath}?ref=${targetCommit}`;
   getFileContents(targetUrl, true);
 }
 
@@ -26,7 +27,6 @@ function getFileContents(url, target = false) {
       return response.json();
     })
     .then(data => {
-      // The 'content' field in the response contains the base64-encoded content of the file.
       const fileContent = atob(data.content);
       const formattedContent = formatCodeContent(fileContent);
       if (target == false) {
