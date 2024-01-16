@@ -16,5 +16,6 @@ function updateLineNumbers() {
     }
 }
 
+updateLineNumbers();
 // Update line numbers on content change
 document.getElementById("codeTextarea").addEventListener("input", updateLineNumbers);

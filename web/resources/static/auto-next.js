@@ -15,7 +15,7 @@ function readFile() {
 
       reader.readAsText(file);
   } else {
-      console.error('No file selected.');
+      console.alert('No file selected.');
   }
 }
 

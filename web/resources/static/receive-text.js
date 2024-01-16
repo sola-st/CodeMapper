@@ -28,12 +28,11 @@ function getFileContents(url, target = false) {
     })
     .then(data => {
       const fileContent = atob(data.content);
-      const formattedContent = formatCodeContent(fileContent);
       if (target == false) {
-        HighlightedDiv.innerHTML = formattedContent;
+        HighlightedDiv.innerText = fileContent;
         updateLineNumbers();
       } else {
-        targetHighlightedDiv.innerHTML = formattedContent;
+        targetHighlightedDiv.innerText = fileContent;
         updateLineNumbersTarget();
       }
      
@@ -41,15 +40,6 @@ function getFileContents(url, target = false) {
     .catch(error => {
       console.error('Error fetching file content:', error);
     });
-}
-
-function formatCodeContent(content) {
-  // Replace leading spaces with non-breaking space entities
-  const indentedContent = content.replace(/^( +)/gm, match => {
-    return '&nbsp;'.repeat(match.length);
-  });
-  // Replace newline characters with <br> tags
-  return indentedContent.replace(/\n/g, '<br>');
 }
 
 

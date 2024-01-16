@@ -14,7 +14,6 @@ function getCursorPosition(lines, offset, mark) {
             character = offset;
             break;
         } 
-        // TODO solve the difference on "\n" between input and automatically received texts
         else if (mark == "start") {
             offset+=1; // add the missed length of "\n"
             plus+=1;
@@ -23,7 +22,7 @@ function getCursorPosition(lines, offset, mark) {
         offset -= lineLength;
         line++;
     }
-
+        
     return { line: line, character: character, plus: plus };
 }
 
