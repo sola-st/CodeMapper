@@ -5,3 +5,6 @@ https://github.com/ocornut/imgui
 https://github.com/minio/minio
 https://github.com/rails/rails
 https://github.com/laravel/laravel
+https://github.com/vuejs/vue
+https://github.com/frida/frida
+https://github.com/tj/git-extras

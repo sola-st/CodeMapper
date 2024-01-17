@@ -2,6 +2,7 @@ data/repos
 data/results
 data/pretrained_model
 data/test_oracle
+data/annotation
 tests/
 *__pycache_*
 .vscode/settings.json
