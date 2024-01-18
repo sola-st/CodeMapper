@@ -27,6 +27,7 @@ function displayCurrentItem() {
       document.getElementById('targetCommit').value = currentItem.target_commit;
       document.getElementById('sourceFilePath').value = currentItem.source_file;
       document.getElementById('targetFilePath').value = currentItem.target_file;
+      document.getElementById('dataIdx').innerText = "#" + currentIndex + 1;
       document.getElementById('distance').innerText = currentItem.kind;
       document.getElementById('category').style.visibility = "visible";
   } else {
