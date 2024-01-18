@@ -69,7 +69,7 @@ function highlightSelectedText(highlightedDiv) {
             CSS.highlights.set("target", hl);
         }
 
-        console.log("Selected Text: ", selection.text);
+        // console.log("Selected Text: ", selection.text);
         getSelectedTextPosition(highlightedDiv);
     }
 }
@@ -121,7 +121,9 @@ function pushToMemory() {
             source_commit: document.getElementById('sourceCommit').value,
             target_commit: document.getElementById('targetCommit').value,
             source_range: "["+desiredSource+"]",
-            target_range: "["+desiredTarget+"]"
+            target_range: "["+desiredTarget+"]",
+            kind: document.getElementById('distance').innerText,
+            detail: document.getElementById('category').value
         }
     });
     removeHighlights("codeTextarea");

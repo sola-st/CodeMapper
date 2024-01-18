@@ -27,6 +27,8 @@ function displayCurrentItem() {
       document.getElementById('targetCommit').value = currentItem.target_commit;
       document.getElementById('sourceFilePath').value = currentItem.source_file;
       document.getElementById('targetFilePath').value = currentItem.target_file;
+      document.getElementById('distance').innerText = currentItem.kind;
+      document.getElementById('category').style.visibility = "visible";
   } else {
       jsonContentDiv.innerText = 'No data available.';
   }
@@ -35,6 +37,7 @@ function displayCurrentItem() {
 function showNext() {
   document.getElementById('codeTextarea').innerText = "";
   document.getElementById('targetCodeTextarea').innerText = "";
+  document.getElementById('category').value = "";
   if (jsonData.length > 0) {
       currentIndex = (currentIndex + 1) % jsonData.length;
       displayCurrentItem();

@@ -570,6 +570,11 @@ pre code {
     margin-right: 5px;
 }
 
+.myrow p {
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
 .no-gutters {
     margin-right: 0;
     margin-left: 0
