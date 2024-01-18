@@ -112,6 +112,17 @@ document.querySelectorAll(".highlightedDiv").forEach(function (highlightedDiv) {
 function pushToMemory() {
     var desiredSource = tempSource.pop();
     var desiredTarget = tempTarget.pop();
+    if (desiredTarget == null){
+        if (document.getElementById('modeSelect').value == "delete"){
+            desiredTarget = "delete"
+        } else if (document.getElementById('modeSelect').value == "unsure"){
+            // not sure the target range, even with the manual annotation
+            desiredTarget = "not sure"
+        }else {
+            // other unknown cases
+            desiredTarget = "unknown"
+        }
+    }
     console.log('Temporary data pairs:', [desiredSource, desiredTarget]);
     memoryStack.push({
         url: document.getElementById('repo').value,

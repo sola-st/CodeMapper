@@ -571,8 +571,18 @@ pre code {
 }
 
 .myrow p {
-    margin-left: 20px;
-    margin-right: 20px;
+    margin-left: 10px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-right: 10px;
+}
+
+.myrowinput {
+    /* margin-left: 10px; */
+    border: none;
+    height: fit-content;
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
 
 .no-gutters {

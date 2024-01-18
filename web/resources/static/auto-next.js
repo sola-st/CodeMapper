@@ -27,8 +27,10 @@ function displayCurrentItem() {
       document.getElementById('targetCommit').value = currentItem.target_commit;
       document.getElementById('sourceFilePath').value = currentItem.source_file;
       document.getElementById('targetFilePath').value = currentItem.target_file;
-      document.getElementById('dataIdx').innerText = "#" + currentIndex + 1;
+      start_at_1 = currentIndex +1;
+      document.getElementById('dataIdx').innerText = "#" + start_at_1;
       document.getElementById('distance').innerText = currentItem.kind;
+      document.getElementById('mark').style.visibility = "visible";
       document.getElementById('category').style.visibility = "visible";
   } else {
       jsonContentDiv.innerText = 'No data available.';
@@ -38,6 +40,7 @@ function displayCurrentItem() {
 function showNext() {
   document.getElementById('codeTextarea').innerText = "";
   document.getElementById('targetCodeTextarea').innerText = "";
+  document.getElementById('modeSelect').value = "default";
   document.getElementById('category').value = "";
   if (jsonData.length > 0) {
       currentIndex = (currentIndex + 1) % jsonData.length;

@@ -39,15 +39,6 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav mx-auto h-100">
                     </ul>
-                    <!-- <ul class="navbar-nav">
-                        <li class="nav-item dropdown">
-                            <label for="modeSelect">Mode:</label>
-                            <select id="modeSelect" onchange="changeMode(this)">
-                                <option value="auto" selected>Auto</option>
-                                <option value="manual">Manual</option>
-                            </select>
-                        </li>
-                    </ul> -->
                 </div>
             </div>
 
@@ -72,11 +63,20 @@
                         <div class="myrow">
                             <h3 class="tm-block-title">Source version</h3>
                             <p id="dataIdx"></p>
+                            <!-- <input class="myrowinput" id="mark" style="visibility: hidden;" placeholder="(Optional) Enter mark here..."> -->
+                            <div class="nav-item dropdown" id ="mark" style="visibility: hidden;">
+                                <label for="modeSelect">(Optional) Mark:</label>
+                                <select id="modeSelect" onchange="changeMode(this)">
+                                    <option value="default" selected>--</option>
+                                    <option value="delete">Deleted</option>
+                                    <option value="unsure">Not sure</option>
+                                    <option value="unknown">Other cases</option>
+                                </select>
+                            </div>
+
                             <p id="distance"></p>
-                            <input id="category" 
-                                    style="border: none; height: fit-content; visibility: hidden;"
-                                    placeholder="Enter the category here...">
-                        </div>
+                            <input class="myrowinput" id="category" style="visibility: hidden;" placeholder="Enter category here...">
+ </div>
                         <div class="tm-notification-items">
                             <div class="lineNumberContainer" id="baseLineNumber">
                             </div>
