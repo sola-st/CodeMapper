@@ -112,16 +112,9 @@ document.querySelectorAll(".highlightedDiv").forEach(function (highlightedDiv) {
 function pushToMemory() {
     var desiredSource = tempSource.pop();
     var desiredTarget = tempTarget.pop();
-    if (desiredTarget == null){
-        if (document.getElementById('modeSelect').value == "delete"){
-            desiredTarget = "delete"
-        } else if (document.getElementById('modeSelect').value == "unsure"){
-            // not sure the target range, even with the manual annotation
-            desiredTarget = "not sure"
-        }else {
-            // other unknown cases
-            desiredTarget = "unknown"
-        }
+    var formattedDesiredTarget = "["+desiredTarget+"]";
+    if (desiredTarget == undefined){
+        formattedDesiredTarget = null;
     }
     console.log('Temporary data pairs:', [desiredSource, desiredTarget]);
     memoryStack.push({
@@ -132,9 +125,10 @@ function pushToMemory() {
             source_commit: document.getElementById('sourceCommit').value,
             target_commit: document.getElementById('targetCommit').value,
             source_range: "["+desiredSource+"]",
-            target_range: "["+desiredTarget+"]",
+            target_range: formattedDesiredTarget,
+            change_operation: document.getElementById('operationSelect').value,
             kind: document.getElementById('distance').innerText,
-            detail: document.getElementById('category').value
+            category: document.getElementById("categorySelect").value
         }
     });
     removeHighlights("codeTextarea");

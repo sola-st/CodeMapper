@@ -30,7 +30,7 @@ function displayCurrentItem() {
       start_at_1 = currentIndex +1;
       document.getElementById('dataIdx').innerText = "#" + start_at_1;
       document.getElementById('distance').innerText = currentItem.kind;
-      document.getElementById('mark').style.visibility = "visible";
+      document.getElementById('changeOperation').style.visibility = "visible";
       document.getElementById('category').style.visibility = "visible";
   } else {
       jsonContentDiv.innerText = 'No data available.';
@@ -40,8 +40,8 @@ function displayCurrentItem() {
 function showNext() {
   document.getElementById('codeTextarea').innerText = "";
   document.getElementById('targetCodeTextarea').innerText = "";
-  document.getElementById('modeSelect').value = "default";
-  document.getElementById('category').value = "";
+  document.getElementById('operationSelect').value = "change";
+  document.getElementById('categorySelect').value = "sWord";
   if (jsonData.length > 0) {
       currentIndex = (currentIndex + 1) % jsonData.length;
       displayCurrentItem();

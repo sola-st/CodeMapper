@@ -64,19 +64,29 @@
                             <h3 class="tm-block-title">Source version</h3>
                             <p id="dataIdx"></p>
                             <!-- <input class="myrowinput" id="mark" style="visibility: hidden;" placeholder="(Optional) Enter mark here..."> -->
-                            <div class="nav-item dropdown" id ="mark" style="visibility: hidden;">
-                                <label for="modeSelect">(Optional) Mark:</label>
-                                <select id="modeSelect" onchange="changeMode(this)">
-                                    <option value="default" selected>--</option>
-                                    <option value="delete">Deleted</option>
-                                    <option value="unsure">Not sure</option>
-                                    <option value="unknown">Other cases</option>
+                            <div class="nav-item dropdown" id ="changeOperation" style="visibility: hidden;">
+                                <label for="operationSelect">Change Operation:</label>
+                                <select id="operationSelect">
+                                    <option value="change" selected>change</option>
+                                    <option value="delete">delete</option>
+                                    <option value="noChange">no change</option>
+                                    <option value="unsure">other</option>
                                 </select>
                             </div>
 
                             <p id="distance"></p>
-                            <input class="myrowinput" id="category" style="visibility: hidden;" placeholder="Enter category here...">
- </div>
+                            <!-- <input class="myrowinput" id="category" style="visibility: hidden;" placeholder="Enter category here..."> -->
+                            <div class="nav-item dropdown" id ="category" style="visibility: hidden;">
+                                <label for="categorySelect">Category:</label>
+                                <select id="categorySelect">
+                                    <option value="single identifier/word" selected>single identifier/word</option>
+                                    <option value="single expression/partial of sentence">single expression/partial of sentence</option>
+                                    <option value="single line">single line</option>
+                                    <option value="multiple line">multiple line</option>
+                                    <option value="structural unit">structural unit</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="tm-notification-items">
                             <div class="lineNumberContainer" id="baseLineNumber">
                             </div>
@@ -115,7 +125,6 @@
         </div>
     </div>
 
-    <script src="../static/change-modes.js"></script>
     <script src="../static/receive-text.js"></script>
     <!-- <script src="static/get-source-start-track.js"></script> -->
     <script src="../static/highlight-ranges.js"></script>
