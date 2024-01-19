@@ -21,6 +21,21 @@
             border: none;
             outline: none;
         }
+        table {
+            border-collapse: collapse;
+            width: 40%;
+            font-size: 12px;
+        }
+
+        table, th, td {
+            border: 1px solid white;
+        }
+
+        th, td {
+            /* padding: 10px; */
+            text-align: center;
+            width: 16.67%;
+        }
     </style>
 </head>
 
@@ -31,15 +46,36 @@
                 <a class="navbar-brand" href="index.html">
                     <h2 class="tm-site-title mb-0">Anything Tracker</h2>
                 </a>
-                <button class="navbar-toggler ml-auto mr-0" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <i class="fas fa-bars tm-nav-icon"></i>
-                </button>
-
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav mx-auto h-100">
-                    </ul>
-                </div>
+                <table id="count" style="visibility: hidden;">
+                    <thead>
+                      <tr>
+                        <th></th> <!-- Empty cell in the top-left corner -->
+                        <th>Single word</th>
+                        <th>Partial</th>
+                        <th>Single line</th>
+                        <th>Multiline</th>
+                        <th>Unit</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th>Neighboring</th>
+                        <td id="Nsingle identifier/word">0</td>
+                        <td id="Nsingle expression/partial of sentence">0</td>
+                        <td id="Nsingle line">0</td>
+                        <td id="Nmultiple line">0</td>
+                        <td id="N">0</td>
+                      </tr>
+                      <tr>
+                        <th>K-distance</th>
+                        <td id="Ksingle identifier/word">0</td>
+                        <td id="Ksingle expression/partial of sentence">0</td>
+                        <td id="Ksingle line">0</td>
+                        <td id="Kmultiple line">0</td>
+                        <td id="Kstructural unit">0</td>
+                      </tr>
+                    </tbody>
+                  </table>
             </div>
 
         </nav>
@@ -115,7 +151,6 @@
                             <div class="lineNumberContainer"  id="targetLineNumber">
                             </div>
                             <div class="highlightedDiv" id="targetCodeTextarea" contenteditable="true"></div>
-                                <!--  onmouseup="highlight('yellow')" -->
                         </div>
                         <br>
                         <button id="feedback_good">Good</button>

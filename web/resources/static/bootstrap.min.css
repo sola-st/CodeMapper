@@ -578,6 +578,7 @@ pre code {
 }
 
 .myrowinput {
+    width: 60%;
     margin-left: 10px;
     border: none;
     height: fit-content;
