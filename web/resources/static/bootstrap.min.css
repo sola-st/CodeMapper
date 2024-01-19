@@ -578,7 +578,7 @@ pre code {
 }
 
 .myrowinput {
-    /* margin-left: 10px; */
+    margin-left: 10px;
     border: none;
     height: fit-content;
     margin-top: 0px;

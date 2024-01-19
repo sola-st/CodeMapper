@@ -32,6 +32,7 @@ function displayCurrentItem() {
       document.getElementById('distance').innerText = currentItem.kind;
       document.getElementById('changeOperation').style.visibility = "visible";
       document.getElementById('category').style.visibility = "visible";
+      document.getElementById('mark').style.visibility = "visible";
   } else {
       jsonContentDiv.innerText = 'No data available.';
   }
@@ -41,7 +42,8 @@ function showNext() {
   document.getElementById('codeTextarea').innerText = "";
   document.getElementById('targetCodeTextarea').innerText = "";
   document.getElementById('operationSelect').value = "change";
-  document.getElementById('categorySelect').value = "sWord";
+  document.getElementById('categorySelect').value = "single identifier/word";
+  document.getElementById('mark').value = "";
   if (jsonData.length > 0) {
       currentIndex = (currentIndex + 1) % jsonData.length;
       displayCurrentItem();

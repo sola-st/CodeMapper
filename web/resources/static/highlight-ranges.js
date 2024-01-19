@@ -128,7 +128,8 @@ function pushToMemory() {
             target_range: formattedDesiredTarget,
             change_operation: document.getElementById('operationSelect').value,
             kind: document.getElementById('distance').innerText,
-            category: document.getElementById("categorySelect").value
+            category: document.getElementById("categorySelect").value,
+            detail: document.getElementById('mark').value
         }
     });
     removeHighlights("codeTextarea");
