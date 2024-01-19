@@ -56,9 +56,10 @@ class FineGrainLineCharacterIndices():
                 if self.interest_line_characters in no_change_line:
                     fine_grained_character_idx = no_change_line.index(self.interest_line_characters)
                     return fine_grained_character_idx, specified_line_number_idx + 1
-            elif "[32m" in interest_line_characters_in_diff and not interest_line_characters_in_diff.endswith("[m"):
-                # added characters mixed with no change characters
-                possible_diff_lines.append(interest_line_characters_in_diff)
+            elif "[32m" in interest_line_characters_in_diff: 
+                if not interest_line_characters_in_diff.endswith("[m") or not interest_line_characters_in_diff.startswith("[32m"):
+                    # added characters mixed with no change characters
+                    possible_diff_lines.append(interest_line_characters_in_diff)
         
         # handle special cases
         if identified_diff_line == None: # add characters inside a line, all the words in source are not changed.

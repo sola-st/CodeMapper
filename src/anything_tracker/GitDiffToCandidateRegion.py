@@ -74,7 +74,9 @@ class GitDiffToCandidateRegion():
 
         # start to get changed hunks with "git diff" command
         # TODO Consider using options, like --diff-algorithm=histogram, --color-moved=plain
-        commit_diff_command = f"git diff --color --unified=0 --word-diff-regex='\w+' {self.base_commit} {self.target_commit} -- {self.file_path}"
+        # The \w+ pattern is a regular expression that matches one or more word characters (letters, digits, or underscores). 
+        # -w to ignore whitespaces. It's add to solve a special case where only more or less whitespace in a line.
+        commit_diff_command = f"git diff --color --unified=0 --word-diff-regex='\w+' -w {self.base_commit} {self.target_commit} -- {self.file_path}"
         # if renamed_file_path: # rename happens
         #     commit_diff_command = f"git diff {self.base_commit}:{self.file_path} {self.target_commit}:{renamed_file_path}"
 

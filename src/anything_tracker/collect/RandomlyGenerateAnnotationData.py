@@ -163,7 +163,8 @@ class RandomlyGenerateAnnotationData():
                             selected_distance_commit, commit, selected_distance_commit_k )
                     random_data.append(distance_data_dict)
 
-                    if len(random_data) % (self.select_commit_num * 2) == 0:
+                    # *2 is enough, *4 is used to get enough meaningful changes in annotation stage
+                    if len(random_data) % (self.select_commit_num * 4) == 0: 
                         break
 
         write_generated_data_to_file(results_json_file, random_data)
