@@ -19,7 +19,7 @@ function readFile() {
 
       reader.readAsText(file);
   } else {
-      console.alert('No file selected.');
+      window.alert('No file selected.');
   }
 }
 
@@ -44,21 +44,7 @@ function showNext() {
   document.getElementById('targetCodeTextarea').innerText = "";
   document.getElementById('operationSelect').value = "change";
   document.getElementById('mark').value = "";
-
-  // update the number of different categories.
-  var kind_value = document.getElementById('distance').innerText;
-  var category_value = document.getElementById('categorySelect').value;
-  var table_cell_id;
-  if(kind_value == "neighboring"){
-    table_cell_id = "N" + category_value;
-  }else{ // distance
-    table_cell_id = "K" + category_value;
-  }
-  console.log(table_cell_id);
-  var currentValue = document.getElementById(table_cell_id).innerText;
-  document.getElementById(table_cell_id).innerText = parseInt(currentValue) + 1;
   document.getElementById('categorySelect').value = "single identifier/word";
-  
   
   if (jsonData.length > 0) {
       currentIndex = (currentIndex + 1) % jsonData.length;

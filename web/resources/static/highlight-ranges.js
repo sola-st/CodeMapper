@@ -134,6 +134,17 @@ function pushToMemory() {
     });
     removeHighlights("codeTextarea");
     removeHighlights("targetCodeTextarea");
+    // update the number of different categories.
+    var kind_value = document.getElementById('distance').innerText;
+    var category_value = document.getElementById('categorySelect').value;
+    var table_cell_id;
+    if(kind_value == "neighboring"){
+        table_cell_id = "N" + category_value;
+    }else{ // distance
+        table_cell_id = "K" + category_value;
+    }
+    var currentValue = document.getElementById(table_cell_id).innerText;
+    document.getElementById(table_cell_id).innerText = parseInt(currentValue) + 1;
   }
 
 function removeHighlights(id) {
