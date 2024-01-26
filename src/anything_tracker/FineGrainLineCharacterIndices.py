@@ -14,7 +14,7 @@ class FineGrainLineCharacterIndices():
         self.interest_line_number = interest_line_number
         self.interest_line_characters = interest_line_characters 
         self.is_start = is_start # true: start line/character; false: end line/character
-    
+
     def get_first_non_totally_added_line(self):
         '''
         get the expected modified/deleted line.
@@ -28,7 +28,7 @@ class FineGrainLineCharacterIndices():
          * return the splits for further check steps
         '''
 
-        specified_line_number_idx = None
+        specified_line_number_idx = None # source range start or end line number
 
         base_list:list = list(self.base_hunk_range)
         if base_list == []: # delete hunk
@@ -37,44 +37,33 @@ class FineGrainLineCharacterIndices():
             specified_line_number_idx = base_list.index(self.interest_line_number)
                 
         # start check to get the first non totally added line
+        line_delta = 0
         identified_diff_line:str = None
         splits = []
-        possible_diff_lines = [] 
         range_start = self.diff_line_num + specified_line_number_idx + 1
         max_len = max(len(base_list), self.target_hunk_range.stop - self.target_hunk_range.start)
         range_end = range_start + max_len
-        for i in range(range_start, range_end):
+        lines = list(range(range_start, range_end))
+        if self.is_start == False:
+            lines.reverse()
+        for i in lines:
             interest_line_characters_in_diff = self.diffs[i]
-            # get the first 1) modified, or 2) no change
-            if "[31m" in interest_line_characters_in_diff:
+            # get the first modified
+            if "[31m" in interest_line_characters_in_diff: # delete in diff line
                 identified_diff_line = interest_line_characters_in_diff
+                line_delta = specified_line_number_idx + (i - range_start)
                 break
-            elif not "[31m" in interest_line_characters_in_diff and not "[32m" in interest_line_characters_in_diff: 
-                # no color, no change
-                no_change_line_idx = self.target_hunk_range.start + specified_line_number_idx
-                no_change_line = self.target_file_lines[no_change_line_idx]
-                if self.interest_line_characters in no_change_line:
-                    fine_grained_character_idx = no_change_line.index(self.interest_line_characters)
-                    return fine_grained_character_idx, specified_line_number_idx + 1
-            elif "[32m" in interest_line_characters_in_diff: 
-                if not interest_line_characters_in_diff.endswith("[m") or not interest_line_characters_in_diff.startswith("[32m"):
-                    # added characters mixed with no change characters
-                    possible_diff_lines.append(interest_line_characters_in_diff)
-        
-        # handle special cases
-        if identified_diff_line == None: # add characters inside a line, all the words in source are not changed.
-            assert possible_diff_lines != []
-            # select the top-1 diff lines to get splits
-            source_words = self.interest_line_characters.split(" ")
-            for line in possible_diff_lines:
-                source_words_in_diff = [word for word in source_words if word in line]
-                if source_words == source_words_in_diff:
-                    # all source words are in current diff line
-                    identified_diff_line = line
-                    break
-            if identified_diff_line == None: # checked all the possibilities, nut still fail to get the top-1
-                # Coarse grained
-                identified_diff_line = self.diffs[self.diff_line_num + specified_line_number_idx + 1]
+            elif "[32m" in interest_line_characters_in_diff: # add in diff line
+                if not (interest_line_characters_in_diff.startswith("\033[32m") and interest_line_characters_in_diff.endswith("[m")):
+                    # not pure newly-added line
+                    line_idx = self.target_hunk_range.start + i
+                    line = self.target_file_lines[line_idx]
+                    word_level =  self.interest_line_characters.split(" ")
+                    not_substring = [word for word in word_level if word not in line]
+                    if not not_substring: # add more characters base on source characters
+                        identified_diff_line = interest_line_characters_in_diff
+                        line_delta = specified_line_number_idx + (i - range_start)
+                        break
 
         assert identified_diff_line != None
         splits = identified_diff_line.split("\033")
@@ -82,7 +71,7 @@ class FineGrainLineCharacterIndices():
         for i, s in enumerate(splits):
             if s.startswith("[m"):
                 splits[i] = s[2:]
-        return splits, [] # [] is a marker that totally different with "specified_line_number_idx + 1". list vs. int
+        return splits, line_delta
     
     def fine_grained_line_character_indices(self): 
         '''
@@ -95,9 +84,9 @@ class FineGrainLineCharacterIndices():
             with this function, it will be closer to 12.
         '''
         # step 1: fine grained line index, get the first non totally added line.
-        splits, val_b = self.get_first_non_totally_added_line()
-        if val_b != []:
-            return splits, val_b # fine_grained_character_idx, specified_line_number_idx + 1
+        splits, line_delta = self.get_first_non_totally_added_line()
+        # if isinstance(splits, int):
+        #     return splits, line_delta # fine_grained_character_idx, specified_line_number_idx + 1
 
         # step 2: fine grained character index
         fine_grained_character_idx = None # to return
@@ -123,11 +112,14 @@ class FineGrainLineCharacterIndices():
         for i, s in enumerate(splits):
             if self.is_start == True:
                 if source_pre_characters_len >= self.character_idx: # the closest one before the source start
-                    if i == 1 and pre_in_color == False:
-                        # the fine_grained_character_idx locates in the first *unchanged* split.
-                        fine_grained_character_idx = self.character_idx
+                    if i == 1:
+                        if pre_1_s.strip() == "": # whitespaces are with no colors, even they are deleted or added.
+                            fine_grained_character_idx = candidate_pre_characters_len + 1 
+                        elif pre_in_color == False: 
+                            # the fine_grained_character_idx locates in the first *unchanged* split.
+                            fine_grained_character_idx = self.character_idx
                     else: 
-                        if pre_in_color == True:
+                        if pre_in_color == True or pre_1_s.strip() == "":
                             fine_grained_character_idx = candidate_pre_characters_len + 1 
                         else: # changed, do not need to compute overlap
                             # focus on previous
@@ -137,9 +129,20 @@ class FineGrainLineCharacterIndices():
                 if source_pre_characters_len >= self.character_idx:
                     fit_condition = True
                     if "[32m" in s:
-                        ns = s[6:-2]
-                        # changed, do not need to compute overlap
-                        fine_grained_character_idx = candidate_pre_characters_len + len(ns)
+                        if source_pre_characters_len == self.character_idx:
+                            ns = s[6:-2]
+                            # changed, do not need to compute overlap
+                            fine_grained_character_idx = candidate_pre_characters_len + len(ns)
+                        else:
+                            # fined grained in s.splits
+                            s_splits = s[6:-2].split(" ")
+                            s_splits.reverse()
+                            source_pre_characters_len-=(len(s_splits)-1)
+                            for p in s_splits:
+                                source_pre_characters_len-=len(p)
+                                if source_pre_characters_len<=self.character_idx:
+                                    # if self.interest_line_characters
+                                    fine_grained_character_idx = candidate_pre_characters_len + len(p)
                     else: 
                         # add the failed to add candidate_pre_characters
                         s_len = len(s)
@@ -149,7 +152,7 @@ class FineGrainLineCharacterIndices():
                                 s, s_len, candidate_pre_characters_len)
                     
             if fine_grained_character_idx != None:
-                return fine_grained_character_idx, None
+                return fine_grained_character_idx, line_delta
 
             if "[31m" in s: # delete. eg,.[31m[-0.10.11-]
                 pre_1_s = s[6:-2]
@@ -183,7 +186,7 @@ class FineGrainLineCharacterIndices():
                     fine_grained_character_idx = self.fine_grained_return_helper(
                             pre_1_s, pre_1_s_len, candidate_pre_characters_len)
 
-            return fine_grained_character_idx, None
+            return fine_grained_character_idx, line_delta
 
     def fine_grained_return_helper(self, s, s_len, candidate_pre_characters_len):
         fine_grained_character_idx = 0

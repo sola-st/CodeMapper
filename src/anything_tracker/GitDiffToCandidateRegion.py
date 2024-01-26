@@ -148,12 +148,12 @@ class GitDiffToCandidateRegion():
 
                     if self.interest_last_number in overlapped_line_numbers and candidate_character_end_idx_done == False:
                         interest_last_line_characters = self.source_region_characters[-1]
-                        fine_grain_start = FineGrainLineCharacterIndices(
+                        fine_grain_end = FineGrainLineCharacterIndices(
                                     self.target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
                                     self.characters_end_idx, self.interest_last_number, interest_last_line_characters, False)
-                        candidate_character_end_idx, end_line_delta_hint = fine_grain_start.fine_grained_line_character_indices()
+                        candidate_character_end_idx, end_line_delta_hint = fine_grain_end.fine_grained_line_character_indices()
                         if end_line_delta_hint != None:
-                            candidate_end_line += end_line_delta_hint
+                            candidate_end_line -= end_line_delta_hint
                         candidate_character_end_idx_done = True
 
                     base_hunk_range_list = list(base_hunk_range)
