@@ -52,7 +52,7 @@ class LineLevelGitDiff():
         Analyze diff results, return target changed hunk range map, and the changed hunk sources.
         '''
         # for character start and end
-        candidate_character_start_idx = 0
+        candidate_character_start_idx = 1
         candidate_character_end_idx = 0
 
         # for checking changed hunk
@@ -90,13 +90,6 @@ class LineLevelGitDiff():
                 candidate_start_line = target_hunk_range.start
                 candidate_end_line = target_hunk_range.stop -1
                 if overlapped_line_numbers: # range overlap
-                    if self.interest_first_number in overlapped_line_numbers:
-                        candidate_character_start_idx = 1
-
-                    if self.interest_last_number in overlapped_line_numbers:
-                        interest_last_line_characters = self.source_region_characters[-1]
-                        candidate_character_end_idx = len(interest_last_line_characters)
-
                     base_hunk_range_list = list(base_hunk_range)
                     if base_hunk_range.start == base_hunk_range.stop:
                         base_hunk_range_list.append(base_hunk_range.start)
@@ -128,8 +121,7 @@ class LineLevelGitDiff():
                             if hunk_end <= target_hunk_range.start:
                                 hunk_end = target_hunk_range.start
                             marker = "<LOCATION_HELPER:DIFF_FULLY_COVER>"
-                            if candidate_character_end_idx == 0:
-                                candidate_character_end_idx = len(self.target_file_lines[hunk_end-1])
+                            candidate_character_end_idx = len(self.target_file_lines[hunk_end-1])
 
                             character_range = CharacterRange([candidate_start_line, candidate_character_start_idx, candidate_end_line, candidate_character_end_idx])
                             candidate_characters = get_region_characters(self.target_file_lines, character_range)
