@@ -21,7 +21,8 @@ class RunMeasurement():
         
     def run(self):
         results = []
-        results.append(["Ground truth index", "Candidate region index", "Exact matched locations", 
+        results.append(["Ground truth index", "Candidate region index", 
+                        "Expected ranges", "Predicted ranges", "Exactly matched",
                         "Pre-distance", "Post-distance", "Overall distance", 
                         "Recall", "Precision", "F1-score"])
         
@@ -54,12 +55,13 @@ class RunMeasurement():
             for j, candidate in enumerate(candidate_regions):
                 candidate_character_range = json.loads(candidate["target_range"])
                 if expected_character_range == candidate_character_range:
-                    results.append([i, j, candidate_character_range, 0, 0, 0, 1, 1, 1])
+                    results.append([i, j, expected_character_range, candidate_character_range, "Y", 0, 0, 0, 1, 1, 1])
                 else:
                     # compute distance and overlap percentage
                     pre_distance, post_distance, distance, recall, precision, f1_score = \
                             calculate_overlap(expected_character_range, candidate_character_range, target_lines_len_list, target_lines_str)
-                    results.append([i, j,"-", pre_distance, post_distance, distance, recall, precision, f1_score])
+                    results.append([i, j,expected_character_range, candidate_character_range, "-", \
+                            pre_distance, post_distance, distance, recall, precision, f1_score])
 
         write_results(results, self.results_csv_file_name)
 
