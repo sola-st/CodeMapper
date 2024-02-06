@@ -106,6 +106,8 @@ class GitDiffToCandidateRegion():
         bottom_diff_hunks = []
         uncovered_lines = self.interest_line_numbers
         changed_line_numbers_list = self.interest_line_numbers # all numbers start at 1.
+        start_movement = "" # if the start line and character is identified involve in movement
+        end_movement = ""
 
         diffs = diff_result.split("\n")
         for diff_line_num, diff_line in enumerate(diffs):
@@ -141,7 +143,7 @@ class GitDiffToCandidateRegion():
                             fine_grain_start = FineGrainLineCharacterIndices(
                                     self.target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
                                     self.characters_start_idx, self.interest_first_number, interest_first_line_characters, True)
-                            candidate_character_start_idx, start_line_delta_hint = fine_grain_start.fine_grained_line_character_indices()
+                            candidate_character_start_idx, start_line_delta_hint, start_movement = fine_grain_start.fine_grained_line_character_indices()
                             if start_line_delta_hint != None:
                                 candidate_start_line += start_line_delta_hint
                         candidate_character_start_idx_done = True
@@ -151,7 +153,7 @@ class GitDiffToCandidateRegion():
                         fine_grain_end = FineGrainLineCharacterIndices(
                                     self.target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
                                     self.characters_end_idx, self.interest_last_number, interest_last_line_characters, False)
-                        candidate_character_end_idx, end_line_delta_hint = fine_grain_end.fine_grained_line_character_indices()
+                        candidate_character_end_idx, end_line_delta_hint, end_movement = fine_grain_end.fine_grained_line_character_indices()
                         if end_line_delta_hint != None:
                             candidate_end_line -= end_line_delta_hint
                         candidate_character_end_idx_done = True
@@ -187,6 +189,10 @@ class GitDiffToCandidateRegion():
                             if hunk_end <= target_hunk_range.start:
                                 hunk_end = target_hunk_range.start
                             marker = "<LOCATION_HELPER:DIFF_FULLY_COVER>"
+                            if start_movement != "":
+                                marker += "<START_MOVE>"
+                            if end_movement != "":
+                                marker += "<END_MOVE>"
                             if candidate_character_end_idx == 0:
                                 candidate_character_end_idx = len(self.target_file_lines[hunk_end-1])
 

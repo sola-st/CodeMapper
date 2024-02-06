@@ -44,26 +44,38 @@ class FineGrainLineCharacterIndices():
         max_len = max(len(base_list), self.target_hunk_range.stop - self.target_hunk_range.start)
         range_end = range_start + max_len
         lines = list(range(range_start, range_end))
+        range_border = range_start
         if self.is_start == False:
             lines.reverse()
+            range_border = range_end - 1
         for i in lines:
             interest_line_characters_in_diff = self.diffs[i]
             # get the first modified
             if "[31m" in interest_line_characters_in_diff: # delete in diff line
                 identified_diff_line = interest_line_characters_in_diff
-                line_delta = specified_line_number_idx + (i - range_start)
+                line_delta = specified_line_number_idx + abs(i - range_border)
                 break
             elif "[32m" in interest_line_characters_in_diff: # add in diff line
                 if not (interest_line_characters_in_diff.startswith("\033[32m") and interest_line_characters_in_diff.endswith("[m")):
                     # not pure newly-added line
-                    line_idx = self.target_hunk_range.start + i
-                    line = self.target_file_lines[line_idx]
-                    word_level =  self.interest_line_characters.split(" ")
-                    not_substring = [word for word in word_level if word not in line]
-                    if not not_substring: # add more characters base on source characters
-                        identified_diff_line = interest_line_characters_in_diff
-                        line_delta = specified_line_number_idx + (i - range_start)
-                        break
+                    # line_idx = self.target_hunk_range.start + i
+                    # line = self.target_file_lines[line_idx]
+                    # word_level =  self.interest_line_characters.split(" ")
+                    # not_substring = [word for word in word_level if word not in line]
+                    # if not not_substring: # add more characters base on source characters
+                    identified_diff_line = interest_line_characters_in_diff
+                    line_delta = specified_line_number_idx + abs(i - range_border)
+                    break
+            else: # no colors
+                if self.interest_line_characters in interest_line_characters_in_diff: # movement
+                    line_delta = specified_line_number_idx + abs(i - range_border)
+                    # no_change_line_idx = self.target_hunk_range.start + line_delta -1 # -1 for index
+                    # identified_diff_line_v1 = self.target_file_lines[no_change_line_idx]
+                    identified_diff_line = interest_line_characters_in_diff
+                    fine_grained_character_idx = identified_diff_line.index(self.interest_line_characters) + 1 # +1, starts at 1.
+                    if self.is_start == False:
+                        fine_grained_character_idx = fine_grained_character_idx + len(self.interest_line_characters) - 1
+                    return fine_grained_character_idx, line_delta
 
         assert identified_diff_line != None
         splits = identified_diff_line.split("\033")
@@ -85,8 +97,8 @@ class FineGrainLineCharacterIndices():
         '''
         # step 1: fine grained line index, get the first non totally added line.
         splits, line_delta = self.get_first_non_totally_added_line()
-        # if isinstance(splits, int):
-        #     return splits, line_delta # fine_grained_character_idx, specified_line_number_idx + 1
+        if isinstance(splits, int):
+            return splits, line_delta, "movement" # fine_grained_character_idx, line_delta
 
         # step 2: fine grained character index
         fine_grained_character_idx = None # to return
@@ -152,7 +164,7 @@ class FineGrainLineCharacterIndices():
                                 s, s_len, candidate_pre_characters_len)
                     
             if fine_grained_character_idx != None:
-                return fine_grained_character_idx, line_delta
+                return fine_grained_character_idx, line_delta, ""
 
             if "[31m" in s: # delete. eg,.[31m[-0.10.11-]
                 pre_1_s = s[6:-2]
@@ -186,7 +198,7 @@ class FineGrainLineCharacterIndices():
                     fine_grained_character_idx = self.fine_grained_return_helper(
                             pre_1_s, pre_1_s_len, candidate_pre_characters_len)
 
-            return fine_grained_character_idx, line_delta
+            return fine_grained_character_idx, line_delta, ""
 
     def fine_grained_return_helper(self, s, s_len, candidate_pre_characters_len):
         fine_grained_character_idx = 0
