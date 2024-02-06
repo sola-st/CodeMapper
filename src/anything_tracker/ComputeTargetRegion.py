@@ -57,13 +57,14 @@ class ComputeTargetRegion():
             candidate_characters = candidate.character_sources
             if candidate_characters == None:
                 candidate_characters = ""
+                # TODO do not need to calculate the bleu score
             dist, bleu = self.compute_metrics_set(candidate_characters)
             edit_dists[i] = dist
             bleu_scores[i] = bleu
-        top_1_candidate_index = compute_highest_trade_off_score(edit_dists, bleu_scores) # starts st 0.
+        top_1_candidate_index = compute_highest_trade_off_score(edit_dists, bleu_scores) # starts at 0.
 
         target_candidate = self.candidate_regions[top_1_candidate_index]
         target_candidate_edit_distance = edit_dists[top_1_candidate_index]
         target_candidate_bleu_score= bleu_scores[top_1_candidate_index]
 
-        return target_candidate, target_candidate_edit_distance, target_candidate_bleu_score
+        return target_candidate, top_1_candidate_index, target_candidate_edit_distance, target_candidate_bleu_score

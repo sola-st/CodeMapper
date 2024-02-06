@@ -47,7 +47,7 @@ def calculate_overlap(expected_location, predicted_location, line_lengths, targe
     distance = 0
 
     if lcs == "": # predicted location quality is poor
-        return "-1","-1", "-1", "-1", "-1", "-1" # -1: bad quality
+        return -1, -1, -1, -1, -1, -1 # -1: bad quality
         # may from git diff [without options which can detect movement], it mis-identified that the source region is deleted, 
         # but actually it may be moved to another location.
     

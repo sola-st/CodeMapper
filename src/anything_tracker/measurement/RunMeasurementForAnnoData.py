@@ -1,7 +1,9 @@
 import csv
+from itertools import zip_longest
 import json
 import os
 from os.path import join
+from statistics import mean
 from anything_tracker.SearchLinesToCandidateRegion import get_character_length_of_lines
 from anything_tracker.measurement.CharacterDistanceAndOverlapScore import calculate_overlap
 from anything_tracker.utils.ReadFile import checkout_to_read_file
@@ -20,11 +22,18 @@ class RunMeasurement():
         return data
         
     def run(self):
-        results = []
-        results.append(["Ground truth index", "Candidate region index", 
-                        "Expected ranges", "Predicted ranges", "Exactly matched",
-                        "Pre-distance", "Post-distance", "Overall distance", 
-                        "Recall", "Precision", "F1-score"])
+        ground_truth_indices = ["Ground truth index"]
+        candidate_nums = ["Number of Candidates"]
+        target_region_indices = ["Target region index"]
+        expected = ["Expected ranges"]
+        predicted = ["Predicted ranges"]
+        is_matched_set = ["Exactly matched"]
+        pre_dist = ["Pre-distance"]
+        post_dist = ["Post-distance"]
+        dists = ["Overall distance"]
+        recalls = ["Recall"]
+        precisions = ["Precision"]
+        f1s = ["F1-score"]
         
         maps = self.load_json_file()
         for i, meta in enumerate(maps):
@@ -52,30 +61,56 @@ class RunMeasurement():
             with open(json_results_file, 'r') as f:
                 candidate_regions = json.load(f)
 
-            for j, candidate in enumerate(candidate_regions):
+            for candidate in candidate_regions:
                 candidate_character_range = json.loads(candidate["target_range"])
+                ground_truth_indices.append(i)
+                candidate_nums.append(candidate["all_candidates_num"])
+                target_region_indices.append(candidate["index"])
+                expected.append(expected_character_range)
+                predicted.append(candidate_character_range)
+
                 if expected_character_range == candidate_character_range:
-                    results.append([i, j, expected_character_range, candidate_character_range, "Y", 0, 0, 0, 1, 1, 1])
+                    is_matched_set.append("Y")
+                    pre_dist.append(0)
+                    post_dist.append(0)
+                    dists.append(0)
+                    recalls.append(1)
+                    precisions.append(1)
+                    f1s.append(1)
                 else:
                     # compute distance and overlap percentage
                     pre_distance, post_distance, distance, recall, precision, f1_score = \
                             calculate_overlap(expected_character_range, candidate_character_range, target_lines_len_list, target_lines_str)
-                    results.append([i, j,expected_character_range, candidate_character_range, "-", \
-                            pre_distance, post_distance, distance, recall, precision, f1_score])
+                    is_matched_set.append("-")
+                    pre_dist.append(pre_distance)
+                    post_dist.append(post_distance)
+                    dists.append(distance)
+                    recalls.append(recall)
+                    precisions.append(precision)
+                    f1s.append(f1_score)
+        
+        # add average number to each list(column in the results file) or other information as needed
+        pre_dist.append(round(mean(pre_dist[1:]), 4))
+        post_dist.append(round(mean(post_dist[1:]), 4))
+        dists.append(round(mean(dists[1:]), 4))
+        recalls.append(round(mean(recalls[1:]), 4))
+        precisions.append(round(mean(precisions[1:]), 4))
+        f1s.append(round(mean(f1s[1:]), 4))
+                    
+        results = zip_longest(ground_truth_indices, candidate_nums, target_region_indices, expected, predicted, is_matched_set, \
+                pre_dist, post_dist, dists, recalls, precisions, f1s)
+        write_results(results, self.results_csv_file_name)   
 
-        write_results(results, self.results_csv_file_name)
-
-
-def write_results(results_list, file_name):
+def write_results(results, file_name):
     with open(f"data/results/{file_name}", "w") as f:
-        for sub_list in results_list:
-            csv_writer = csv.writer(f)
-            csv_writer.writerow(sub_list)
+        csv_writer = csv.writer(f)
+        for row in results:
+            csv_writer.writerow(row)
 
 
 if __name__=="__main__":
-    oracle_file = join("data", "annotation", "anno_39.json")
+    oracle_file = join("data", "annotation", "anno_38.json")
     candidates_dir = join("data", "results", "tracked_maps", "UI_candidate_regions_38")
-    results_csv_file_name = "measurement_results_anno38.csv"
+    results_csv_file_name = "measurement_results_anno38_mean.csv"
     measurement = "target.json" # compare source region and predicted target region, can changed to "candidates.json"
     RunMeasurement(oracle_file, candidates_dir, results_csv_file_name, measurement).run()

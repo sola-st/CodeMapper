@@ -171,7 +171,7 @@ class AnythingTracker():
             json.dump(output_maps, ds, indent=4, ensure_ascii=False)
 
         # Select top-1 candidate
-        target_candidate, target_candidate_edit_distance, target_candidate_bleu_score = ComputeTargetRegion(
+        target_candidate, target_candidate_index, target_candidate_edit_distance, target_candidate_bleu_score = ComputeTargetRegion(
                 source_region_characters_str, candidate_regions).run()
         target_json = {
             "source_file": self.file_path,
@@ -182,7 +182,9 @@ class AnythingTracker():
             "target_characters" : target_candidate.character_sources,
             "kind": candidate.marker,
             "levenshtein_distance" : target_candidate_edit_distance,
-            "bleu": target_candidate_bleu_score
+            "bleu": target_candidate_bleu_score,
+            "index": target_candidate_index, 
+            "all_candidates_num": len(candidate_regions)
         }
         # write target candidate to a single Json file.
         target_json_file = join(self.results_dir, "target.json")
