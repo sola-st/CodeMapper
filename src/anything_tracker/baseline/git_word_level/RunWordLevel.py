@@ -5,6 +5,7 @@ from os.path import join
 from anything_tracker.AnythingTracker import get_source_and_expected_region_characters
 from anything_tracker.CandidateRegion import get_candidate_region_range
 from anything_tracker.CharacterRange import CharacterRange
+from anything_tracker.ComputeTargetRegion import ComputeTargetRegion
 from anything_tracker.baseline.git_word_level.WordLevelGitDiff import WordLevelGitDiff
 from anything_tracker.utils.ReadFile import checkout_to_read_file
 
@@ -99,16 +100,25 @@ class RunLineLevel():
         
         map = {}
         for candidate in candidate_region:
-            if candidate == []:
+            
+            if candidate == []: # No candidates
                 map = {
                     "source_file": self.file_path,
                     "target_file": self.file_path,
                     "source_range": str(self.source_character_range),
-                    "target_range": "[0, 0, 0, 0]",
+                    "target_range": None,
                     "target_characters" : None,
-                    "kind": "<DIFF_WORD_DELETE>"
+                    "kind": "<DIFF_WORD_DELETE>",
+                    "levenshtein_distance" : None,
+                    "bleu": None,
+                    "index": 0, 
+                    "all_candidates_num": 1
                 }
             else:
+                target_characters = candidate.character_sources
+                if target_characters == None:
+                    target_characters = ""
+                dist, bleu = ComputeTargetRegion(source_region_characters_str, candidate).compute_metrics_set(target_characters)                
                 target_range = get_candidate_region_range(candidate)
                 map = {
                     "source_file": self.file_path,
@@ -116,7 +126,11 @@ class RunLineLevel():
                     "source_range": str(self.source_character_range),
                     "target_range": str(target_range),
                     "target_characters" : candidate.character_sources,
-                    "kind": candidate.marker
+                    "kind": candidate.marker,
+                    "levenshtein_distance" : dist,
+                    "bleu": bleu,
+                    "index": 0, 
+                    "all_candidates_num": 1
                 }
             output_maps.append(map)
         

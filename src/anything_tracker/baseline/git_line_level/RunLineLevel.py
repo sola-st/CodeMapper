@@ -5,6 +5,7 @@ from os.path import join
 from anything_tracker.AnythingTracker import get_source_and_expected_region_characters
 from anything_tracker.CandidateRegion import get_candidate_region_range
 from anything_tracker.CharacterRange import CharacterRange
+from anything_tracker.ComputeTargetRegion import ComputeTargetRegion
 from anything_tracker.baseline.git_line_level.LineLevelGitDiff import LineLevelGitDiff
 from anything_tracker.utils.ReadFile import checkout_to_read_file
 
@@ -100,13 +101,21 @@ class RunLineLevel():
         
         for candidate in candidate_region:
             target_range = get_candidate_region_range(candidate)
+            target_characters = candidate.character_sources
+            if target_characters == None:
+                target_characters = ""
+            dist, bleu = ComputeTargetRegion(source_region_characters_str, candidate).compute_metrics_set(target_characters)
             map = {
                 "source_file": self.file_path,
                 "target_file": self.file_path,
                 "source_range": str(self.source_character_range),
                 "target_range": str(target_range),
                 "target_characters" : candidate.character_sources,
-                "kind": candidate.marker
+                "kind": candidate.marker,
+                "levenshtein_distance" : dist,
+                "bleu": bleu,
+                "index": 0, 
+                "all_candidates_num": 1
             }
             output_maps.append(map)
         

@@ -62,32 +62,44 @@ class RunMeasurement():
                 candidate_regions = json.load(f)
 
             for candidate in candidate_regions:
-                candidate_character_range = json.loads(candidate["target_range"])
+                candidate_character_range = candidate["target_range"]
+                if candidate_character_range == None:
+                    candidate_character_range = "No candidates"
+                    # no candidates
+                    is_matched_set.append("Y")
+                    pre_dist.append(-2)
+                    post_dist.append(-2)
+                    dists.append(-2)
+                    recalls.append(-2)
+                    precisions.append(-2)
+                    f1s.append(-2)
+                else:
+                    candidate_character_range = json.loads(candidate["target_range"])
+                    if expected_character_range == candidate_character_range:
+                        is_matched_set.append("Y")
+                        pre_dist.append(0)
+                        post_dist.append(0)
+                        dists.append(0)
+                        recalls.append(1)
+                        precisions.append(1)
+                        f1s.append(1)
+                    else:
+                        # compute distance and overlap percentage
+                        pre_distance, post_distance, distance, recall, precision, f1_score = \
+                                calculate_overlap(expected_character_range, candidate_character_range, target_lines_len_list, target_lines_str)
+                        is_matched_set.append("-")
+                        pre_dist.append(pre_distance)
+                        post_dist.append(post_distance)
+                        dists.append(distance)
+                        recalls.append(recall)
+                        precisions.append(precision)
+                        f1s.append(f1_score)
+
                 ground_truth_indices.append(i)
                 candidate_nums.append(candidate["all_candidates_num"])
                 target_region_indices.append(candidate["index"])
                 expected.append(expected_character_range)
                 predicted.append(candidate_character_range)
-
-                if expected_character_range == candidate_character_range:
-                    is_matched_set.append("Y")
-                    pre_dist.append(0)
-                    post_dist.append(0)
-                    dists.append(0)
-                    recalls.append(1)
-                    precisions.append(1)
-                    f1s.append(1)
-                else:
-                    # compute distance and overlap percentage
-                    pre_distance, post_distance, distance, recall, precision, f1_score = \
-                            calculate_overlap(expected_character_range, candidate_character_range, target_lines_len_list, target_lines_str)
-                    is_matched_set.append("-")
-                    pre_dist.append(pre_distance)
-                    post_dist.append(post_distance)
-                    dists.append(distance)
-                    recalls.append(recall)
-                    precisions.append(precision)
-                    f1s.append(f1_score)
         
         # add average number to each list(column in the results file) or other information as needed
         pre_dist.append(round(mean(pre_dist[1:]), 4))
