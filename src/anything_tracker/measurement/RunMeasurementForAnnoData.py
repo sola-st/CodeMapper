@@ -102,6 +102,7 @@ class RunMeasurement():
                 predicted.append(candidate_character_range)
         
         # add average number to each list(column in the results file) or other information as needed
+        is_matched_set.append(is_matched_set.count("Y"))
         pre_dist.append(round(mean(pre_dist[1:]), 4))
         post_dist.append(round(mean(post_dist[1:]), 4))
         dists.append(round(mean(dists[1:]), 4))
