@@ -1,57 +1,55 @@
-import csv
 import matplotlib.pyplot as plt
 from os.path import join
 
 import numpy as np
+from pandas import read_csv
 
-def read_csv(filename):
-    with open(filename, 'r') as file:
-        reader = csv.reader(file)
-        header = next(reader)
-        overall_distance_index = header.index('Overall distance')
-        data = [int(row[overall_distance_index]) for row in reader]
-    return data
+def get_data(filename):
+    data = read_csv(filename)
 
-def main(anything_tracker_file, line_git_diff_file, word_git_diff_file, comparison_pdf):
-    data_a = read_csv(anything_tracker_file)
-    data_b = read_csv(line_git_diff_file)
-    data_c = read_csv(word_git_diff_file)
+    dists = data['Overall distance'].tolist()[:-1]
+    recalls = data['Recall'].tolist()[:-1]
+    precisions = data['Precision'].tolist()[:-1]
+    f1s = data['F1-score'].tolist()[:-1]
 
-    fig, ax = plt.subplots()
+    return dists, recalls, precisions, f1s
 
-    ax.scatter(data_a, range(len(data_a)), color='green', label='AnythingTracker')
-    ax.scatter(data_b, range(len(data_b)), color='purple', label='Line level git diff')
-    ax.scatter(data_c, range(len(data_c)), color='orange', label='Word level git diff')
+def generate_plots(data_a, data_b, data_c, ylabel, comparison_pdf):
+    font_size = 10
+    fig, ax = plt.subplots(figsize=(10, 6))
 
-    our_max_dist = max(data_a)
-    our_max_dist_closer = ((our_max_dist + 49) // 50) * 50
-    x_ticks_dense = np.arange(0, our_max_dist_closer + 1, 50)
-    max_dist = max(our_max_dist, max(data_b), max(data_c))
-    max_dist_closer = ((max_dist + 99) // 100) * 100
-    x_ticks_sparse = np.arange(our_max_dist_closer, max_dist_closer + 1, 100)
-    x_ticks = np.concatenate((x_ticks_dense, x_ticks_sparse))
+    bar_width = 0.6
 
-    ax.set_xticks(x_ticks)
+    bar_positions = np.arange(len(data_a)) * 5
+    ax.bar(bar_positions, data_a, width=bar_width, color='orange', label='Line level git diff')
+    ax.bar(bar_positions + bar_width, data_b, width=bar_width, color='purple', label='Word level git diff')
+    ax.bar(bar_positions + 2 * bar_width, data_c, width=bar_width, color='green', label='AnythingTracker')
 
-    ax.set_title('Scatter Plot of Edit Distance')
-    ax.set_xlabel('Edit Distance')  # (-1: Bad quality)
-    ax.set_ylabel('Data Point Index')
-    ax.legend(['AnythingTracker', 'Line level git diff', 'Word level git diff'])
+    ax.set_xticks(bar_positions + bar_width)
+    ax.set_xticklabels(range(len(data_a)), fontsize=font_size)
 
-    total_range = max_dist + 1
-    total_ticks = len(x_ticks)
-    pixels_per_tick = 10  # Adjust as needed
-    fig_width = total_range / total_ticks * pixels_per_tick
-    fig.set_size_inches(fig_width / 100, 6)  # Convert inches to pixels
+    ax.set_xlabel('Data Point', fontsize =font_size+2)
+    ax.set_ylabel(ylabel, fontsize =font_size+2)
+    ax.legend()
 
     plt.tight_layout()
     plt.savefig(comparison_pdf)
 
+def main(anything_tracker_file, line_git_diff_file, word_git_diff_file, comparison_pdf):
+    dists_a, recalls_a, precisions_a, f1s_a = get_data(line_git_diff_file)
+    dists_b, recalls_b, precisions_b, f1s_b = get_data(word_git_diff_file)
+    dists_c, recalls_c, precisions_c, f1s_c = get_data(anything_tracker_file) 
+
+    generate_plots(dists_a, dists_b, dists_c, 'Edit Distance', comparison_pdf.replace(".pdf", "_dist.pdf"))
+    generate_plots(recalls_a, recalls_b, recalls_c, 'Recall', comparison_pdf.replace(".pdf", "_recall.pdf"))
+    generate_plots(precisions_a, precisions_b, precisions_c, 'Precision', comparison_pdf.replace(".pdf", "_pre.pdf"))
+    generate_plots(f1s_a, f1s_b, f1s_c, 'F1-score', comparison_pdf.replace(".pdf", "_f1.pdf"))
+
 if __name__=="__main__":
     results_folder = "data/results"
-    anything_tracker_file = join(results_folder, "measurement_results_anno38_v1_updated.csv")
-    line_git_diff_file = join(results_folder, "measurement_results_anno38_gitline_v2.csv")
-    word_git_diff_file = join(results_folder, "measurement_results_anno38_gitword_v1.csv")
-    comparison_pdf = join(results_folder, "table_plots", "example_1.pdf")
+    line_git_diff_file = join(results_folder, "measurement_results_anno38_gitline_v3_mean.csv")
+    word_git_diff_file = join(results_folder, "measurement_results_anno38_gitword_v2_mean.csv")
+    anything_tracker_file = join(results_folder, "measurement_results_anno38_combine_mean.csv")
+    comparison_pdf = join(results_folder, "table_plots", "example_bar_plot.pdf")
     main(anything_tracker_file, line_git_diff_file, word_git_diff_file, comparison_pdf)
 
