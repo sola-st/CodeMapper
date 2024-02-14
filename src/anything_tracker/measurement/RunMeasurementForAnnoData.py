@@ -28,9 +28,9 @@ class RunMeasurement():
         expected = ["Expected ranges"]
         predicted = ["Predicted ranges"]
         is_matched_set = ["Exactly matched"]
-        pre_dist = ["Pre-distance"]
-        post_dist = ["Post-distance"]
-        dists = ["Overall distance"]
+        pre_dist = ["Pre-character distance"]
+        post_dist = ["Post-character distance"]
+        dists = ["Character distance"]
         recalls = ["Recall"]
         precisions = ["Precision"]
         f1s = ["F1-score"]
@@ -103,12 +103,12 @@ class RunMeasurement():
         
         # add average number to each list(column in the results file) or other information as needed
         is_matched_set.append(is_matched_set.count("Y"))
-        pre_dist.append(round(mean(pre_dist[1:]), 4))
-        post_dist.append(round(mean(post_dist[1:]), 4))
-        dists.append(round(mean(dists[1:]), 4))
-        recalls.append(round(mean(recalls[1:]), 4))
-        precisions.append(round(mean(precisions[1:]), 4))
-        f1s.append(round(mean(f1s[1:]), 4))
+        pre_dist.append(round(mean(pre_dist[1:]), 1))
+        post_dist.append(round(mean(post_dist[1:]), 1))
+        dists.append(round(mean(dists[1:]), 1))
+        recalls.append(round(mean(recalls[1:]), 3))
+        precisions.append(round(mean(precisions[1:]), 3))
+        f1s.append(round(mean(f1s[1:]), 3))
                     
         results = zip_longest(ground_truth_indices, candidate_nums, target_region_indices, expected, predicted, is_matched_set, \
                 pre_dist, post_dist, dists, recalls, precisions, f1s)

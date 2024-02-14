@@ -11,7 +11,7 @@ def get_avg_numbers(filename):
 def generate_table(row_names, col_names, data, caption, label, tex_file, add=False):
     latex_table = "\\begin{table}[htbp]\n\\centering\n"
     latex_table += "\\caption{" + caption + "}\n"
-    latex_table += "\\begin{tabular}{" + "".join(["c"] * (len(col_names) + 1)) + "}\n"
+    latex_table += "\\begin{tabular}{" + "".join(["r"] * (len(col_names) + 1)) + "}\n"
     latex_table += "\\toprule\n"
 
     latex_table += "&" + " & ".join(col_names) + "\\\\\n"
@@ -38,7 +38,7 @@ def main(line_git_diff_file, word_git_diff_file, anything_tracker_file, comparis
     
     row_names = ['Line level git diff', 'Word level git diff', 'Our approach']
 
-    dist_col_names = ['Pre-edit distance', 'Post-edit distance', "Edit distance"]
+    dist_col_names = ['Pre-char dist', 'Post-char dist', "Character distance"]
     dist_data = [data_a[1:4], data_b[1:4], data_c[1:4]]
     dist_caption = "Comparison on Edit distance"
     generate_table(row_names, dist_col_names, dist_data, dist_caption, "comparison_avg_dist", comparison_tex)
