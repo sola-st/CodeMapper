@@ -203,6 +203,30 @@ class AnythingTracker():
         with open(target_json_file, "w") as ds:
             json.dump(to_write, ds, indent=4, ensure_ascii=False)
 
+        # Record target types
+        parent_folder, ground_truth_index = self.results_dir.rsplit("/", 1)
+        # unique_keys = ["dist_based", "bleu_based", "similarity_based"]
+        all_keys = list(results_set_dict.keys())
+        dist_based_num = all_keys.count("dist_based")
+        bleu_dist_num = all_keys.count("bleu_based")
+        dist_based_num = all_keys.count("similarity_based")
+        num_str = {
+            ground_truth_index : {
+                "dist_based": dist_based_num,
+                "bleu_based": bleu_dist_num,
+                "similarity_based": dist_based_num
+            }
+        }
+        write_mode = "a"
+        if ground_truth_index == "0":
+            write_mode = "w"
+
+        with open(join(parent_folder, "target_num.json"), write_mode) as f:
+            if write_mode == "a":
+                f.write(",\n")
+            json.dump(num_str, f, indent=4, ensure_ascii=False)
+            
+
 
 if __name__ == "__main__":
     args = parser.parse_args()

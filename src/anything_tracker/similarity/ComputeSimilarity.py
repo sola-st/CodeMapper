@@ -41,10 +41,12 @@ class ComputeSimilarity:
             formatted_similarity_score = round(similarity_score, 4)
             ground_truth_level_similarities.append(formatted_similarity_score)
             if similarity_score >= highest_similarity:
+                if similarity_score > highest_similarity:
+                    selected_candidate_indices = []
                 selected_candidate_indices.append(i)
                 similarities.append(formatted_similarity_score)
                 highest_similarity = similarity_score
-        
+    
         ground_truth_level_similarities_dict = {self.ground_truth_index : ground_truth_level_similarities}
 
         return selected_candidate_indices, similarities, ground_truth_level_similarities_dict

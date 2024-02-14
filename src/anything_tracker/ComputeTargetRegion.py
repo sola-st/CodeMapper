@@ -39,20 +39,18 @@ class ComputeTargetRegion():
                 )
         # Normalize the edit distance by dividing it by the maximum possible edit distance. 
         distance = matrix[m][n]
-        return distance
-        # normalized_distance = 1- distance/max(m,n)
-        # return normalized_distance
+        normalized_distance = 1- distance/max(m,n)
+        return distance, normalized_distance
 
     def bleu_score(self, candidate_characters):
         return nltk.translate.bleu_score.sentence_bleu([candidate_characters], self.source_region_characters)
 
     def compute_metrics_set(self, candidate_characters):
-        dist = self.levenshtein_distance(candidate_characters)
+        dist, normalized_dist = self.levenshtein_distance(candidate_characters)
         bleu = self.bleu_score(candidate_characters)
-        return dist, bleu
+        return dist, normalized_dist, bleu
     
-    def get_metrics_based_dict(self, edit_dists, bleu_scores, similarities, indices, \
-                keys = ["dist_based", "bleu_dist", "similarity_dist"]):
+    def get_metrics_based_dict(self, edit_dists, bleu_scores, similarities, indices, keys):
         results_set_dict = {}
         for idx, k in zip(indices, keys):
             metrics_based_dict = {
@@ -67,17 +65,19 @@ class ComputeTargetRegion():
 
     def run(self):
         edit_dists = []
+        normalized_dists = []
         bleu_scores = []
 
         candidate_region_chars = []
-        for i, candidate in enumerate(self.candidate_regions):
+        for candidate in self.candidate_regions:
             candidate_characters = candidate.character_sources
             candidate_region_chars.append(candidate_characters)
             if candidate_characters == None:
                 candidate_characters = ""
                 # TODO do not need to calculate the bleu score
-            dist, bleu = self.compute_metrics_set(candidate_characters)
+            dist, normalized_dist, bleu = self.compute_metrics_set(candidate_characters)
             edit_dists.append(dist)
+            normalized_dists.append(normalized_dist)
             bleu_scores.append(bleu)
 
         # compute edit distance, bleu score and embedding similarity, respectively.
@@ -85,40 +85,52 @@ class ComputeTargetRegion():
         # [Option 1]: compute 3 different metrics ----------------
         # top-1 edit distance
         top_dist = min(edit_dists)
-        top_dist_idx = edit_dists.index(top_dist)
+        # top_dist_indices van be one or more
+        top_dist_indices = [idx for idx, dist in enumerate(edit_dists) if dist == top_dist]
 
         # top-1 bleu score
         top_bleu = max(bleu_scores)
-        top_bleu_idx = bleu_scores.index(top_bleu)
+        top_bleu_indices = [idx for idx, bleu in enumerate(bleu_scores) if bleu == top_bleu]
 
         # top-1 similarity, the key of similarities_dict is ground truth index
         top_similarity_indices, top_similarities, similarities_dict = \
             ComputeSimilarity(self.source_region_characters, candidate_region_chars, 0).get_top_1_similarity()
-        # if len(top_similarity_indices) == 1:
-        top_similarity_idx = top_similarity_indices[0]
-        indices = [top_dist_idx, top_bleu_idx, top_similarity_idx]
+
+        # allow multiple targets for each metric
+        indices = []
+        indices.extend(top_dist_indices)
+        indices.extend(top_bleu_indices)
+        indices.extend(top_similarity_indices)
         similarities = similarities_dict[0]
-        results_set_dict = self.get_metrics_based_dict(edit_dists, bleu_scores, similarities, indices)
+
+        keys = []
+        for i in top_dist_indices:
+            keys.append("dist_based")
+        for j in top_bleu_indices:
+            keys.append("bleu_based")
+        for k in top_similarity_indices:
+            keys.append("similarity_based")
+
+        results_set_dict = self.get_metrics_based_dict(edit_dists, bleu_scores, similarities, indices, keys)
 
         # [Option 2]: combine the results of 3 different metrics ----------------
-        average_highest_idx = compute_highest_trade_off_score(edit_dists, bleu_scores, similarities) # starts at 0.
-
-
+        average_highest_idx = compute_highest_trade_off_score(normalized_dists, bleu_scores, similarities) # starts at 0.
         average_highest_dict = self.get_metrics_based_dict(edit_dists, bleu_scores, similarities, 
                 [average_highest_idx], ["average_highest"])
-        # average_highest = results_set_dict_2["average_highest"]
 
-        # [Option 3]: check the vote to different metrics
+        # [Option 3]: check the vote to different metrics ----------------
         vote_most_dict = None
+        votes = []
         indices_deduplicated = list(set(indices))
         if indices != indices_deduplicated:
             for idx in indices_deduplicated:
                 idx_count = indices.count(idx)
-                if idx_count > 1:
-                    vote_most_idx = idx
-                    vote_most_dict = self.get_metrics_based_dict(edit_dists, bleu_scores, similarities, 
-                            [vote_most_idx], ["vote_most"])
-                    # vote_most = results_set_dict_3["vote_most"]
-                    break
+                votes.append(idx_count)
+
+        vote_max = min(votes)
+        if votes.count(vote_max) == 1:
+            vote_most_idx = indices_deduplicated[votes.index(vote_max)]
+            vote_most_dict = self.get_metrics_based_dict(edit_dists, bleu_scores, similarities, 
+                    [vote_most_idx], ["vote_most"])
 
         return results_set_dict, average_highest_dict, vote_most_dict
