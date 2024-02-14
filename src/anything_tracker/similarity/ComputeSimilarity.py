@@ -4,7 +4,7 @@ from  os.path import join
 from sentence_transformers import SentenceTransformer, util
 
 parser = argparse.ArgumentParser(description="Compute similarity between expected region and candidate regions.")
-parser.add_argument("--results_dir", help="Directory to put the results", required=True)
+parser.add_argument("--results_dir", help="Directory contains the range json files and to put the results", required=True)
 
 
 class ComputeSimilarity:

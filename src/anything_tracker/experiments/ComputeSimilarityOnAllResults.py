@@ -38,7 +38,6 @@ class ComputeSimilarityOnAllResults():
             args_results_dir.append(results_dir)
         
         cores_to_use = cpu_count() - 1
-        cores_to_use = 1
         print(f"Using {cores_to_use} cores in parallel.")
         with Pool(processes=cores_to_use) as pool:
             async_results = [pool.apply_async(compute_similarity, (item,)) for item in args_results_dir]

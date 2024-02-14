@@ -171,25 +171,37 @@ class AnythingTracker():
             json.dump(output_maps, ds, indent=4, ensure_ascii=False)
 
         # Select top-1 candidate
-        target_candidate, target_candidate_index, target_candidate_edit_distance, target_candidate_bleu_score = ComputeTargetRegion(
-                source_region_characters_str, candidate_regions).run()
-        target_json = {
-            "source_file": self.file_path,
-            "target_file": self.file_path,
-            "source_range": str(self.source_character_range),
-            "target_range": str(target_candidate.candidate_region_character_range.four_element_list),
-            "source_characters": source_region_characters_str,
-            "target_characters" : target_candidate.character_sources,
-            "kind": candidate.marker,
-            "levenshtein_distance" : target_candidate_edit_distance,
-            "bleu": target_candidate_bleu_score,
-            "index": target_candidate_index, 
-            "all_candidates_num": len(candidate_regions)
-        }
+        # target_candidate, target_candidate_index, target_candidate_edit_distance, target_candidate_bleu_score = ComputeTargetRegion(
+        #         source_region_characters_str, candidate_regions).run()
+        results_set_dict, average_highest, vote_most = ComputeTargetRegion(source_region_characters_str, candidate_regions).run()
+        results_set_dict.update(average_highest)
+        if vote_most != None:
+            results_set_dict.update(vote_most)
+
+        to_write = []
+        for key, target_dict in results_set_dict.items():
+            target_candidate = target_dict["target_candidate"]
+            target_json = {
+                "version" : key,
+                "source_file": self.file_path,
+                "target_file": self.file_path,
+                "source_range": str(self.source_character_range),
+                "target_range": str(target_candidate.candidate_region_character_range.four_element_list),
+                "source_characters": source_region_characters_str,
+                "target_characters" : target_candidate.character_sources,
+                "kind": candidate.marker,
+                "levenshtein_distance" : target_dict["target_candidate_edit_distance"],
+                "bleu": target_dict["target_candidate_bleu_score"],
+                "embedding_similarity" : target_dict["target_candidate_similarity"],
+                "index": target_dict["target_candidate_index"], 
+                "all_candidates_num": len(candidate_regions)
+            }
+            to_write.append(target_json)
+
         # write target candidate to a single Json file.
         target_json_file = join(self.results_dir, "target.json")
         with open(target_json_file, "w") as ds:
-            json.dump([target_json], ds, indent=4, ensure_ascii=False)
+            json.dump(to_write, ds, indent=4, ensure_ascii=False)
 
 
 if __name__ == "__main__":
