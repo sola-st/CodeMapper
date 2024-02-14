@@ -101,10 +101,6 @@ class RunLineLevel():
         
         for candidate in candidate_region:
             target_range = get_candidate_region_range(candidate)
-            target_characters = candidate.character_sources
-            if target_characters == None:
-                target_characters = ""
-            dist, bleu = ComputeTargetRegion(source_region_characters_str, candidate).compute_metrics_set(target_characters)
             map = {
                 "source_file": self.file_path,
                 "target_file": self.file_path,
@@ -112,8 +108,6 @@ class RunLineLevel():
                 "target_range": str(target_range),
                 "target_characters" : candidate.character_sources,
                 "kind": candidate.marker,
-                "levenshtein_distance" : dist,
-                "bleu": bleu,
                 "index": 0, 
                 "all_candidates_num": 1
             }
