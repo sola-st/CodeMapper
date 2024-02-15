@@ -134,12 +134,12 @@ class WhichMetricIsBetter():
         for key in averages_pre.keys():
             metrics.append(key)
             is_matched_set.append(grouped_is_matched_set[key].count("Y"))
-            pre_dist.append(round(averages_pre[key]))
-            post_dist.append(round(averages_post[key]))
-            dists.append(round(averages_dist[key]))
-            recalls.append(round(averages_rec[key]))
-            precisions.append(round(averages_prec[key]))
-            f1s.append(round(averages_f1[key]))
+            pre_dist.append(round(averages_pre[key], 1))
+            post_dist.append(round(averages_post[key], 1))
+            dists.append(round(averages_dist[key], 1))
+            recalls.append(round(averages_rec[key], 3))
+            precisions.append(round(averages_prec[key], 3))
+            f1s.append(round(averages_f1[key], 3))
                     
         results = zip_longest(metrics, ground_truth_indices, candidate_nums, target_region_indices, expected, predicted, is_matched_set, \
                 pre_dist, post_dist, dists, recalls, precisions, f1s)
