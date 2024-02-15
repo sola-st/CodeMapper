@@ -23,7 +23,7 @@ class ComputeSimilarity:
         selected_candidate_indices = []
         similarities = [] # highest
         ground_truth_level_similarities = []
-        highest_similarity = 0
+        highest_similarity = -1
 
         # expected region embedding
         if self.expected_region_characters == None:

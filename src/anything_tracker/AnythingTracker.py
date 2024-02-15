@@ -118,23 +118,18 @@ class AnythingTracker():
         if not os.path.exists(self.results_dir):
             os.makedirs(self.results_dir)
 
-        output_maps = []
-        candidate_regions = []
-
-        # Read source region characters, write source character to json files. [Also for expected regions]
+        # Read source region characters, and expected regions
         self.base_file_lines = checkout_to_read_file(self.repo_dir, self.base_commit, self.file_path)
         self.source_region_characters = get_source_and_expected_region_characters(self.base_file_lines, self.interest_character_range)
-        source_region_characters_str = "".join(self.source_region_characters)
-        self.write_regions_to_files(source_region_characters_str)
 
         expected_region_characters_str = "<DELETE>"
         self.target_file_lines = checkout_to_read_file(self.repo_dir, self.target_commit, self.file_path)
         if self.expected_character_range != None:
             expected_region_characters: list = get_source_and_expected_region_characters(self.target_file_lines, self.expected_character_range)
             expected_region_characters_str = "".join(expected_region_characters)
-
         self.write_regions_to_files(expected_region_characters_str, False)
         
+        candidate_regions = []
         # get candidates from git diff
         diff_candidates, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks = GitDiffToCandidateRegion(self).run_git_diff()
         # search to map characters
@@ -153,6 +148,16 @@ class AnythingTracker():
             print(f"--No candidate regions.\n  {self.repo_dir}\n  {self.file_path}\n  {self.interest_character_range.four_element_list}\n")
             return
         
+        self.record_results(candidate_regions)
+    
+    def record_results(self, candidate_regions):
+        # -- write source character to json files
+        source_region_characters_str = "".join(self.source_region_characters)
+        self.write_regions_to_files(source_region_characters_str)
+
+        output_maps = []
+
+        # -- record candidates
         for candidate in candidate_regions:
             # TODO update to cover rename cases
             target_range = get_candidate_region_range(candidate)
@@ -170,15 +175,28 @@ class AnythingTracker():
         with open(candidate_json_file, "w") as ds:
             json.dump(output_maps, ds, indent=4, ensure_ascii=False)
 
-        # Select top-1 candidate
-        # target_candidate, target_candidate_index, target_candidate_edit_distance, target_candidate_bleu_score = ComputeTargetRegion(
-        #         source_region_characters_str, candidate_regions).run()
-        results_set_dict, average_highest, vote_most = ComputeTargetRegion(source_region_characters_str, candidate_regions).run()
-        results_set_dict.update(average_highest)
-        if vote_most != None:
-            results_set_dict.update(vote_most)
-
+        # -- Select top-1 candidate from multiple candidates
+        # when decided, will focus on only 1 metric
         to_write = []
+        results_set_dict = {}
+        
+        if len(candidate_regions) == 1:
+            target_candidate = candidate_regions[0]
+            unique_keys = ["dist_based", "bleu_based", "similarity_based"]
+            for key in unique_keys:
+                results_set_dict.update({key: { 
+                    "target_candidate": target_candidate,
+                    "target_candidate_edit_distance": "Unknown",
+                    "target_candidate_bleu_score": "Unknown",
+                    "target_candidate_similarity": "Unknown",
+                    "target_candidate_index" : 0
+                    }})
+        else:
+            results_set_dict, average_highest, vote_most = ComputeTargetRegion(source_region_characters_str, candidate_regions).run()
+            results_set_dict.update(average_highest)
+            if vote_most != None:
+                results_set_dict.update(vote_most)
+            
         for key, target_dict in results_set_dict.items():
             target_candidate = target_dict["target_candidate"]
             target_json = {
@@ -189,7 +207,7 @@ class AnythingTracker():
                 "target_range": str(target_candidate.candidate_region_character_range.four_element_list),
                 "source_characters": source_region_characters_str,
                 "target_characters" : target_candidate.character_sources,
-                "kind": candidate.marker,
+                "kind": target_candidate.marker,
                 "levenshtein_distance" : target_dict["target_candidate_edit_distance"],
                 "bleu": target_dict["target_candidate_bleu_score"],
                 "embedding_similarity" : target_dict["target_candidate_similarity"],
@@ -203,7 +221,9 @@ class AnythingTracker():
         with open(target_json_file, "w") as ds:
             json.dump(to_write, ds, indent=4, ensure_ascii=False)
 
-        # Record target types
+        self.record_target_types(results_set_dict)
+
+    def record_target_types(self, results_set_dict):
         parent_folder, ground_truth_index = self.results_dir.rsplit("/", 1)
         # unique_keys = ["dist_based", "bleu_based", "similarity_based"]
         all_keys = list(results_set_dict.keys())
