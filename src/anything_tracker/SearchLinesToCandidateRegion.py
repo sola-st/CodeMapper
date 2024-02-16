@@ -4,7 +4,7 @@ from anything_tracker.utils.ReadFile import get_region_characters
 
 
 class SearchLinesToCandidateRegion():
-    def __init__(self, meta, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks):
+    def __init__(self, meta, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved):
         self.interest_character_range = meta.interest_character_range # class instance
         self.interest_line_numbers = meta.interest_line_numbers # list
         self.source_region_characters = meta.source_region_characters
@@ -19,7 +19,8 @@ class SearchLinesToCandidateRegion():
         self.bottom_diff_hunk = None
         if bottom_diff_hunks:
             self.bottom_diff_hunk = bottom_diff_hunks[0] # DiffHunk 
-
+        
+        self.may_moved = may_moved
         self.source_character_lens = []
         
 
@@ -62,13 +63,14 @@ class SearchLinesToCandidateRegion():
         elif self.middle_diff_hunks: # Scenario 3
             candidate_regions = self.cover_changed_lines_in_between()
 
-        # 2) locate candidates by searching exactly mapped regions
-        # Scenario 5: search exactly the same content
-        searched_candidate_regions = self.search_exactly_mapped_context()
-        if candidate_regions == []:
-            candidate_regions = searched_candidate_regions
-        else:
-            candidate_regions.extend(searched_candidate_regions)
+        if self.may_moved == False:
+            # 2) locate candidates by searching exactly mapped regions
+            # Scenario 5: search exactly the same content
+            searched_candidate_regions = self.search_exactly_mapped_context()
+            if candidate_regions == []:
+                candidate_regions = searched_candidate_regions
+            else:
+                candidate_regions.extend(searched_candidate_regions)
         
         return candidate_regions
     

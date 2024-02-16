@@ -131,9 +131,9 @@ class AnythingTracker():
         
         candidate_regions = []
         # get candidates from git diff
-        diff_candidates, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks = GitDiffToCandidateRegion(self).run_git_diff()
+        diff_candidates, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved = GitDiffToCandidateRegion(self).run_git_diff()
         # search to map characters
-        search_candidates = SearchLinesToCandidateRegion(self, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks).search_maps()
+        search_candidates = SearchLinesToCandidateRegion(self, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved).search_maps()
         candidate_regions.extend(diff_candidates)
         # A heuristic check
         # If source region is a single word, it could occurred in many place, 

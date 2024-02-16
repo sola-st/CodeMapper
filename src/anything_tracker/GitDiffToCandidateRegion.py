@@ -1,9 +1,11 @@
 import subprocess
 from anything_tracker.CandidateRegion import CandidateRegion
 from anything_tracker.CharacterRange import CharacterRange
+from anything_tracker.DetectMovement import DetectMovement
 from anything_tracker.DiffHunk import DiffHunk
 from anything_tracker.FineGrainLineCharacterIndices import FineGrainLineCharacterIndices
 from anything_tracker.utils.ReadFile import get_region_characters
+from anything_tracker.utils.TransferRanges import get_diff_reported_range
 
 
 class GitDiffToCandidateRegion():
@@ -84,8 +86,8 @@ class GitDiffToCandidateRegion():
                 stdout = subprocess.PIPE, universal_newlines=True)
         diff_result = result.stdout
 
-        candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks = self.diff_result_to_target_changed_hunk(diff_result)
-        return candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks
+        candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved = self.diff_result_to_target_changed_hunk(diff_result)
+        return candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved
         
     def diff_result_to_target_changed_hunk(self, diff_result):
         '''
@@ -104,10 +106,10 @@ class GitDiffToCandidateRegion():
         top_diff_hunks = []
         middle_diff_hunks = []
         bottom_diff_hunks = []
+        may_moved = False
         uncovered_lines = self.interest_line_numbers
         changed_line_numbers_list = self.interest_line_numbers # all numbers start at 1.
-        start_movement = "" # if the start line and character is identified involve in movement
-        end_movement = ""
+        current_hunk_range_line = None
 
         diffs = diff_result.split("\n")
         for diff_line_num, diff_line in enumerate(diffs):
@@ -115,6 +117,7 @@ class GitDiffToCandidateRegion():
             if "\033[36m" in diff_line:
                 if all_covered_mark == True:
                     break
+                current_hunk_range_line = diff_line
                 # Can be in format: @@ -168,14 +168,13 @@ | @@ -233 +236 @@ | @@ -235,2 +238 @@
                 # line numbers starts at 1, step is the absolute numbers of lines.
                 tmp = diff_line.split(" ")
@@ -143,7 +146,7 @@ class GitDiffToCandidateRegion():
                             fine_grain_start = FineGrainLineCharacterIndices(
                                     self.target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
                                     self.characters_start_idx, self.interest_first_number, interest_first_line_characters, True)
-                            candidate_character_start_idx, start_line_delta_hint, start_movement = fine_grain_start.fine_grained_line_character_indices()
+                            candidate_character_start_idx, start_line_delta_hint = fine_grain_start.fine_grained_line_character_indices()
                             if start_line_delta_hint != None:
                                 candidate_start_line += start_line_delta_hint
                         candidate_character_start_idx_done = True
@@ -153,7 +156,7 @@ class GitDiffToCandidateRegion():
                         fine_grain_end = FineGrainLineCharacterIndices(
                                     self.target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
                                     self.characters_end_idx, self.interest_last_number, interest_last_line_characters, False)
-                        candidate_character_end_idx, end_line_delta_hint, end_movement = fine_grain_end.fine_grained_line_character_indices()
+                        candidate_character_end_idx, end_line_delta_hint = fine_grain_end.fine_grained_line_character_indices()
                         if end_line_delta_hint != None:
                             candidate_end_line -= end_line_delta_hint
                         candidate_character_end_idx_done = True
@@ -189,10 +192,6 @@ class GitDiffToCandidateRegion():
                             if hunk_end <= target_hunk_range.start:
                                 hunk_end = target_hunk_range.start
                             marker = "<LOCATION_HELPER:DIFF_FULLY_COVER>"
-                            if start_movement != "":
-                                marker += "<START_MOVE>"
-                            if end_movement != "":
-                                marker += "<END_MOVE>"
                             if candidate_character_end_idx == 0:
                                 candidate_character_end_idx = len(self.target_file_lines[hunk_end-1])
 
@@ -200,6 +199,14 @@ class GitDiffToCandidateRegion():
                             candidate_characters = get_region_characters(self.target_file_lines, character_range)
                             candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, marker)
                             candidate_regions.append(candidate_region)
+
+                            # detect possible movement
+                            movement_candidate_region = DetectMovement(self.interest_character_range, self.source_region_characters, \
+                                    current_hunk_range_line, diffs, self.target_file_lines).run()
+                            if movement_candidate_region != []:
+                                candidate_regions.extend(movement_candidate_region)
+                            else:
+                                may_moved = True
                     else:
                         location = locate_changes(overlapped_line_numbers, self.interest_line_numbers)
                         diff_hunk = DiffHunk(base_hunk_range.start, base_hunk_range.stop, 
@@ -229,7 +236,7 @@ class GitDiffToCandidateRegion():
             candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, "<LOCATION_HELPER:DIFF_NO_CHANGE>")
             candidate_regions.append(candidate_region)
 
-        return candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks
+        return candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved
     
 def locate_changes(overlapped_line_numbers, interest_line_numbers):
     location = None
@@ -251,38 +258,3 @@ def locate_changes(overlapped_line_numbers, interest_line_numbers):
         location = "middle"
 
     return location
-
-def get_diff_reported_range(meta_range, base=True):
-    '''
-    Get range from diff results:
-    Input: 23,4  or  23
-    Return: 
-        * a range [ ) : end is not covered
-        * step, 4 and 0 in the input examples, respectively
-        * start+step, that is the line number of last line in base hunk.
-    '''
-
-    start = None
-    step = None
-    end = None
-    reported_range = None
-
-    sep = "+"
-    if base == True:
-        sep = "-"
-
-    if "," in meta_range:
-        tmp = meta_range.lstrip(sep).split(",")
-        start = int(tmp[0])
-        step = int(tmp[1]) 
-    else:
-        start = int(meta_range.lstrip(sep))
-        step = 1
-    end = start + step
-
-    reported_range = range(start, end) # [x, y)
-
-    if base == True:
-        return reported_range, step, end-1
-    else:
-        return reported_range, step

@@ -30,3 +30,40 @@ def transfer_2_indices_to_4(given_start_character_idx, given_end_character_idx, 
             return region_range
         
         pre_location = current_location
+
+
+# transfer range in diff results to a python range
+def get_diff_reported_range(meta_range, base=True):
+    '''
+    Get range from diff results:
+    Input: 23,4  or  23
+    Return: 
+        * a range [ ) : end is not covered
+        * step, 4 and 0 in the input examples, respectively
+        * start+step, that is the line number of last line in base hunk.
+    '''
+
+    start = None
+    step = None
+    end = None
+    reported_range = None
+
+    sep = "+"
+    if base == True:
+        sep = "-"
+
+    if "," in meta_range:
+        tmp = meta_range.lstrip(sep).split(",")
+        start = int(tmp[0])
+        step = int(tmp[1]) 
+    else:
+        start = int(meta_range.lstrip(sep))
+        step = 1
+    end = start + step
+
+    reported_range = range(start, end) # [x, y)
+
+    if base == True:
+        return reported_range, step, end-1
+    else:
+        return reported_range, step
