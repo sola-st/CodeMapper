@@ -1,4 +1,5 @@
 from anything_tracker.utils.ComputeOverlapBetween2Strings import compute_overlap
+from anything_tracker.utils.FineGrainedWhitespace import count_leading_whitespace
 
 
 class FineGrainLineCharacterIndices():
@@ -40,6 +41,13 @@ class FineGrainLineCharacterIndices():
         identified_diff_line:str = None
         splits = []
         possible_diff_lines = [] 
+
+        # remove special characters, reduce/address the fail to identified issue in git diff
+        special_chars = "!@#$%^&*()_+[]{};:,./<>?\|`~-='"
+        for char in special_chars:
+            interest_line_characters_no_special_char = self.interest_line_characters.replace(char, "")
+        source_words = interest_line_characters_no_special_char.split(" ")
+
         range_start = self.diff_line_num + specified_line_number_idx + 1
         max_len = max(len(base_list), self.target_hunk_range.stop - self.target_hunk_range.start)
         range_end = range_start + max_len
@@ -53,9 +61,22 @@ class FineGrainLineCharacterIndices():
                 # no color, no change
                 no_change_line_idx = self.target_hunk_range.start + specified_line_number_idx
                 no_change_line = self.target_file_lines[no_change_line_idx]
-                if self.interest_line_characters in no_change_line:
-                    fine_grained_character_idx = no_change_line.index(self.interest_line_characters)
+                # special case: git diff able to see the whitespaces changed, but can not see the small changes on special characters
+                # eg., it cannot tell the diff with "attr.start!" and "attr.start"
+                for char in special_chars:
+                    no_change_line_no_special_char = no_change_line.replace(char, "")
+                source_words_in_diff = [word for word in source_words if word in no_change_line_no_special_char]
+                if source_words == source_words_in_diff:
+                    try: # check if it is a fail to identified case
+                        fine_grained_character_idx = no_change_line.index(self.interest_line_characters)
+                    except: # some token changed, but git diff unable to catch it.
+                        check_char_num_in_line = count_leading_whitespace(no_change_line, " ")
+                        check_char_num_in_source = count_leading_whitespace(self.interest_line_characters, " ")
+                        fine_grained_character_idx = check_char_num_in_line - check_char_num_in_source + 1
+                        if fine_grained_character_idx < 0:
+                            fine_grained_character_idx = 0
                     return fine_grained_character_idx, specified_line_number_idx + 1
+                
             elif "[32m" in interest_line_characters_in_diff: 
                 if not interest_line_characters_in_diff.endswith("[m") or not interest_line_characters_in_diff.startswith("[32m"):
                     # added characters mixed with no change characters
@@ -65,7 +86,6 @@ class FineGrainLineCharacterIndices():
         if identified_diff_line == None: # add characters inside a line, all the words in source are not changed.
             assert possible_diff_lines != []
             # select the top-1 diff lines to get splits
-            source_words = self.interest_line_characters.split(" ")
             for line in possible_diff_lines:
                 source_words_in_diff = [word for word in source_words if word in line]
                 if source_words == source_words_in_diff:
