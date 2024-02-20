@@ -32,6 +32,7 @@ class FineGrainLineCharacterIndices():
         specified_line_number_idx = None
 
         base_list:list = list(self.base_hunk_range)
+        base_list_len = len(base_list)
         if base_list == []: # delete hunk
             specified_line_number_idx = 0
         else:
@@ -49,18 +50,24 @@ class FineGrainLineCharacterIndices():
         source_words = interest_line_characters_no_special_char.split(" ")
 
         range_start = self.diff_line_num + specified_line_number_idx + 1
+        while "[36m" in self.diffs[range_start]:
+            range_start -= 1
+
         max_len = max(len(base_list), self.target_hunk_range.stop - self.target_hunk_range.start)
-        range_end = range_start + max_len
-        for i in range(range_start, range_end):
+        range_end = range_start + max_len # this end is not exactly the end of changed hunk, indeed >=.
+        for z, i in enumerate(range(range_start, range_end)):
             interest_line_characters_in_diff = self.diffs[i]
             # get the first 1) modified, or 2) no change
-            if "[31m" in interest_line_characters_in_diff:
+            if "[36m" in interest_line_characters_in_diff:
+                break # diff misreport
+            elif "[31m" in interest_line_characters_in_diff:
                 identified_diff_line = interest_line_characters_in_diff
                 break
             elif not "[31m" in interest_line_characters_in_diff and not "[32m" in interest_line_characters_in_diff: 
                 # no color, no change
-                no_change_line_idx = self.target_hunk_range.start + specified_line_number_idx
+                no_change_line_idx = self.target_hunk_range.start + specified_line_number_idx + z -1
                 no_change_line = self.target_file_lines[no_change_line_idx]
+                # no_change_line = interest_line_characters_in_diff
                 # special case: git diff able to see the whitespaces changed, but can not see the small changes on special characters
                 # eg., it cannot tell the diff with "attr.start!" and "attr.start"
                 for char in special_chars:
@@ -70,12 +77,19 @@ class FineGrainLineCharacterIndices():
                     try: # check if it is a fail to identified case
                         fine_grained_character_idx = no_change_line.index(self.interest_line_characters)
                     except: # some token changed, but git diff unable to catch it.
-                        check_char_num_in_line = count_leading_whitespace(no_change_line, " ")
-                        check_char_num_in_source = count_leading_whitespace(self.interest_line_characters, " ")
-                        fine_grained_character_idx = check_char_num_in_line - check_char_num_in_source + 1
-                        if fine_grained_character_idx < 0:
-                            fine_grained_character_idx = 0
-                    return fine_grained_character_idx, specified_line_number_idx + 1
+                        fine_grained_character_idx = None
+                        if self.is_start == True:
+                            check_char_num_in_line = count_leading_whitespace(no_change_line, " ")
+                            check_char_num_in_source = count_leading_whitespace(self.interest_line_characters, " ")
+                            fine_grained_character_idx = check_char_num_in_line - check_char_num_in_source + 1
+                            if fine_grained_character_idx < 0:
+                                fine_grained_character_idx = 0
+                            return fine_grained_character_idx, specified_line_number_idx + 1
+                        else:
+                            fine_grained_character_idx = len(no_change_line)
+                            if not self.interest_line_characters.endswith("\n"):
+                                fine_grained_character_idx -= 1
+                            return fine_grained_character_idx, base_list_len - specified_line_number_idx - 1
                 
             elif "[32m" in interest_line_characters_in_diff: 
                 if not interest_line_characters_in_diff.endswith("[m") or not interest_line_characters_in_diff.startswith("[32m"):
