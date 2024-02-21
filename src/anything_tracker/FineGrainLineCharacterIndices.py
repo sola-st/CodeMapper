@@ -42,6 +42,7 @@ class FineGrainLineCharacterIndices():
         identified_diff_line:str = None
         splits = []
         possible_diff_lines = [] 
+        line_delta = None
 
         # remove special characters, reduce/address the fail to identified issue in git diff
         special_chars = "!@#$%^&*()_+[]{};:,./<>?\|`~-='"
@@ -62,6 +63,7 @@ class FineGrainLineCharacterIndices():
                 break # diff misreport
             elif "[31m" in interest_line_characters_in_diff:
                 identified_diff_line = interest_line_characters_in_diff
+                line_delta = z
                 break
             elif not "[31m" in interest_line_characters_in_diff and not "[32m" in interest_line_characters_in_diff: 
                 # no color, no change
@@ -94,19 +96,21 @@ class FineGrainLineCharacterIndices():
             elif "[32m" in interest_line_characters_in_diff: 
                 if not interest_line_characters_in_diff.endswith("[m") or not interest_line_characters_in_diff.startswith("[32m"):
                     # added characters mixed with no change characters
-                    possible_diff_lines.append(interest_line_characters_in_diff)
+                    possible_diff_lines.append([interest_line_characters_in_diff, z])
         
         # handle special cases
         if identified_diff_line == None: # add characters inside a line, all the words in source are not changed.
             assert possible_diff_lines != []
             # select the top-1 diff lines to get splits
-            for line in possible_diff_lines:
+            for line_list in possible_diff_lines:
+                line= line_list[0]
                 source_words_in_diff = [word for word in source_words if word in line]
                 if source_words == source_words_in_diff:
                     # all source words are in current diff line
                     identified_diff_line = line
+                    line_delta = line_list[1]
                     break
-            if identified_diff_line == None: # checked all the possibilities, nut still fail to get the top-1
+            if identified_diff_line == None: # checked all the possibilities, but still fail to get the top-1
                 # Coarse grained
                 identified_diff_line = self.diffs[self.diff_line_num + specified_line_number_idx + 1]
 
@@ -116,7 +120,7 @@ class FineGrainLineCharacterIndices():
         for i, s in enumerate(splits):
             if s.startswith("[m"):
                 splits[i] = s[2:]
-        return splits, [] # [] is a marker that totally different with "specified_line_number_idx + 1". list vs. int
+        return splits, line_delta
     
     def fine_grained_line_character_indices(self): 
         '''
@@ -129,9 +133,9 @@ class FineGrainLineCharacterIndices():
             with this function, it will be closer to 12.
         '''
         # step 1: fine grained line index, get the first non totally added line.
-        splits, val_b = self.get_first_non_totally_added_line()
-        if val_b != []:
-            return splits, val_b # fine_grained_character_idx, specified_line_number_idx + 1
+        splits, line_delta = self.get_first_non_totally_added_line()
+        if isinstance(splits, int):
+            return splits, line_delta # fine_grained_character_idx, specified_line_number_idx + 1
 
         # step 2: fine grained character index
         fine_grained_character_idx = None # to return
@@ -183,7 +187,7 @@ class FineGrainLineCharacterIndices():
                                 s, s_len, candidate_pre_characters_len)
                     
             if fine_grained_character_idx != None:
-                return fine_grained_character_idx, None
+                return fine_grained_character_idx, line_delta
 
             if "[31m" in s: # delete. eg,.[31m[-0.10.11-]
                 pre_1_s = s[6:-2]
@@ -217,7 +221,7 @@ class FineGrainLineCharacterIndices():
                     fine_grained_character_idx = self.fine_grained_return_helper(
                             pre_1_s, pre_1_s_len, candidate_pre_characters_len)
 
-            return fine_grained_character_idx, None
+            return fine_grained_character_idx, line_delta
 
     def fine_grained_return_helper(self, s, s_len, candidate_pre_characters_len):
         fine_grained_character_idx = 0

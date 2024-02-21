@@ -200,6 +200,17 @@ class GitDiffToCandidateRegion():
                             candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, marker)
                             candidate_regions.append(candidate_region)
 
+                            # Get additional candidate regions
+                            multi_end = list(range(candidate_end_line, target_hunk_range.stop -1))
+                            if multi_end != []:
+                                marker+="<EXTENSION>"
+                                for end in multi_end: 
+                                    candidate_character_end_idx = len(self.target_file_lines[end-1])
+                                    character_range = CharacterRange([candidate_start_line, candidate_character_start_idx, end, candidate_character_end_idx])
+                                    candidate_characters = get_region_characters(self.target_file_lines, character_range)
+                                    candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, marker)
+                                    candidate_regions.append(candidate_region)
+
                             # detect possible movement
                             movement_candidate_region = DetectMovement(self.interest_character_range, self.source_region_characters, \
                                     current_hunk_range_line, diffs, self.target_file_lines).run()
