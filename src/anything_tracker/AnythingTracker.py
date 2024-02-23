@@ -138,7 +138,7 @@ class AnythingTracker():
             regions = []
             search_candidates = []
             algorithm, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved = iter
-            search_candidates = SearchLinesToCandidateRegion(self, 
+            search_candidates = SearchLinesToCandidateRegion(algorithm, self,
                     top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved).search_maps()
             # A heuristic check
             # If source region is a single word, it could occurred in many place, 

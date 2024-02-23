@@ -4,7 +4,8 @@ from anything_tracker.utils.ReadFile import get_region_characters
 
 
 class SearchLinesToCandidateRegion():
-    def __init__(self, meta, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved):
+    def __init__(self, algorithm, meta, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved):
+        self.algorithm = algorithm
         self.interest_character_range = meta.interest_character_range # class instance
         self.interest_line_numbers = meta.interest_line_numbers # list
         self.source_region_characters = meta.source_region_characters
@@ -136,7 +137,7 @@ class SearchLinesToCandidateRegion():
         range_start_char = self.top_diff_hunk.target_start_character
         range_end_line = self.bottom_diff_hunk.target_end_line_number - 1
         range_end_char = len(self.target_file_lines[range_end_line-1])
-        marker = "<TOP_BOTTOM_OVERLAP>"
+        marker = f"<{self.algorithm}><TOP_BOTTOM_OVERLAP>"
 
         # update the 5 values
         # check if top hunk is a delete hunk
@@ -156,11 +157,22 @@ class SearchLinesToCandidateRegion():
                 if range_end_char == 0:
                     range_end_char = len(self.target_file_lines[range_end_line-1])
 
+        # character level
         region_range = [range_start_line, range_start_char, range_end_line, range_end_char]
         candidate_region_range = CharacterRange(region_range)
         candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
         candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
         candidate_region_top_bottom_with_changed_lines.append(candidate_region)
+
+        # line level
+        range_end_char_entire_line = len(self.target_file_lines[range_end_line-1])
+        if range_start_char != 1 or range_end_char != range_end_char_entire_line:
+            marker += "<LINE>"
+            region_range = [range_start_line, 1, range_end_line, range_end_char_entire_line]
+            candidate_region_range = CharacterRange(region_range)
+            candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
+            candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
+            candidate_region_top_bottom_with_changed_lines.append(candidate_region)
         return candidate_region_top_bottom_with_changed_lines
 
     def top_overlap(self, unchanged_mapped_ranges):
@@ -173,16 +185,27 @@ class SearchLinesToCandidateRegion():
                 if top_hunk_start_character_idx == 0:
                     top_hunk_start_character_idx = 1
                 region_range = [self.top_diff_hunk.target_start_line_number, top_hunk_start_character_idx, mapped_range.end_line_idx, mapped_range.characters_end_idx]
-                marker = "<TOP_OVERLAP>"
+                marker = f"<{self.algorithm}><TOP_OVERLAP>"
                 if self.top_diff_hunk.target_start_line_number == self.top_diff_hunk.target_end_line_number:   
                     top_hunk_start_line_idx = self.top_diff_hunk.target_start_line_number+1   
                     top_hunk_start_character_idx = self.interest_character_range.characters_start_idx
                     marker += "<TOP_DELETE>"
+                # character level
                 region_range = [top_hunk_start_line_idx, top_hunk_start_character_idx, mapped_range.end_line_idx, mapped_range.characters_end_idx]
                 candidate_region_range = CharacterRange(region_range)
                 candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
                 candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
                 candidate_region_top_with_changed_lines.append(candidate_region)
+
+                # line level
+                end_char = len(self.target_file_lines[mapped_range.end_line_idx-1])
+                if top_hunk_start_character_idx != 1 or end_char != mapped_range.characters_end_idx:
+                    marker += "<LINE>"
+                    region_range = [top_hunk_start_line_idx, 1, mapped_range.end_line_idx, end_char]
+                    candidate_region_range = CharacterRange(region_range)
+                    candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
+                    candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
+                    candidate_region_top_with_changed_lines.append(candidate_region)
                 return candidate_region_top_with_changed_lines
     
     def bottom_overlap(self, unchanged_mapped_ranges):
@@ -193,21 +216,46 @@ class SearchLinesToCandidateRegion():
                 end_line = self.bottom_diff_hunk.target_end_line_number - 1
                 characters_end_idx = self.bottom_diff_hunk.target_end_character
                 if characters_end_idx == 0 :
-                        characters_end_idx = len(self.target_file_lines[end_line])
+                    characters_end_idx = len(self.target_file_lines[end_line-1])
+                marker = "<BOTTOM_OVERLAP>"
+                # character level
                 if self.bottom_diff_hunk.target_end_line_number == self.bottom_diff_hunk.target_start_line_number:
                     # current hunk is empty
-                    region_range = [mapped_range.start_line_idx, mapped_range.characters_start_idx, self.bottom_diff_hunk.target_end_line_number, characters_end_idx]
+                    # update end line/char indices
+                    end_line = self.bottom_diff_hunk.target_end_line_number
+                    characters_end_idx = len(self.target_file_lines[end_line-1])
+                    marker += "<EMPTY>"
+                    region_range = [mapped_range.start_line_idx, mapped_range.characters_start_idx, end_line, characters_end_idx]
+                    candidate_region_range = CharacterRange(region_range)
+                    characters_end_idx = len(self.target_file_lines[end_line-1])
+                    candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
+                    candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
+                    candidate_region_bottom_with_changed_lines.append(candidate_region)
+                else:
+                    region_range = [mapped_range.start_line_idx, mapped_range.characters_start_idx, end_line, characters_end_idx]
                     candidate_region_range = CharacterRange(region_range)
                     candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
-                    candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, "<BOTTOM_OVERLAP_EMPTY>")
+                    candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
                     candidate_region_bottom_with_changed_lines.append(candidate_region)
-                    return candidate_region_bottom_with_changed_lines
+                
+                # line level
+                end_line = self.bottom_diff_hunk.target_end_line_number - 1
+                end_char_empty = len(self.target_file_lines[end_line-1])
+                end_char_nonempty = len(self.target_file_lines[end_line-2])
+                if mapped_range.characters_start_idx != 1:
+                    if "<EMPTY>" in marker:
+                        if characters_end_idx != end_char_empty:
+                            characters_end_idx = end_char_empty
+                    elif characters_end_idx != end_char_nonempty:
+                        end_line-=1
+                        characters_end_idx = end_char_nonempty
 
-                region_range = [mapped_range.start_line_idx, mapped_range.characters_start_idx, end_line, characters_end_idx]
-                candidate_region_range = CharacterRange(region_range)
-                candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
-                candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, "<BOTTOM_OVERLAP>")
-                candidate_region_bottom_with_changed_lines.append(candidate_region)
+                    marker += "<LINE>"
+                    region_range = [mapped_range.start_line_idx, 1, end_line, characters_end_idx]
+                    candidate_region_range = CharacterRange(region_range)
+                    candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
+                    candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
+                    candidate_region_bottom_with_changed_lines.append(candidate_region)
                 return candidate_region_bottom_with_changed_lines
 
     def cover_changed_lines_in_between(self):
@@ -245,12 +293,24 @@ class SearchLinesToCandidateRegion():
         expected_last_range = last_unchanged_mapped_ranges[0]
 
         # the line numbers in middle hunks help to locate the unchanged lines before and after
+        # character level
+        marker = "<COVER_IN_BETWEEN>"
         region_range = [expected_first_range.start_line_idx, self.interest_character_range.characters_start_idx,
                         expected_last_range.end_line_idx, expected_last_range.characters_end_idx]
         candidate_region_range = CharacterRange(region_range)
         candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
-        candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, "<COVER_IN_BETWEEN>")
+        candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
         candidate_region_cover_changed_lines.append(candidate_region)
+
+        # line level
+        end_char = len(self.target_file_lines[expected_last_range.end_line_idx-1])
+        if self.interest_character_range.characters_start_idx != 1 or end_char != expected_last_range.characters_end_idx:
+            marker += "<LINE>"
+            region_range = [expected_first_range.start_line_idx, 1, expected_last_range.end_line_idx, end_char]
+            candidate_region_range = CharacterRange(region_range)
+            candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
+            candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
+            candidate_region_cover_changed_lines.append(candidate_region)
         
         return candidate_region_cover_changed_lines
 
