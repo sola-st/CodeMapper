@@ -79,15 +79,20 @@ class GitDiffToCandidateRegion():
         candidate_regions = []
         regions = []
         diff_hunk_lists = []
-        for diff_result in diff_results:
+        for d in diff_results:
+            algorithm = list(d.keys())[0].upper()
+            diff_result = list(d.values())[0]
             sub_candidate_regions, sub_top_diff_hunks, sub_middle_diff_hunks, sub_bottom_diff_hunks, sub_may_moved = \
-                    self.diff_result_to_target_changed_hunk(diff_result)
+                    self.diff_result_to_target_changed_hunk(diff_result, algorithm)
             for sub in sub_candidate_regions:
                 r = sub.candidate_region_character_range.four_element_list
-                if not r in regions:
-                    candidate_regions.append(sub)
+                if regions == []:
                     regions.append(r)
-            diff_hunk_lists.append([sub_top_diff_hunks, sub_middle_diff_hunks, sub_bottom_diff_hunks, sub_may_moved])
+                    candidate_regions.append(sub)
+                else:
+                    if not r in regions:
+                        candidate_regions.append(sub)
+            diff_hunk_lists.append([algorithm, list(sub_top_diff_hunks), list(sub_middle_diff_hunks), list(sub_bottom_diff_hunks), sub_may_moved])
         return candidate_regions, diff_hunk_lists
 
     def get_changed_hunks_from_different_algorithms(self):
@@ -101,7 +106,8 @@ class GitDiffToCandidateRegion():
         histogram: This algorithm extends the patience algorithm to "support low-occurrence common elements".
 
         '''
-        diff_results = set() # to store all the 4 versions og git diff results
+        diff_results = [] # to store all the 4 versions og git diff results
+        dicts = []
         diff_algorithms = ["default", "minimal", "patience", "histogram"]
         # The \w+ pattern is a regular expression that matches one or more word characters (letters, digits, or underscores). 
         # -w to ignore whitespaces. It's add to solve a special case where only more or less whitespace in a line.
@@ -112,10 +118,12 @@ class GitDiffToCandidateRegion():
             result = subprocess.run(commit_diff_command, cwd=self.repo_dir, shell=True,
                     stdout = subprocess.PIPE, universal_newlines=True)
             diff_result = result.stdout
-            diff_results.add(diff_result)
+            if not diff_result in dicts:
+                dicts.append(diff_result)
+                diff_results.append({algorithm: diff_result})
         return diff_results
 
-    def diff_result_to_target_changed_hunk(self, diff_result):
+    def diff_result_to_target_changed_hunk(self, diff_result, algorithm):
         '''
         Analyze diff results, return target changed hunk range map, and the changed hunk sources.
         '''
@@ -217,7 +225,7 @@ class GitDiffToCandidateRegion():
                             hunk_end = target_hunk_range.stop - 1
                             if hunk_end <= target_hunk_range.start:
                                 hunk_end = target_hunk_range.start
-                            marker = "<LOCATION_HELPER:DIFF_FULLY_COVER>"
+                            marker = f"<{algorithm}><LOCATION_HELPER:DIFF_FULLY_COVER>"
                             if candidate_character_end_idx == 0:
                                 candidate_character_end_idx = len(self.target_file_lines[hunk_end-1])
 
@@ -227,7 +235,8 @@ class GitDiffToCandidateRegion():
                             candidate_regions.add(candidate_region)
 
                             # Get additional candidate regions
-                            multi_end = list(range(candidate_end_line, target_hunk_range.stop -1))
+                            target_hunk_end = target_hunk_range.stop -1
+                            multi_end = list(range(candidate_end_line, target_hunk_end))
                             if multi_end != []:
                                 marker+="<EXTENSION>"
                                 for end in multi_end: 
@@ -236,6 +245,14 @@ class GitDiffToCandidateRegion():
                                     candidate_characters = get_region_characters(self.target_file_lines, character_range)
                                     candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, marker)
                                     candidate_regions.add(candidate_region)
+
+                            # Get the only one line level candidate
+                            marker+="<LINE>"
+                            candidate_character_end_idx = len(self.target_file_lines[target_hunk_end-1])
+                            character_range = CharacterRange([target_hunk_range.start, 1, target_hunk_end, candidate_character_end_idx])
+                            candidate_characters = get_region_characters(self.target_file_lines, character_range)
+                            candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, marker)
+                            candidate_regions.add(candidate_region)    
 
                             # detect possible movement
                             movement_candidate_region = DetectMovement(self.interest_character_range, self.source_region_characters, \
@@ -270,7 +287,7 @@ class GitDiffToCandidateRegion():
             # No changed lines, with only line number changed.
             character_range = CharacterRange([changed_line_numbers_list[0], self.characters_start_idx, changed_line_numbers_list[-1], self.characters_end_idx])
             candidate_characters = get_region_characters(self.target_file_lines, character_range)
-            candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, "<LOCATION_HELPER:DIFF_NO_CHANGE>")
+            candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters,  f"<{algorithm}><LOCATION_HELPER:DIFF_NO_CHANGE>")
             candidate_regions.add(candidate_region)
 
         return candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved

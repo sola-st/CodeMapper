@@ -130,30 +130,37 @@ class AnythingTracker():
         self.write_regions_to_files(expected_region_characters_str, False)
         
         candidate_regions = []
-        regions = []
         # get candidates from git diff
         diff_candidates, diff_hunk_lists = GitDiffToCandidateRegion(self).run_git_diff()
         candidate_regions.extend(diff_candidates)
         # search to map characters
         for iter in diff_hunk_lists:
-            search_candidates = None
-            top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved = iter
+            regions = []
+            search_candidates = []
+            algorithm, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved = iter
+            search_candidates = SearchLinesToCandidateRegion(self, 
+                    top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved).search_maps()
             # A heuristic check
             # If source region is a single word, it could occurred in many place, 
             # force not to search if it involved in change hunks
             # Indeed, not only single words, also for the short phrases, but there is not a good way to detect if is proper.
             # TODO decide remove this heuristic or not
-            if (not top_diff_hunks or not middle_diff_hunks or not bottom_diff_hunks) or diff_candidates:
+            if (top_diff_hunks != [] or middle_diff_hunks != [] or bottom_diff_hunks != []) or diff_candidates:
                 source_region_characters_str = "".join(self.source_region_characters).strip()
                 if len(self.interest_line_numbers) == 1 and not " " in source_region_characters_str:
                     search_candidates = [] #  discard the candidates from searching
 
-            if search_candidates == None:
-                search_candidates = SearchLinesToCandidateRegion(self, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved).search_maps()
-                for s in search_candidates:
-                    r = s.candidate_region_character_range.four_element_list
-                    if not r in regions:
+            # if top_diff_hunks or middle_diff_hunks or bottom_diff_hunks:
+                # search_candidates = SearchLinesToCandidateRegion(self, 
+                #         list(top_diff_hunks), list(middle_diff_hunks), list(bottom_diff_hunks), may_moved).search_maps()
+            for s in search_candidates:
+                r = s.candidate_region_character_range.four_element_list
+                if regions == []:
+                    regions.append(r)
+                else:
+                    if r in regions:
                         search_candidates.remove(s)
+                    else:
                         regions.append(r)
             candidate_regions.extend(search_candidates)
 
