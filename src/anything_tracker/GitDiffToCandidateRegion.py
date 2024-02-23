@@ -75,20 +75,46 @@ class GitDiffToCandidateRegion():
         #             break
 
         # start to get changed hunks with "git diff" command
-        # TODO Consider using options, like --diff-algorithm=histogram, --color-moved=plain
+        diff_results = self.get_changed_hunks_from_different_algorithms()
+        candidate_regions = []
+        regions = []
+        diff_hunk_lists = []
+        for diff_result in diff_results:
+            sub_candidate_regions, sub_top_diff_hunks, sub_middle_diff_hunks, sub_bottom_diff_hunks, sub_may_moved = \
+                    self.diff_result_to_target_changed_hunk(diff_result)
+            for sub in sub_candidate_regions:
+                r = sub.candidate_region_character_range.four_element_list
+                if not r in regions:
+                    candidate_regions.append(sub)
+                    regions.append(r)
+            diff_hunk_lists.append([sub_top_diff_hunks, sub_middle_diff_hunks, sub_bottom_diff_hunks, sub_may_moved])
+        return candidate_regions, diff_hunk_lists
+
+    def get_changed_hunks_from_different_algorithms(self):
+        '''
+        git diff provides 4 different algorithms to run the commands:
+            --diff-algorithm={patience|minimal|histogram|myers}
+
+        default, myers: The basic greedy diff algorithm. Currently, this is the default.
+        minimal: Spend extra time to make sure the smallest possible diff is produced.
+        patience: Use "patience diff" algorithm when generating patches.
+        histogram: This algorithm extends the patience algorithm to "support low-occurrence common elements".
+
+        '''
+        diff_results = set() # to store all the 4 versions og git diff results
+        diff_algorithms = ["default", "minimal", "patience", "histogram"]
         # The \w+ pattern is a regular expression that matches one or more word characters (letters, digits, or underscores). 
         # -w to ignore whitespaces. It's add to solve a special case where only more or less whitespace in a line.
-        commit_diff_command = f"git diff --color --unified=0 --word-diff-regex='\w+' -w {self.base_commit} {self.target_commit} -- {self.file_path}"
-        # if renamed_file_path: # rename happens
-        #     commit_diff_command = f"git diff {self.base_commit}:{self.file_path} {self.target_commit}:{renamed_file_path}"
+        for algorithm in diff_algorithms:
+            commit_diff_command = f"git diff --diff-algorithm={algorithm} --color --unified=0 --word-diff-regex='\w+' -w {self.base_commit} {self.target_commit} -- {self.file_path}"
+            # if renamed_file_path: # rename happens
+            #     commit_diff_command = f"git diff {self.base_commit}:{self.file_path} {self.target_commit}:{renamed_file_path}"
+            result = subprocess.run(commit_diff_command, cwd=self.repo_dir, shell=True,
+                    stdout = subprocess.PIPE, universal_newlines=True)
+            diff_result = result.stdout
+            diff_results.add(diff_result)
+        return diff_results
 
-        result = subprocess.run(commit_diff_command, cwd=self.repo_dir, shell=True,
-                stdout = subprocess.PIPE, universal_newlines=True)
-        diff_result = result.stdout
-
-        candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved = self.diff_result_to_target_changed_hunk(diff_result)
-        return candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved
-        
     def diff_result_to_target_changed_hunk(self, diff_result):
         '''
         Analyze diff results, return target changed hunk range map, and the changed hunk sources.
@@ -102,10 +128,10 @@ class GitDiffToCandidateRegion():
 
         # for checking changed hunk
         all_covered_mark = False
-        candidate_regions = []
-        top_diff_hunks = []
-        middle_diff_hunks = []
-        bottom_diff_hunks = []
+        candidate_regions = set()
+        top_diff_hunks = set()
+        middle_diff_hunks = set()
+        bottom_diff_hunks = set()
         may_moved = False
         uncovered_lines = self.interest_line_numbers
         changed_line_numbers_list = self.interest_line_numbers # all numbers start at 1.
@@ -177,7 +203,7 @@ class GitDiffToCandidateRegion():
                             diff_hunk = DiffHunk(base_hunk_range.start, base_hunk_range.stop, 
                                              target_hunk_range.start, target_hunk_range.stop,
                                              candidate_character_start_idx, candidate_character_end_idx)
-                            bottom_diff_hunks.append(diff_hunk)
+                            bottom_diff_hunks.add(diff_hunk)
                         else:
                             # fully covered by changed hunk
                             # Heuristic: set character indices as 0 and the length of the last line in target range.
@@ -185,7 +211,7 @@ class GitDiffToCandidateRegion():
                                 # source region lines are deleted
                                 character_range = CharacterRange([0, 0, 0, 0])
                                 candidate_region = CandidateRegion(self.interest_character_range, character_range, None, "<LOCATION_HELPER:DIFF_DELETE>")
-                                candidate_regions.append(candidate_region)
+                                candidate_regions.add(candidate_region)
                                 continue
 
                             hunk_end = target_hunk_range.stop - 1
@@ -198,7 +224,7 @@ class GitDiffToCandidateRegion():
                             character_range = CharacterRange([candidate_start_line, candidate_character_start_idx, candidate_end_line, candidate_character_end_idx])
                             candidate_characters = get_region_characters(self.target_file_lines, character_range)
                             candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, marker)
-                            candidate_regions.append(candidate_region)
+                            candidate_regions.add(candidate_region)
 
                             # Get additional candidate regions
                             multi_end = list(range(candidate_end_line, target_hunk_range.stop -1))
@@ -209,13 +235,13 @@ class GitDiffToCandidateRegion():
                                     character_range = CharacterRange([candidate_start_line, candidate_character_start_idx, end, candidate_character_end_idx])
                                     candidate_characters = get_region_characters(self.target_file_lines, character_range)
                                     candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, marker)
-                                    candidate_regions.append(candidate_region)
+                                    candidate_regions.add(candidate_region)
 
                             # detect possible movement
                             movement_candidate_region = DetectMovement(self.interest_character_range, self.source_region_characters, \
                                     current_hunk_range_line, diffs, self.target_file_lines).run()
                             if movement_candidate_region != []:
-                                candidate_regions.extend(movement_candidate_region)
+                                candidate_regions.update(set(movement_candidate_region))
                             else:
                                 may_moved = True
                     else:
@@ -224,11 +250,11 @@ class GitDiffToCandidateRegion():
                                              candidate_start_line, candidate_end_line + 1,
                                              candidate_character_start_idx, candidate_character_end_idx)
                         if location == "top":
-                            top_diff_hunks.append(diff_hunk)
+                            top_diff_hunks.add(diff_hunk)
                         elif location == "middle":
-                            middle_diff_hunks.append(diff_hunk)
+                            middle_diff_hunks.add(diff_hunk)
                         elif location == "bottom":
-                            bottom_diff_hunks.append(diff_hunk)
+                            bottom_diff_hunks.add(diff_hunk)
                 else: # no overlap
                     if last_line_number < self.interest_line_numbers[0]:
                         # current hunk changes before the source region, unchanged lines, update changed line numbers.
@@ -245,7 +271,7 @@ class GitDiffToCandidateRegion():
             character_range = CharacterRange([changed_line_numbers_list[0], self.characters_start_idx, changed_line_numbers_list[-1], self.characters_end_idx])
             candidate_characters = get_region_characters(self.target_file_lines, character_range)
             candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, "<LOCATION_HELPER:DIFF_NO_CHANGE>")
-            candidate_regions.append(candidate_region)
+            candidate_regions.add(candidate_region)
 
         return candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved
     
