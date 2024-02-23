@@ -63,14 +63,8 @@ def calculate_overlap(expected_location, predicted_location, line_lengths, targe
     formatted_precision = round(precision, 4)
 
     # distance
-    base_start_extra = expected_chars.index(lcs) - 1
-    base_end_extra = len(expected_chars) - base_start_extra - overlap_num
-
-    candidate_start_extra = candidate_chars.index(lcs) - 1
-    candidate_end_extra = len(candidate_chars) - candidate_start_extra - overlap_num
-
-    pre_distance = abs(candidate_start_extra - base_start_extra)
-    post_distance = abs(candidate_end_extra - base_end_extra)
+    pre_distance = abs(expected_start_char - predicted_start_char)
+    post_distance = abs(expected_end_char - predicted_end_char)
 
     distance = pre_distance + post_distance
 
