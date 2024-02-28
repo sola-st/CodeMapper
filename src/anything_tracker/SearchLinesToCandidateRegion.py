@@ -64,14 +64,14 @@ class SearchLinesToCandidateRegion():
         elif self.middle_diff_hunks: # Scenario 3
             candidate_regions = self.cover_changed_lines_in_between()
 
-        if self.may_moved == False:
+        # if self.may_moved == False:
             # 2) locate candidates by searching exactly mapped regions
             # Scenario 5: search exactly the same content
-            searched_candidate_regions = self.search_exactly_mapped_context()
-            if candidate_regions == []:
-                candidate_regions = searched_candidate_regions
-            else:
-                candidate_regions.extend(searched_candidate_regions)
+        searched_candidate_regions = self.search_exactly_mapped_context()
+        if candidate_regions == []:
+            candidate_regions = searched_candidate_regions
+        else:
+            candidate_regions.extend(searched_candidate_regions)
         
         return candidate_regions
     

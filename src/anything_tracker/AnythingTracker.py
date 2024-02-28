@@ -145,10 +145,10 @@ class AnythingTracker():
             # force not to search if it involved in change hunks
             # Indeed, not only single words, also for the short phrases, but there is not a good way to detect if is proper.
             # TODO decide remove this heuristic or not
-            if (top_diff_hunks != [] or middle_diff_hunks != [] or bottom_diff_hunks != []) or diff_candidates:
-                source_region_characters_str = "".join(self.source_region_characters).strip()
-                if len(self.interest_line_numbers) == 1 and not " " in source_region_characters_str:
-                    search_candidates = [] #  discard the candidates from searching
+            # if (top_diff_hunks != [] or middle_diff_hunks != [] or bottom_diff_hunks != []) or diff_candidates:
+            #     source_region_characters_str = "".join(self.source_region_characters).strip()
+            #     if len(self.interest_line_numbers) == 1 and not " " in source_region_characters_str:
+            #         search_candidates = [] #  discard the candidates from searching
 
             # if top_diff_hunks or middle_diff_hunks or bottom_diff_hunks:
                 # search_candidates = SearchLinesToCandidateRegion(self, 
