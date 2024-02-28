@@ -15,6 +15,8 @@ def compute_highest_trade_off_score(edit_dists, bleu_scores, similarities):
     
 class ComputeTargetRegion():
     def __init__(self, source_region_characters, candidate_regions):
+        # source_region_characters and candidate_regions can be expended strings
+        # expand means get the before and after contexts together
         self.source_region_characters = source_region_characters
         self.candidate_regions = candidate_regions
 
@@ -54,7 +56,7 @@ class ComputeTargetRegion():
         results_set_dict = {}
         for idx, k in zip(indices, keys):
             metrics_based_dict = {
-                "target_candidate" : self.candidate_regions[idx],
+                "idx": idx,
                 "target_candidate_edit_distance" : edit_dists[idx],
                 "target_candidate_bleu_score" : bleu_scores[idx],
                 "target_candidate_similarity" : similarities[idx],
@@ -68,10 +70,7 @@ class ComputeTargetRegion():
         normalized_dists = []
         bleu_scores = []
 
-        candidate_region_chars = []
-        for candidate in self.candidate_regions:
-            candidate_characters = candidate.character_sources
-            candidate_region_chars.append(candidate_characters)
+        for candidate_characters in self.candidate_regions:
             if candidate_characters == None:
                 candidate_characters = ""
                 # TODO do not need to calculate the bleu score
@@ -94,7 +93,7 @@ class ComputeTargetRegion():
 
         # top-1 similarity, the key of similarities_dict is ground truth index
         top_similarity_indices, top_similarities, similarities_dict = \
-            ComputeSimilarity(self.source_region_characters, candidate_region_chars, 0).get_top_1_similarity()
+            ComputeSimilarity(self.source_region_characters, self.candidate_regions, 0).get_top_1_similarity()
 
         # allow multiple targets for each metric
         indices = []

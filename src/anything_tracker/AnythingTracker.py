@@ -22,6 +22,25 @@ parser.add_argument("--expected_character_range", nargs='+',
                     required=False) # only for the regions that with ground truth
 
 
+def get_context_aware_characters(file_lines, character_range, before_lines, after_lines):
+    # character_range: start_line, start_character, end_line, end_character
+    max_idx = len(file_lines)
+    start_line_idx = character_range.start_line_idx
+    end_line_idx = character_range.end_line_idx
+
+    expected_start_idx = start_line_idx - before_lines - 1 # starts at 0
+    if expected_start_idx < 0:
+        expected_start_idx = 0
+
+    expected_end = end_line_idx + after_lines
+    if expected_end > max_idx:
+        expected_end = max_idx
+
+    character_list = file_lines[expected_start_idx: expected_end]
+    characters = "".join(character_list)
+    return characters
+
+
 def get_source_and_expected_region_characters(file_lines, character_range):
     '''
     Initially get source_region_characters and expected region characters.
@@ -205,20 +224,28 @@ class AnythingTracker():
             unique_keys = ["dist_based", "bleu_based", "similarity_based"]
             for key in unique_keys:
                 results_set_dict.update({key: { 
-                    "target_candidate": target_candidate,
+                    "idx": 0,
                     "target_candidate_edit_distance": "Unknown",
                     "target_candidate_bleu_score": "Unknown",
                     "target_candidate_similarity": "Unknown",
                     "target_candidate_index" : 0
                     }})
         else:
-            results_set_dict, average_highest, vote_most = ComputeTargetRegion(source_region_characters_str, candidate_regions).run()
+            before_lines_num = 5
+            after_line_num = 5
+            candidate_with_context_list = []
+            source_with_context = get_context_aware_characters(self.base_file_lines, self.interest_character_range, before_lines_num, after_line_num)
+            for candidate in candidate_regions:
+                candiate_range = candidate.candidate_region_character_range
+                candidate_with_context = get_context_aware_characters(self.target_file_lines, candiate_range, before_lines_num, after_line_num)
+                candidate_with_context_list.append(candidate_with_context)
+            results_set_dict, average_highest, vote_most = ComputeTargetRegion(source_with_context, candidate_with_context_list).run()
             results_set_dict.update(average_highest)
             if vote_most != None:
                 results_set_dict.update(vote_most)
-            
+        
         for key, target_dict in results_set_dict.items():
-            target_candidate = target_dict["target_candidate"]
+            target_candidate = candidate_regions[target_dict["idx"]]
             target_json = {
                 "version" : key,
                 "source_file": self.file_path,
