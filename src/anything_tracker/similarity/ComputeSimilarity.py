@@ -1,7 +1,10 @@
 import argparse
 import json
-from  os.path import join
-from sentence_transformers import SentenceTransformer, util
+from os.path import join
+import torch
+from transformers import RobertaTokenizer, RobertaModel
+from numpy import dot
+from numpy.linalg import norm
 
 parser = argparse.ArgumentParser(description="Compute similarity between expected region and candidate regions.")
 parser.add_argument("--results_dir", help="Directory contains the range json files and to put the results", required=True)
@@ -12,11 +15,14 @@ class ComputeSimilarity:
     Compute similarities between expect region and candidate regions
     '''
     def __init__(self, expected_region_characters:str, candidate_region_characters:list[str], ground_truth_index):
+        # expected_region_characters is source here
         self.expected_region_characters = expected_region_characters
         self.candidate_region_characters = candidate_region_characters
         self.ground_truth_index = int(ground_truth_index)
 
-        self.model = SentenceTransformer("data/pretrained_model")
+        local_model_dir = "data/pretrained_model"
+        self.tokenizer = RobertaTokenizer.from_pretrained(local_model_dir)
+        self.model = RobertaModel.from_pretrained(local_model_dir)
     
     def get_top_1_similarity(self):
         # cover multiple candidates with same similarity
@@ -29,15 +35,25 @@ class ComputeSimilarity:
         if self.expected_region_characters == None:
             self.expected_region_characters = ""
 
-        expected_embedding = self.model.encode(self.expected_region_characters)
         # candidate region embedding
         for i, candidate_str in enumerate(self.candidate_region_characters):
             formatted_similarity_score = 0
             if candidate_str == None:
                 candidate_str = ""
-            candidate_embedding = self.model.encode(candidate_str)
-            similarity = util.cos_sim(expected_embedding, candidate_embedding)
-            similarity_score = similarity.tolist()[0][0]
+
+            # Tokenize the code snippets
+            tokenized_candidiate = self.tokenizer(candidate_str, return_tensors="pt", max_length=512, truncation=True, padding=True)
+            tokenized_expected = self.tokenizer(self.expected_region_characters, return_tensors="pt", max_length=512, truncation=True, padding=True)
+
+            # Get the model embeddings for the code snippets
+            with torch.no_grad():
+                candidate_embedding_tmp = self.model(**tokenized_candidiate)
+                expected_embedding_tmp = self.model(**tokenized_expected)
+
+            # Extract the embeddings from the model outputs
+            candidate_embedding = candidate_embedding_tmp.last_hidden_state.mean(dim=1).squeeze()
+            expected_embedding = expected_embedding_tmp.last_hidden_state.mean(dim=1).squeeze()
+            similarity_score = cos_sim(candidate_embedding, expected_embedding)
             formatted_similarity_score = round(similarity_score, 4)
             ground_truth_level_similarities.append(formatted_similarity_score)
             if similarity_score >= highest_similarity:
@@ -50,7 +66,10 @@ class ComputeSimilarity:
         ground_truth_level_similarities_dict = {self.ground_truth_index : ground_truth_level_similarities}
 
         return selected_candidate_indices, similarities, ground_truth_level_similarities_dict
-    
+
+def cos_sim(a, b):
+    cosine_similarity = dot(a, b)/(norm(a)*norm(b))    
+    return cosine_similarity
 
 def get_region_characters(file):
     with open(file, "r") as f:

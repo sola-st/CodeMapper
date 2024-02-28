@@ -230,7 +230,7 @@ class AnythingTracker():
                 "kind": target_candidate.marker,
                 "levenshtein_distance" : target_dict["target_candidate_edit_distance"],
                 "bleu": target_dict["target_candidate_bleu_score"],
-                "embedding_similarity" : target_dict["target_candidate_similarity"],
+                "embedding_similarity" : str(target_dict["target_candidate_similarity"]),
                 "index": target_dict["target_candidate_index"], 
                 "all_candidates_num": len(candidate_regions)
             }
