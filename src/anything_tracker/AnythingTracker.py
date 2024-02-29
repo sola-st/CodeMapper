@@ -231,13 +231,21 @@ class AnythingTracker():
                     "target_candidate_index" : 0
                     }})
         else:
+            # without context
+            # candidate_with_context_list = []
+            # source_with_context = self.source_region_characters
+            # for candidate in candidate_regions:
+            #     candidate_characters = candidate.character_sources
+            #     candidate_with_context_list.append(candidate_characters)
+
+            # # with context
             before_lines_num = 5
             after_line_num = 5
             candidate_with_context_list = []
             source_with_context = get_context_aware_characters(self.base_file_lines, self.interest_character_range, before_lines_num, after_line_num)
             for candidate in candidate_regions:
-                candiate_range = candidate.candidate_region_character_range
-                candidate_with_context = get_context_aware_characters(self.target_file_lines, candiate_range, before_lines_num, after_line_num)
+                candidate_range = candidate.candidate_region_character_range
+                candidate_with_context = get_context_aware_characters(self.target_file_lines, candidate_range, before_lines_num, after_line_num)
                 candidate_with_context_list.append(candidate_with_context)
             results_set_dict, average_highest, vote_most = ComputeTargetRegion(source_with_context, candidate_with_context_list).run()
             results_set_dict.update(average_highest)

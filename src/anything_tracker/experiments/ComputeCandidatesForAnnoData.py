@@ -1,3 +1,4 @@
+import datetime
 import json
 from multiprocessing import Pool
 from anything_tracker.AnythingTracker import AnythingTracker
@@ -66,9 +67,13 @@ class ComputeCandidatesForAnnoData():
             pool.map(wrapper, args_for_all_maps)
 
 def wrapper(args):
+    start_time = datetime.datetime.now()
     AnythingTracker(*args).run()
     source_region_index = args[-2].split('/')[-1]
     print(f"Compute candidates is done, source region #{source_region_index}.")
+    end_time = datetime.datetime.now()
+    executing_time = (end_time - start_time).seconds
+    print(f"Executing time: {executing_time} seconds")
 
 if __name__ == "__main__":
     # TODO think about how to deal with the reversed data, from web side, or the same as before.

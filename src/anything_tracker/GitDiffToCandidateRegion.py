@@ -80,10 +80,11 @@ class GitDiffToCandidateRegion():
         regions = []
         diff_hunk_lists = []
         for d in diff_results:
-            algorithm = list(d.keys())[0].upper()
-            diff_result = list(d.values())[0]
+            algorithm = d["algorithm"]
+            level = d["level"]
+            diff_result = d["diff_result"]
             sub_candidate_regions, sub_top_diff_hunks, sub_middle_diff_hunks, sub_bottom_diff_hunks, sub_may_moved = \
-                    self.diff_result_to_target_changed_hunk(diff_result, algorithm)
+                    self.diff_result_to_target_changed_hunk(algorithm, level, diff_result)
             for sub in sub_candidate_regions:
                 r = sub.candidate_region_character_range.four_element_list
                 if regions == []:
@@ -109,21 +110,32 @@ class GitDiffToCandidateRegion():
         diff_results = [] # to store all the 4 versions og git diff results
         dicts = []
         diff_algorithms = ["default", "minimal", "patience", "histogram"]
+        levels = ["line", "word"]
         # The \w+ pattern is a regular expression that matches one or more word characters (letters, digits, or underscores). 
         # -w to ignore whitespaces. It's add to solve a special case where only more or less whitespace in a line.
         for algorithm in diff_algorithms:
-            commit_diff_command = f"git diff --diff-algorithm={algorithm} --color --unified=0 --word-diff-regex='\w+' -w {self.base_commit} {self.target_commit} -- {self.file_path}"
-            # if renamed_file_path: # rename happens
-            #     commit_diff_command = f"git diff {self.base_commit}:{self.file_path} {self.target_commit}:{renamed_file_path}"
-            result = subprocess.run(commit_diff_command, cwd=self.repo_dir, shell=True,
-                    stdout = subprocess.PIPE, universal_newlines=True)
-            diff_result = result.stdout
-            if not diff_result in dicts:
-                dicts.append(diff_result)
-                diff_results.append({algorithm: diff_result})
+            prefix = f"git diff --diff-algorithm={algorithm} --color --unified=0"
+            suffix = f"{self.base_commit} {self.target_commit} -- {self.file_path}"
+            for level in levels:
+                if level == "line":
+                    command = f"{prefix} {suffix}"
+                else:
+                    command = f"{prefix} --word-diff-regex='\w+' -w {suffix}"
+                # if renamed_file_path: # rename happens
+                #     commit_diff_command = f"git diff {self.base_commit}:{self.file_path} {self.target_commit}:{renamed_file_path}"
+                result = subprocess.run(command, cwd=self.repo_dir, shell=True,
+                        stdout = subprocess.PIPE, universal_newlines=True)
+                diff_result = result.stdout
+                if not diff_result in dicts:
+                    dicts.append(diff_result)
+                    diff_results.append({
+                        "algorithm": algorithm,
+                        "level": level,
+                        "diff_result" : diff_result
+                    })
         return diff_results
 
-    def diff_result_to_target_changed_hunk(self, diff_result, algorithm):
+    def diff_result_to_target_changed_hunk(self, algorithm, level, diff_result):
         '''
         Analyze diff results, return target changed hunk range map, and the changed hunk sources.
         '''
@@ -176,23 +188,25 @@ class GitDiffToCandidateRegion():
                         if self.characters_start_idx == 1:
                             candidate_character_start_idx = 1
                         else:
-                            interest_first_line_characters = self.source_region_characters[0]
-                            fine_grain_start = FineGrainLineCharacterIndices(
-                                    self.target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
-                                    self.characters_start_idx, self.interest_first_number, interest_first_line_characters, True)
-                            candidate_character_start_idx, start_line_delta_hint = fine_grain_start.fine_grained_line_character_indices()
-                            if start_line_delta_hint != None:
-                                candidate_start_line += start_line_delta_hint
+                            if level == "word":
+                                interest_first_line_characters = self.source_region_characters[0]
+                                fine_grain_start = FineGrainLineCharacterIndices(
+                                        self.target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
+                                        self.characters_start_idx, self.interest_first_number, interest_first_line_characters, True)
+                                candidate_character_start_idx, start_line_delta_hint = fine_grain_start.fine_grained_line_character_indices()
+                                if start_line_delta_hint != None:
+                                    candidate_start_line += start_line_delta_hint
                         candidate_character_start_idx_done = True
 
                     if self.interest_last_number in overlapped_line_numbers and candidate_character_end_idx_done == False:
-                        interest_last_line_characters = self.source_region_characters[-1]
-                        fine_grain_end = FineGrainLineCharacterIndices(
-                                    self.target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
-                                    self.characters_end_idx, self.interest_last_number, interest_last_line_characters, False)
-                        candidate_character_end_idx, end_line_delta_hint = fine_grain_end.fine_grained_line_character_indices()
-                        if end_line_delta_hint != None:
-                            candidate_end_line -= end_line_delta_hint
+                        if level == "word":
+                            interest_last_line_characters = self.source_region_characters[-1]
+                            fine_grain_end = FineGrainLineCharacterIndices(
+                                        self.target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
+                                        self.characters_end_idx, self.interest_last_number, interest_last_line_characters, False)
+                            candidate_character_end_idx, end_line_delta_hint = fine_grain_end.fine_grained_line_character_indices()
+                            if end_line_delta_hint != None:
+                                candidate_end_line -= end_line_delta_hint
                         candidate_character_end_idx_done = True
 
                     base_hunk_range_list = list(base_hunk_range)

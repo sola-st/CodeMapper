@@ -14,11 +14,11 @@ def compute_highest_trade_off_score(edit_dists, bleu_scores, similarities):
     return target_idx
     
 class ComputeTargetRegion():
-    def __init__(self, source_region_characters, candidate_regions):
-        # source_region_characters and candidate_regions can be expended strings
+    def __init__(self, source_region_characters, candidate_string_lists):
+        # source_region_characters and candidate_string_lists are expended strings (list)
         # expand means get the before and after contexts together
         self.source_region_characters = source_region_characters
-        self.candidate_regions = candidate_regions
+        self.candidate_string_lists = candidate_string_lists
 
     def levenshtein_distance(self, candidate_characters):
         # step 1: compute edit distance
@@ -70,7 +70,7 @@ class ComputeTargetRegion():
         normalized_dists = []
         bleu_scores = []
 
-        for candidate_characters in self.candidate_regions:
+        for candidate_characters in self.candidate_string_lists:
             if candidate_characters == None:
                 candidate_characters = ""
                 # TODO do not need to calculate the bleu score
@@ -93,7 +93,7 @@ class ComputeTargetRegion():
 
         # top-1 similarity, the key of similarities_dict is ground truth index
         top_similarity_indices, top_similarities, similarities_dict = \
-            ComputeSimilarity(self.source_region_characters, self.candidate_regions, 0).get_top_1_similarity()
+            ComputeSimilarity(self.source_region_characters, self.candidate_string_lists, 0).get_top_1_similarity()
 
         # allow multiple targets for each metric
         indices = []
