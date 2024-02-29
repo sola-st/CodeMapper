@@ -155,8 +155,8 @@ def write_results(results, file_name):
 
 
 if __name__=="__main__":
-    oracle_file = join("data", "annotation", "anno_test.json")
-    candidates_dir = join("data", "results", "tracked_maps", "candidate_regions_target_test")
-    results_csv_file_name = "measurement_results_target_test.csv"
+    oracle_file = join("data", "annotation", "anno_38.json")
+    candidates_dir = join("data", "results", "tracked_maps", "mapped_regions_fixno")
+    results_csv_file_name = join("measurement_results", "measurement_results_fixno.csv")
     measurement = "target.json" 
     WhichMetricIsBetter(oracle_file, candidates_dir, results_csv_file_name, measurement).run()

@@ -124,6 +124,6 @@ def write_results(results, file_name):
 if __name__=="__main__":
     oracle_file = join("data", "annotation", "anno_38.json")
     candidates_dir = join("data", "results", "tracked_maps", "UI_candidate_regions_38")
-    results_csv_file_name = "measurement_results_anno38_mean.csv"
+    results_csv_file_name = join("measurement_results", "measurement_results_anno38_mean.csv")
     measurement = "target.json" # compare source region and predicted target region, can changed to "candidates.json"
     RunMeasurement(oracle_file, candidates_dir, results_csv_file_name, measurement).run()

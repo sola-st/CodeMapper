@@ -163,7 +163,6 @@ class AnythingTracker():
             # If source region is a single word, it could occurred in many place, 
             # force not to search if it involved in change hunks
             # Indeed, not only single words, also for the short phrases, but there is not a good way to detect if is proper.
-            # TODO decide remove this heuristic or not
             # if (top_diff_hunks != [] or middle_diff_hunks != [] or bottom_diff_hunks != []) or diff_candidates:
             #     source_region_characters_str = "".join(self.source_region_characters).strip()
             #     if len(self.interest_line_numbers) == 1 and not " " in source_region_characters_str:
@@ -231,14 +230,14 @@ class AnythingTracker():
                     "target_candidate_index" : 0
                     }})
         else:
-            # without context
+            # option 1: without context
             # candidate_with_context_list = []
-            # source_with_context = self.source_region_characters
+            # source_with_context = source_region_characters_str
             # for candidate in candidate_regions:
             #     candidate_characters = candidate.character_sources
             #     candidate_with_context_list.append(candidate_characters)
 
-            # # with context
+            # # option 2: with context
             before_lines_num = 5
             after_line_num = 5
             candidate_with_context_list = []
