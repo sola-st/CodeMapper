@@ -94,23 +94,16 @@ class ComputeTargetRegion():
         # top-1 similarity, the key of similarities_dict is ground truth index
         top_similarity_indices, top_similarities, similarities_dict = \
             ComputeSimilarity(self.source_region_characters, self.candidate_string_lists, 0).get_top_1_similarity()
+        similarities = similarities_dict[0] # all similarities
 
-        # allow multiple targets for each metric
-        indices = []
-        indices.extend(top_dist_indices)
-        indices.extend(top_bleu_indices)
-        indices.extend(top_similarity_indices)
-        similarities = similarities_dict[0]
+        # always pick the top-1, it should comes from git diff
+        unique_indices = []
+        unique_indices.append(top_dist_indices[0])
+        unique_indices.append(top_bleu_indices[0])
+        unique_indices.append(top_similarity_indices[0])
 
-        keys = []
-        for i in top_dist_indices:
-            keys.append("dist_based")
-        for j in top_bleu_indices:
-            keys.append("bleu_based")
-        for k in top_similarity_indices:
-            keys.append("similarity_based")
-
-        results_set_dict = self.get_metrics_based_dict(edit_dists, bleu_scores, similarities, indices, keys)
+        keys = ["dist_based", "bleu_based", "similarity_based"]
+        results_set_dict = self.get_metrics_based_dict(edit_dists, bleu_scores, similarities, unique_indices, keys)
 
         # [Option 2]: combine the results of 3 different metrics ----------------
         average_highest_idx = compute_highest_trade_off_score(normalized_dists, bleu_scores, similarities) # starts at 0.
@@ -120,6 +113,11 @@ class ComputeTargetRegion():
         # [Option 3]: check the vote to different metrics ----------------
         vote_most_dict = None
         votes = []
+        indices = []
+        indices.extend(top_dist_indices)
+        indices.extend(top_bleu_indices)
+        indices.extend(top_similarity_indices)
+
         indices_deduplicated = list(set(indices))
         if indices != indices_deduplicated:
             for idx in indices_deduplicated:

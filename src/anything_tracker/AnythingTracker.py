@@ -22,17 +22,24 @@ parser.add_argument("--expected_character_range", nargs='+',
                     type=int, help="a 4-element list, to show the expected character range", 
                     required=False) # only for the regions that with ground truth
 
-def deduplicate_candiddates(candidates, regions):
+def deduplicate_candidates(candidates, regions, reorder=False):
+    deduplicated_candidates = []
     for s in candidates:
         r = s.candidate_region_character_range.four_element_list
+        marker = s.marker
         if regions == []:
             regions.append(r)
+            deduplicated_candidates.append(s)
         else:
-            if r in regions:
-                candidates.remove(s)
-            else:
-                regions.append(r)
-    return candidates
+            if r not in regions:
+                if reorder == True and marker.startswith("<A>"):
+                    # keep the one from anythingtracker core idea work, especially for single words.
+                    regions.insert(0, r)
+                    deduplicated_candidates.insert(0, s)
+                else:
+                    regions.append(r)
+                    deduplicated_candidates.append(s)
+    return deduplicated_candidates, regions
 
 def get_context_aware_characters(file_lines, character_range, before_lines, after_lines):
     # character_range: start_line, start_character, end_line, end_character
@@ -166,7 +173,7 @@ class AnythingTracker():
         regions = []
         # get candidates from git diff
         diff_candidates, diff_hunk_lists = GitDiffToCandidateRegion(self).run_git_diff()
-        depulicated_diff_candidates = deduplicate_candiddates(diff_candidates, regions)
+        depulicated_diff_candidates, regions = deduplicate_candidates(diff_candidates, regions, True)
         candidate_regions.extend(depulicated_diff_candidates)
         # search to map characters
         for iter in diff_hunk_lists:
@@ -186,7 +193,7 @@ class AnythingTracker():
             # if top_diff_hunks or middle_diff_hunks or bottom_diff_hunks:
                 # search_candidates = SearchLinesToCandidateRegion(self, 
                 #         list(top_diff_hunks), list(middle_diff_hunks), list(bottom_diff_hunks), may_moved).search_maps()
-            depulicated_search_candidates = deduplicate_candiddates(search_candidates, regions)
+            depulicated_search_candidates, regions = deduplicate_candidates(search_candidates, regions)
             candidate_regions.extend(depulicated_search_candidates)
 
         if candidate_regions == []:

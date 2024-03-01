@@ -78,7 +78,6 @@ def wrapper(args):
     print(f"Executing time: {executing_time} seconds")
 
 if __name__ == "__main__":
-    # TODO think about how to deal with the reversed data, from web side, or the same as before.
     result_dir_parent = join("data", "results", "tracked_maps", "mapped_regions")
     oracle_file = join("data", "annotation", "anno_38.json")
     # context_line_num >=0.
