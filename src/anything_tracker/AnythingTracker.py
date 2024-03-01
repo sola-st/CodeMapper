@@ -17,6 +17,7 @@ parser.add_argument("--target_commit", help="the commit to get the 2nd version o
 parser.add_argument("--file_path", help="the target file that you want to track", required=True)
 parser.add_argument("--source_character_range", nargs='+', type=int, help="a 4-element list, to show where to track", required=True)
 parser.add_argument("--results_dir", help="Directory to put the results", required=True)
+parser.add_argument("--context_line_num", type=int, help="specify the line numbers of contexts", required=True) # 0 means no contexts
 parser.add_argument("--expected_character_range", nargs='+', 
                     type=int, help="a 4-element list, to show the expected character range", 
                     required=False) # only for the regions that with ground truth
@@ -82,7 +83,8 @@ def get_source_and_expected_region_characters(file_lines, character_range):
 
 
 class AnythingTracker():
-    def __init__(self, repo_dir, base_commit, target_commit, file_path, interest_character_range, results_dir, expected_character_range=None):
+    def __init__(self, repo_dir, base_commit, target_commit, file_path, interest_character_range, 
+                results_dir, context_line_num, expected_character_range=None):
         self.repo_dir = repo_dir
         self.base_commit = base_commit
         self.target_commit = target_commit
@@ -92,6 +94,7 @@ class AnythingTracker():
         interest_line_range = character_range_init.character_range_to_line_range() # all numbers starts at 1.
         self.interest_line_numbers = list(interest_line_range)
         self.results_dir = results_dir
+        self.context_line_num = context_line_num
 
         self.expected_character_range = expected_character_range
         if expected_character_range != None:
@@ -149,12 +152,16 @@ class AnythingTracker():
         self.write_regions_to_files(expected_region_characters_str, False)
         
         candidate_regions = []
+        regions = []
         # get candidates from git diff
         diff_candidates, diff_hunk_lists = GitDiffToCandidateRegion(self).run_git_diff()
-        candidate_regions.extend(diff_candidates)
+        if diff_candidates:
+            candidate_regions.extend(diff_candidates)
+            for dc in diff_candidates: # to deduplicate
+                dc_range = dc.candidate_region_character_range.four_element_list
+                regions.append(dc_range)
         # search to map characters
         for iter in diff_hunk_lists:
-            regions = []
             search_candidates = []
             algorithm, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved = iter
             search_candidates = SearchLinesToCandidateRegion(algorithm, self,
@@ -230,23 +237,23 @@ class AnythingTracker():
                     "target_candidate_index" : 0
                     }})
         else:
+            candiate_str_list = []
+            source_str = ""
             # option 1: without context
-            # candidate_with_context_list = []
-            # source_with_context = source_region_characters_str
-            # for candidate in candidate_regions:
-            #     candidate_characters = candidate.character_sources
-            #     candidate_with_context_list.append(candidate_characters)
-
-            # # option 2: with context
-            before_lines_num = 5
-            after_line_num = 5
-            candidate_with_context_list = []
-            source_with_context = get_context_aware_characters(self.base_file_lines, self.interest_character_range, before_lines_num, after_line_num)
-            for candidate in candidate_regions:
-                candidate_range = candidate.candidate_region_character_range
-                candidate_with_context = get_context_aware_characters(self.target_file_lines, candidate_range, before_lines_num, after_line_num)
-                candidate_with_context_list.append(candidate_with_context)
-            results_set_dict, average_highest, vote_most = ComputeTargetRegion(source_with_context, candidate_with_context_list).run()
+            if self.context_line_num == 0:
+                source_str = source_region_characters_str
+                for candidate in candidate_regions:
+                    candidate_characters = candidate.character_sources
+                    candiate_str_list.append(candidate_characters)
+            else: # option 2: with context
+                before_lines_num = 5
+                after_line_num = 5
+                source_str = get_context_aware_characters(self.base_file_lines, self.interest_character_range, before_lines_num, after_line_num)
+                for candidate in candidate_regions:
+                    candidate_range = candidate.candidate_region_character_range
+                    candidate_with_context = get_context_aware_characters(self.target_file_lines, candidate_range, before_lines_num, after_line_num)
+                    candiate_str_list.append(candidate_with_context)
+            results_set_dict, average_highest, vote_most = ComputeTargetRegion(source_str, candiate_str_list).run()
             results_set_dict.update(average_highest)
             if vote_most != None:
                 results_set_dict.update(vote_most)
@@ -304,4 +311,5 @@ class AnythingTracker():
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    AnythingTracker(args.repo_dir, args.base_commit, args.target_commit, args.file_path, args.source_character_range, args.results_dir).run()
+    AnythingTracker(args.repo_dir, args.base_commit, args.target_commit, args.file_path, 
+            args.source_character_range, args.context_line_num, args.results_dir).run()

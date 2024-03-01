@@ -61,7 +61,8 @@ class RunMeasurement():
             with open(json_results_file, 'r') as f:
                 candidate_regions = json.load(f)
 
-            for candidate in candidate_regions:
+            c_len = len(candidate_regions)
+            for j, candidate in enumerate(candidate_regions):
                 candidate_character_range = candidate["target_range"]
                 if candidate_character_range == None:
                     candidate_character_range = "No candidates"
@@ -96,10 +97,10 @@ class RunMeasurement():
                         f1s.append(f1_score)
 
                 ground_truth_indices.append(i)
-                candidate_nums.append(candidate["all_candidates_num"])
-                target_region_indices.append(candidate["index"])
-                expected.append(expected_character_range)
-                predicted.append(candidate_character_range)
+                candidate_nums.append(c_len)
+                target_region_indices.append(j)
+                expected.append(str(expected_character_range))
+                predicted.append(str(candidate_character_range))
         
         # add average number to each list(column in the results file) or other information as needed
         is_matched_set.append(is_matched_set.count("Y"))
@@ -112,12 +113,13 @@ class RunMeasurement():
                     
         results = zip_longest(ground_truth_indices, candidate_nums, target_region_indices, expected, predicted, is_matched_set, \
                 pre_dist, post_dist, dists, recalls, precisions, f1s)
+
         write_results(results, self.results_csv_file_name)   
 
-def write_results(results, file_name):
+def write_results(results_set, file_name):
     with open(f"data/results/{file_name}", "w") as f:
         csv_writer = csv.writer(f)
-        for row in results:
+        for row in results_set:
             csv_writer.writerow(row)
 
 
@@ -125,5 +127,5 @@ if __name__=="__main__":
     oracle_file = join("data", "annotation", "anno_38.json")
     candidates_dir = join("data", "results", "tracked_maps", "mapped_regions")
     results_csv_file_name = join("measurement_results", "measurement_results.csv")
-    measurement = "target.json" 
+    measurement = "candidates.json"
     RunMeasurement(oracle_file, candidates_dir, results_csv_file_name, measurement).run()
