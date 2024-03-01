@@ -22,6 +22,17 @@ parser.add_argument("--expected_character_range", nargs='+',
                     type=int, help="a 4-element list, to show the expected character range", 
                     required=False) # only for the regions that with ground truth
 
+def deduplicate_candiddates(candidates, regions):
+    for s in candidates:
+        r = s.candidate_region_character_range.four_element_list
+        if regions == []:
+            regions.append(r)
+        else:
+            if r in regions:
+                candidates.remove(s)
+            else:
+                regions.append(r)
+    return candidates
 
 def get_context_aware_characters(file_lines, character_range, before_lines, after_lines):
     # character_range: start_line, start_character, end_line, end_character
@@ -155,11 +166,8 @@ class AnythingTracker():
         regions = []
         # get candidates from git diff
         diff_candidates, diff_hunk_lists = GitDiffToCandidateRegion(self).run_git_diff()
-        if diff_candidates:
-            candidate_regions.extend(diff_candidates)
-            for dc in diff_candidates: # to deduplicate
-                dc_range = dc.candidate_region_character_range.four_element_list
-                regions.append(dc_range)
+        depulicated_diff_candidates = deduplicate_candiddates(diff_candidates, regions)
+        candidate_regions.extend(depulicated_diff_candidates)
         # search to map characters
         for iter in diff_hunk_lists:
             search_candidates = []
@@ -178,16 +186,8 @@ class AnythingTracker():
             # if top_diff_hunks or middle_diff_hunks or bottom_diff_hunks:
                 # search_candidates = SearchLinesToCandidateRegion(self, 
                 #         list(top_diff_hunks), list(middle_diff_hunks), list(bottom_diff_hunks), may_moved).search_maps()
-            for s in search_candidates:
-                r = s.candidate_region_character_range.four_element_list
-                if regions == []:
-                    regions.append(r)
-                else:
-                    if r in regions:
-                        search_candidates.remove(s)
-                    else:
-                        regions.append(r)
-            candidate_regions.extend(search_candidates)
+            depulicated_search_candidates = deduplicate_candiddates(search_candidates, regions)
+            candidate_regions.extend(depulicated_search_candidates)
 
         if candidate_regions == []:
             print(f"--No candidate regions.\n  {self.repo_dir}\n  {self.file_path}\n  {self.interest_character_range.four_element_list}\n")
@@ -246,8 +246,8 @@ class AnythingTracker():
                     candidate_characters = candidate.character_sources
                     candiate_str_list.append(candidate_characters)
             else: # option 2: with context
-                before_lines_num = 5
-                after_line_num = 5
+                before_lines_num = self.context_line_num
+                after_line_num = self.context_line_num
                 source_str = get_context_aware_characters(self.base_file_lines, self.interest_character_range, before_lines_num, after_line_num)
                 for candidate in candidate_regions:
                     candidate_range = candidate.candidate_region_character_range
