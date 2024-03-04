@@ -8,3 +8,13 @@ https://github.com/laravel/laravel
 https://github.com/vuejs/vue
 https://github.com/frida/frida
 https://github.com/tj/git-extras
+https://github.com/cookiecutter/cookiecutter
+https://github.com/microsoft/malmo
+https://github.com/mmistakes/minimal-mistakes
+https://github.com/sqlitebrowser/sqlitebrowser
+https://github.com/pure-css/pure
+https://github.com/netty/netty
+https://github.com/thanos-io/thanos
+https://github.com/zaproxy/zaproxy
+https://github.com/deepinsight/insightface
+https://github.com/google/data-transfer-project

@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import Dict
 from os.path import join, exists, isdir
 from os import makedirs
 from git.repo import Repo
@@ -9,7 +9,7 @@ from anything_tracker.utils.RepoUtils import get_name_of_main_branch
 class SourceRepos():
 
     def __init__(self):
-        self.latest_commit_date = "2023-11-25T00:00:00-00:00"
+        self.latest_commit_date = "2024-03-01T00:00:00-00:00"
 
     def _is_repo(self, repo_dir):
         try:
