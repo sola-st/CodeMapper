@@ -19,7 +19,8 @@
     - the Version name area will show additional information. 
         - The index of current data (starts at 1),
         - commit distance
-        - the size of source  regions, 
+        - the size of source regions, 
+        - time order of the ranges,
         - and some other marks. It is designed for data creators, which allows them to record what happens in the range pairs. It can be empty. For example, they can write "The lines are wrapped in an if-statement".
 - **Click the button "Load Data"**.
     - The source and target file contents will be shown in the text boxes.

@@ -129,6 +129,7 @@ function pushToMemory() {
             change_operation: document.getElementById('operationSelect').value,
             kind: document.getElementById('distance').innerText,
             category: document.getElementById("categorySelect").value,
+            time_order: document.getElementById('time').innerText,
             detail: document.getElementById('mark').value
         }
     });

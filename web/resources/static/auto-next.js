@@ -42,6 +42,7 @@ function displayCurrentItem() {
       start_at_1 = currentIndex +1;
       document.getElementById('dataIdx').innerText = "#" + start_at_1;
       document.getElementById('distance').innerText = currentItem.kind;
+      document.getElementById('time').innerText = currentItem.time_order;
   } else {
       jsonContentDiv.innerText = 'No data available.';
   }
