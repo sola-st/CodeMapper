@@ -1,6 +1,7 @@
 # Usage of the Annotation tool
-### Annotation tool can be run at local: 
-AnythingTracker/web/resources/templates/index.html
+### Annotation tool can be run locally or by using Flask framework:
+- Local: web/resources/templates/index.html  
+- Flask: web/resources/app.py
 
 ### The main page (index.html) includes 4 big areas:  
 - Title area
@@ -14,7 +15,7 @@ AnythingTracker/web/resources/templates/index.html
 - **Click the button "Choose file"** to select the JSON file which includes the meta information of the to-annotate data.
 - **Click the button "Read"** to read the first piece of data and start annotation.
     - The title area will show a table that counts the cases of neighboring commits, k-distance commits, and the size categories.
-    - The meta information area will show the metadata.
+    - The meta-information area will show the metadata.
     - the Version name area will show additional information. 
         - The index of current data (starts at 1),
         - commit distance

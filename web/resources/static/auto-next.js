@@ -25,8 +25,16 @@ function readFile() {
 
 function displayCurrentItem() {
   if (jsonData.length > 0) {
-      const currentItem = jsonData[currentIndex];
-      document.getElementById('repo').value = currentItem.url;
+      const currentItemInit = jsonData[currentIndex];
+      document.getElementById('repo').value = currentItemInit.url;
+      start_at_1 = currentIndex +1;
+      document.getElementById('dataIdx').innerText = "#" + start_at_1;
+
+
+      let currentItem = currentItemInit;
+      if ("mapping" in currentItem) {
+        currentItem = currentItemInit.mapping
+      }
       document.getElementById('sourceCommit').value = currentItem.source_commit;
       document.getElementById('targetCommit').value = currentItem.target_commit;
       document.getElementById('sourceFilePath').value = currentItem.source_file;
