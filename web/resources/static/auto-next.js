@@ -35,6 +35,7 @@ function displayCurrentItem() {
       let currentItem = currentItemInit;
       if ("mapping" in currentItem) {
         currentItem = currentItemInit.mapping
+        document.getElementById('fileInput').name = currentItem.source_range;
       }
       document.getElementById('sourceCommit').value = currentItem.source_commit;
       document.getElementById('targetCommit').value = currentItem.target_commit;

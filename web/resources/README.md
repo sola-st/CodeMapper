@@ -8,19 +8,25 @@
 - Meta information area (shows git URL, commits, and file names)
 - Main area
     - Version names
-    - source and target file contents
+    - Source and target file contents
 - Function buttons
 
 ### Detailed steps:  
 - **Click the button "Choose file"** to select the JSON file which includes the meta information of the to-annotate data.
+    - It supports the format of "to_annatate" and "annotated" data.
+    - For the annotated data, it will automatically highlight the annotated source range.
+    - If you select some new ranges for the source version, the highlighted annotated source range will disappear. If needed, click the "Load Data" button to get the annotated source range back.
 - **Click the button "Read"** to read the first piece of data and start annotation.
-    - The title area will show a table that counts the cases of neighboring commits, k-distance commits, and the size categories.
+    - The title area will show:
+        - A table that counts the cases of neighboring commits, k-distance commits, and the size categories.
+        - A table that counts different change types, and shows the total number of all annotated data.
     - The meta-information area will show the metadata.
     - the Version name area will show additional information. 
         - The index of current data (starts at 1),
-        - commit distance
+        - change type,
+        - commit distance,
         - the size of source regions, 
-        - time order of the ranges,
+        - the time order of the ranges,
         - and some other marks. It is designed for data creators, which allows them to record what happens in the range pairs. It can be empty. For example, they can write "The lines are wrapped in an if-statement".
 - **Click the button "Load Data"**.
     - The source and target file contents will be shown in the text boxes.
