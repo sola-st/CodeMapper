@@ -6,33 +6,40 @@ from anything_tracker.utils.RepoUtils import get_parent_commit
 from git.repo import Repo
 from os.path import join
 
-
-random.seed(25) # Set the seed for reproducibility
+seed_num = 25
+random.seed(seed_num) # Set the seed for reproducibility
 
 def select_random_commits(repo, num_commits):
     commit_hashes = [commit.hexsha[:8] for commit in repo.iter_commits(max_count=num_commits)]
     random.shuffle(commit_hashes)
     return commit_hashes
 
-def write_generated_data_to_file(json_file, to_write):
-    # random.shuffle(to_write)
-    splits_len = len(to_write) // 4
-    to_write_1 = to_write[:splits_len]
-    to_write_2 = to_write[splits_len:splits_len*2]
-    to_write_3 = to_write[splits_len*2:splits_len*3]
-    to_write_4 = to_write[splits_len*3:]
+def write_generated_data_to_file(json_file, to_write, iteration_num):
+    splits_len = len(to_write) // iteration_num
+    # write into 2 files
+    to_write_1 = []
+    to_write_2 = []
 
-    to_write_1.extend(to_write_3)
-    to_write_2.extend(to_write_4)
+    start = 0
+    end = splits_len
+    for i in range(iteration_num):
+        if i % 2 != 0:
+            to_write_1.extend(to_write[start:end])
+        else:
+            to_write_2.extend(to_write[start:end])
+        start = end
+        end += splits_len
+        if i + 1 == iteration_num:
+            end = len(to_write) # take all the remianing data
 
     with open(json_file, "w") as ds:
         json.dump(to_write_1, ds, indent=4, ensure_ascii=False)
-    with open(json_file.replace(".json", "_2.json"), "w") as ds:
+    with open(json_file.replace("_1.json", "_2.json"), "w") as ds:
         json.dump(to_write_2, ds, indent=4, ensure_ascii=False)
 
 def get_data_dict(repo_url, source_file, target_file, source_commit, target_commit, k):
     kind = f"distance: {k}"
-    if k == 0:
+    if k == 1:
         kind = "neighboring"
 
     data_dict = {
@@ -91,36 +98,48 @@ class GetKDistanceCommit():
         return related_commits
     
     def select_the_neighboring_distance_commit(self):
-        file_for_neighboring_commit = None
-        file_for_k_distance_commit = None
-        selected_distance_commit = None
-        selected_distance_commit_idx = None
+        '''
+        Return base_file, selected_file, selected_commit, idx for selected_commit.
 
+        if no file rename cases: base_file == selected_file
+        if file rename happens, the logic should be changed
+        '''
         for file in self.selected_files:
             related_commits = self.get_k_distance_commits(file)
             if related_commits:
-                related_commits_num = len(related_commits)
-                if related_commits_num != 1:
-                    # assert related_commits[0] == self.commit # not work for merge commit
-                    if related_commits[0] != self.commit:
-                        # merge commit
-                        # TODO think about how to deal with merge commits
-                        continue
-                    file_for_neighboring_commit = file
-                    related_commits = related_commits[1:]
+                is_distance = random.sample([True, False], 1)[0] # False: neighboring or True: k>1 distance
+                if len(related_commits) == 1:
+                    if is_distance == True:
+                        # always be the current commit, or neighboring commit
+                        # no distance commit
+                        return None, None, None, None
+                    else: # get a neighboring case
+                        if related_commits[0] != self.commit:
+                            # return a neiboring commit mapping
+                            return file, file, related_commits[0], 1
+                        else:
+                            # only current commit changes the file, failed to get a neighboring/distance commit
+                            return None, None, None, None 
+                        
+                # len(related_commits) > 1
+                idx_delta = 1 # 1 for letting index starts at 1
+                if related_commits[0] == self.commit:
+                    related_commits = related_commits[1:] # exclude current commit
+                
+                if is_distance == True:
+                    related_commits = related_commits[1:] 
+                    idx_delta += 1 # exclude neighboring commit
+
+                if related_commits:
                     k_recorder = list(range(0, len(related_commits)))
                     selected_distance_commit_idx = random.sample(k_recorder, 1)[0]
                     selected_distance_commit = related_commits[selected_distance_commit_idx]
-                    file_for_k_distance_commit = file
-
-                    if file_for_neighboring_commit != None and file_for_k_distance_commit != None:
-                        return file_for_neighboring_commit, selected_distance_commit, \
-                                selected_distance_commit_idx+2, file_for_k_distance_commit
-                    # selected_distance_commit_idx+2. 1 for index starts at 1, 1 for exclude the distance-1(neighboring commit)
+                    return file, file, selected_distance_commit, selected_distance_commit_idx + idx_delta
+                else:
+                    return None, None, None, None 
         
-        # Failed to get k-distance commit on the checkout commit
-        return file_for_neighboring_commit, selected_distance_commit, \
-                selected_distance_commit_idx, file_for_k_distance_commit 
+        # Failed to get k-distance commit on the checkout commit, return Nones
+        return None, None, None, None 
     
 class RandomlyGenerateAnnotationData():
     '''
@@ -137,11 +156,11 @@ class RandomlyGenerateAnnotationData():
 
     def __init__(self):
         # customize how many commits/files to select and generate
-        self.basic_commit_num = 100 # get latest 100 commit and start random selection
-        self.select_commit_num = 3 # the number of source commit 
+        self.basic_commit_num = 200 # get latest x commit and start random selection
+        self.select_commit_num = 6 # the number of source commit 
         self.select_file_num = 1 
         self.k_max = 5
-        self.iteration_num = 2 # get more data to make sure we can annotate meaningful ranges.
+        self.iteration_num = 4 # get more data to make sure we can annotate meaningful ranges.
 
     def get_touched_file_list(self, repo_dir, source_commit, target_commit):
         # get modified files list
@@ -152,57 +171,68 @@ class RandomlyGenerateAnnotationData():
         return modified_files
 
     def run(self):
-        random_data = []
-        results_json_file = join("data", "annotation", "to_annotation.json")
+        random_data = [] # the elements is round data
+        results_json_file = join("data", "annotation", "updated_to_annotation_deduplicated_1.json")
 
         # prepare repositories
         source_repo_init = SourceRepos()
         repo_dirs, repo_git_urls = source_repo_init.get_repo_dirs(True)
         source_repo_init.checkout_latest_commits()
 
+        to_control_ratio = int(self.select_commit_num / 2) # ratio between neighboring and 
         for iter in range(self.iteration_num):
-            print(f"Data collection, round #{iter}.")
-            random.seed(40)
+            round_data = [] # collect all the dicts in current round
+            random.seed(seed_num + iter*iter) # change a seed for every iteration
             for repo_dir, repo_url in zip(repo_dirs, repo_git_urls):
                 repo = Repo(repo_dir)
-                print(f"Annotation data collection starts for: {repo_dir}")
+                print(f"Round #{iter}. starts for: {repo_dir}")
+                repo_level_neighboring = []
+                repo_level_distance = []
                 # randomly select several commits from the latest 100 commits.
                 shuffled_commits = select_random_commits(repo, self.basic_commit_num)
                 for commit in shuffled_commits:
                     # shuffled_commits is more than the expected select_commit_num
                     # to make sure we can get enough data (some of the selected commits and files do not have distance_k_commit)
-                    neighboring_commit = get_parent_commit(repo_dir, commit) 
-                    all_modified_files = self.get_touched_file_list(repo_dir, neighboring_commit, commit)
+                    parent_commit = get_parent_commit(repo_dir, commit) 
+                    all_modified_files = self.get_touched_file_list(repo_dir, parent_commit, commit)
 
                     if all_modified_files:
-                        random.shuffle(all_modified_files)
-                        selected_files = random.sample(all_modified_files, self.select_file_num)
+                        # random.shuffle(all_modified_files)
+                        selected_files = random.sample(all_modified_files, self.select_file_num) # list
                         init = GetKDistanceCommit(repo_dir, commit, selected_files, self.k_max)
                         info = init.select_the_neighboring_distance_commit() 
                         if None in info:
                             continue
                         else:
-                            file_for_neighboring_commit, selected_distance_commit, selected_distance_commit_k, \
-                                file_for_k_distance_commit = info
+                            # file_for_neighboring_commit is not used, beacause here is no file rename cases.
+                            file_in_current_commit, file_in_seleted_commit, selected_commit, distance_k = info
 
-                        # scenario 1
-                        neighboring_data_dict = get_data_dict(
-                                repo_url, file_for_neighboring_commit, file_for_neighboring_commit, neighboring_commit, commit, 0)
-                        if tuple(neighboring_data_dict) not in random_data:
-                            random_data.append(neighboring_data_dict)
-
-                        # scenario 2
                         distance_data_dict = get_data_dict(
-                                repo_url, file_for_k_distance_commit, file_for_k_distance_commit, \
-                                selected_distance_commit, commit, selected_distance_commit_k )
-                        if tuple(neighboring_data_dict) not in random_data:
-                            random_data.append(distance_data_dict)
+                                repo_url, file_in_current_commit, file_in_seleted_commit, selected_commit, commit, distance_k)
+                        
+                        if distance_k > 1: # distance_k can be 1 - 5
+                            if tuple(distance_data_dict) not in repo_level_distance:
+                                repo_level_distance.append(distance_data_dict)
+                        else:
+                            if tuple(distance_data_dict) not in repo_level_neighboring:
+                                repo_level_neighboring.append(distance_data_dict)
 
-                        # *2 is enough, *4 is used to get enough meaningful changes in annotation stage
-                        if len(random_data) % (self.select_commit_num * 2) == 0: 
+                        neigh_len = len(repo_level_neighboring)
+                        dist_len = len(repo_level_distance)
+                        if neigh_len >= to_control_ratio and dist_len >= to_control_ratio:
+                            round_data.extend(repo_level_neighboring[:to_control_ratio])
+                            round_data.extend(repo_level_distance[:to_control_ratio])
                             break
+            # 1 round ends
+            random.shuffle(round_data)
+            if random_data == []:
+                random_data.extend(round_data)
+            else: # deduplicate the different rounds
+                for t in round_data:
+                    if t not in random_data:
+                        random_data.append(t)
 
-        write_generated_data_to_file(results_json_file, random_data)
+        write_generated_data_to_file(results_json_file, random_data, self.iteration_num)
     
 
 if __name__=="__main__":
