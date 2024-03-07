@@ -31,9 +31,7 @@
 - **Click the button "Load Data"**.
     - The source and target file contents will be shown in the text boxes.
 - **Annotation**.
-    - Read the source and target files.
-    - In some cases, it is hard to locate the changes. You can use "Mergely: https://editor.mergely.com" as a helper tool, which gives some hints on the changed lines and characters.
-        - If the contents are meaningless, click the button "Next" to skip the current one.
+    - Read the source and target files. If the contents are meaningless, click the button "Next" to skip the current one.
     - **Select the source and target ranges**. 
         - If the ranges are highlighted in colors, they are successfully selected. 
         - The highlighted ranges are temporarily stored, If you want to pick up a new one, just select the range again, it will overwrite the old one.
