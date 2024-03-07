@@ -15,6 +15,7 @@ function readFile() {
           document.getElementById('category').style.visibility = "visible";
           document.getElementById('mark').style.visibility = "visible";
           document.getElementById('count').style.visibility = "visible";
+          document.getElementById('rangeType').style.visibility = "visible";
       };
 
       reader.readAsText(file);
@@ -51,9 +52,10 @@ function displayCurrentItem() {
 function showNext() {
   document.getElementById('codeTextarea').innerText = "";
   document.getElementById('targetCodeTextarea').innerText = "";
-  document.getElementById('operationSelect').value = "change";
+  document.getElementById('operationSelect').value = "nonchanged";
   document.getElementById('mark').value = "";
   document.getElementById('categorySelect').value = "single identifier/word";
+  document.getElementById('operationSelect').value = "non changed";
   
   if (jsonData.length > 0) {
       currentIndex = (currentIndex + 1) % jsonData.length;

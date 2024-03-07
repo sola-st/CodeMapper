@@ -46,6 +46,31 @@
                 <a class="navbar-brand" href="index.html">
                     <h2 class="tm-site-title mb-0">Anything Tracker</h2>
                 </a>
+                <table id="rangeType" style="visibility: hidden;">
+                    <thead>
+                      <tr>
+                        <th>Change Types</th>
+                        <th>Nonchanged</th>
+                        <th>Partial changed</th>
+                        <th>Fully changed</th>
+                        <th>Moved</th>
+                        <th>Deleted</th>
+                        <th>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th>Source ranges</th>
+                        <td id="non changed">0</td>
+                        <td id="partial changed">0</td>
+                        <td id="fully changed">0</td>
+                        <td id="moved">0</td>
+                        <td id="deleted">0</td>
+                        <td id="all">0</td>
+                      </tr>
+                    </tbody>
+                </table>
+
                 <table id="count" style="visibility: hidden;">
                     <thead>
                       <tr>
@@ -100,12 +125,13 @@
                             <h3 class="tm-block-title">Source version</h3>
                             <p id="dataIdx"></p>
                             <div class="nav-item dropdown" id ="changeOperation" style="visibility: hidden;">
-                                <label for="operationSelect">Change Operation:</label>
+                                <label for="operationSelect">Change Types:</label>
                                 <select id="operationSelect">
-                                    <option value="change" selected>change</option>
-                                    <option value="delete">delete</option>
-                                    <option value="noChange">no change</option>
-                                    <option value="unsure">other</option>
+                                    <option value="non changed" selected>nonchanged</option>
+                                    <option value="partial changed">partial changed</option>
+                                    <option value="fully changed">fully changed</option>
+                                    <option value="moved">moved</option>
+                                    <option value="deleted">deleted</option>
                                 </select>
                             </div>
 

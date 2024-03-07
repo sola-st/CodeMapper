@@ -116,7 +116,7 @@ function pushToMemory() {
     if (desiredTarget == undefined){
         formattedDesiredTarget = null;
     }
-    console.log('Temporary data pairs:', [desiredSource, desiredTarget]);
+    console.log('Pushed data pairs:', [desiredSource, desiredTarget]);
     memoryStack.push({
         url: document.getElementById('repo').value,
         mapping: {
@@ -146,6 +146,14 @@ function pushToMemory() {
     }
     var currentValue = document.getElementById(table_cell_id).innerText;
     document.getElementById(table_cell_id).innerText = parseInt(currentValue) + 1;
+
+    //update the source range range types
+    var type_value = document.getElementById('operationSelect').value;
+    var current = document.getElementById(type_value).innerText;
+    document.getElementById(type_value).innerText = parseInt(current) + 1;
+    // update the numbers of all annotated cases
+    var current = document.getElementById("all").innerText;
+    document.getElementById("all").innerText = parseInt(current) + 1;
   }
 
 function removeHighlights(id) {
