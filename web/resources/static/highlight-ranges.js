@@ -112,11 +112,19 @@ document.querySelectorAll(".highlightedDiv").forEach(function (highlightedDiv) {
 function pushToMemory() {
     var desiredSource = tempSource.pop();
     var desiredTarget = tempTarget.pop();
+    var formattedDesiredSource = "["+desiredSource+"]";
     var formattedDesiredTarget = "["+desiredTarget+"]";
+    if (desiredSource == undefined) { // for annotated source ranges
+        var range = document.getElementById('fileInput').name;
+        if (range.includes(",")) {
+            desiredSource = range;
+            formattedDesiredSource = range;
+        }
+    }
     if (desiredTarget == undefined){
         formattedDesiredTarget = null;
     }
-    console.log('Pushed data pairs:', [desiredSource, desiredTarget]);
+    console.log('Pushed data pairs:', [formattedDesiredSource, formattedDesiredTarget]);
     memoryStack.push({
         url: document.getElementById('repo').value,
         mapping: {
@@ -124,7 +132,7 @@ function pushToMemory() {
             target_file: document.getElementById('targetFilePath').value,
             source_commit: document.getElementById('sourceCommit').value,
             target_commit: document.getElementById('targetCommit').value,
-            source_range: "["+desiredSource+"]",
+            source_range: formattedDesiredSource,
             target_range: formattedDesiredTarget,
             change_operation: document.getElementById('operationSelect').value,
             kind: document.getElementById('distance').innerText,
@@ -134,6 +142,8 @@ function pushToMemory() {
         }
     });
     removeHighlights("codeTextarea");
+    //remove the previous annotated source range marker
+    document.getElementById('fileInput').name = "round1"; 
     removeHighlights("targetCodeTextarea");
     // update the number of different categories.
     var kind_value = document.getElementById('distance').innerText;

@@ -13,7 +13,7 @@
 
 ### Detailed steps:  
 - **Click the button "Choose file"** to select the JSON file which includes the meta information of the to-annotate data.
-    - It supports the format of "to_annatate" and "annotated" data.
+    - It supports the format of "to_annatate" and "annotated" data. 
     - For the annotated data, it will automatically highlight the annotated source range.
     - If you select some new ranges for the source version, the highlighted annotated source range will disappear. If needed, click the "Load Data" button to get the annotated source range back.
 - **Click the button "Read"** to read the first piece of data and start annotation.
@@ -28,6 +28,9 @@
         - the size of source regions, 
         - the time order of the ranges,
         - and some other marks. It is designed for data creators, which allows them to record what happens in the range pairs. It can be empty. For example, they can write "The lines are wrapped in an if-statement".
+    - **Note: For annotated source regions:**
+        - It pops up an alert window to show the highlight range, which helps users quickly locate the highlight.
+        - The annotated range is also recorded in the log message.
 - **Click the button "Load Data"**.
     - The source and target file contents will be shown in the text boxes.
 - **Annotation**.
@@ -40,5 +43,9 @@
     - The annotated ranges will not be written to a local file until you click the button "Save Annotation". You can write annotated data to a local file at any time you want.
     - Click "Next" to annotate the next piece of data. 
 - **Write annotated data to a local file**
-    - **Click the button "Save Annotation"**.
+    - **Click the button "Save Annotation"**. 
+        - Writing a file will not clear the storage of the tool. For example, if you write the file once at 20 cases, and then again at 40 cases, this 40 will contain the first 20 cases that have been written before.
+        - According to the design, when switching to read files in different formats (switch between "to_annotate.json" and "annotated.json"), you should:
+            - save the current annotation data locally, and
+            - refresh the window to start a new round of reading.
 

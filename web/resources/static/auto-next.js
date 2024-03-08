@@ -57,6 +57,8 @@ function showNext() {
   document.getElementById('mark').value = "";
   document.getElementById('categorySelect').value = "single identifier/word";
   document.getElementById('operationSelect').value = "non changed";
+  //remove the previous annotated source range marker
+  document.getElementById('fileInput').name = "round1"; 
   
   if (jsonData.length > 0) {
       currentIndex = (currentIndex + 1) % jsonData.length;

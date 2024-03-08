@@ -31,7 +31,7 @@ function getFileContents(url, target = false) {
       if (target == false) {
         HighlightedDiv.innerText = fileContent;
         updateLineNumbers();
-        range = document.getElementById('fileInput').name;
+        var range = document.getElementById('fileInput').name;
         if (range != "round1") {
           highlightSourceRange(fileContent, JSON.parse(range))
         }
@@ -77,6 +77,9 @@ function highlightSourceRange(fileContent, range) {
 
     lines[k] = line;
   }
+  var currentRange = document.getElementById('fileInput').name;
+  alert("Source region highlighted at: " + currentRange);
+  console.log("Annotated source region: " + currentRange);
 
   // Reconstruct the paragraph with highlighted ranges
   var highlightedText = lines.join('\n');
