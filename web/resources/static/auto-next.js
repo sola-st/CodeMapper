@@ -36,6 +36,9 @@ function displayCurrentItem() {
       if ("mapping" in currentItem) {
         currentItem = currentItemInit.mapping
         document.getElementById('fileInput').name = currentItem.source_range;
+        document.getElementById('operationSelect').value = "";
+        document.getElementById('categorySelect').value = currentItem.category;
+        document.getElementById('mark').value = currentItem.detail;
       }
       document.getElementById('sourceCommit').value = currentItem.source_commit;
       document.getElementById('targetCommit').value = currentItem.target_commit;
@@ -53,10 +56,9 @@ function displayCurrentItem() {
 function showNext() {
   document.getElementById('codeTextarea').innerText = "";
   document.getElementById('targetCodeTextarea').innerText = "";
-  document.getElementById('operationSelect').value = "nonchanged";
-  document.getElementById('mark').value = "";
-  document.getElementById('categorySelect').value = "single identifier/word";
   document.getElementById('operationSelect').value = "non changed";
+  document.getElementById('categorySelect').value = "single identifier/word";
+  document.getElementById('mark').value = "";
   //remove the previous annotated source range marker
   document.getElementById('fileInput').name = "round1"; 
   
