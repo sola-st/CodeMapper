@@ -143,9 +143,11 @@ function pushToMemory() {
             detail: document.getElementById('mark').value
         }
     });
+    tempSource = [];
+    tempTarget = [];
     removeHighlights("codeTextarea");
     //remove the previous annotated source range marker
-    document.getElementById('fileInput').name = "round1"; 
+    // document.getElementById('fileInput').name = "round1"; 
     removeHighlights("targetCodeTextarea");
     // update the number of different categories.
     var kind_value = document.getElementById('distance').innerText;
@@ -161,8 +163,13 @@ function pushToMemory() {
 
     //update the source range range types
     var type_value = document.getElementById('operationSelect').value;
-    var current = document.getElementById(type_value).innerText;
-    document.getElementById(type_value).innerText = parseInt(current) + 1;
+    try {
+        var current = document.getElementById(type_value).innerText;
+        document.getElementById(type_value).innerText = parseInt(current) + 1;
+    } catch (error) {
+        alert('PLease select the "Change Types".');
+    }
+        
     // update the numbers of all annotated cases
     var current = document.getElementById("all").innerText;
     document.getElementById("all").innerText = parseInt(current) + 1;

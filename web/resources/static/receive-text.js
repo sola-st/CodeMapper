@@ -32,8 +32,13 @@ function getFileContents(url, target = false) {
         HighlightedDiv.innerText = fileContent;
         updateLineNumbers();
         var range = document.getElementById('fileInput').name;
-        if (range != "round1") {
-          highlightSourceRange(fileContent, JSON.parse(range))
+        if (range != "round1"){
+          if (range.includes(",")) {
+            highlightSourceRange(fileContent, JSON.parse(range))
+          } else{
+            alert("No source region");
+            console.log("Annotated source region: null");
+          }
         }
       } else {
         targetHighlightedDiv.innerText = fileContent;
@@ -52,6 +57,8 @@ function highlightSourceRange(fileContent, range) {
   var endLine = range[2] - 1;
   var endChar = range[3];
 
+  fileContent = fileContent.replace(/</g, "\&lt");
+  fileContent = fileContent.replace(/>/g, "\&gt");
   var lines = fileContent.split('\n');
   for (var k = 0; k < lines.length; k++) {
     var line = lines[k];

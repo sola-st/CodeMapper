@@ -31,10 +31,9 @@ function displayCurrentItem() {
       start_at_1 = currentIndex +1;
       document.getElementById('dataIdx').innerText = "#" + start_at_1;
 
-
       let currentItem = currentItemInit;
       if ("mapping" in currentItem) {
-        currentItem = currentItemInit.mapping
+        currentItem = currentItemInit.mapping;
         document.getElementById('fileInput').name = currentItem.source_range;
         document.getElementById('operationSelect').value = "";
         document.getElementById('categorySelect').value = currentItem.category;
