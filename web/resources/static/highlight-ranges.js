@@ -27,7 +27,7 @@ function getCursorPosition(lines, offset, mark) {
 }
 
 function getSelectedTextPosition(highlightedDiv) {
-    var selection = getSelectedText(highlightedDiv);
+        var selection = getSelectedText(highlightedDiv);
     if (selection.text !== '') {
         var text = highlightedDiv.innerText;
         var lines = text.split('\n');
@@ -69,7 +69,6 @@ function highlightSelectedText(highlightedDiv) {
             CSS.highlights.set("target", hl);
         }
 
-        // console.log("Selected Text: ", selection.text);
         getSelectedTextPosition(highlightedDiv);
     }
 }
@@ -119,6 +118,9 @@ function pushToMemory() {
         if (range.includes(",")) {
             desiredSource = range;
             formattedDesiredSource = range;
+        }
+        else{
+            formattedDesiredSource = null;
         }
     }
     if (desiredTarget == undefined){
