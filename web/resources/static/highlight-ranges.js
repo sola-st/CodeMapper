@@ -109,6 +109,16 @@ document.querySelectorAll(".highlightedDiv").forEach(function (highlightedDiv) {
 });
 
 function pushToMemory() {
+    //update the source range range types
+    var type_value = document.getElementById('operationSelect').value;
+    try {
+        var current = document.getElementById(type_value).innerText;
+        document.getElementById(type_value).innerText = parseInt(current) + 1;
+    } catch (error) {
+        alert('PLease select the "Change Types".');
+        // if no operation selected, stop here, avoid pushing extra/duplicated data
+        return
+    }
     var desiredSource = tempSource.pop();
     var desiredTarget = tempTarget.pop();
     var formattedDesiredSource = "["+desiredSource+"]";
@@ -160,15 +170,6 @@ function pushToMemory() {
     }
     var currentValue = document.getElementById(table_cell_id).innerText;
     document.getElementById(table_cell_id).innerText = parseInt(currentValue) + 1;
-
-    //update the source range range types
-    var type_value = document.getElementById('operationSelect').value;
-    try {
-        var current = document.getElementById(type_value).innerText;
-        document.getElementById(type_value).innerText = parseInt(current) + 1;
-    } catch (error) {
-        alert('PLease select the "Change Types".');
-    }
         
     // update the numbers of all annotated cases
     var current = document.getElementById("all").innerText;

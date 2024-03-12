@@ -37,7 +37,7 @@ function displayCurrentItem() {
         document.getElementById('fileInput').name = currentItem.source_range;
         document.getElementById('operationSelect').value = "";
         document.getElementById('categorySelect').value = currentItem.category;
-        document.getElementById('mark').value = currentItem.detail;
+        // document.getElementById('mark').value = currentItem.detail;
       }
       document.getElementById('sourceCommit').value = currentItem.source_commit;
       document.getElementById('targetCommit').value = currentItem.target_commit;

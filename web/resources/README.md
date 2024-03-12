@@ -33,7 +33,7 @@
         - The annotated range is also recorded in the log message.
 - **Click the button "Load Data"**.
     - The source and target file contents will be shown in the text boxes.
-- **Annotation**.
+- **Annotation 1st round**.
     - Read the source and target files. If the contents are meaningless, click the button "Next" to skip the current one.
     - **Select the source and target ranges**. 
         - If the ranges are highlighted in colors, they are successfully selected. 
@@ -42,9 +42,19 @@
     - **Click the button "Push"** to temporarily store current annotated ranges.
     - The annotated ranges will not be written to a local file until you click the button "Save Annotation". You can write annotated data to a local file at any time you want.
     - Click "Next" to annotate the next piece of data. 
+- **Annotation 2nd round [Validation]**.
+    - The source region is automatically highlighted. 
+    - For the additional information in the Version name area:
+        - You must pick up a change type for your validation.
+        - You can use the marker input box to write some notes about the validated differences.
+        - The other items (like commit distance, time order, and the size of source regions) are fixed, they are read from the annotated data.
+        -**NOTES**: If you have different opinions on the size of source regions, you can choose a new one for it.
+    - Select the target ranges. 
+    - Click the button "Push" to temporarily store current annotated ranges.
+    - Click "Next" to annotate the next piece of data. 
 - **Write annotated data to a local file**
     - **Click the button "Save Annotation"**. 
-        - Writing a file will not clear the storage of the tool. For example, if you write the file once at 20 cases, and then again at 40 cases, this 40 will contain the first 20 cases that have been written before.
+        - Writing a file **will clear the storage** of the tool. For example, if you write the file once at 20 cases, and then again at 40 cases, this so-called 40 will not contain the first 20 cases that have been written before, which means the second round of writing just writes the remaining 20.
         - According to the design, when switching to read files in different formats (switch between "to_annotate.json" and "annotated.json"), you should:
             - save the current annotation data locally, and
             - refresh the window to start a new round of reading.
