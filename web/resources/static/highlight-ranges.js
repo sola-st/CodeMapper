@@ -133,7 +133,7 @@ function pushToMemory() {
             formattedDesiredSource = null;
         }
     }
-    if (desiredTarget == undefined){
+    if (desiredTarget == undefined || type_value == "deleted"){
         formattedDesiredTarget = null;
     }
     console.log('Pushed data pairs:', [formattedDesiredSource, formattedDesiredTarget]);
