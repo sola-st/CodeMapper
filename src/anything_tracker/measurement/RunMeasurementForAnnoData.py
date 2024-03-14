@@ -25,6 +25,7 @@ class RunMeasurement():
         ground_truth_indices = ["Ground truth index"]
         candidate_nums = ["Number of Candidates"]
         target_region_indices = ["Target region index"]
+        change_operations = ["Change Type"]
         expected = ["Expected ranges"]
         predicted = ["Predicted ranges"]
         is_matched_set = ["Exactly matched"]
@@ -66,13 +67,13 @@ class RunMeasurement():
                 if candidate_character_range == None:
                     candidate_character_range = "No candidates"
                     # no candidates
-                    is_matched_set.append("Y")
-                    pre_dist.append(-2)
-                    post_dist.append(-2)
-                    dists.append(-2)
-                    recalls.append(-2)
-                    precisions.append(-2)
-                    f1s.append(-2)
+                    is_matched_set.append("W")
+                    pre_dist.append(0)
+                    post_dist.append(0)
+                    dists.append(0)
+                    recalls.append(0)
+                    precisions.append(0)
+                    f1s.append(0)
                 else:
                     candidate_character_range = json.loads(candidate["target_range"])
                     if expected_character_range == candidate_character_range:
@@ -85,9 +86,9 @@ class RunMeasurement():
                         f1s.append(1)
                     else:
                         # compute distance and overlap percentage
-                        pre_distance, post_distance, distance, recall, precision, f1_score = \
+                        pre_distance, post_distance, distance, recall, precision, f1_score, is_meaningful = \
                                 calculate_overlap(expected_character_range, candidate_character_range, target_lines_len_list, target_lines_str)
-                        is_matched_set.append("-")
+                        is_matched_set.append(is_meaningful)
                         pre_dist.append(pre_distance)
                         post_dist.append(post_distance)
                         dists.append(distance)
@@ -98,20 +99,38 @@ class RunMeasurement():
                 ground_truth_indices.append(i)
                 candidate_nums.append(candidate["all_candidates_num"])
                 target_region_indices.append(candidate["index"])
+                change_operations.append(mapping["change_operation"])
                 expected.append(expected_character_range)
                 predicted.append(candidate_character_range)
         
         # add average number to each list(column in the results file) or other information as needed
-        is_matched_set.append(is_matched_set.count("Y"))
-        pre_dist.append(round(mean(pre_dist[1:]), 1))
-        post_dist.append(round(mean(post_dist[1:]), 1))
-        dists.append(round(mean(dists[1:]), 1))
+        match_dict = {
+            "Y": is_matched_set.count("Y"), 
+            "M": is_matched_set.count("M"), 
+            "W": is_matched_set.count("W")
+        }
+        is_matched_set.append(str(match_dict))
+        
+        # compute character distance on only M cases, the Y always return 0, and W would impact the result.
+        only_M_pre_dist = []
+        only_M_post_dist = []
+        only_M_dists = []
+        for i, match in enumerate(is_matched_set):
+            if match == "M":
+                only_M_pre_dist.append(pre_dist[i])
+                only_M_post_dist.append(post_dist[i])
+                only_M_dists.append(dists[i])
+
+        pre_dist.append(round(mean(only_M_pre_dist), 1))
+        post_dist.append(round(mean(only_M_post_dist), 1))
+        dists.append(round(mean(only_M_dists), 1))
+
         recalls.append(round(mean(recalls[1:]), 3))
         precisions.append(round(mean(precisions[1:]), 3))
         f1s.append(round(mean(f1s[1:]), 3))
                     
-        results = zip_longest(ground_truth_indices, candidate_nums, target_region_indices, expected, predicted, is_matched_set, \
-                pre_dist, post_dist, dists, recalls, precisions, f1s)
+        results = zip_longest(ground_truth_indices, candidate_nums, target_region_indices, change_operations, 
+                expected, predicted, is_matched_set,  pre_dist, post_dist, dists, recalls, precisions, f1s)
         write_results(results, self.results_csv_file_name)   
 
 def write_results(results, file_name):

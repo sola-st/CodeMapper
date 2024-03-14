@@ -26,6 +26,7 @@ class WhichMetricIsBetter():
         ground_truth_indices = ["Ground truth index"]
         candidate_nums = ["Number of Candidates"]
         target_region_indices = ["Target region index"]
+        change_operations = ["Change Type"]
         expected = ["Expected ranges"]
         predicted = ["Predicted ranges"]
         is_matched_set = ["Exactly matched"]
@@ -67,13 +68,13 @@ class WhichMetricIsBetter():
                 if candidate_character_range == None:
                     candidate_character_range = "No candidates"
                     # no candidates
-                    is_matched_set.append("Y")
-                    pre_dist.append(-2)
-                    post_dist.append(-2)
-                    dists.append(-2)
-                    recalls.append(-2)
-                    precisions.append(-2)
-                    f1s.append(-2)
+                    is_matched_set.append("W")
+                    pre_dist.append(0)
+                    post_dist.append(0)
+                    dists.append(0)
+                    recalls.append(0)
+                    precisions.append(0)
+                    f1s.append(0)
                 else:
                     candidate_character_range = json.loads(candidate["target_range"])
                     if expected_character_range == candidate_character_range:
@@ -86,9 +87,9 @@ class WhichMetricIsBetter():
                         f1s.append(1)
                     else:
                         # compute distance and overlap percentage
-                        pre_distance, post_distance, distance, recall, precision, f1_score = \
+                        pre_distance, post_distance, distance, recall, precision, f1_score, is_meaningful = \
                                 calculate_overlap(expected_character_range, candidate_character_range, target_lines_len_list, target_lines_str)
-                        is_matched_set.append("-")
+                        is_matched_set.append(is_meaningful)
                         pre_dist.append(pre_distance)
                         post_dist.append(post_distance)
                         dists.append(distance)
@@ -99,6 +100,7 @@ class WhichMetricIsBetter():
                 metrics.append(candidate["version"])
                 ground_truth_indices.append(i)
                 candidate_nums.append(candidate["all_candidates_num"])
+                change_operations.append(mapping["change_operation"])
                 target_region_indices.append(candidate["index"])
                 expected.append(expected_character_range)
                 predicted.append(candidate_character_range)
@@ -113,27 +115,49 @@ class WhichMetricIsBetter():
         grouped_f1s = defaultdict(list)
 
         # Grouping the values
-        for m, is_matched, pre, post, dist, rec, prec, f1 in zip(metrics[1:], is_matched_set[1:], \
+        for metric, is_matched, pre, post, dist, rec, prec, f1 in zip(metrics[1:], is_matched_set[1:], \
                     pre_dist[1:], post_dist[1:], dists[1:], recalls[1:], precisions[1:], f1s[1:]):
-            grouped_is_matched_set[m].append(is_matched)
-            grouped_pre_dist[m].append(pre)
-            grouped_post_dist[m].append(post)
-            grouped_dists[m].append(dist)
-            grouped_recalls[m].append(rec)
-            grouped_precisions[m].append(prec)
-            grouped_f1s[m].append(f1)
+            grouped_is_matched_set[metric].append(is_matched)
+            grouped_pre_dist[metric].append(pre)
+            grouped_post_dist[metric].append(post)
+            grouped_dists[metric].append(dist)
+            grouped_recalls[metric].append(rec)
+            grouped_precisions[metric].append(prec)
+            grouped_f1s[metric].append(f1)
         
         # Calculating averages
-        averages_pre = {k: sum(v) / len(v) for k, v in grouped_pre_dist.items()}
-        averages_post= {k: sum(v) / len(v) for k, v in grouped_post_dist.items()}
-        averages_dist = {k: sum(v) / len(v) for k, v in grouped_dists.items()}
+        only_M_pre_dist_groups = {}
+        only_M_post_dist_groups = {}
+        only_M_dists_groups = {}
+        unique_keys = set(metrics[1:]) # random order
+        for uni_key in unique_keys:
+            only_M_pre_dist_groups.update({uni_key: []})
+            only_M_post_dist_groups.update({uni_key: []})
+            only_M_dists_groups.update({uni_key: []})
+
+        for metric, matches in grouped_is_matched_set.items():
+            for i, match in enumerate(matches):
+                if match == "M":
+                    only_M_pre_dist_groups[metric].append(grouped_pre_dist[metric][i])
+                    only_M_post_dist_groups[metric].append(grouped_post_dist[metric][i])
+                    only_M_dists_groups[metric].append(grouped_dists[metric][i])
+
+        averages_pre = {k: sum(v) / len(v) for k, v in only_M_pre_dist_groups.items()}
+        averages_post= {k: sum(v) / len(v) for k, v in only_M_post_dist_groups.items()}
+        averages_dist = {k: sum(v) / len(v) for k, v in only_M_dists_groups.items()}
+
         averages_rec = {k: sum(v) / len(v) for k, v in grouped_recalls.items()}
         averages_prec = {k: sum(v) / len(v) for k, v in grouped_precisions.items()}
         averages_f1 = {k: sum(v) / len(v) for k, v in grouped_f1s.items()}
 
         for key in averages_pre.keys():
             metrics.append(key)
-            is_matched_set.append(grouped_is_matched_set[key].count("Y"))
+            match_dict = {
+                "Y": grouped_is_matched_set[key].count("Y"), 
+                "M": grouped_is_matched_set[key].count("M"), 
+                "W": grouped_is_matched_set[key].count("W")
+            }
+            is_matched_set.append(str(match_dict))
             pre_dist.append(round(averages_pre[key], 1))
             post_dist.append(round(averages_post[key], 1))
             dists.append(round(averages_dist[key], 1))
@@ -141,8 +165,8 @@ class WhichMetricIsBetter():
             precisions.append(round(averages_prec[key], 3))
             f1s.append(round(averages_f1[key], 3))
                     
-        results = zip_longest(metrics, ground_truth_indices, candidate_nums, target_region_indices, expected, predicted, is_matched_set, \
-                pre_dist, post_dist, dists, recalls, precisions, f1s)
+        results = zip_longest(metrics, ground_truth_indices, candidate_nums, target_region_indices, change_operations, 
+                expected, predicted, is_matched_set, pre_dist, post_dist, dists, recalls, precisions, f1s)
         write_results(results, self.results_csv_file_name)   
 
 def write_results(results, file_name):
