@@ -67,13 +67,13 @@ class RunMeasurement():
                 if candidate_character_range == None:
                     candidate_character_range = "No candidates"
                     # no candidates
-                    is_matched_set.append("Y")
-                    pre_dist.append(-2)
-                    post_dist.append(-2)
-                    dists.append(-2)
-                    recalls.append(-2)
-                    precisions.append(-2)
-                    f1s.append(-2)
+                    is_matched_set.append("W")
+                    pre_dist.append(-1)
+                    post_dist.append(-1)
+                    dists.append(-1)
+                    recalls.append(0)
+                    precisions.append(0)
+                    f1s.append(0)
                 else:
                     candidate_character_range = json.loads(candidate["target_range"])
                     if expected_character_range == candidate_character_range:
@@ -86,9 +86,9 @@ class RunMeasurement():
                         f1s.append(1)
                     else:
                         # compute distance and overlap percentage
-                        pre_distance, post_distance, distance, recall, precision, f1_score = \
+                        pre_distance, post_distance, distance, recall, precision, f1_score, is_meaningful = \
                                 calculate_overlap(expected_character_range, candidate_character_range, target_lines_len_list, target_lines_str)
-                        is_matched_set.append("-")
+                        is_matched_set.append(is_meaningful)
                         pre_dist.append(pre_distance)
                         post_dist.append(post_distance)
                         dists.append(distance)

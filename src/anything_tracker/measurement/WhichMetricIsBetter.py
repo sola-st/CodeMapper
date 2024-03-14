@@ -69,9 +69,9 @@ class WhichMetricIsBetter():
                     candidate_character_range = "No candidates"
                     # no candidates
                     is_matched_set.append("W")
-                    pre_dist.append(0)
-                    post_dist.append(0)
-                    dists.append(0)
+                    pre_dist.append(-1)
+                    post_dist.append(-1)
+                    dists.append(-1)
                     recalls.append(0)
                     precisions.append(0)
                     f1s.append(0)
