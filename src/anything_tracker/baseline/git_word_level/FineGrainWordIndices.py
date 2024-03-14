@@ -12,7 +12,7 @@ class FineGrainWordIndices():
         self.interest_line_characters = interest_line_characters 
         self.is_start = is_start # true: start line/character; false: end line/character
 
-    def get_first_line(self):
+    def get_first_last_line(self):
         specified_line_number_idx = None # source range start or end line number
 
         base_list:list = list(self.base_hunk_range)
@@ -24,6 +24,13 @@ class FineGrainWordIndices():
         identified_diff_line:str = None
         splits = []
         range_start = self.diff_line_num + specified_line_number_idx + 1
+        diff_len = len(self.diffs)
+        if range_start >= diff_len:
+            range_start = diff_len - 1
+        start_line = self.diffs[range_start]
+        while "[36m" in start_line or start_line.strip() == "":
+            range_start -= 1
+            start_line = self.diffs[range_start]
 
         identified_diff_line = self.diffs[range_start]
         splits = identified_diff_line.split("\033")
@@ -43,7 +50,7 @@ class FineGrainWordIndices():
             without this function, the candidate region will starts from character 1
             with this function, it will be closer to 12.
         '''
-        splits = self.get_first_line()
+        splits = self.get_first_last_line()
         fine_grained_character_idx = None # to return
         source_pre_characters_len = 0
         candidate_pre_characters_len = 0

@@ -64,7 +64,9 @@ class WordGitToCandidateRegion():
             marker = "<COVER_IN_BETWEEN>"
             candidate_regions = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
 
-        return [candidate_regions]
+        if candidate_regions == []:
+            return candidate_regions # return empty list
+        return [candidate_regions] # return non-empty 1-dimension list
     
     def combine_diff_and_unchanged_ranges(self, location):
         '''

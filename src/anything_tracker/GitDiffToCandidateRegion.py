@@ -299,11 +299,7 @@ class GitDiffToCandidateRegion():
                         move_steps = target_step - base_step
                         changed_line_numbers_list = [(num + move_steps) for num in changed_line_numbers_list]
 
-        if changed_line_numbers_list != self.interest_line_numbers and \
-                not candidate_regions and \
-                not top_diff_hunks and \
-                not middle_diff_hunks and \
-                not bottom_diff_hunks:
+        if not candidate_regions and not top_diff_hunks and not middle_diff_hunks and not bottom_diff_hunks:
             # No changed lines, with only line number changed.
             character_range = CharacterRange([changed_line_numbers_list[0], self.characters_start_idx, changed_line_numbers_list[-1], self.characters_end_idx])
             candidate_characters = get_region_characters(self.target_file_lines, character_range)

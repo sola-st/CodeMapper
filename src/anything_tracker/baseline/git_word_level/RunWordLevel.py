@@ -21,13 +21,16 @@ parser.add_argument("--target_commit", help="the commit to get the 2nd version o
 parser.add_argument("--file_path", help="the target file that you want to track", required=True)
 parser.add_argument("--source_character_range", nargs='+', type=int, help="a 4-element list, to show where to track", required=True)
 parser.add_argument("--results_dir", help="Directory to put the results", required=True)
+parser.add_argument("--context_line_num", 
+                    help="the size of pre/post context lines when compute target region, here is not needed", required=False)
 parser.add_argument("--expected_character_range", nargs='+', 
                     type=int, help="a 4-element list, to show the expected character range", 
                     required=False) # only for the regions that with ground truth
 
 
 class RunLineLevel():
-    def __init__(self, repo_dir, base_commit, target_commit, file_path, interest_character_range, results_dir, expected_character_range=None):
+    def __init__(self, repo_dir, base_commit, target_commit, file_path, interest_character_range, 
+                results_dir, context_line_num, expected_character_range=None):
         self.repo_dir = repo_dir
         self.base_commit = base_commit
         self.target_commit = target_commit
@@ -136,19 +139,18 @@ class RunLineLevel():
 
 def wrapper(args):
     RunLineLevel(*args).run()
-    source_region_index = args[-2].split('/')[-1]
+    source_region_index = args[-3].split('/')[-1]
     print(f"Compute candidates is done, source region #{source_region_index}.")
 
 if __name__ == "__main__":
-    result_dir_parent = join("data", "results", "tracked_maps", "candidate_regions_git_word_38_v1")
-    oracle_file = join("data", "annotation", "anno_38.json")
-    # is_reversed_data = False
+    result_dir_parent = join("data", "results", "tracked_maps", "mapped_regions_git_word_100")
+    oracle_file = join("data", "annotation", "annotations_100.json")
     source_repo_init = SourceRepos()
     repo_dirs = source_repo_init.get_repo_dirs()
     source_repo_init.checkout_latest_commits()
     print(f"Found {len(repo_dirs)} repositories.")
 
-    args_for_all_maps = ComputeCandidatesForAnnoData(oracle_file, result_dir_parent, False).get_meta_inputs()
+    args_for_all_maps = ComputeCandidatesForAnnoData(oracle_file, result_dir_parent, 0).get_meta_inputs()
     
     cores_to_use = 1
     with Pool(processes=cores_to_use) as pool:

@@ -144,17 +144,19 @@ class LineLevelGitDiff():
                         target_hunk_range, target_step = get_diff_reported_range(tmp[2], False)
                         move_steps = target_step - base_step
                         changed_line_numbers_list = [(num + move_steps) for num in changed_line_numbers_list]
-
-        if changed_line_numbers_list != self.interest_line_numbers and \
-                not candidate_regions and \
-                not top_diff_hunks and \
-                not middle_diff_hunks and \
-                not bottom_diff_hunks:
+        
+        if not candidate_regions and not top_diff_hunks and not middle_diff_hunks and not bottom_diff_hunks:
             # No changed lines, with only line number changed.
             end_line = changed_line_numbers_list[-1]
-            candidate_characters = self.target_file_lines[end_line-1]
-            characters_end_idx = len(candidate_characters)
-            character_range = CharacterRange([changed_line_numbers_list[0], 1, end_line, characters_end_idx])
+            end_line_characters = self.target_file_lines[end_line-1]
+            characters_end_idx = len(end_line_characters)
+            # for fair competition, remove the pre and post whitespaces
+            start_char_idx = 1
+            pre_char_delta = characters_end_idx - len(end_line_characters.lstrip())
+            start_char_idx += pre_char_delta
+            characters_end_idx = start_char_idx + len(end_line_characters.strip()) - 1
+            character_range = CharacterRange([changed_line_numbers_list[0], start_char_idx, end_line, characters_end_idx])
+            candidate_characters = get_region_characters(self.target_file_lines, character_range)
             candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, "<LOCATION_HELPER:DIFF_NO_CHANGE>")
             candidate_regions.append(candidate_region)
 
