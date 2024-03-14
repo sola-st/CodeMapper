@@ -16,6 +16,34 @@ class FineGrainLineCharacterIndices():
         self.interest_line_characters = interest_line_characters 
         self.is_start = is_start # true: start line/character; false: end line/character
     
+    def get_partial_diff_hunk(self, specified_line_number_idx):
+        diff_len = len(self.diffs)
+        # compute the to-check range start
+        range_start = self.diff_line_num + specified_line_number_idx + 1
+        if range_start >= diff_len:
+            range_start = diff_len - 1
+        start_line = self.diffs[range_start]
+        while "[36m" in start_line or start_line.strip() == "":
+            range_start -= 1
+            start_line = self.diffs[range_start]
+        
+        range_end = None
+        partial_diffs = self.diffs[self.diff_line_num+1:]
+        for delta, diff_line in enumerate(partial_diffs):
+            if "[36m" in diff_line: # @@ hunk ranges @@ line
+                # +2: 1 to get delta start from 1, 1 to get range_end be an open border
+                range_end = self.diff_line_num + delta + 2 
+                break
+        # compute the to-check range end
+        if range_end == None or range_end > diff_len:
+            range_end = diff_len
+
+        assert range_end != None
+        return range_start, range_end
+        # due to the mis-report in git diff, this is not reliable
+        # max_len = max(len(base_list), self.target_hunk_range.stop - self.target_hunk_range.start)
+        # range_end = range_start + max_len # this end is not exactly the end of changed hunk, indeed >=.
+
     def get_first_non_totally_added_line(self):
         '''
         get the expected modified/deleted line.
@@ -38,6 +66,7 @@ class FineGrainLineCharacterIndices():
         else:
             specified_line_number_idx = base_list.index(self.interest_line_number)
                 
+        range_start, range_end = self.get_partial_diff_hunk(specified_line_number_idx)
         # start check to get the first non totally added line
         identified_diff_line:str = None
         splits = []
@@ -50,12 +79,6 @@ class FineGrainLineCharacterIndices():
             interest_line_characters_no_special_char = self.interest_line_characters.replace(char, "")
         source_words = interest_line_characters_no_special_char.split(" ")
 
-        range_start = self.diff_line_num + specified_line_number_idx + 1
-        while "[36m" in self.diffs[range_start]:
-            range_start -= 1
-
-        max_len = max(len(base_list), self.target_hunk_range.stop - self.target_hunk_range.start)
-        range_end = range_start + max_len # this end is not exactly the end of changed hunk, indeed >=.
         for z, i in enumerate(range(range_start, range_end)):
             interest_line_characters_in_diff = self.diffs[i]
             # get the first 1) modified, or 2) no change
@@ -67,9 +90,9 @@ class FineGrainLineCharacterIndices():
                 break
             elif not "[31m" in interest_line_characters_in_diff and not "[32m" in interest_line_characters_in_diff: 
                 # no color, no change
-                no_change_line_idx = self.target_hunk_range.start + specified_line_number_idx + z -1
-                no_change_line = self.target_file_lines[no_change_line_idx]
-                # no_change_line = interest_line_characters_in_diff
+                # no_change_line_idx = self.target_hunk_range.start + specified_line_number_idx + z -1
+                # no_change_line = self.target_file_lines[no_change_line_idx]
+                no_change_line = interest_line_characters_in_diff
                 # special case: git diff able to see the whitespaces changed, but can not see the small changes on special characters
                 # eg., it cannot tell the diff with "attr.start!" and "attr.start"
                 for char in special_chars:
@@ -100,19 +123,25 @@ class FineGrainLineCharacterIndices():
         
         # handle special cases
         if identified_diff_line == None: # add characters inside a line, all the words in source are not changed.
-            assert possible_diff_lines != []
+            # assert possible_diff_lines != []
             # select the top-1 diff lines to get splits
-            for line_list in possible_diff_lines:
-                line= line_list[0]
-                source_words_in_diff = [word for word in source_words if word in line]
-                if source_words == source_words_in_diff:
-                    # all source words are in current diff line
-                    identified_diff_line = line
-                    line_delta = line_list[1]
-                    break
-            if identified_diff_line == None: # checked all the possibilities, but still fail to get the top-1
-                # Coarse grained
-                identified_diff_line = self.diffs[self.diff_line_num + specified_line_number_idx + 1]
+            if possible_diff_lines != []:
+                for line_list in possible_diff_lines:
+                    line= line_list[0]
+                    source_words_in_diff = [word for word in source_words if word in line]
+                    if source_words == source_words_in_diff:
+                        # all source words are in current diff line
+                        identified_diff_line = line
+                        line_delta = line_list[1]
+                        break
+                if identified_diff_line == None: # checked all the possibilities, but still fail to get the top-1
+                    # Coarse grained
+                    identified_diff_line = self.diffs[self.diff_line_num + specified_line_number_idx + 1]
+            else: # git diff mis-report, like base hunk with 3 line numbers, but onlt show in 2 lines.
+                if self.is_start == True:
+                    identified_diff_line = self.diffs[self.diff_line_num+1]
+                else:
+                    identified_diff_line = self.diffs[range_end]
 
         assert identified_diff_line != None
         splits = identified_diff_line.split("\033")

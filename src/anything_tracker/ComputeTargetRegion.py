@@ -124,10 +124,10 @@ class ComputeTargetRegion():
                 idx_count = indices.count(idx)
                 votes.append(idx_count)
 
-        vote_max = min(votes)
-        if votes.count(vote_max) == 1:
-            vote_most_idx = indices_deduplicated[votes.index(vote_max)]
-            vote_most_dict = self.get_metrics_based_dict(edit_dists, bleu_scores, similarities, 
-                    [vote_most_idx], ["vote_most"])
+            vote_max = max(votes)
+            if votes.count(vote_max) == 1:
+                vote_most_idx = indices_deduplicated[votes.index(vote_max)]
+                vote_most_dict = self.get_metrics_based_dict(edit_dists, bleu_scores, similarities, 
+                        [vote_most_idx], ["vote_most"])
 
         return results_set_dict, average_highest_dict, vote_most_dict

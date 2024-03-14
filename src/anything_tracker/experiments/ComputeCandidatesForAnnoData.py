@@ -79,7 +79,7 @@ def wrapper(args):
 
 if __name__ == "__main__":
     result_dir_parent = join("data", "results", "tracked_maps", "mapped_regions")
-    oracle_file = join("data", "annotation", "anno_38.json")
+    oracle_file = join("data", "annotation", "annotations_100.json")
     # context_line_num >=0.
     # 0 means no contexts, >0 means get the corresponding number of lines before and after respectively as contexts
     context_line_num = 0 

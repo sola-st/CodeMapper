@@ -120,7 +120,7 @@ class GitDiffToCandidateRegion():
                 if level == "line":
                     command = f"{prefix} {suffix}"
                 else:
-                    command = f"{prefix} --word-diff-regex='\w+' -w {suffix}"
+                    command = f"{prefix} --word-diff {suffix}" # -regex='\w+'
                 # if renamed_file_path: # rename happens
                 #     commit_diff_command = f"git diff {self.base_commit}:{self.file_path} {self.target_commit}:{renamed_file_path}"
                 result = subprocess.run(command, cwd=self.repo_dir, shell=True,

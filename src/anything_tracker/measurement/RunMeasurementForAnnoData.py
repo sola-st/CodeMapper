@@ -122,8 +122,8 @@ def write_results(results, file_name):
 
 
 if __name__=="__main__":
-    oracle_file = join("data", "annotation", "anno_38.json")
+    oracle_file = join("data", "annotation", "annotations_100.json")
     candidates_dir = join("data", "results", "tracked_maps", "mapped_regions")
-    results_csv_file_name = join("measurement_results", "measurement_results.csv")
+    results_csv_file_name = join("measurement_results", "measurement_results_target.csv")
     measurement = "target.json" 
     RunMeasurement(oracle_file, candidates_dir, results_csv_file_name, measurement).run()
