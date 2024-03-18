@@ -4,7 +4,8 @@ import os
 from os.path import join
 from anything_tracker.CandidateRegion import get_candidate_region_range
 from anything_tracker.CharacterRange import CharacterRange
-from anything_tracker.ComputeTargetRegion import ComputeTargetRegion
+from anything_tracker. ComputeTargetRegion import ComputeTargetRegion
+from anything_tracker.ComputeTargetRegionWithContext import ComputeTargetRegion as ComputeTargetRegionWithContext
 from anything_tracker.GitDiffToCandidateRegion import GitDiffToCandidateRegion
 from anything_tracker.SearchLinesToCandidateRegion import SearchLinesToCandidateRegion
 from anything_tracker.utils.ReadFile import checkout_to_read_file
@@ -55,9 +56,15 @@ def get_context_aware_characters(file_lines, character_range, before_lines, afte
     if expected_end > max_idx:
         expected_end = max_idx
 
-    character_list = file_lines[expected_start_idx: expected_end]
-    characters = "".join(character_list)
-    return characters
+    # character_list = file_lines[expected_start_idx: expected_end]
+    # characters = "".join(character_list)
+    # return characters
+
+    pre_lines_list = file_lines[expected_start_idx: start_line_idx]
+    pre_lines_str = "".join(pre_lines_list)
+    post_lines_list = file_lines[end_line_idx: expected_end]
+    post_lines_str = "".join(post_lines_list)
+    return pre_lines_str, post_lines_str
 
 
 def get_source_and_expected_region_characters(file_lines, character_range):
@@ -173,7 +180,7 @@ class AnythingTracker():
         regions = []
         # get candidates from git diff
         diff_candidates, diff_hunk_lists = GitDiffToCandidateRegion(self).run_git_diff()
-        depulicated_diff_candidates, regions = deduplicate_candidates(diff_candidates, regions, True)
+        depulicated_diff_candidates, regions = deduplicate_candidates(diff_candidates, regions) # true
         candidate_regions.extend(depulicated_diff_candidates)
         # search to map characters
         for iter in diff_hunk_lists:
@@ -181,18 +188,6 @@ class AnythingTracker():
             algorithm, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved = iter
             search_candidates = SearchLinesToCandidateRegion(algorithm, self,
                     top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved).search_maps()
-            # A heuristic check
-            # If source region is a single word, it could occurred in many place, 
-            # force not to search if it involved in change hunks
-            # Indeed, not only single words, also for the short phrases, but there is not a good way to detect if is proper.
-            # if (top_diff_hunks != [] or middle_diff_hunks != [] or bottom_diff_hunks != []) or diff_candidates:
-            #     source_region_characters_str = "".join(self.source_region_characters).strip()
-            #     if len(self.interest_line_numbers) == 1 and not " " in source_region_characters_str:
-            #         search_candidates = [] #  discard the candidates from searching
-
-            # if top_diff_hunks or middle_diff_hunks or bottom_diff_hunks:
-                # search_candidates = SearchLinesToCandidateRegion(self, 
-                #         list(top_diff_hunks), list(middle_diff_hunks), list(bottom_diff_hunks), may_moved).search_maps()
             depulicated_search_candidates, regions = deduplicate_candidates(search_candidates, regions)
             candidate_regions.extend(depulicated_search_candidates)
 
@@ -253,14 +248,31 @@ class AnythingTracker():
                     candidate_characters = candidate.character_sources
                     candiate_str_list.append(candidate_characters)
             else: # option 2: with context
+            #     # 2.1 check the characters with contexts ar once
+            #     before_lines_num = self.context_line_num
+            #     after_line_num = self.context_line_num
+            #     source_str = get_context_aware_characters(self.base_file_lines, self.interest_character_range, before_lines_num, after_line_num)
+            #     for candidate in candidate_regions:
+            #         candidate_range = candidate.candidate_region_character_range
+            #         candidate_with_context = get_context_aware_characters(self.target_file_lines, candidate_range, before_lines_num, after_line_num)
+            #         candiate_str_list.append(candidate_with_context)
+            # results_set_dict, average_highest, vote_most = ComputeTargetRegion(source_str, candiate_str_list).run()
+                
+                # 2.2 check pre, post separately
+                source_str = source_region_characters_str
                 before_lines_num = self.context_line_num
                 after_line_num = self.context_line_num
-                source_str = get_context_aware_characters(self.base_file_lines, self.interest_character_range, before_lines_num, after_line_num)
+                source_pre_lines_str, source_post_lines_str = get_context_aware_characters(self.base_file_lines, \
+                            self.interest_character_range, before_lines_num, after_line_num)
                 for candidate in candidate_regions:
                     candidate_range = candidate.candidate_region_character_range
-                    candidate_with_context = get_context_aware_characters(self.target_file_lines, candidate_range, before_lines_num, after_line_num)
-                    candiate_str_list.append(candidate_with_context)
-            results_set_dict, average_highest, vote_most = ComputeTargetRegion(source_str, candiate_str_list).run()
+                    # candidate_with_context 
+                    candidate_pre_lines_str, candidate_post_lines_str = get_context_aware_characters(self.target_file_lines, \
+                            candidate_range, before_lines_num, after_line_num)
+                    candidate_str = candidate.character_sources
+                    candiate_str_list.append([candidate_pre_lines_str, candidate_str, candidate_post_lines_str])
+            results_set_dict, average_highest, vote_most = ComputeTargetRegionWithContext(\
+                    [source_pre_lines_str, source_str, source_post_lines_str], candiate_str_list).run()
             results_set_dict.update(average_highest)
             if vote_most != None:
                 results_set_dict.update(vote_most)
