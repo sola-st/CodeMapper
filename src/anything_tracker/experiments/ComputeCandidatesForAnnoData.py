@@ -1,6 +1,7 @@
 import json
 from multiprocessing import Pool
 from anything_tracker.AnythingTracker import AnythingTracker
+from anything_tracker.SpecifyToTurnOffTechniques import SpecifyToTurnOffTechniques
 from anything_tracker.experiments.SourceRepos import SourceRepos
 from os.path import join
 
@@ -9,14 +10,12 @@ class ComputeCandidatesForAnnoData():
     """
     Computes candidate region for all the source regions.
     """
-    def __init__(self, oracle_file, result_dir_parent, time_file_to_write, context_line_num): # , is_data_reversed=False
+    def __init__(self, oracle_file, result_dir_parent, context_line_num, time_file_to_write, turn_off_techniques):
         self.oracle_file = oracle_file
         self.result_dir_parent = result_dir_parent
-        self.time_file_to_write = time_file_to_write
         self.context_line_num = context_line_num
-        # False --> original data
-        # True --> reversed data
-        # self.is_data_reversed = is_data_reversed 
+        self.time_file_to_write = time_file_to_write
+        self.turn_off_techniques = turn_off_techniques
         
     def get_meta_inputs(self):
         """
@@ -46,7 +45,8 @@ class ComputeCandidatesForAnnoData():
                 character_range_list,
                 result_dir,
                 self.context_line_num,
-                self.time_file_to_write
+                self.time_file_to_write,
+                self.turn_off_techniques
             ]
             expected_character_range_list = None
             if mapping["target_range"] != None:
@@ -82,4 +82,8 @@ if __name__ == "__main__":
     # context_line_num >=0.
     # 0 means no contexts, >0 means get the corresponding number of lines before and after respectively as contexts
     context_line_num = 0 
-    ComputeCandidatesForAnnoData(oracle_file, result_dir_parent, time_file_to_write, context_line_num).run()
+    # 3 techniques can be optionally turned off, support turn off one or multiple at a time.
+    # 1. move detection  2. search matches  3. fine-grain borders
+    turn_off_techniques = [False, False, False] # change the boolean to True to turn off the corresponding technique.
+    turn_off_techniques_obj = SpecifyToTurnOffTechniques(turn_off_techniques)
+    ComputeCandidatesForAnnoData(oracle_file, result_dir_parent, context_line_num, time_file_to_write, turn_off_techniques_obj).run()

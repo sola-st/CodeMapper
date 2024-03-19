@@ -18,6 +18,7 @@ class GitDiffToCandidateRegion():
         self.interest_character_range = meta.interest_character_range # object
         self.interest_line_numbers = meta.interest_line_numbers # list
         self.target_file_lines = meta.target_file_lines
+        self.turn_off_techniques = meta.turn_off_techniques # object
 
         # for fine-grain character start and end
         self.interest_first_number = self.interest_line_numbers[0]
@@ -152,28 +153,30 @@ class GitDiffToCandidateRegion():
                         if self.characters_start_idx == 1:
                             candidate_character_start_idx = 1
                         else:
-                            if level == "word": # because line level gives reports in a differnt format
-                                interest_first_line_characters = self.source_region_characters[0]
-                                fine_grain_start = FineGrainLineCharacterIndices(
-                                        self.target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
-                                        self.characters_start_idx, self.interest_first_number, interest_first_line_characters, True)
-                                candidate_character_start_idx, start_line_delta_hint = fine_grain_start.fine_grained_line_character_indices()
-                                if start_line_delta_hint != None:
-                                    candidate_start_line += start_line_delta_hint
-                                marker = f"<A>{marker}"
+                            if self.turn_off_techniques.turn_off_fine_grains == False:
+                                if level == "word":
+                                    interest_first_line_characters = self.source_region_characters[0]
+                                    fine_grain_start = FineGrainLineCharacterIndices(
+                                            self.target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
+                                            self.characters_start_idx, self.interest_first_number, interest_first_line_characters, True)
+                                    candidate_character_start_idx, start_line_delta_hint = fine_grain_start.fine_grained_line_character_indices()
+                                    if start_line_delta_hint != None:
+                                        candidate_start_line += start_line_delta_hint
+                                    marker = f"<A>{marker}"
                         candidate_character_start_idx_done = True
 
                     if self.interest_last_number in overlapped_line_numbers and candidate_character_end_idx_done == False:
-                        if level == "word":
-                            interest_last_line_characters = self.source_region_characters[-1]
-                            fine_grain_end = FineGrainLineCharacterIndices(
-                                        self.target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
-                                        self.characters_end_idx, self.interest_last_number, interest_last_line_characters, False)
-                            candidate_character_end_idx, end_line_delta_hint = fine_grain_end.fine_grained_line_character_indices()
-                            if end_line_delta_hint != None:
-                                candidate_end_line -= end_line_delta_hint
-                            if not marker.startswith("<A>"):
-                                marker = f"<A>{marker}"
+                        if self.turn_off_techniques.turn_off_fine_grains == False:
+                            if level == "word":
+                                interest_last_line_characters = self.source_region_characters[-1]
+                                fine_grain_end = FineGrainLineCharacterIndices(
+                                            self.target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
+                                            self.characters_end_idx, self.interest_last_number, interest_last_line_characters, False)
+                                candidate_character_end_idx, end_line_delta_hint = fine_grain_end.fine_grained_line_character_indices()
+                                if end_line_delta_hint != None:
+                                    candidate_end_line -= end_line_delta_hint
+                                if not marker.startswith("<A>"):
+                                    marker = f"<A>{marker}"
                         candidate_character_end_idx_done = True
 
                     base_hunk_range_list = list(base_hunk_range)
@@ -237,13 +240,14 @@ class GitDiffToCandidateRegion():
                             candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, marker)
                             candidate_regions.add(candidate_region)    
 
-                            # fully coverd, detect possible movement
-                            movement_candidate_region = DetectMovement(self.interest_character_range, self.source_region_characters, \
-                                    current_hunk_range_line, diffs, self.target_file_lines).run()
-                            if movement_candidate_region != []:
-                                candidate_regions.update(set(movement_candidate_region))
-                            else:
-                                may_moved = True
+                            # fully covered by changed hunk, detect possible movement
+                            if self.turn_off_techniques.turn_off_move_detection == False:
+                                movement_candidate_region = DetectMovement(self.interest_character_range, self.source_region_characters, \
+                                        current_hunk_range_line, diffs, self.target_file_lines, self.turn_off_techniques.turn_off_fine_grains).run()
+                                if movement_candidate_region != []:
+                                    candidate_regions.update(set(movement_candidate_region))
+                                else:
+                                    may_moved = True # 19.03.2024: so far, it's useless, because the SearchLinesToCandidateRegion has no corresponding runnings.
                     else:
                         location = locate_changes(overlapped_line_numbers, self.interest_line_numbers)
                         diff_hunk = DiffHunk(base_hunk_range.start, base_hunk_range.stop, 

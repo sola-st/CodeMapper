@@ -22,6 +22,7 @@ parser.add_argument("--source_character_range", nargs='+', type=int, help="a 4-e
 parser.add_argument("--results_dir", help="Directory to put the results", required=True)
 parser.add_argument("--context_line_num", type=int, help="specify the line numbers of contexts", required=True) # 0 means no contexts
 parser.add_argument("--time_file_to_write", help="the file you want to write the exexcuting times", required=True)
+parser.add_argument("--turn_off_techniques", help="specify techniques to turn off", required=True)
 parser.add_argument("--expected_character_range", nargs='+', 
                     type=int, help="a 4-element list, to show the expected character range", 
                     required=False) # only for the regions that with ground truth
@@ -112,7 +113,7 @@ def get_source_and_expected_region_characters(file_lines, character_range):
 
 class AnythingTracker():
     def __init__(self, repo_dir, base_commit, target_commit, file_path, interest_character_range, 
-                results_dir, context_line_num, time_file_to_write, expected_character_range=None):
+                results_dir, context_line_num, time_file_to_write, turn_off_techniques, expected_character_range=None):
         self.repo_dir = repo_dir
         self.base_commit = base_commit
         self.target_commit = target_commit
@@ -124,6 +125,7 @@ class AnythingTracker():
         self.results_dir = results_dir
         self.context_line_num = context_line_num
         self.time_file_to_write = time_file_to_write
+        self.turn_off_techniques = turn_off_techniques # SpecifyToTurnOffTechniques object
 
         self.expected_character_range = expected_character_range
         if expected_character_range != None:
@@ -186,16 +188,18 @@ class AnythingTracker():
         regions = []
         # get candidates from git diff
         diff_candidates, diff_hunk_lists = GitDiffToCandidateRegion(self).run_git_diff()
-        depulicated_diff_candidates, regions = deduplicate_candidates(diff_candidates, regions) # true
-        candidate_regions.extend(depulicated_diff_candidates)
+        if diff_candidates:
+            depulicated_diff_candidates, regions = deduplicate_candidates(diff_candidates, regions) # True
+            candidate_regions.extend(depulicated_diff_candidates)
         # search to map characters
         for iter in diff_hunk_lists:
             search_candidates = []
             algorithm, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved = iter
             search_candidates = SearchLinesToCandidateRegion(algorithm, self,
                     top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved).search_maps()
-            depulicated_search_candidates, regions = deduplicate_candidates(search_candidates, regions)
-            candidate_regions.extend(depulicated_search_candidates)
+            if search_candidates:
+                depulicated_search_candidates, regions = deduplicate_candidates(search_candidates, regions)
+                candidate_regions.extend(depulicated_search_candidates)
 
         # phrase 1: compute candidate regions ends.
         first_phrase_end_time = time.time()
@@ -363,4 +367,4 @@ class AnythingTracker():
 if __name__ == "__main__":
     args = parser.parse_args()
     AnythingTracker(args.repo_dir, args.base_commit, args.target_commit, args.file_path, 
-            args.source_character_range, args.context_line_num, args.results_dir).run()
+            args.source_character_range, args.results_dir, args.context_line_num, args.time_file_to_write, args.turn_off_techniques).run()

@@ -5,15 +5,17 @@ from anything_tracker.utils.TransferRanges import get_diff_reported_range
 
 
 class DetectMovement():
-    def __init__(self, interest_character_range, source_region_characters:list, fully_covered_diff_line, diffs, target_file_lines):
+    def __init__(self, interest_character_range, source_region_characters:list, \
+                fully_covered_diff_line, diffs, target_file_lines, turn_off_fine_grains:bool):
         self.interest_character_range = interest_character_range
         self.source_region_characters = source_region_characters
         self.fully_covered_diff_line = fully_covered_diff_line
         self.diffs = diffs
         self.target_file_lines = target_file_lines
+        self.turn_off_fine_grains = turn_off_fine_grains
 
     def get_region_indices(self):
-        lines_to_check = []
+        lines_to_check = [] # the 1st and the last line of source range
         candidate_start_line = None
         candidate_character_start_idx = None
         candidate_end_line = None
@@ -25,17 +27,24 @@ class DetectMovement():
             last_source_line = self.source_region_characters[-1]
             lines_to_check.append(last_source_line)
 
+        # get location of the moved 1st and last line in target file
         for source_line in lines_to_check:
             source_line = source_line.strip() # to ignore the may moving-related \tab, whitespaces
             for i, line in enumerate(self.target_file_lines):
                 if line.strip() == source_line:
                     if candidate_start_line == None:
                         candidate_start_line = i
-                        candidate_character_start_idx = line.index(source_line) + 1 # to start at 1
+                        if self.turn_off_fine_grains == True:
+                            candidate_character_start_idx = 1
+                        else:
+                            candidate_character_start_idx = line.index(source_line) + 1 # to start at 1
                         break
                     else:
                         candidate_end_line = i
-                        candidate_character_end_idx = line.index(source_line) + len(source_line)
+                        if self.turn_off_fine_grains == True:
+                            candidate_character_end_idx = len(line)
+                        else:
+                            candidate_character_end_idx = line.index(source_line) + len(source_line)
                         break
         assert candidate_start_line != None
         assert candidate_end_line != None

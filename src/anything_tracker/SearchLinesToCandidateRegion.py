@@ -10,6 +10,7 @@ class SearchLinesToCandidateRegion():
         self.interest_line_numbers = meta.interest_line_numbers # list
         self.source_region_characters = meta.source_region_characters
         self.target_file_lines = meta.target_file_lines
+        self.turn_off_techniques = meta.turn_off_techniques # object
 
         self.top_diff_hunk = None
         if top_diff_hunks:
@@ -67,11 +68,22 @@ class SearchLinesToCandidateRegion():
         # if self.may_moved == False:
             # 2) locate candidates by searching exactly mapped regions
             # Scenario 5: search exactly the same content
-        searched_candidate_regions = self.search_exactly_mapped_context()
-        if candidate_regions == [] or candidate_regions == None:
-            candidate_regions = searched_candidate_regions
-        else:
-            candidate_regions.extend(searched_candidate_regions)
+        if self.turn_off_techniques.turn_off_search_matches == False:
+            searched_candidate_regions = self.search_exactly_mapped_context()
+            if candidate_regions == [] or candidate_regions == None:
+                candidate_regions = searched_candidate_regions
+            else:
+                candidate_regions.extend(searched_candidate_regions)
+        
+        if self.turn_off_techniques.turn_off_fine_grains == False:
+            if candidate_regions:
+                for candidate in candidate_regions:
+                    # update start character position
+                    candidate.candidate_region_character_range.characters_start_idx = 1
+                    # update end character position
+                    fine_grained_end_line = candidate.candidate_region_character_range.end_line_idx
+                    no_fine_grained_end_char = len(self.target_file_lines[fine_grained_end_line-1])
+                    candidate.candidate_region_character_range.characters_end_idx = no_fine_grained_end_char
         
         return candidate_regions
     
