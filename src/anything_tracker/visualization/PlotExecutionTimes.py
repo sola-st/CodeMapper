@@ -58,7 +58,7 @@ class PlotExecutionTimes():
         axes[0].set_ylabel('Execution Time (seconds)')
         axes[0].set_xticklabels([''])  # Set empty x-label
         # Add annotations
-        axes[0].text(0.9, median_time_1, f'Mean: {median_time_1:.3f}', horizontalalignment='right', verticalalignment='center')
+        axes[0].text(0.95, median_time_1, f'Median: {median_time_1:.3f}', horizontalalignment='right', verticalalignment='center')
         axes[0].text(1.1, avg_time_1, f'Avg: {avg_time_1:.3f}', horizontalalignment='left', verticalalignment='center')
         axes[0].text(1.1, max_time_1, f'Max: {max_time_1:.3f}', horizontalalignment='left', verticalalignment='center') #  | {candi_num_max_1}
         axes[0].text(1.1, min_time_1, f'Min: {min_time_1:.3f}', horizontalalignment='left', verticalalignment='center') #  | {candi_num_min_1}
@@ -68,7 +68,7 @@ class PlotExecutionTimes():
         # axes[1].set_title('Execution Times for Runnuing Phrase 2')
         # axes[1].set_ylabel('Execution Time (seconds)')
         axes[1].set_xticklabels([''])
-        axes[1].text(0.9, median_time_2, f'Mean: {median_time_2:.3f}', horizontalalignment='right', verticalalignment='center')
+        axes[1].text(0.95, median_time_2, f'Median: {median_time_2:.3f}', horizontalalignment='right', verticalalignment='center')
         axes[1].text(1.1, avg_time_2, f'Avg: {avg_time_2:.3f}', horizontalalignment='left', verticalalignment='bottom')
         axes[1].text(1.1, max_time_2, f'Max: {max_time_2:.3f}', horizontalalignment='left', verticalalignment='center') #  | {candi_num_max_2}
         axes[1].text(1.1, min_time_2, f'Min: {min_time_2:.3f}', horizontalalignment='left', verticalalignment='center')  # | {candi_num_min_2}
@@ -103,11 +103,11 @@ class PlotExecutionTimes():
     def run(self):
         candidate_nums, execution_times_1st_phrase, execution_times_2nd_phrase = read_time_file(self.time_csv_file)
         self.plot_times(candidate_nums, execution_times_1st_phrase, execution_times_2nd_phrase)
-        self.plot_correlationship(candidate_nums, execution_times_1st_phrase, execution_times_2nd_phrase)
+        # self.plot_correlationship(candidate_nums, execution_times_1st_phrase, execution_times_2nd_phrase)
 
 
 if __name__=="__main__":
-    font_size = 20
+    font_size = 22
     time_csv_file = join("data", "results", "executing_time_4_metrics.csv")
     plot_output = join("data", "results", "table_plots", "executing_time.pdf")
     PlotExecutionTimes(font_size, time_csv_file, plot_output).run()
