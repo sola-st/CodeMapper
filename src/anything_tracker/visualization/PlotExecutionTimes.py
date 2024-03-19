@@ -103,7 +103,7 @@ class PlotExecutionTimes():
     def run(self):
         candidate_nums, execution_times_1st_phrase, execution_times_2nd_phrase = read_time_file(self.time_csv_file)
         self.plot_times(candidate_nums, execution_times_1st_phrase, execution_times_2nd_phrase)
-        # self.plot_correlationship(candidate_nums, execution_times_1st_phrase, execution_times_2nd_phrase)
+        self.plot_correlationship(candidate_nums, execution_times_1st_phrase, execution_times_2nd_phrase)
 
 
 if __name__=="__main__":
