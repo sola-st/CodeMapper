@@ -1,7 +1,9 @@
 import argparse
+import csv
 import json
 import os
 from os.path import join
+import time
 from anything_tracker.CandidateRegion import get_candidate_region_range
 from anything_tracker.CharacterRange import CharacterRange
 from anything_tracker. ComputeTargetRegion import ComputeTargetRegion
@@ -19,6 +21,7 @@ parser.add_argument("--file_path", help="the target file that you want to track"
 parser.add_argument("--source_character_range", nargs='+', type=int, help="a 4-element list, to show where to track", required=True)
 parser.add_argument("--results_dir", help="Directory to put the results", required=True)
 parser.add_argument("--context_line_num", type=int, help="specify the line numbers of contexts", required=True) # 0 means no contexts
+parser.add_argument("--time_file_to_write", help="the file you want to write the exexcuting times", required=True)
 parser.add_argument("--expected_character_range", nargs='+', 
                     type=int, help="a 4-element list, to show the expected character range", 
                     required=False) # only for the regions that with ground truth
@@ -109,7 +112,7 @@ def get_source_and_expected_region_characters(file_lines, character_range):
 
 class AnythingTracker():
     def __init__(self, repo_dir, base_commit, target_commit, file_path, interest_character_range, 
-                results_dir, context_line_num, expected_character_range=None):
+                results_dir, context_line_num, time_file_to_write, expected_character_range=None):
         self.repo_dir = repo_dir
         self.base_commit = base_commit
         self.target_commit = target_commit
@@ -120,6 +123,7 @@ class AnythingTracker():
         self.interest_line_numbers = list(interest_line_range)
         self.results_dir = results_dir
         self.context_line_num = context_line_num
+        self.time_file_to_write = time_file_to_write
 
         self.expected_character_range = expected_character_range
         if expected_character_range != None:
@@ -161,6 +165,8 @@ class AnythingTracker():
         * 1.2 exactly mapped characters
         * 1.3 ...
         '''
+        # phrase 1: compute candidate regions starts.
+        first_phrase_start_time = time.time()
         # create output folder
         if not os.path.exists(self.results_dir):
             os.makedirs(self.results_dir)
@@ -190,6 +196,11 @@ class AnythingTracker():
                     top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved).search_maps()
             depulicated_search_candidates, regions = deduplicate_candidates(search_candidates, regions)
             candidate_regions.extend(depulicated_search_candidates)
+
+        # phrase 1: compute candidate regions ends.
+        first_phrase_end_time = time.time()
+        self.first_phrase_executing_time = "%.3f" % (first_phrase_end_time - first_phrase_start_time)
+        print(f"Executing time (1st pharse): {self.first_phrase_executing_time} seconds")
 
         if candidate_regions == []:
             print(f"--No candidate regions.\n  {self.repo_dir}\n  {self.file_path}\n  {self.interest_character_range.four_element_list}\n")
@@ -222,12 +233,17 @@ class AnythingTracker():
         with open(candidate_json_file, "w") as ds:
             json.dump(output_maps, ds, indent=4, ensure_ascii=False)
 
+        # phrase 2: compute candidate regions starts.
+        second_phrase_start_time = time.time()
         # -- Select top-1 candidate from multiple candidates
         # when decided, will focus on only 1 metric
         to_write = []
         results_set_dict = {}
         
         if len(candidate_regions) == 1:
+            # phrase 2: compute candidate regions ends.
+            self.second_phrase_executing_time = 0
+            print(f"Executing time (2nd pharse): 1 candidate, {self.second_phrase_executing_time} seconds")
             target_candidate = candidate_regions[0]
             unique_keys = ["dist_based", "bleu_based", "similarity_based"]
             for key in unique_keys:
@@ -277,7 +293,12 @@ class AnythingTracker():
                     
             # for both 1 and 2.1
             results_set_dict, average_highest, vote_most = ComputeTargetRegion(source_str, candiate_str_list).run()
-            
+
+            # phrase 2: compute candidate regions ends.
+            second_phrase_end_time = time.time()
+            self.second_phrase_executing_time = "%.3f" % (second_phrase_end_time - second_phrase_start_time)
+            print(f"Executing time (2nd pharse): {self.second_phrase_executing_time} seconds")
+
             results_set_dict.update(average_highest)
             if vote_most != None:
                 results_set_dict.update(vote_most)
@@ -306,9 +327,9 @@ class AnythingTracker():
         with open(target_json_file, "w") as ds:
             json.dump(to_write, ds, indent=4, ensure_ascii=False)
 
-        self.record_target_types(results_set_dict)
+        self.record_target_types(results_set_dict, len(candidate_regions))
 
-    def record_target_types(self, results_set_dict):
+    def record_target_types(self, results_set_dict, candidate_nums):
         parent_folder, ground_truth_index = self.results_dir.rsplit("/", 1)
         # unique_keys = ["dist_based", "bleu_based", "similarity_based"]
         all_keys = list(results_set_dict.keys())
@@ -330,8 +351,14 @@ class AnythingTracker():
             if write_mode == "a":
                 f.write(",\n")
             json.dump(num_str, f, indent=4, ensure_ascii=False)
-            
 
+        # write the executing times
+        with open(self.time_file_to_write, write_mode) as f:
+            csv_writer = csv.writer(f)
+            if write_mode == "w":
+                csv_writer.writerow(["ground_truth_index", "candidate_numbers", "compute_candidates_executing_time", "select_target_executing_time"])
+            csv_writer.writerow([ground_truth_index, candidate_nums, self.first_phrase_executing_time, self.second_phrase_executing_time])
+            
 
 if __name__ == "__main__":
     args = parser.parse_args()

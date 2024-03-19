@@ -1,4 +1,3 @@
-import datetime
 import json
 from multiprocessing import Pool
 from anything_tracker.AnythingTracker import AnythingTracker
@@ -10,13 +9,14 @@ class ComputeCandidatesForAnnoData():
     """
     Computes candidate region for all the source regions.
     """
-    def __init__(self, oracle_file, result_dir_parent, context_line_num, is_data_reversed=False):
+    def __init__(self, oracle_file, result_dir_parent, time_file_to_write, context_line_num): # , is_data_reversed=False
         self.oracle_file = oracle_file
         self.result_dir_parent = result_dir_parent
+        self.time_file_to_write = time_file_to_write
         self.context_line_num = context_line_num
         # False --> original data
         # True --> reversed data
-        self.is_data_reversed = is_data_reversed 
+        # self.is_data_reversed = is_data_reversed 
         
     def get_meta_inputs(self):
         """
@@ -45,7 +45,8 @@ class ComputeCandidatesForAnnoData():
                 mapping["source_file"],
                 character_range_list,
                 result_dir,
-                self.context_line_num
+                self.context_line_num,
+                self.time_file_to_write
             ]
             expected_character_range_list = None
             if mapping["target_range"] != None:
@@ -66,21 +67,19 @@ class ComputeCandidatesForAnnoData():
         
         cores_to_use = 1
         with Pool(processes=cores_to_use) as pool:
-            pool.map(wrapper, args_for_all_maps)
+            pool.map(self.wrapper, args_for_all_maps)
 
-def wrapper(args):
-    start_time = datetime.datetime.now()
-    AnythingTracker(*args).run()
-    source_region_index = args[-3].split('/')[-1]
-    print(f"Compute candidates is done, source region #{source_region_index}.")
-    end_time = datetime.datetime.now()
-    executing_time = (end_time - start_time).seconds
-    print(f"Executing time: {executing_time} seconds")
+    def wrapper(self, args):
+        AnythingTracker(*args).run()
+        source_region_index = args[5].split('/')[-1]
+        print(f"Compute candidates is done, source region #{source_region_index}.\n")
+        
 
 if __name__ == "__main__":
-    result_dir_parent = join("data", "results", "tracked_maps", "mapped_regions")
+    result_dir_parent = join("data", "results", "tracked_maps", "mapped_regions_whether_61_v4")
     oracle_file = join("data", "annotation", "annotations_100.json")
+    time_file_to_write = join("data", "results", "executing_time_4_metrics.csv")
     # context_line_num >=0.
     # 0 means no contexts, >0 means get the corresponding number of lines before and after respectively as contexts
     context_line_num = 0 
-    ComputeCandidatesForAnnoData(oracle_file, result_dir_parent, context_line_num).run()
+    ComputeCandidatesForAnnoData(oracle_file, result_dir_parent, time_file_to_write, context_line_num).run()

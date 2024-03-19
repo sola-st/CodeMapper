@@ -5,8 +5,8 @@ from os.path import join
 class AnnotationCounts():
     def __init__(self, annotaions_file):
         self.annotaions_file = annotaions_file
-        self.change_operations = ["non changed", "partial changed", "fully changed", "moved", "deleted"]
-        self.change_operations_count = [0, 0, 0, 0, 0]
+        self.change_operations = ["non changed", "changed", "moved", "deleted"]
+        self.change_operations_count = [0, 0, 0, 0]
         self.kinds = ["neighboring", "distance"]
         self.kinds_count = [0, 0]
         self.categories = ["single identifier/word", "single expression/partial of sentence", 
@@ -67,6 +67,6 @@ def dictformer(counts_list, value_list):
 
 
 if __name__=="__main__":
-    annotaions_file = join("data", "annotation", "annotations_agree.json")
+    annotaions_file = join("data", "annotation", "annotations_100.json")
     AnnotationCounts(annotaions_file).count()
 

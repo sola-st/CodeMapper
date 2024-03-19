@@ -258,6 +258,8 @@ class FineGrainLineCharacterIndices():
         if self.is_start == True: # start line
             overlapped_num = compute_overlap(s, self.interest_line_characters) # string end vs. string start
             fine_grained_character_idx = candidate_pre_characters_len - overlapped_num + 1 # starts at 1
+            if fine_grained_character_idx < 1:
+                fine_grained_character_idx = candidate_pre_characters_len + 1
         else: # end line
             overlapped_num = compute_overlap(self.interest_line_characters, s)
             fine_grained_character_idx = candidate_pre_characters_len - (s_len - overlapped_num)
