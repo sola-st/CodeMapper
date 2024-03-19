@@ -36,43 +36,6 @@ class GitDiffToCandidateRegion():
             * do not need to check out to the corresponding commit.
         here we run diff in a commit that newer than both a and b.
         '''
-        # TODO Get back later
-        # # TODO think about copied files
-        # # If the file is deleted, the target commit [may] has no corresponding character range.
-        # # Why [may], the interest element may moved to another file.
-        # get_deleted_files_command = f"git diff --name-only --diff-filter=D {self.base_commit} {self.target_commit}"
-        # deleted_result = subprocess.run(get_deleted_files_command, cwd=self.repo_dir, shell=True,
-        #     stdout=subprocess.PIPE, universal_newlines=True)
-        # deleted_files = deleted_result.stdout
-
-        # # Find added and modified files
-        # cross_file_check_command = f"git diff --name-only --diff-filter=AM {self.base_commit} {self.target_commit}"
-        # cross_file_check_result = subprocess.run(cross_file_check_command, cwd=self.repo_dir, shell=True,
-        #     stdout=subprocess.PIPE, universal_newlines=True)
-        # need_to_check_files = cross_file_check_result.stdout
-
-        # is_cross_file_map = False
-        # # TODO check if the interest element may moved to another file.
-
-        # if deleted_files and self.file_path in deleted_files and is_cross_file_map == False:
-        #     # interest element is deleted
-        #     return None
-
-        # # If the file is renamed, we track it in the new file path.
-        # get_renamed_files_command = f"git diff --name-status --diff-filter=R {self.base_commit} {self.target_commit}"
-        # renamed_result = subprocess.run(get_renamed_files_command, cwd=self.repo_dir, shell=True,
-        #     stdout=subprocess.PIPE, universal_newlines=True)
-        # renamed_files = renamed_result.stdout
-
-        # renamed_file_path = ""
-        # if renamed_files:
-        #     rename_cases = renamed_files.strip().split("\n")
-        #     for rename in rename_cases:
-        #         # R094    src/traverse.py src/common/traverse.py
-        #         tmp = rename.split("\t")
-        #         if tmp[1] == self.file_path:
-        #             renamed_file_path = tmp[2]
-        #             break
 
         # start to get changed hunks with "git diff" command
         diff_results = self.get_changed_hunks_from_different_algorithms()
@@ -189,7 +152,7 @@ class GitDiffToCandidateRegion():
                         if self.characters_start_idx == 1:
                             candidate_character_start_idx = 1
                         else:
-                            if level == "word":
+                            if level == "word": # because line level gives reports in a differnt format
                                 interest_first_line_characters = self.source_region_characters[0]
                                 fine_grain_start = FineGrainLineCharacterIndices(
                                         self.target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
@@ -274,7 +237,7 @@ class GitDiffToCandidateRegion():
                             candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, marker)
                             candidate_regions.add(candidate_region)    
 
-                            # detect possible movement
+                            # fully coverd, detect possible movement
                             movement_candidate_region = DetectMovement(self.interest_character_range, self.source_region_characters, \
                                     current_hunk_range_line, diffs, self.target_file_lines).run()
                             if movement_candidate_region != []:

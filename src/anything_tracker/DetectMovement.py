@@ -59,7 +59,7 @@ class DetectMovement():
                         if current_hunk_range_line != self.fully_covered_diff_line:
                             # move
                             moved_lines+=1
-                            tmp = diff_line.split(" ")
+                            tmp = current_hunk_range_line.split(" ")
                             target_hunk_range, target_step = get_diff_reported_range(tmp[2], False)
                             moved_to_range_list.append(target_hunk_range)
                             break

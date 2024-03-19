@@ -271,8 +271,13 @@ class AnythingTracker():
                             candidate_range, before_lines_num, after_line_num)
                     candidate_str = candidate.character_sources
                     candiate_str_list.append([candidate_pre_lines_str, candidate_str, candidate_post_lines_str])
-            results_set_dict, average_highest, vote_most = ComputeTargetRegionWithContext(\
-                    [source_pre_lines_str, source_str, source_post_lines_str], candiate_str_list).run()
+            # special for 2.2
+            # results_set_dict, average_highest, vote_most = ComputeTargetRegionWithContext(\
+            #         [source_pre_lines_str, source_str, source_post_lines_str], candiate_str_list).run()
+                    
+            # for both 1 and 2.1
+            results_set_dict, average_highest, vote_most = ComputeTargetRegion(source_str, candiate_str_list).run()
+            
             results_set_dict.update(average_highest)
             if vote_most != None:
                 results_set_dict.update(vote_most)
