@@ -204,6 +204,14 @@ class GitDiffToCandidateRegion():
                                 character_range = CharacterRange([0, 0, 0, 0])
                                 candidate_region = CandidateRegion(self.interest_character_range, character_range, None, "<LOCATION_HELPER:DIFF_DELETE>")
                                 candidate_regions.add(candidate_region)
+
+                                if self.turn_off_techniques.turn_off_move_detection == False:
+                                    movement_candidate_region = DetectMovement(self.interest_character_range, self.source_region_characters, \
+                                            current_hunk_range_line, diffs, self.target_file_lines, self.turn_off_techniques.turn_off_fine_grains).run()
+                                    if movement_candidate_region != []:
+                                        candidate_regions.update(set(movement_candidate_region))
+                                    else:
+                                        may_moved = True
                                 continue
 
                             hunk_end = target_hunk_range.stop - 1
