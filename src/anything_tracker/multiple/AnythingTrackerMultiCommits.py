@@ -219,7 +219,7 @@ class AnythingTrackerMultiCommits():
 
         if candidate_regions == []:
             print(f"--No candidate regions.\n  {self.repo_dir}\n  {self.file_path}\n  {self.interest_character_range.four_element_list}\n")
-            return
+            return self.unique_target_range, self.accumulate_dist_based, self.accumulate_bleu_based, self.accumulate_similarity_based
         
         self.record_results(candidate_regions)
         return self.unique_target_range, self.accumulate_dist_based, self.accumulate_bleu_based, self.accumulate_similarity_based
@@ -308,16 +308,12 @@ class AnythingTrackerMultiCommits():
             #         [source_pre_lines_str, source_str, source_post_lines_str], candiate_str_list).run()
                     
             # for both 1 and 2.1
-            results_set_dict, average_highest, vote_most = ComputeTargetRegion(source_str, candiate_str_list).run()
+            results_set_dict = ComputeTargetRegion(source_str, candiate_str_list).run()
 
             # phrase 2: compute candidate regions ends.
             second_phrase_end_time = time.time()
             self.second_phrase_executing_time = "%.3f" % (second_phrase_end_time - second_phrase_start_time)
             print(f"Executing time (2nd pharse): {self.second_phrase_executing_time} seconds")
-
-            results_set_dict.update(average_highest)
-            if vote_most != None:
-                results_set_dict.update(vote_most)
         
         for key, target_dict in results_set_dict.items():
             target_candidate = candidate_regions[target_dict["idx"]]
@@ -356,6 +352,7 @@ class AnythingTrackerMultiCommits():
             write_mode = "w"
 
         # write the executing times
+        # TODO record all the execution time
         with open(self.time_file_to_write, write_mode) as f:
             csv_writer = csv.writer(f)
             if write_mode == "w":
@@ -369,7 +366,10 @@ def main(*args):
             distance, newer_commit = args
     # commits_to_track includes source commit and target commit.
     # commits_to_track = get_commits_to_track(repo_dir, base_commit,target_commit)
-    commits_to_track = get_only_changed_commits(repo_dir, base_commit, target_commit, distance, newer_commit, file_path)
+    if distance == "0":
+        commits_to_track = [base_commit, target_commit]
+    else:
+        commits_to_track = get_only_changed_commits(repo_dir, base_commit, target_commit, distance, newer_commit, file_path)
     source_commits = commits_to_track[:-1]
     target_commits = commits_to_track[1:]
     iterations = range(len(source_commits))
@@ -381,12 +381,14 @@ def main(*args):
     for i, s, t in zip(iterations, source_commits, target_commits):
         middle_target_range, dist_based, bleu_based, similarity_based = AnythingTrackerMultiCommits(repo_dir, s, t, 
                 file_path, source_range, results_dir, str(i), context_line_num, time_file_to_write, turn_off_techniques).run()
-
+        
+        accumulate_dist_based.extend(dist_based)
+        accumulate_bleu_based.extend(bleu_based)
+        accumulate_similarity_based.extend(similarity_based)
+        if middle_target_range == [0, 0, 0, 0]:
+            break
         source_range = middle_target_range
-        accumulate_dist_based.append(dist_based)
-        accumulate_bleu_based.append(bleu_based)
-        accumulate_similarity_based.append(similarity_based)
-
+        
     to_write = []
     to_write.append(accumulate_dist_based)
     to_write.append(accumulate_bleu_based)

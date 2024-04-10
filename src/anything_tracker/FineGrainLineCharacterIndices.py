@@ -138,10 +138,23 @@ class FineGrainLineCharacterIndices():
                     # Coarse grained
                     identified_diff_line = self.diffs[self.diff_line_num + specified_line_number_idx + 1]
             else: # git diff mis-report, like base hunk with 3 line numbers, but onlt show in 2 lines.
+                if line_delta == None:
+                    line_delta = 0
                 if self.is_start == True:
-                    identified_diff_line = self.diffs[self.diff_line_num+1]
+                    idx = self.diff_line_num+1
+                    identified_diff_line = self.diffs[idx]
+                    while len(identified_diff_line.strip()) == 0:
+                        idx+=1
+                        identified_diff_line = self.diffs[idx]
+                        line_delta+=1
                 else:
-                    identified_diff_line = self.diffs[range_end]
+                    # identified_diff_line = self.diffs[range_end]
+                    idx = range_end-1
+                    identified_diff_line = self.diffs[idx]
+                    while len(identified_diff_line.strip()) == 0:
+                        idx-=1
+                        identified_diff_line = self.diffs[idx]
+                        line_delta-=1
 
         assert identified_diff_line != None
         splits = identified_diff_line.split("\033")

@@ -80,8 +80,6 @@ class ComputeTargetRegion():
             bleu_scores.append(bleu)
 
         # compute edit distance, bleu score and embedding similarity, respectively.
-        # return 3 set of top-1 candidates.
-        # [Option 1]: compute 3 different metrics ----------------
         # top-1 edit distance
         top_dist = min(edit_dists)
         # top_dist_indices van be one or more
@@ -104,30 +102,4 @@ class ComputeTargetRegion():
 
         keys = ["dist_based", "bleu_based", "similarity_based"]
         results_set_dict = self.get_metrics_based_dict(edit_dists, bleu_scores, similarities, unique_indices, keys)
-
-        # [Option 2]: combine the results of 3 different metrics ----------------
-        average_highest_idx = compute_highest_trade_off_score(normalized_dists, bleu_scores, similarities) # starts at 0.
-        average_highest_dict = self.get_metrics_based_dict(edit_dists, bleu_scores, similarities, 
-                [average_highest_idx], ["average_highest"])
-
-        # [Option 3]: check the vote to different metrics ----------------
-        vote_most_dict = None
-        votes = []
-        indices = []
-        indices.extend(top_dist_indices)
-        indices.extend(top_bleu_indices)
-        indices.extend(top_similarity_indices)
-
-        indices_deduplicated = list(set(indices))
-        if indices != indices_deduplicated:
-            for idx in indices_deduplicated:
-                idx_count = indices.count(idx)
-                votes.append(idx_count)
-
-            vote_max = max(votes)
-            if votes.count(vote_max) == 1:
-                vote_most_idx = indices_deduplicated[votes.index(vote_max)]
-                vote_most_dict = self.get_metrics_based_dict(edit_dists, bleu_scores, similarities, 
-                        [vote_most_idx], ["vote_most"])
-
-        return results_set_dict, average_highest_dict, vote_most_dict
+        return results_set_dict

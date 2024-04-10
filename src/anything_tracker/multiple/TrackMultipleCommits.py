@@ -7,8 +7,6 @@ from anything_tracker.SpecifyToTurnOffTechniques import SpecifyToTurnOffTechniqu
 from anything_tracker.experiments.SourceRepos import SourceRepos
 from os.path import join
 
-from anything_tracker.multiple.CommitsUtils import get_commits_to_track
-
 
 def get_multi_commits(repo_dir, file, track_k_commits):
     git_command = f"git log --max-count={track_k_commits} {file}"
@@ -56,6 +54,9 @@ class TrackMultipleCommits():
             if mapping["time_order"] == "old to new":
                 newer_commit = target_commit
 
+            distance = re.sub("\D", "", mapping["kind"])
+            if distance == "":
+                distance = "0"
             parameter = [
                 repo_dir,
                 source_commit,
@@ -66,7 +67,7 @@ class TrackMultipleCommits():
                 self.context_line_num,
                 self.time_file_to_write,
                 self.turn_off_techniques,
-                re.sub("\D", "", mapping["kind"]),
+                distance,
                 newer_commit
             ]
             parameters.append(parameter)
