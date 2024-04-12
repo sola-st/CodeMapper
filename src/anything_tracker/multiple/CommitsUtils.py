@@ -2,6 +2,15 @@ import subprocess
 from git.repo import Repo
 
 
+def get_all_commits(repo_dir):
+    # The oldest commits will be at the top. Get commits from all branches.
+    commit_command = "git log --pretty=format:'%h' --abbrev=8 --reverse" 
+    git_get_commits = subprocess.run(commit_command, cwd=repo_dir, shell=True, stdout=subprocess.PIPE, universal_newlines=True)
+    commits = git_get_commits.stdout 
+
+    commits_list = commits.split("\n")
+    return commits_list
+
 def get_commits_to_track(repo_dir, source_commit, target_commit):
     # The newest commits will be at the top.
     commit_command = "git log --pretty=format:'%h' --abbrev=8" 
