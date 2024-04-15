@@ -5,11 +5,11 @@ from os.path import join
 from anything_tracker.experiments.SourceRepos import SourceRepos
 from anything_tracker.multiple.CommitsUtils import get_all_commits
 
-title_half = f"repo name, start commit index, start commit (newest), end commit parent index, end commit parent(oldest)"
-title = f"{title_half}, end commit index, end commit, covered commit number, parent check"
-all_lines = [title]
+'''
+Analyze how many commits are involved in each piece of data.
+'''
 
-def recursive_get_json_files(data_folder, repo_parent_folder):
+def recursive_get_json_files(data_folder, repo_parent_folder, all_lines, jgit_num, all_repo_commit_lists):
     files = os.listdir(data_folder)
     for file in files:
         file_path = os.path.join(data_folder, file)
@@ -17,12 +17,14 @@ def recursive_get_json_files(data_folder, repo_parent_folder):
             with open(file_path) as f:
               data = json.load(f)
 
-            # repo_name = data["repositoryName"] -- is not reliable
+            # repo_name = data["repositoryName"] -- is not always reliable
             repo_name = data["repositoryWebURL"].split("/")[-1].replace(".git", "")
             if repo_name == "jgit":
                 # jgit -- remote: Repository not found.
-                break
-
+                jgit_num += 1
+                print(f"jgit #{jgit_num}: {file_path}")
+                continue
+            
             start_commit = data["startCommitId"][:8]
             final_history = data["expectedChanges"][-1]
             # special case: "parentCommitId": "0", 
@@ -31,7 +33,12 @@ def recursive_get_json_files(data_folder, repo_parent_folder):
             end_commit = final_history["commitId"][:8]
             # end_commit_parent is oldest commit in these 3 commits
             repo_dir = join(repo_parent_folder, repo_name)
-            commits_list = get_all_commits(repo_dir)
+            if repo_name not in all_repo_commit_lists.keys():
+                commits_list = get_all_commits(repo_dir)
+                all_repo_commit_lists.update({repo_name: commits_list})
+            else:
+                commits_list = all_repo_commit_lists[repo_name]
+
             start_idx = commits_list.index(start_commit)
             try:
                 end_parent_idx = commits_list.index(end_commit_parent)
@@ -55,14 +62,18 @@ def recursive_get_json_files(data_folder, repo_parent_folder):
             if end_ix - end_parent_idx  == 1:
                 is_real_parent = "parent_commit"
 
-            meta_half = f"{repo_name}, {start_idx}, {start_commit}, {end_parent_idx}, {end_commit_parent}" 
-            meta = f"{meta_half}, {end_ix}, {end_commit}, {commit_num_need_to_track}, {is_real_parent}"
-            all_lines.append(meta)
+            # "\t" to avoid commit ids auto changes to numbers in the output csv file.
+            meta_half = f"{repo_name}, {start_idx}, {start_commit}\t, {end_parent_idx}, {end_commit_parent}\t" 
+            meta = f"{meta_half}, {end_ix}, {end_commit}\t, {commit_num_need_to_track}, {is_real_parent}"
+            all_lines.append([meta])
 
 
         elif os.path.isdir(file_path):
-            recursive_get_json_files(file_path, repo_parent_folder)
+            # if file != "test" and file != "training":
+            print(file)
+            all_lines, jgit_num = recursive_get_json_files(file_path, repo_parent_folder, all_lines, jgit_num, all_repo_commit_lists)
 
+    return all_lines, jgit_num
 
 if __name__=="__main__":
     data_folder = "data/oracle_code_tracker"
@@ -76,8 +87,19 @@ if __name__=="__main__":
     print(f"Found {len(repo_dirs)} repositories.")
     
     repo_parent_folder = "data/repos_java"
-    recursive_get_json_files(data_folder, repo_parent_folder)
+    title_half = f"repo name, start commit index, start commit (newest), end commit parent index, end commit parent(oldest)"
+    title = f"{title_half}, end commit index, end commit, covered commit number, parent check"
+    all_lines = [[title]]
 
-    repo_names = "\n".join(all_lines)
+    all_repo_commit_lists = {}
+    jgit_num = 0
+
+    all_lines, jgit_num = recursive_get_json_files(data_folder, repo_parent_folder, all_lines, jgit_num, all_repo_commit_lists)
+    print(f"Number of jgit: {jgit_num}")
+
+    commit_spans = ""
+    for line in all_lines:
+        line_str = ",".join(line) 
+        commit_spans = f"{commit_spans}{line_str}\n"
     with open("data/results/analysis_on_codetracker_data/commit_span.csv", "w") as f:
-        f.writelines(repo_names)
+        f.writelines(commit_spans)
