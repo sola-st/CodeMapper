@@ -5,6 +5,7 @@ data/pretrained_model
 data/test_oracle
 data/annotation
 data/oracle_code_tracker
+data/converted_data
 tests/
 *__pycache_*
 .vscode/settings.json
