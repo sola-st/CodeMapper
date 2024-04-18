@@ -25,11 +25,13 @@ def analyze_involved_commits(data, repo_name, repo_parent_folder, all_lines, jgi
     else:
         commits_list = all_repo_commit_lists[repo_name]
 
+    is_real_parent = None
     start_idx = commits_list.index(start_commit)
     try:
         end_parent_idx = commits_list.index(end_commit_parent)
     except:
         end_parent_idx = -1
+        is_real_parent = "initial_commit"
     end_ix = commits_list.index(end_commit)
 
     # compute how many commits are there in 
@@ -44,8 +46,10 @@ def analyze_involved_commits(data, repo_name, repo_parent_folder, all_lines, jgi
     * the last one which touches the file, or
     * involved in merge branches
     '''
-    is_real_parent = None
+    
     if end_ix - end_parent_idx  == 1:
+        # the olderst history is always 'introduce'
+        #TODO remove this check, or change to check all the history pieces.
         is_real_parent = "parent_commit"
 
     # "\t" to avoid commit ids auto changes to numbers in the output csv file.

@@ -3,43 +3,9 @@ import os
 from os.path import join
 
 from anything_tracker.collect.data_preprocessor.GetRanges import get_range
+from anything_tracker.collect.data_preprocessor.utils.CategorySpecificUtils import get_region_base_info
+from anything_tracker.collect.data_preprocessor.utils.UnifyKeys import UnifyKeys
 from anything_tracker.experiments.SourceRepos import SourceRepos
-
-
-def get_region_base_info(element_name_info, category):
-    '''
-    Format:
-        block: src/main/java/org.apache.commons.io.EndianUtils#read(InputStream)$if(475-477)"
-        class: src/main/java/org.apache.commons.io.(public)CopyUtils(30)
-        variable: src/main/java/com.puppycrawl.tools.checkstyle.Checker#fireErrors(String, SortedSet)$element:LocalizedMessage(387)
-        attribute: src/java/org.apache.commons.io.input.Tailer@(final)(private)end:boolean(70)
-                java/compiler/impl/src/com.intellij.packaging.impl.artifacts.ArtifactBySourceFileFinderImpl@myProject:Project(47)
-    '''
-
-    # only "variable" and "attribute" need perfact 'element'.
-    element = None
-    if category == "block":
-        element = element_name_info.split("#")[-1] # coarse grained result
-    elif category == "class":
-        element = element_name_info.split(".")[-1]
-    elif category == "variable":
-        element = element_name_info.split("$element:")[1].split("(")[0]
-    elif category == "attribute":
-        splits_tmp = element_name_info.split(":")[0]
-        if ")" in splits_tmp:
-            element = splits_tmp.split(")")[1]
-        else:
-            element = splits_tmp.split("@")[1]
-    # else: # method
-    assert element != None
-
-    tmp = element_name_info.split(".")[-1].split("(")
-    line_number = tmp[-1].replace(")", "")
-    if "-" in line_number: # special for 'block'
-        start_line_number, end_line_number = line_number.split("-")
-        return element, start_line_number, end_line_number
-    else:
-        return element, line_number
 
 
 def write_extracted_json_strings(json_file, to_write, write_mode):
@@ -52,34 +18,12 @@ class DataExtractionAndConversion():
         self.data_folder = data_folder
         self.output_folder = output_folder
         self.repo_parent_folder = repo_parent_folder
-        self.partial_categoris = ["attribute", "variable"]
-        self.partial_categoris_3 = ["attribute", "variable"]
 
         # unify the keys for the start.
-        # note: the expectedHistories have the smae keys for all the 5 categories.
-        self.key_set = {
-            "attribute": {
-                "to_split": "attributeKey",
-                "start_line_number": "attributeDeclarationLine"
-            },
-            "class": {
-                # "to_split": "classKey",
-                "start_line_number": "classDeclarationLine"
-            },
-            # "method" : {
-            #     "to_split": "functionKey",
-            #     "start_line_number": "functionStartLine"
-            # },
-            "variable": {
-                "to_split": "variableKey",
-                "start_line_number": "variableStartLine"
-            },
-            "block" : {
-                "to_split": "blockKey",
-                "start_line_number": "blockStartLine",
-                "end_line_number": "blockEndLine"
-            }
-        }
+        # note: the expectedHistories have the same keys for all the 5 categories.
+        key_init = UnifyKeys()
+        self.partial_categoris = key_init.partial_categoris
+        self.key_set = key_init.key_set
 
         # change types from the original dataset
         # self.change_types_equals_to_nochange = []
@@ -117,7 +61,7 @@ class DataExtractionAndConversion():
             "source_range": f"{source_range}", 
             "category": category,
             "time_order": "old to new"
-        }
+        } #TODO remove time_order?
 
         output_dir = join(self.output_folder, category, str(file_number))
         os.makedirs(output_dir, exist_ok=True)
