@@ -1,13 +1,12 @@
 import json
 from multiprocessing import Pool
-import re
-from anything_tracker.multiple.AnythingTrackerMultiCommits import main as AnythingTrackerMultiCommits
+from anything_tracker.multiple.on_converted_data.AnythingTrackerOnConvertedData import main as AnythingTrackerOnConvertedData
 from anything_tracker.SpecifyToTurnOffTechniques import SpecifyToTurnOffTechniques
 from anything_tracker.experiments.SourceRepos import SourceRepos
 from os.path import join
 
 
-class TrackMultipleCommits():
+class TrackConvertedData():
     """
     Computes candidate region for all the source regions across multiple commits.
     """
@@ -33,33 +32,26 @@ class TrackMultipleCommits():
         for i, meta in enumerate(maps):
             url = meta["url"]
             tmp = url.split("/")
-            repo_name = tmp[-1]
-            repo_dir = join("data", "repos", repo_name)
+            repo_name = tmp[-1].rstrip(".git")
+            repo_dir = join("data", "repos_java", repo_name)
             result_dir = join(self.result_dir_parent, str(i))
 
-            mapping:dict = meta["mapping"]
-            source_commit = mapping["source_commit"]
-            target_commit = mapping["target_commit"]
-            newer_commit = source_commit
-            character_range_list = json.loads(mapping["source_range"])
-            if mapping["time_order"] == "old to new":
-                newer_commit = target_commit
+            source_commit = meta["source_commit"] # start commit
+            character_range_list = json.loads(meta["source_range"])
+            category = meta["category"]
+            source_info = meta["source_info"]
 
-            distance = re.sub("\D", "", mapping["kind"])
-            if distance == "":
-                distance = "0"
             parameter = [
                 repo_dir,
                 source_commit,
-                target_commit,
-                mapping["source_file"],
+                category,
+                source_info,
+                meta["source_file"],
                 character_range_list,
                 result_dir,
                 self.context_line_num,
                 self.time_file_to_write,
-                self.turn_off_techniques,
-                distance,
-                newer_commit
+                self.turn_off_techniques
             ]
             parameters.append(parameter)
 
@@ -67,9 +59,11 @@ class TrackMultipleCommits():
 
     def run(self):
         # prepare repositories
-        source_repo_init = SourceRepos()
+        repo_urls_file = join("data", "results", "analysis_on_codetracker_data", "source_repos_java.txt")
+        repo_folder_java = join("data", "repos_java")
+        source_repo_init = SourceRepos(repo_urls_file, repo_folder_java)
         repo_dirs = source_repo_init.get_repo_dirs()
-        source_repo_init.checkout_latest_commits()
+        # source_repo_init.checkout_latest_commits()
         print(f"Found {len(repo_dirs)} repositories.")
 
         args_for_all_maps = self.get_meta_inputs()
@@ -79,14 +73,15 @@ class TrackMultipleCommits():
             pool.map(self.wrapper, args_for_all_maps)
 
     def wrapper(self, args):
-        AnythingTrackerMultiCommits(*args)
-        source_region_index = args[5].split('/')[-1]
+        AnythingTrackerOnConvertedData(*args)
+        source_region_index = args[6].split('/')[-1]
         print(f"Compute candidates is done, source region #{source_region_index}.\n")
         
 
 if __name__ == "__main__":
-    result_dir_parent = join("data", "results", "tracked_maps", "mapped_regions")
-    oracle_file = join("data", "annotation", "annotations_100.json")
+    result_dir_parent = join("data", "results", "tracked_maps", "mapped_regions_convert_test")
+    # oracle_file = join("data", "annotation", "annotations_100.json")
+    oracle_file = "data/converted_data/attribute/1/source.json"
     time_file_to_write = join("data", "results", "executing_time.csv")
     # context_line_num >=0.
     # 0 means no contexts, >0 means get the corresponding number of lines before and after respectively as contexts
@@ -95,4 +90,4 @@ if __name__ == "__main__":
     # 1. move detection  2. search matches  3. fine-grain borders
     turn_off_techniques = [False, False, False] # change the boolean to True to turn off the corresponding technique.
     turn_off_techniques_obj = SpecifyToTurnOffTechniques(turn_off_techniques)
-    TrackMultipleCommits(oracle_file, result_dir_parent, context_line_num, time_file_to_write, turn_off_techniques_obj).run()
+    TrackConvertedData(oracle_file, result_dir_parent, context_line_num, time_file_to_write, turn_off_techniques_obj).run()
