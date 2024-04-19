@@ -1,14 +1,13 @@
-
 import subprocess
 
 
 def get_renamed_file_path(repo_dir, base_commit, target_commit, base_file_path):
-    get_renamed_files_command = f"git diff --name-status --diff-filter=R {base_commit} {target_commit} -- {base_file_path}"
+    get_renamed_files_command = f"git diff --name-status --diff-filter=R {base_commit} {target_commit}" #  -- {base_file_path}
+    # get_renamed_files_command = f"git log --name-status --diff-filter=R --follow {base_file_path}" # codetracker: git log --follow
     renamed_result = subprocess.run(get_renamed_files_command, cwd=repo_dir, shell=True,
         stdout=subprocess.PIPE, universal_newlines=True)
     renamed_files = renamed_result.stdout
 
-    # TODO if need changes
     renamed_file_path = None
     if renamed_files:
         rename_cases = renamed_files.strip().split("\n")
