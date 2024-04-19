@@ -14,6 +14,8 @@ Ways to get ranges:
 '''
 
 import os
+from os.path import join, exists
+from time import sleep
 from git.repo import Repo
 
 
@@ -27,6 +29,8 @@ def get_range(repo_dir, commit, file, start_line_number_str, additional_info):
     four_element_range = None # to return
 
     repo = Repo(repo_dir)
+    while exists(join(repo_dir, ".git/index.lock")):
+        sleep(2)
     repo.git.checkout(commit, force=True)
 
     if not os.path.exists(file):
@@ -47,7 +51,7 @@ def get_range(repo_dir, commit, file, start_line_number_str, additional_info):
     elif isinstance(additional_info, str): # variable, attribute
         intra_line_location_num = start_line.count(additional_info)
         if intra_line_location_num > 1:
-            print(f"{intra_line_location_num}, {commit}, {file}")
+            print(f"\nintra-line multi-location: {intra_line_location_num}, {commit}, {file}\n")
         if intra_line_location_num == 0: # newly added
             four_element_range = [start_line_number, 0, start_line_number, 0]
         else:
