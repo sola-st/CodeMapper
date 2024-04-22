@@ -7,23 +7,23 @@ class UnifyKeys():
         self.partial_categoris = ["attribute", "variable"]
         self.key_set = {
             "attribute": {
-                "to_split": "attributeKey",
+                "start_name": "attributeName",
                 "start_line_number": "attributeDeclarationLine"
             },
             "class": {
-                # "to_split": "classKey",
+                # "start_name": "className",
                 "start_line_number": "classDeclarationLine"
             },
             # "method" : {
-            #     "to_split": "functionKey",
+            #     "start_name": "functionName",
             #     "start_line_number": "functionStartLine"
             # },
             "variable": {
-                "to_split": "variableKey",
+                "start_name": "variableName",
                 "start_line_number": "variableStartLine"
             },
             "block" : {
-                "to_split": "blockKey",
+                "start_name": "blockName",
                 "start_line_number": "blockStartLine",
                 "end_line_number": "blockEndLine"
             }

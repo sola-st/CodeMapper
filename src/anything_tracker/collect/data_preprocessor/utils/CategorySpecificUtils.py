@@ -9,6 +9,9 @@ def get_region_base_info(element_name_info, category):
         variable: src/main/java/com.puppycrawl.tools.checkstyle.Checker#fireErrors(String, SortedSet)$element:LocalizedMessage(387)
         attribute: src/java/org.apache.commons.io.input.Tailer@(final)(private)end:boolean(70)
                 java/compiler/impl/src/com.intellij.packaging.impl.artifacts.ArtifactBySourceFileFinderImpl@myProject:Project(47)
+
+                lucene/core/src/java/org.apache.lucene.index.IndexWriter@config:LiveIndexWriterConfig(339)
+                -> 339: private final LiveIndexWriterConfig config;
     '''
 
     # only "variable" and "attribute" need perfact 'element'.
@@ -18,11 +21,11 @@ def get_region_base_info(element_name_info, category):
     elif category == "class":
         element = element_name_info.split(".")[-1]
     elif category == "variable":
-        element = element_name_info.split("$element:")[1].split("(")[0]
+        element = element_name_info.split("$")[1].split(":")[0]
     elif category == "attribute":
         splits_tmp = element_name_info.split(":")[0]
         if ")" in splits_tmp:
-            element = splits_tmp.split(")")[1]
+            element = splits_tmp.split(")")[-1]
         else:
             element = splits_tmp.split("@")[1]
     # else: # method, has no line number in json file. Instead, try to pair the {}s.
