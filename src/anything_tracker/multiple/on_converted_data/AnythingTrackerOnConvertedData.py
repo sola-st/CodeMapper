@@ -4,7 +4,12 @@ import json
 import os
 from os.path import join
 import time
-from anything_tracker.AnythingTrackerUtils import deduplicate_candidates, get_context_aware_characters, get_renamed_file_path, get_source_and_expected_region_characters
+from anything_tracker.AnythingTrackerUtils import (
+    deduplicate_candidates,
+    get_context_aware_characters,
+    get_renamed_file_path,
+    get_source_and_expected_region_characters,
+)
 from anything_tracker.CandidateRegion import CandidateRegion, get_candidate_region_range
 from anything_tracker.CharacterRange import CharacterRange
 from anything_tracker. ComputeTargetRegion import ComputeTargetRegion
@@ -122,13 +127,6 @@ class AnythingTrackerOnConvertedData():
         # Read source region characters, and expected regions
         self.base_file_lines = checkout_to_read_file(self.repo_dir, self.base_commit, self.file_path)
         self.source_region_characters = get_source_and_expected_region_characters(self.base_file_lines, self.interest_character_range)
-
-        # TODO decide whether, how and where to write the expected
-        # expected_region_characters_str = "<DELETE>"
-        # if self.expected_character_range != None:
-        #     expected_region_characters: list = get_source_and_expected_region_characters(self.target_file_lines, self.expected_character_range)
-        #     expected_region_characters_str = "".join(expected_region_characters)
-        # self.write_regions_to_files(expected_region_characters_str, False)
 
         self.target_file_path = get_renamed_file_path(self.repo_dir, self.base_commit, self.target_commit, self.file_path)
         if not self.target_file_path:
@@ -256,7 +254,7 @@ class AnythingTrackerOnConvertedData():
             # phase 2: compute candidate regions ends.
             second_phrase_end_time = time.time()
             self.second_phrase_executing_time = "%.3f" % (second_phrase_end_time - second_phrase_start_time)
-            print(f"Executing time (2nd pharse): {self.second_phrase_executing_time} seconds")
+            print(f"Executing time (2nd phase): {self.second_phrase_executing_time} seconds")
 
         for key, target_dict in results_set_dict.items():
             target_candidate = candidate_regions[target_dict["idx"]]
@@ -281,7 +279,10 @@ class AnythingTrackerOnConvertedData():
             }
             to_write.append(target_json)
             if key == "dist_based":
-                self.unique_target_range = target_range
+                if target_candidate.character_sources.strip(): # case like "  \n", delelte the source, and add an empty line.
+                    self.unique_target_range = target_range
+                else:
+                    self.unique_target_range = [0, 0, 0, 0] 
                 self.accumulate_dist_based.append(target_json)
             elif key == "bleu_based":
                 self.accumulate_bleu_based.append(target_json)
