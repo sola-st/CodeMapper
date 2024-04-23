@@ -88,7 +88,7 @@ class DataExtractionAndConversion():
     def analyze_histories(self, repo_dir, change_histories, category, repo_url):
         # Change_histories is a list of json strings, every josn string is a peice of change history
         extracted_change_histories = []
-        extracted_commit_range_pieces = set()
+        extracted_commit_range_pieces = {"url":  repo_url}
 
         for h in change_histories:
             change_opreation = convert_change_type(h["changeType"], category)
@@ -137,6 +137,7 @@ class DataExtractionAndConversion():
             target_range_to_json = f"{target_range}"
 
             extracted_h_full = {
+                "url":  repo_url,
                 "source_commit": source_commit,
                 "target_commit": target_commit,
                 "source_file": source_file,
@@ -153,11 +154,11 @@ class DataExtractionAndConversion():
 
             # get a simple version of the expected region locations.
             extracted_pieces_1 = get_commit_range_pieces(source_commit, source_file, source_range_to_json)
-            extracted_commit_range_pieces.add(str(extracted_pieces_1))
-            extracted_pieces_2 = get_commit_range_pieces(target_commit, target_file, source_range_to_json)
-            extracted_commit_range_pieces.add(str(extracted_pieces_2))
-
-        return extracted_change_histories, list(extracted_commit_range_pieces), source_info
+            extracted_commit_range_pieces.update(extracted_pieces_1)
+            extracted_pieces_2 = get_commit_range_pieces(target_commit, target_file, target_range_to_json)
+            extracted_commit_range_pieces.update(extracted_pieces_2)
+        
+        return extracted_change_histories, extracted_commit_range_pieces, source_info
 
     def recursive_get_json_files(self, data_folder, category):
         files = os.listdir(data_folder)

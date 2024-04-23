@@ -150,7 +150,7 @@ class AnythingTrackerOnConvertedData():
         print(f"Iteration #{self.iteration_index}")
         first_phrase_end_time = time.time()
         self.first_phrase_executing_time = "%.3f" % (first_phrase_end_time - first_phrase_start_time)
-        print(f"Executing time (1st pharse): {self.first_phrase_executing_time} seconds")
+        print(f"Executing time (1st phase): {self.first_phrase_executing_time} seconds")
         if candidate_regions == [] and self.target_file_lines:
             print(f"--No candidate regions.\n  {self.repo_dir}\n  {self.file_path}\n  {self.interest_character_range.four_element_list}\n")
             return self.unique_target_range, self.accumulate_dist_based, self.accumulate_bleu_based, self.accumulate_similarity_based
@@ -202,7 +202,7 @@ class AnythingTrackerOnConvertedData():
         if len(candidate_regions) == 1:
             # phase 2: compute candidate regions ends.
             self.second_phrase_executing_time = 0
-            print(f"Executing time (2nd pharse): 1 candidate, {self.second_phrase_executing_time} seconds")
+            print(f"Executing time (2nd phase): 1 candidate, {self.second_phrase_executing_time} seconds")
             target_candidate = candidate_regions[0]
             unique_keys = ["dist_based", "bleu_based", "similarity_based"]
             for key in unique_keys:
