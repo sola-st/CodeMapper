@@ -258,8 +258,9 @@ class AnythingTrackerOnConvertedData():
             # phase 2: compute candidate regions ends.
             second_phrase_end_time = time.time()
             second_phrase_executing_time = round((second_phrase_end_time - second_phrase_start_time), 3)
-            self.one_round_time_info[2] = second_phrase_executing_time
             print(f"Executing time (2nd phase): {second_phrase_executing_time} seconds")
+
+        self.one_round_time_info[2] = second_phrase_executing_time
 
         for key, target_dict in results_set_dict.items():
             target_candidate = candidate_regions[target_dict["idx"]]
@@ -284,8 +285,12 @@ class AnythingTrackerOnConvertedData():
             }
             to_write.append(target_json)
             if key == "dist_based":
-                if target_candidate.character_sources.strip(): # case like "  \n", delelte the source, and add an empty line.
-                    self.unique_target_range = target_range
+                if target_candidate.character_sources != None:
+                    if target_candidate.character_sources.strip(): 
+                        # case like "  \n", delelte the source, and add an empty line.
+                        self.unique_target_range = target_range
+                    else:
+                        self.unique_target_range = [0, 0, 0, 0] 
                 else:
                     self.unique_target_range = [0, 0, 0, 0] 
                 self.accumulate_dist_based.append(target_json)
