@@ -17,6 +17,7 @@ from anything_tracker.GitDiffToCandidateRegion import GitDiffToCandidateRegion
 from anything_tracker.SearchLinesToCandidateRegion import SearchLinesToCandidateRegion
 from anything_tracker.collect.data_preprocessor.GetCommitsModifiedFile import check_modified_commits
 from anything_tracker.collect.data_preprocessor.utils.UnifyKeys import UnifyKeys
+from anything_tracker.multiple.on_converted_data.RecordComputeExecutionTimes import RecordComputeExecutionTimes
 from anything_tracker.utils.ReadFile import checkout_to_read_file
 
 
@@ -29,7 +30,6 @@ parser.add_argument("--source_character_range", nargs='+', type=int, help="a 4-e
 parser.add_argument("--results_dir", help="Directory to put the results", required=True)
 parser.add_argument("--iteration_index", type=str, help="the xxth round of tracking", required=True)
 parser.add_argument("--context_line_num", type=int, help="specify the line numbers of contexts", required=True) # 0 means no contexts
-parser.add_argument("--time_file_to_write", help="the file you want to write the exexcuting times", required=True)
 parser.add_argument("--turn_off_techniques", help="specify techniques to turn off", required=True)
 parser.add_argument("--expected_character_range", nargs='+', 
                     type=int, help="a 4-element list, to show the expected character range", 
@@ -38,8 +38,7 @@ parser.add_argument("--expected_character_range", nargs='+',
 
 class AnythingTrackerOnConvertedData():
     def __init__(self, repo_dir, base_commit, target_commit, file_path, interest_character_range, 
-                results_dir, iteration_index, context_line_num, time_file_to_write, 
-                turn_off_techniques, expected_character_range=None):
+                results_dir, iteration_index, context_line_num, turn_off_techniques, expected_character_range=None):
         self.repo_dir = repo_dir
         self.base_commit = base_commit
         self.target_commit = target_commit
@@ -51,7 +50,6 @@ class AnythingTrackerOnConvertedData():
         self.results_dir = results_dir
         self.iteration_index = iteration_index
         self.context_line_num = context_line_num
-        self.time_file_to_write = time_file_to_write
         self.turn_off_techniques = turn_off_techniques # SpecifyToTurnOffTechniques object
         self.expected_character_range = expected_character_range
         if expected_character_range != None:
@@ -63,6 +61,10 @@ class AnythingTrackerOnConvertedData():
         self.accumulate_dist_based = []
         self.accumulate_bleu_based = []
         self.accumulate_similarity_based = []
+
+        # record execution time
+        # "candidate_numbers", "compute_candidates_executing_time", "select_target_executing_time"
+        self.one_round_time_info = [None]*3
         
     def write_regions_to_files(self, characters_to_write, is_source=True):
         json_file = join(self.results_dir, self.iteration_index, "source.json")
@@ -147,8 +149,9 @@ class AnythingTrackerOnConvertedData():
             
         print(f"Iteration #{self.iteration_index}")
         first_phrase_end_time = time.time()
-        self.first_phrase_executing_time = "%.3f" % (first_phrase_end_time - first_phrase_start_time)
-        print(f"Executing time (1st phase): {self.first_phrase_executing_time} seconds")
+        first_phrase_executing_time = round((first_phrase_end_time - first_phrase_start_time), 3)
+        self.one_round_time_info[1] = first_phrase_executing_time
+        print(f"Executing time (1st phase): {first_phrase_executing_time} seconds")
         if candidate_regions == [] and self.target_file_lines:
             print(f"--No candidate regions.\n  {self.repo_dir}\n  {self.file_path}\n  {self.interest_character_range.four_element_list}\n")
             return self.unique_target_range, self.accumulate_dist_based, self.accumulate_bleu_based, self.accumulate_similarity_based
@@ -163,8 +166,9 @@ class AnythingTrackerOnConvertedData():
         # accumulate target, write to json file later.
         self.compute_get_target_region_info(candidate_regions, source_region_characters_str)
 
-        # self.record_target_types(len(candidate_regions))
-        return self.unique_target_range, self.accumulate_dist_based, self.accumulate_bleu_based, self.accumulate_similarity_based, self.target_file_path
+        self.one_round_time_info[0] = len(candidate_regions)
+        return self.unique_target_range, self.accumulate_dist_based, self.accumulate_bleu_based, \
+                self.accumulate_similarity_based, self.target_file_path, self.one_round_time_info
     
     def record_candiates(self, candidate_regions):
         output_maps = []
@@ -197,10 +201,10 @@ class AnythingTrackerOnConvertedData():
         to_write = []
         results_set_dict = {}
         
+        second_phrase_executing_time = 0
         if len(candidate_regions) == 1:
             # phase 2: compute candidate regions ends.
-            self.second_phrase_executing_time = 0
-            print(f"Executing time (2nd phase): 1 candidate, {self.second_phrase_executing_time} seconds")
+            print(f"Executing time (2nd phase): 1 candidate, {second_phrase_executing_time} seconds")
             target_candidate = candidate_regions[0]
             unique_keys = ["dist_based", "bleu_based", "similarity_based"]
             for key in unique_keys:
@@ -253,8 +257,9 @@ class AnythingTrackerOnConvertedData():
 
             # phase 2: compute candidate regions ends.
             second_phrase_end_time = time.time()
-            self.second_phrase_executing_time = "%.3f" % (second_phrase_end_time - second_phrase_start_time)
-            print(f"Executing time (2nd phase): {self.second_phrase_executing_time} seconds")
+            second_phrase_executing_time = round((second_phrase_end_time - second_phrase_start_time), 3)
+            self.one_round_time_info[2] = second_phrase_executing_time
+            print(f"Executing time (2nd phase): {second_phrase_executing_time} seconds")
 
         for key, target_dict in results_set_dict.items():
             target_candidate = candidate_regions[target_dict["idx"]]
@@ -289,20 +294,6 @@ class AnythingTrackerOnConvertedData():
             else:
                 self.accumulate_similarity_based.append(target_json)
 
-    def record_target_types(self, candidate_nums):
-        ground_truth_index = self.results_dir.rsplit("/", 1)[1]
-        write_mode = "a"
-        if ground_truth_index == "0":
-            write_mode = "w"
-
-        # write the executing times
-        # TODO record all the execution time
-        with open(self.time_file_to_write, write_mode) as f:
-            csv_writer = csv.writer(f)
-            if write_mode == "w":
-                csv_writer.writerow(["ground_truth_index", "candidate_numbers", "compute_candidates_executing_time", "select_target_executing_time"])
-            csv_writer.writerow([ground_truth_index, candidate_nums, self.first_phrase_executing_time, self.second_phrase_executing_time])
-
 
 def main(*args):
     repo_dir, base_commit, category, source_info, file_path, interest_character_range, \
@@ -319,7 +310,6 @@ def main(*args):
 
     commits_to_track = check_modified_commits(repo_dir, base_commit, file_path, category, addtional_info)
     print(commits_to_track)
-    
     if base_commit != commits_to_track[0]:
         assert base_commit not in commits_to_track
         commits_to_track.insert(0, base_commit)
@@ -328,27 +318,47 @@ def main(*args):
     target_commits = commits_to_track[1:]
     iterations = range(len(source_commits))
 
+    # metrics and target regions
     accumulate_dist_based = []
     accumulate_bleu_based = []
     accumulate_similarity_based = []
+
+    # execution times
+    indices = []
+    ground_truth_index = results_dir.rsplit("/", 1)[1]
+    indices.append(ground_truth_index)
+    candi_nums = [] 
+    times_1st = [] 
+    times_2nd = []
+
     source_range = interest_character_range
     for i, s, t in zip(iterations, source_commits, target_commits):
-        middle_target_range, dist_based, bleu_based, similarity_based, renamed_file_path = AnythingTrackerOnConvertedData(repo_dir, s, t, 
-                file_path, source_range, results_dir, str(i), context_line_num, time_file_to_write, turn_off_techniques).run()
+        middle_target_range, dist_based, bleu_based, similarity_based, renamed_file_path, one_round_time_info = \
+                AnythingTrackerOnConvertedData(repo_dir, s, t, file_path, source_range, results_dir, \
+                str(i), context_line_num, turn_off_techniques).run()
         
         accumulate_dist_based.extend(dist_based)
         accumulate_bleu_based.extend(bleu_based)
         accumulate_similarity_based.extend(similarity_based)
+
+        indices.append(None)
+        candi_nums.append(one_round_time_info[0])
+        times_1st.append(one_round_time_info[1])
+        times_2nd.append(one_round_time_info[2])
+
         if middle_target_range == [0, 0, 0, 0]:
             break
         source_range = middle_target_range
         file_path = renamed_file_path
-        
-    to_write = []
-    to_write.append(accumulate_dist_based)
-    to_write.append(accumulate_bleu_based)
-    to_write.append(accumulate_similarity_based)
-    # write target candidate to a single Json file.
+
+    # write target candidate to a Json file.   
+    to_write = [accumulate_dist_based, accumulate_bleu_based, accumulate_similarity_based]
     target_json_file = join(results_dir, "target.json")
     with open(target_json_file, "w") as ds:
         json.dump(to_write, ds, indent=4, ensure_ascii=False)
+
+    # write exection times
+    write_mode = "a"
+    if ground_truth_index == "0":
+        write_mode = "w"
+    RecordComputeExecutionTimes(write_mode, time_file_to_write, indices, candi_nums, times_1st, times_2nd).run()
