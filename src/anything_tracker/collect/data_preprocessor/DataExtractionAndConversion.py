@@ -28,9 +28,9 @@ class DataExtractionAndConversion():
         self.partial_categoris = key_init.partial_categoris
         self.key_set = key_init.key_set
 
-        self.all_args = []
+        self.overall_source_jons_strs = []
 
-    def convert_data(self, file_number, json_file, category):
+    def convert_data(self, file_number, json_file, category, subfolder):
         '''
         Convert data to extract what AnythingTracker needs.
         '''
@@ -46,8 +46,11 @@ class DataExtractionAndConversion():
         repo_url = data["repositoryWebURL"]
         converted_json_str_expect, extracted_commit_range_pieces, source_info = \
                 self.analyze_histories(repo_dir, change_histories, category, repo_url)
-        
-        output_dir = join(self.output_folder, category, str(file_number))
+
+        if subfolder: 
+            output_dir = join(self.output_folder, category, subfolder, str(file_number))
+        else:
+            output_dir = join(self.output_folder, category, str(file_number))
         os.makedirs(output_dir, exist_ok=True)
 
         file_for_expect = join(output_dir, "expect_full_histories.json")
@@ -59,7 +62,7 @@ class DataExtractionAndConversion():
         # Always track back, always end with "introduce" - eg., introduce a new variable.
         start_file_path = data["filePath"]
         start_line_number = data[self.key_set[category]["start_line_number"]]
-        source_commit = data["startCommitId"][:8]
+        source_commit = data["startCommitId"]
         
         additional_info=None
         if category in self.partial_categoris:
@@ -67,7 +70,7 @@ class DataExtractionAndConversion():
         elif category == "block":
             additional_info = data["blockEndLine"]
         file_path = join(repo_dir, start_file_path)
-        source_range = GetRanges(repo_dir, source_commit, file_path, start_line_number, additional_info, repo_url).run()
+        source_range = GetRanges(repo_dir, source_commit, file_path, start_line_number, additional_info).run()
         converted_json_str_input = { 
             "url":  repo_url,
             "source_file": start_file_path, 
@@ -84,7 +87,7 @@ class DataExtractionAndConversion():
         return converted_json_str_input
 
     def analyze_histories(self, repo_dir, change_histories, category, repo_url):
-        # Change_histories is a list of json strings, every josn string is a peice of change history
+        # Change_histories is a list of json strings, every json string is a peice of change history
         extracted_change_histories = []
         extracted_commit_range_pieces = {"url":  repo_url}
 
@@ -104,20 +107,17 @@ class DataExtractionAndConversion():
                 target_info, target_line_number, target_end_line_number = get_region_base_info(h["elementNameAfter"], category)
                 source_additional_info = source_end_line_number
                 target_additional_info = target_end_line_number
-            elif category == "class":
-                source_info, source_line_number = get_region_base_info(h["elementNameBefore"], category)
-                target_info, target_line_number = get_region_base_info(h["elementNameAfter"], category)
 
             assert source_line_number != None
             assert target_line_number != None
 
             source_range = None
-            parent_commit = h["parentCommitId"][:8]
+            parent_commit = h["parentCommitId"]
             if parent_commit != "0":
                 source_file_path = join(repo_dir, h["elementFileBefore"])
-                source_range = GetRanges(repo_dir, parent_commit, source_file_path, source_line_number, source_additional_info, repo_url).run()
+                source_range = GetRanges(repo_dir, parent_commit, source_file_path, source_line_number, source_additional_info).run()
             target_file_path = join(repo_dir, h["elementFileAfter"])  
-            target_range = GetRanges(repo_dir, h["commitId"][:8], target_file_path, target_line_number, target_additional_info, repo_url).run()
+            target_range = GetRanges(repo_dir, h["commitId"], target_file_path, target_line_number, target_additional_info).run()
 
             if source_range != None: # to handle 'introduce'
                 source_range_to_json = f"{source_range}"
@@ -125,8 +125,8 @@ class DataExtractionAndConversion():
                 source_range_to_json = source_range
             
             # keep the way that codetracker use, source commit is the older commit.
-            source_commit = h["parentCommitId"][:8]
-            target_commit = h["commitId"][:8]
+            source_commit = h["parentCommitId"]
+            target_commit = h["commitId"]
             source_file = h["elementFileBefore"]
             target_file = h["elementFileAfter"]
             target_range_to_json = f"{target_range}"
@@ -155,44 +155,38 @@ class DataExtractionAndConversion():
         
         return extracted_change_histories, extracted_commit_range_pieces, source_info
 
-    def recursive_get_json_files(self, data_folder, category):
+    def recursive_get_json_files(self, data_folder, category, subfolder):
         files = os.listdir(data_folder)
-        for i, file in enumerate(files):
+        i = 0
+        for file in files:
             file_path = os.path.join(data_folder, file)
             if os.path.isfile(file_path):
-                self.all_args.append([i, file_path, category])
+                if not file.startswith("jgit-"):
+                    source_json_str = self.convert_data(i, file_path, category, subfolder)
+                    print(f"{category}-{subfolder} #{i}: {file_path} done.")
+                    self.overall_source_jons_strs.append(source_json_str)
+                    i += 1
             elif os.path.isdir(file_path):
                 if file != "test" and file != "training":
                     category = file
-                if file != "training":
-                    if category != "method": 
-                        print(category)
-                        self.recursive_get_json_files(file_path, category)
-        return self.all_args
+                else:
+                    subfolder = file
+                if category != "method" and category != "class": 
+                    self.recursive_get_json_files(file_path, category, subfolder)
+                    end_time = time.time()
+                    print(f"{category}-{subfolder}: {round((end_time - self.start_time), 3)} seconds.")
+                    # Write an overall source file to start checking.
+                    file_for_overall = join(self.output_folder, f"converted_data_{category}_{subfolder}.json")
+                    write_extracted_json_strings(file_for_overall, self.overall_source_jons_strs, "w")
+                    self.overall_source_jons_strs = []
 
     def main(self):
-        start_time = time.time()
-        args = self.recursive_get_json_files(self.data_folder, "attribute")
-       
-        cores_to_use = 15
-        with Pool(processes=cores_to_use) as pool:
-            overall_source_jons_strs = pool.map(self.wrapper, args)
-
-        end_time = time.time()
-        print("%.3f" % (end_time - start_time))
-        # Write an overall source file to start checking.
-        overall_source_jons_strs = [s for s in overall_source_jons_strs]
-        file_for_overall = join(self.output_folder, "converted_data_attribute_test.json")
-        write_extracted_json_strings(file_for_overall, overall_source_jons_strs, "w")
-
-    def wrapper(self, args):
-        source_json_str = self.convert_data(*args)
-        print(f"{args[2]} #{args[0]}: {args[1]} done.")
-        return source_json_str
+        self.start_time = time.time()
+        self.recursive_get_json_files(self.data_folder, None, None)
 
 
 if __name__=="__main__":
-    data_folder = join("data", "oracle_code_tracker/attribute")
+    data_folder = join("data", "oracle_code_tracker")
     output_folder = join("data", "converted_data")
     repo_parent_folder = join("data", "repos_java")
 
