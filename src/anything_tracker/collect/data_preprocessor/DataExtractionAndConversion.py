@@ -4,7 +4,6 @@ import os
 from os.path import join
 import time
 
-from anything_tracker.collect.data_preprocessor.ConvertChangeTypes import convert_change_type
 from anything_tracker.collect.data_preprocessor.GetRanges import GetRanges
 from anything_tracker.collect.data_preprocessor.utils.CategorySpecificUtils import get_region_base_info
 from anything_tracker.collect.data_preprocessor.utils.CommitRangePiece import get_commit_range_pieces
@@ -75,9 +74,8 @@ class DataExtractionAndConversion():
             "source_commit": source_commit,
             "source_range": f"{source_range}", 
             "source_info": source_info,
-            "category": category,
-            "time_order": "new to old (backward)"
-        } #TODO remove time_order?
+            "category": category
+        }
 
         # Write an individual source file for faster checking.
         file_for_input = join(output_dir, "source.json")
@@ -91,9 +89,6 @@ class DataExtractionAndConversion():
         extracted_commit_range_pieces = {"url":  repo_url}
 
         for h in change_histories:
-            change_opreation = convert_change_type(h["changeType"], category)
-            if "noChange" in change_opreation:
-                continue
             source_line_number = None
             target_line_number = None
             source_additional_info = None
@@ -142,7 +137,7 @@ class DataExtractionAndConversion():
                 "target_commit": target_commit,
                 "source_file": source_file,
                 "target_file": target_file,
-                "change_operation": change_opreation,
+                "change_operation": h["changeType"],
                 "source_info": source_info,
                 "target_info": target_info,
                 "source_range": source_range_to_json,
