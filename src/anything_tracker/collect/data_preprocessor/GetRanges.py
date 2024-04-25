@@ -15,6 +15,7 @@ Ways to get ranges:
 
 import os
 from os.path import join
+import re
 import tempfile
 from git.repo import Repo
 
@@ -76,7 +77,9 @@ class GetRanges():
             end_character_abs = len(file_lines[self.additional_info-1].rstrip)
             self.four_element_range = [start_line_number, start_character_abs, self.additional_info, end_character_abs]
         elif isinstance(self.additional_info, str): # variable, attribute
-            intra_line_location_num = start_line.count(self.additional_info)
+            start_line_clean = re.sub(r"[^\w\s]", "", start_line).strip()
+            start_line_splits = start_line_clean.split(" ")
+            intra_line_location_num = start_line_splits.count(self.additional_info)
             if intra_line_location_num > 1:
                 print(f"\nintra-line multi-location: {intra_line_location_num}, {self.commit}, {self.file}\n")
             if intra_line_location_num == 0: # newly added
