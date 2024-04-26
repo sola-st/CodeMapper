@@ -1,5 +1,5 @@
+import csv
 import json
-from multiprocessing import Pool
 import os
 from os.path import join
 import time
@@ -29,6 +29,7 @@ class DataExtractionAndConversion():
         self.key_set = key_init.key_set
 
         self.overall_source_jons_strs = []
+        self.multi_location_infos = [["Folder number", "Multi-location", "Commit", "File path"]]
 
     def convert_data(self, file_number, json_file, category, subfolder):
         '''
@@ -45,7 +46,7 @@ class DataExtractionAndConversion():
         change_histories = data["expectedChanges"]
         repo_url = data["repositoryWebURL"]
         converted_json_str_expect, extracted_commit_range_pieces, source_info = \
-                self.analyze_histories(repo_dir, change_histories, category, repo_url)
+                self.analyze_histories(repo_dir, change_histories, category, repo_url, file_number)
 
         if subfolder: 
             output_dir = join(self.output_folder, category, subfolder, str(file_number))
@@ -70,7 +71,10 @@ class DataExtractionAndConversion():
         elif category == "block":
             additional_info = data["blockEndLine"]
         file_path = join(repo_dir, start_file_path)
-        source_range = GetRanges(repo_dir, source_commit, file_path, start_line_number, additional_info).run()
+        source_range, multi_location_list = GetRanges(repo_dir, source_commit, file_path, start_line_number, additional_info).run()
+        if multi_location_list:
+            multi_location_list.insert(0, file_number)
+            self.multi_location_infos.append(multi_location_list)
         converted_json_str_input = { 
             "url":  repo_url,
             "source_file": start_file_path, 
@@ -86,7 +90,7 @@ class DataExtractionAndConversion():
 
         return converted_json_str_input
 
-    def analyze_histories(self, repo_dir, change_histories, category, repo_url):
+    def analyze_histories(self, repo_dir, change_histories, category, repo_url, file_number):
         # Change_histories is a list of json strings, every json string is a peice of change history
         extracted_change_histories = []
         extracted_commit_range_pieces = {"url":  repo_url}
@@ -115,9 +119,17 @@ class DataExtractionAndConversion():
             parent_commit = h["parentCommitId"]
             if parent_commit != "0":
                 source_file_path = join(repo_dir, h["elementFileBefore"])
-                source_range = GetRanges(repo_dir, parent_commit, source_file_path, source_line_number, source_additional_info).run()
+                source_range, source_multi_location_list = GetRanges(repo_dir, \
+                        parent_commit, source_file_path, source_line_number, source_additional_info).run()
+                if source_multi_location_list:
+                    source_multi_location_list.insert(0, file_number)
+                    self.multi_location_infos.append(source_multi_location_list)
             target_file_path = join(repo_dir, h["elementFileAfter"])  
-            target_range = GetRanges(repo_dir, h["commitId"], target_file_path, target_line_number, target_additional_info).run()
+            target_range, target_multi_location_list = GetRanges(repo_dir, \
+                        h["commitId"], target_file_path, target_line_number, target_additional_info).run()
+            if target_multi_location_list:
+                target_multi_location_list.insert(0, file_number)
+                self.multi_location_infos.append(target_multi_location_list)
 
             if source_range != None: # to handle 'introduce'
                 source_range_to_json = f"{source_range}"
@@ -142,9 +154,12 @@ class DataExtractionAndConversion():
                 "target_info": target_info,
                 "source_range": source_range_to_json,
                 "target_range": target_range_to_json,
-                "category": category,
-                "comment": h["comment"]
+                "category": category
             }
+            try:
+                extracted_h_full.update({"comment": h["comment"]})
+            except:
+                extracted_h_full.update({"comment": ""})
             extracted_change_histories.append(extracted_h_full)
 
             # get a simple version of the expected region locations.
@@ -171,14 +186,24 @@ class DataExtractionAndConversion():
                     category = file
                 else:
                     subfolder = file
-                if category != "method" and category != "class": 
-                    self.recursive_get_json_files(file_path, category, subfolder)
-                    end_time = time.time()
-                    print(f"{category}-{subfolder}: {round((end_time - self.start_time), 3)} seconds.")
-                    # Write an overall source file to start checking.
+                    
+                self.recursive_get_json_files(file_path, category, subfolder)
+                end_time = time.time()
+                print(f"{category}-{subfolder}: {round((end_time - self.start_time), 3)} seconds.\n")
+
+                # Write an overall source file to start checking.
+                if self.overall_source_jons_strs:
                     file_for_overall = join(self.output_folder, f"converted_data_{category}_{subfolder}.json")
                     write_extracted_json_strings(file_for_overall, self.overall_source_jons_strs, "w")
                     self.overall_source_jons_strs = []
+
+                if len(self.multi_location_infos) > 1:
+                    file_for_multi_location = join(self.output_folder, f"converted_data_{category}_{subfolder}_multi.csv")
+                    with open(file_for_multi_location, 'w') as f:
+                        writer = csv.writer(f)
+                        writer.writerows(self.multi_location_infos)
+                    self.multi_location_infos = [["Folder number", "Multi-location", "Commit", "File path"]]
+                
 
     def main(self):
         self.start_time = time.time()
