@@ -59,8 +59,6 @@ class AnythingTrackerOnConvertedData():
         # return the following values
         self.unique_target_range = []
         self.accumulate_dist_based = []
-        self.accumulate_bleu_based = []
-        self.accumulate_similarity_based = []
 
         # record execution time
         # "candidate_numbers", "compute_candidates_executing_time", "select_target_executing_time"
@@ -154,7 +152,7 @@ class AnythingTrackerOnConvertedData():
         print(f"Executing time (1st phase): {first_phrase_executing_time} seconds")
         if candidate_regions == [] and self.target_file_lines:
             print(f"--No candidate regions.\n  {self.repo_dir}\n  {self.file_path}\n  {self.interest_character_range.four_element_list}\n")
-            return self.unique_target_range, self.accumulate_dist_based, self.accumulate_bleu_based, self.accumulate_similarity_based
+            return self.unique_target_range, self.accumulate_dist_based, self.target_file_path, self.one_round_time_info
         
         # write source character to json files
         source_region_characters_str = "".join(self.source_region_characters)
@@ -167,8 +165,7 @@ class AnythingTrackerOnConvertedData():
         self.compute_get_target_region_info(candidate_regions, source_region_characters_str)
 
         self.one_round_time_info[0] = len(candidate_regions)
-        return self.unique_target_range, self.accumulate_dist_based, self.accumulate_bleu_based, \
-                self.accumulate_similarity_based, self.target_file_path, self.one_round_time_info
+        return self.unique_target_range, self.accumulate_dist_based, self.target_file_path, self.one_round_time_info
     
     def record_candiates(self, candidate_regions):
         output_maps = []
@@ -206,15 +203,11 @@ class AnythingTrackerOnConvertedData():
             # phase 2: compute candidate regions ends.
             print(f"Executing time (2nd phase): 1 candidate, {second_phrase_executing_time} seconds")
             target_candidate = candidate_regions[0]
-            unique_keys = ["dist_based", "bleu_based", "similarity_based"]
-            for key in unique_keys:
-                results_set_dict.update({key: { 
-                    "idx": 0,
-                    "target_candidate_edit_distance": "Unknown",
-                    "target_candidate_bleu_score": "Unknown",
-                    "target_candidate_similarity": "Unknown",
-                    "target_candidate_index" : 0
-                    }})
+            results_set_dict.update({"dist_based": { 
+                "idx": 0,
+                "target_candidate_edit_distance": "Unknown",
+                "target_candidate_index" : 0
+                }})
         else:
             candiate_str_list = []
             source_str = ""
@@ -274,46 +267,35 @@ class AnythingTrackerOnConvertedData():
                 "target_file": self.file_path,
                 "source_range": str(self.source_character_range),
                 "target_range": str(target_range),
-                "source_characters": source_region_characters_str,
-                "target_characters" : target_candidate.character_sources,
+                # "source_characters": source_region_characters_str,
+                # "target_characters" : target_candidate.character_sources,
                 "kind": target_candidate.marker,
                 "levenshtein_distance" : target_dict["target_candidate_edit_distance"],
-                "bleu": target_dict["target_candidate_bleu_score"],
-                "embedding_similarity" : str(target_dict["target_candidate_similarity"]),
                 "index": target_dict["target_candidate_index"], 
                 "all_candidates_num": len(candidate_regions)
             }
             to_write.append(target_json)
-            if key == "dist_based":
-                if target_candidate.character_sources != None:
-                    if target_candidate.character_sources.strip(): 
-                        # case like "  \n", delelte the source, and add an empty line.
-                        self.unique_target_range = target_range
-                    else:
-                        self.unique_target_range = [0, 0, 0, 0] 
+            if target_candidate.character_sources != None:
+                if target_candidate.character_sources.strip(): 
+                    # case like "  \n", delete the source, and add an empty line.
+                    self.unique_target_range = target_range
                 else:
                     self.unique_target_range = [0, 0, 0, 0] 
-                self.accumulate_dist_based.append(target_json)
-            elif key == "bleu_based":
-                self.accumulate_bleu_based.append(target_json)
             else:
-                self.accumulate_similarity_based.append(target_json)
+                self.unique_target_range = [0, 0, 0, 0] 
+            self.accumulate_dist_based.append(target_json)
 
 
 def main(*args):
     repo_dir, base_commit, category, source_info, file_path, interest_character_range, \
             results_dir, context_line_num, time_file_to_write, turn_off_techniques = args
     # commits_to_track includes source commit and target commit.
-    addtional_info = None
-    key_init = UnifyKeys()
-    partial_categoris = key_init.partial_categoris
-    
-    if category in partial_categoris or category == "block":
-        start = interest_character_range[0]
-        end = interest_character_range[-1]
-        addtional_info = f"{start},{end}"
+    print(interest_character_range)
+    start = interest_character_range[0]
+    end = interest_character_range[2]
+    additional_info = f"{start},{end}"
 
-    commits_to_track = check_modified_commits(repo_dir, base_commit, file_path, category, addtional_info)
+    commits_to_track = check_modified_commits(repo_dir, base_commit, file_path, category, additional_info)
     print(commits_to_track)
     if base_commit != commits_to_track[0]:
         assert base_commit not in commits_to_track
@@ -325,8 +307,6 @@ def main(*args):
 
     # metrics and target regions
     accumulate_dist_based = []
-    accumulate_bleu_based = []
-    accumulate_similarity_based = []
 
     # execution times
     indices = []
@@ -338,13 +318,11 @@ def main(*args):
 
     source_range = interest_character_range
     for i, s, t in zip(iterations, source_commits, target_commits):
-        middle_target_range, dist_based, bleu_based, similarity_based, renamed_file_path, one_round_time_info = \
+        middle_target_range, dist_based, renamed_file_path, one_round_time_info = \
                 AnythingTrackerOnConvertedData(repo_dir, s, t, file_path, source_range, results_dir, \
                 str(i), context_line_num, turn_off_techniques).run()
         
         accumulate_dist_based.extend(dist_based)
-        accumulate_bleu_based.extend(bleu_based)
-        accumulate_similarity_based.extend(similarity_based)
 
         indices.append(None)
         candi_nums.append(one_round_time_info[0])
@@ -357,7 +335,7 @@ def main(*args):
         file_path = renamed_file_path
 
     # write target candidate to a Json file.   
-    to_write = [accumulate_dist_based, accumulate_bleu_based, accumulate_similarity_based]
+    to_write = [accumulate_dist_based]
     target_json_file = join(results_dir, "target.json")
     with open(target_json_file, "w") as ds:
         json.dump(to_write, ds, indent=4, ensure_ascii=False)

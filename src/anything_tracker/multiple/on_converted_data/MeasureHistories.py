@@ -145,7 +145,7 @@ class WhichMetricIsBetter():
 
             url = expected_commit_range_pieces["url"]
             tmp = url.split("/")
-            repo_name = tmp[-1].rstrip(".git")
+            repo_name = tmp[-1].replace(".git", "")
             repo_dir = join("data", "repos_java", repo_name)
 
             # predicted
