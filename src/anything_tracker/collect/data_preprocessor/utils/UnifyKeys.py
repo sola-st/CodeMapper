@@ -4,20 +4,24 @@ class UnifyKeys():
     '''
     
     def __init__(self):
-        self.partial_categoris = ["attribute", "variable"]
+        self.partial_categories = ["attribute", "variable"]
+        self.group_1 = ["attribute", "variable", "block"]
+        self.group_2 = ["method", "block"]
         self.key_set = {
             "attribute": {
                 "start_name": "attributeName",
                 "start_line_number": "attributeDeclarationLine"
             },
             "class": {
-                # "start_name": "className",
-                "start_line_number": "classDeclarationLine"
+                "start_name": "className",
+                "start_line_number": "classDeclarationLine",
+                "start_info": "classKey"
             },
-            # "method" : {
-            #     "start_name": "functionName",
-            #     "start_line_number": "functionStartLine"
-            # },
+            "method" : {
+                "start_name": "functionName",
+                "start_line_number": "functionStartLine",
+                "start_info": "methodKey"
+            },
             "variable": {
                 "start_name": "variableName",
                 "start_line_number": "variableStartLine"
