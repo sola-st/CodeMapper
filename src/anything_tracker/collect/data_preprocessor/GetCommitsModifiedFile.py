@@ -25,6 +25,6 @@ def check_modified_commits(repo_dir, start_commit, file_path, category, addtiona
 
     result = subprocess.run(git_command, cwd=repo_dir, shell=True,
         stdout = subprocess.PIPE, universal_newlines=True)
-    result_commits = [line.split(" ")[1][:8] for line in result.stdout.split("\n") if line.startswith("commit ")]
+    result_commits = [line.split(" ")[1] for line in result.stdout.split("\n") if line.startswith("commit ")]
     return result_commits
 

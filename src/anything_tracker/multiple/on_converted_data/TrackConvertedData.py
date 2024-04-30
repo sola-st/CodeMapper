@@ -32,7 +32,7 @@ class TrackConvertedData():
         for i, meta in enumerate(maps):
             url = meta["url"]
             tmp = url.split("/")
-            repo_name = tmp[-1].rstrip(".git")
+            repo_name = tmp[-1].replace(".git", "")
             repo_dir = join("data", "repos_java", repo_name)
             result_dir = join(self.result_dir_parent, str(i))
 

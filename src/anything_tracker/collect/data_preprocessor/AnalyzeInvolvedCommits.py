@@ -11,12 +11,12 @@ def analyze_involved_commits(data, repo_name, repo_parent_folder, all_lines, jgi
     Analyze how many commits are involved in each piece of data.
     '''
 
-    start_commit = data["startCommitId"][:8]
+    start_commit = data["startCommitId"]
     final_history = data["expectedChanges"][-1]
     # special case: "parentCommitId": "0", 
     # the end_commits is the first commit.
-    end_commit_parent = final_history["parentCommitId"][:8]
-    end_commit = final_history["commitId"][:8]
+    end_commit_parent = final_history["parentCommitId"]
+    end_commit = final_history["commitId"]
     # end_commit_parent is oldest commit in these 3 commits
     repo_dir = join(repo_parent_folder, repo_name)
     if repo_name not in all_repo_commit_lists.keys():

@@ -43,7 +43,7 @@ def get_only_changed_commits(repo_dir, source_commit, target_commit, distance, n
     git_command = f"git log --max-count={distance} {file}"
     result = subprocess.run(git_command, cwd=repo_dir, shell=True,
         stdout = subprocess.PIPE, universal_newlines=True)
-    commits_to_track = [line.split(" ")[1][:8] for line in result.stdout.split("\n") if line.startswith("commit ")]
+    commits_to_track = [line.split(" ")[1] for line in result.stdout.split("\n") if line.startswith("commit ")]
     if newer_commit == target_commit:
         commits_to_track.reverse()
     if target_commit == commits_to_track[-2]:
