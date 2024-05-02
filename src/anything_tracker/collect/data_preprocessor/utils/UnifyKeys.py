@@ -6,7 +6,7 @@ class UnifyKeys():
     def __init__(self):
         self.partial_categories = ["attribute", "variable"]
         self.group_1 = ["attribute", "variable", "block"]
-        self.group_2 = ["method", "block"]
+        self.group_2 = ["method", "class"]
         self.key_set = {
             "attribute": {
                 "start_name": "attributeName",

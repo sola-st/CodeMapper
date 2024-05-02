@@ -6,6 +6,8 @@ def get_region_base_info(element_name_info, category):
     element_name_info examples:
         block: src/main/java/org.apache.commons.io.EndianUtils#read(InputStream)$if(475-477)"
         class: src/main/java/org.apache.commons.io.(public)CopyUtils(30)
+                okhttp-urlconnection/src/main/java/okhttp3.(public)(final)JavaNetAuthenticator(26)'
+                spring-context/src/main/java/org.springframework.context.annotation.(package)ConfigurationClassParser(83)
         method: "src/main/java/org.apache.commons.io.input.Tailer#run()"
         variable: src/main/java/com.puppycrawl.tools.checkstyle.Checker#fireErrors(String, SortedSet)$element:LocalizedMessage(387)
         attribute: src/java/org.apache.commons.io.input.Tailer@(final)(private)end:boolean(70)
@@ -28,12 +30,19 @@ def get_region_base_info(element_name_info, category):
         else:
             element = splits_tmp.split("@")[1]
     elif category == "class": 
-        element = element_name_info.split(".")[-1] # like (public)CopyUtils(30)
+        element = element_name_info.split(".")[-1] # like (public)()CopyUtils(30)
         tmp = element.split(")")
         accessor = tmp[0].replace("(", "")
-        class_name = tmp[1].split("(")[0]
+        # TODO more checks about the accessor
+        if accessor == "package":
+            accessor = ""
+        try:
+            assert accessor in ["public", "private", "default", "protected", ""]
+        except: 
+            print(element_name_info)
+        class_name = tmp[-2].split("(")[0]
         # if needed, return the line number
-        return accessor, class_name
+        return class_name, accessor
     else: # or category == "method":
         element = element_name_info.split("#")[-1] # like run(), or run(String)
         tmp = element.split("(")
