@@ -2,7 +2,6 @@ import csv
 import json
 import os
 from os.path import join
-import re
 import time
 import jpype
 from git.repo import Repo
@@ -89,12 +88,14 @@ class DataExtractionAndConversion():
         else: # group_2
             repo = Repo(repo_dir)
             repo.git.checkout(source_commit, force=True)
+            start_name = data[self.key_set[category]["start_name"]]
+            element_key_line = data[self.key_set[category]["start_info"]]
+            start_name_copy, identifier = get_region_base_info(element_key_line, category)
+            assert start_name == start_name_copy
             ast_init = self.class_ast_init
             if category == "method":
                 ast_init = self.method_ast_init
-            start_lists = ast_init.parseJavaFile(file_path) 
-            start_name = data[self.key_set[category]["start_name"]]
-            source_range = self.analyze_histories_group_2_helper(start_name, category, start_lists)
+            source_range = ast_init.parseJavaFile(file_path, start_name, identifier) 
 
         converted_json_str_input = { 
             "url":  repo_url,
@@ -143,12 +144,12 @@ class DataExtractionAndConversion():
                 #   method/class name, accessors, parameters, line numbers(only for class)
                 source_info = source_results
                 target_info = target_results
-                source_range , target_range = self.analyze_histories_group_2(repo_dir, \
-                        h, source_info, target_info, category, file_number)
+                source_range, target_range = self.analyze_histories_group_2(repo_dir, \
+                        h, source_info, target_info, category)
             
-            if not category == "class" and not category == "method":
+            if category not in self.group_2:
                 # attribute, variable and block
-                source_range , target_range = self.analyze_histories_group_1(repo_dir, \
+                source_range, target_range = self.analyze_histories_group_1(repo_dir, \
                         h, source_line_number, target_line_number, \
                         source_additional_info, target_additional_info, file_number)
 
@@ -216,9 +217,19 @@ class DataExtractionAndConversion():
 
         return source_range , target_range
     
-    def analyze_histories_group_2(self, repo_dir, h, source_reference, target_reference, category, file_number):
+    def analyze_histories_group_2(self, repo_dir, h, source_reference, target_reference, category):
         # group 2: method and class
         repo = Repo(repo_dir)
+
+        '''
+        the parameters to start AST are:
+            file_path,
+            class name, or method name,                 --> generalized as element_name in current function
+            class accessor, or method parameter types.  --> generalized as identifier in current function
+        '''
+
+        source_element_name, source_identifier = source_reference
+        target_element_name, target_identifier = target_reference
 
         ast_init = self.class_ast_init
         if category == "method":
@@ -230,28 +241,13 @@ class DataExtractionAndConversion():
             repo.git.checkout(parent_commit, force=True)
             source_file_path = join(repo_dir, h["elementFileBefore"])
             if os.path.exists(source_file_path):
-                source_lists = ast_init.parseJavaFile(source_file_path) 
-                source_range = self.analyze_histories_group_2_helper(source_reference, category, source_lists)
+                source_range = ast_init.parseJavaFile(source_file_path, source_element_name, source_identifier)
             
         repo.git.checkout(h["commitId"], force=True)
         target_file_path = join(repo_dir, h["elementFileAfter"])  
-        target_lists = ast_init.parseJavaFile(target_file_path)
-        target_range = self.analyze_histories_group_2_helper(target_reference, category, target_lists)
+        target_range = ast_init.parseJavaFile(target_file_path, target_element_name, target_identifier)
 
         return source_range , target_range
-    
-    def analyze_histories_group_2_helper(self, reference, category, to_check_list):
-        clean = re.sub(r"[^\w\s]", " ", reference)
-        reference_splits = clean.split(" ")
-        if category == "class": # has class start line numbers
-            reference_splits = reference_splits[:-1]
-        for info in to_check_list: # info is a list
-            info_str = str(info)
-            # if whether_fits empty, info is the right function to get it.
-            whether_fits = [r for r in reference_splits if r not in info_str]
-            if not whether_fits:
-                name, accessor, region_range = info
-                return region_range
 
     def recursive_get_json_files(self, data_folder, category, subfolder):
         if (category == "method" and not self.method_ast_init) or (category == "class" and not self.class_ast_init) :

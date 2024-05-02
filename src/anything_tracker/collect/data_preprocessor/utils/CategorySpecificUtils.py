@@ -15,7 +15,6 @@ def get_region_base_info(element_name_info, category):
                 -> 339: private final LiveIndexWriterConfig config;
     '''
 
-    # only "variable" and "attribute" need perfect 'element'.
     element = None
     if category == "block":
         # coarse-grained result, follows further processing
@@ -29,11 +28,18 @@ def get_region_base_info(element_name_info, category):
         else:
             element = splits_tmp.split("@")[1]
     elif category == "class": 
-        element = element_name_info.split(".")[-1]
-        return element
+        element = element_name_info.split(".")[-1] # like (public)CopyUtils(30)
+        tmp = element.split(")")
+        accessor = tmp[0].replace("(", "")
+        class_name = tmp[1].split("(")[0]
+        # if needed, return the line number
+        return accessor, class_name
     else: # or category == "method":
-        element = element_name_info.split("#")[-1]
-        return element
+        element = element_name_info.split("#")[-1] # like run(), or run(String)
+        tmp = element.split("(")
+        method_name = tmp[0]
+        parameter_types = tmp[1].replace(")", "")
+        return method_name, parameter_types
     
     assert element != None
 

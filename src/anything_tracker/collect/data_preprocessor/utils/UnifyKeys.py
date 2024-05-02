@@ -20,7 +20,7 @@ class UnifyKeys():
             "method" : {
                 "start_name": "functionName",
                 "start_line_number": "functionStartLine",
-                "start_info": "methodKey"
+                "start_info": "functionKey"
             },
             "variable": {
                 "start_name": "variableName",
