@@ -7,7 +7,6 @@ import time
 from anything_tracker.AnythingTrackerUtils import (
     deduplicate_candidates,
     get_context_aware_characters,
-    get_renamed_file_path,
     get_source_and_expected_region_characters,
 )
 from anything_tracker.CandidateRegion import CandidateRegion, get_candidate_region_range
@@ -15,7 +14,7 @@ from anything_tracker.CharacterRange import CharacterRange
 from anything_tracker. ComputeTargetRegion import ComputeTargetRegion
 from anything_tracker.GitDiffToCandidateRegion import GitDiffToCandidateRegion
 from anything_tracker.SearchLinesToCandidateRegion import SearchLinesToCandidateRegion
-from anything_tracker.collect.data_preprocessor.GetCommitsModifiedFile import check_modified_commits
+from anything_tracker.collect.data_preprocessor.GetCommitsModifiedFile import get_modified_commit_file_pairs
 from anything_tracker.collect.data_preprocessor.utils.UnifyKeys import UnifyKeys
 from anything_tracker.multiple.on_converted_data.RecordComputeExecutionTimes import RecordComputeExecutionTimes
 from anything_tracker.utils.ReadFile import checkout_to_read_file
@@ -23,9 +22,10 @@ from anything_tracker.utils.ReadFile import checkout_to_read_file
 
 parser = argparse.ArgumentParser(description="Track anything you want between two different versions.")
 parser.add_argument("--repo_dir", help="Directory with the repository to check", required=True)
-parser.add_argument("--base_commit", help="the commit to get the 1st version of the target file", required=True)
+parser.add_argument("--source_commit", help="the commit to get the 1st version of the target file", required=True)
+parser.add_argument("--source_file_path", help="the source file that you want to track", required=True)
 parser.add_argument("--target_commit", help="the commit to get the 2nd version of the target file", required=True)
-parser.add_argument("--file_path", help="the target file that you want to track", required=True)
+parser.add_argument("--target_file_path", help="the target file that you want to track", required=True)
 parser.add_argument("--source_character_range", nargs='+', type=int, help="a 4-element list, to show where to track", required=True)
 parser.add_argument("--results_dir", help="Directory to put the results", required=True)
 parser.add_argument("--iteration_index", type=str, help="the xxth round of tracking", required=True)
@@ -37,12 +37,13 @@ parser.add_argument("--expected_character_range", nargs='+',
 
 
 class AnythingTrackerOnConvertedData():
-    def __init__(self, repo_dir, base_commit, target_commit, file_path, interest_character_range, 
+    def __init__(self, repo_dir, base_commit, source_file_path, target_commit, target_file_path, interest_character_range, 
                 results_dir, iteration_index, context_line_num, turn_off_techniques, expected_character_range=None):
         self.repo_dir = repo_dir
         self.base_commit = base_commit
+        self.source_file_path = source_file_path
         self.target_commit = target_commit
-        self.file_path = file_path
+        self.target_file_path = target_file_path
         self.source_character_range = interest_character_range
         self.interest_character_range  = character_range_init = CharacterRange(interest_character_range)
         interest_line_range = character_range_init.character_range_to_line_range() # all numbers starts at 1.
@@ -70,9 +71,9 @@ class AnythingTrackerOnConvertedData():
 
         if is_source == True: # source region
             to_write = {
-                "source_file": self.file_path,
+                "source_file": self.source_file_path,
                 "source_range": str(self.source_character_range),
-                "source_characters": characters_to_write
+                # "source_characters": characters_to_write
             }
         else: # expected region
             expected_range = [0, 0, 0, 0]
@@ -80,9 +81,9 @@ class AnythingTrackerOnConvertedData():
                 expected_range = self.expected_character_range.four_element_list
                 
             to_write = {
-                "expected_file": self.file_path,
+                "expected_file": self.source_file_path,
                 "expected_range": str(expected_range),
-                "expected_characters": characters_to_write
+                # "expected_characters": characters_to_write
             }
             json_file = join(self.results_dir, self.iteration_index, "expect.json")
 
@@ -125,12 +126,9 @@ class AnythingTrackerOnConvertedData():
             os.makedirs(dir)
 
         # Read source region characters, and expected regions
-        self.base_file_lines = checkout_to_read_file(self.repo_dir, self.base_commit, self.file_path)
+        self.base_file_lines = checkout_to_read_file(self.repo_dir, self.base_commit, self.source_file_path)
         self.source_region_characters = get_source_and_expected_region_characters(self.base_file_lines, self.interest_character_range)
 
-        self.target_file_path = get_renamed_file_path(self.repo_dir, self.base_commit, self.target_commit, self.file_path)
-        if not self.target_file_path:
-            self.target_file_path = self.file_path
         self.target_file_lines = checkout_to_read_file(self.repo_dir, self.target_commit, self.target_file_path)
 
         candidate_regions = []
@@ -151,8 +149,8 @@ class AnythingTrackerOnConvertedData():
         self.one_round_time_info[1] = first_phrase_executing_time
         print(f"Executing time (1st phase): {first_phrase_executing_time} seconds")
         if candidate_regions == [] and self.target_file_lines:
-            print(f"--No candidate regions.\n  {self.repo_dir}\n  {self.file_path}\n  {self.interest_character_range.four_element_list}\n")
-            return self.unique_target_range, self.accumulate_dist_based, self.target_file_path, self.one_round_time_info
+            print(f"--No candidate regions.\n  {self.repo_dir}\n  {self.source_file_path}\n  {self.interest_character_range.four_element_list}\n")
+            return self.unique_target_range, self.accumulate_dist_based, self.one_round_time_info
         
         # write source character to json files
         source_region_characters_str = "".join(self.source_region_characters)
@@ -165,7 +163,7 @@ class AnythingTrackerOnConvertedData():
         self.compute_get_target_region_info(candidate_regions, source_region_characters_str)
 
         self.one_round_time_info[0] = len(candidate_regions)
-        return self.unique_target_range, self.accumulate_dist_based, self.target_file_path, self.one_round_time_info
+        return self.unique_target_range, self.accumulate_dist_based, self.one_round_time_info
     
     def record_candiates(self, candidate_regions):
         output_maps = []
@@ -176,11 +174,11 @@ class AnythingTrackerOnConvertedData():
             map = {
                 "source_commit": self.base_commit,
                 "target_commit": self.target_commit,
-                "source_file": self.file_path,
+                "source_file": self.source_file_path,
                 "target_file": self.target_file_path,
                 "source_range": str(self.source_character_range),
                 "target_range": str(target_range),
-                "target_characters" : candidate.character_sources,
+                # "target_characters" : candidate.character_sources,
                 "kind": candidate.marker
             }
             output_maps.append(map)
@@ -263,8 +261,8 @@ class AnythingTrackerOnConvertedData():
                 "version" : key,
                 "source_commit": self.base_commit,
                 "target_commit": self.target_commit,
-                "source_file": self.file_path,
-                "target_file": self.file_path,
+                "source_file": self.source_file_path,
+                "target_file": self.target_file_path,
                 "source_range": str(self.source_character_range),
                 "target_range": str(target_range),
                 # "source_characters": source_region_characters_str,
@@ -287,15 +285,10 @@ class AnythingTrackerOnConvertedData():
 
 
 def main(*args):
-    repo_dir, base_commit, category, source_info, file_path, interest_character_range, \
+    repo_dir, base_commit, start_file_path, interest_character_range, \
             results_dir, context_line_num, time_file_to_write, turn_off_techniques = args
-    # commits_to_track includes source commit and target commit.
-    print(interest_character_range)
-    start = interest_character_range[0]
-    end = interest_character_range[2]
-    additional_info = f"{start},{end}"
-
-    commits_to_track = check_modified_commits(repo_dir, base_commit, file_path, category, additional_info)
+    # commits_to_track = check_modified_commits(repo_dir, base_commit, start_file_path, category, additional_info)
+    commits_to_track, file_paths = get_modified_commit_file_pairs(repo_dir, base_commit, start_file_path)
     print(commits_to_track)
     if base_commit != commits_to_track[0]:
         assert base_commit not in commits_to_track
@@ -303,6 +296,8 @@ def main(*args):
 
     source_commits = commits_to_track[:-1]
     target_commits = commits_to_track[1:]
+    source_file_paths = file_paths[:-1]
+    target_file_paths = file_paths[1:]
     iterations = range(len(source_commits))
 
     # metrics and target regions
@@ -317,10 +312,11 @@ def main(*args):
     times_2nd = []
 
     source_range = interest_character_range
-    for i, s, t in zip(iterations, source_commits, target_commits):
-        middle_target_range, dist_based, renamed_file_path, one_round_time_info = \
-                AnythingTrackerOnConvertedData(repo_dir, s, t, file_path, source_range, results_dir, \
-                str(i), context_line_num, turn_off_techniques).run()
+    for i, source_commit, source_file, target_commit, target_file, in zip(iterations, \
+                source_commits, source_file_paths, target_commits, target_file_paths):
+        middle_target_range, dist_based, one_round_time_info = \
+                AnythingTrackerOnConvertedData(repo_dir, source_commit, source_file, target_commit, target_file, \
+                        source_range, results_dir,  str(i), context_line_num, turn_off_techniques).run()
         
         accumulate_dist_based.extend(dist_based)
 
@@ -332,7 +328,6 @@ def main(*args):
         if middle_target_range == [0, 0, 0, 0]:
             break
         source_range = middle_target_range
-        file_path = renamed_file_path
 
     # write target candidate to a Json file.   
     to_write = [accumulate_dist_based]

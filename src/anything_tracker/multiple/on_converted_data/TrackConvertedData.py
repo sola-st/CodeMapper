@@ -38,14 +38,12 @@ class TrackConvertedData():
 
             source_commit = meta["source_commit"] # start commit
             character_range_list = json.loads(meta["source_range"])
-            category = meta["category"]
-            source_info = meta["source_info"]
+            # category = meta["category"]
+            # source_info = meta["source_info"]
 
             parameter = [
                 repo_dir,
                 source_commit,
-                category,
-                source_info,
                 meta["source_file"],
                 character_range_list,
                 result_dir,
@@ -74,7 +72,7 @@ class TrackConvertedData():
 
     def wrapper(self, args):
         AnythingTrackerOnConvertedData(*args)
-        source_region_index = args[6].split('/')[-1]
+        source_region_index = args[4].split('/')[-1]
         print(f"Compute candidates is done, source region #{source_region_index}.\n")
         
 

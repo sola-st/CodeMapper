@@ -13,7 +13,8 @@ class GitDiffToCandidateRegion():
         self.repo_dir = meta.repo_dir
         self.base_commit = meta.base_commit
         self.target_commit = meta.target_commit
-        self.file_path = meta.file_path
+        self.source_file_path = meta.source_file_path
+        self.target_file_path = meta.target_file_path
         self.source_region_characters = meta.source_region_characters # list
         self.interest_character_range = meta.interest_character_range # object
         self.interest_line_numbers = meta.interest_line_numbers # list
@@ -77,16 +78,15 @@ class GitDiffToCandidateRegion():
         levels = ["line", "word"]
         # The \w+ pattern is a regular expression that matches one or more word characters (letters, digits, or underscores). 
         # -w to ignore whitespaces. It's add to solve a special case where only more or less whitespace in a line.
+        # suffix = f"{self.base_commit} {self.target_commit} -- {self.source_file_path}"
+        suffix = f"{self.base_commit}:{self.source_file_path} {self.target_commit}:{self.target_file_path}"
         for algorithm in diff_algorithms:
             prefix = f"git diff --diff-algorithm={algorithm} --color --unified=0"
-            suffix = f"{self.base_commit} {self.target_commit} -- {self.file_path}"
             for level in levels:
                 if level == "line":
                     command = f"{prefix} {suffix}"
                 else:
                     command = f"{prefix} --word-diff {suffix}" # -regex='\w+'
-                # if renamed_file_path: # rename happens
-                #     commit_diff_command = f"git diff {self.base_commit}:{self.file_path} {self.target_commit}:{renamed_file_path}"
                 result = subprocess.run(command, cwd=self.repo_dir, shell=True,
                         stdout = subprocess.PIPE, universal_newlines=True)
                 diff_result = result.stdout
