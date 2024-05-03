@@ -18,7 +18,7 @@ from git.repo import Repo
 
 
 class GetRanges():
-    def __init__(self, repo_dir, commit, file, start_line_number_str, additional_info):
+    def __init__(self, repo_dir, commit, file, start_line_number_str, additional_info, suppression=False):
         self.repo_dir = repo_dir
         self.commit = commit
         self.file= file
@@ -30,6 +30,7 @@ class GetRanges():
         * element for variables and attributes (str)
         '''
         self.additional_info = additional_info
+        self.suppression = suppression
 
         self.four_element_range = None # to return
         self.multi_location_recorder = None
@@ -54,16 +55,19 @@ class GetRanges():
             start_line = file_lines[start_line_number_idx]
         except:
             return # newly added
+        
+        start_character_abs = len(start_line) - len(start_line.lstrip()) + 1 # pre whitespaces
+        
+        if self.suppression:
+            end_character_abs = len(start_line)
+            self.four_element_range = [start_line_number, start_character_abs, start_line_number, end_character_abs]
 
         if isinstance(self.additional_info, int): # block
-            start_character_abs = len(start_line) - len(start_line.lstrip()) + 1
-            end_character_abs = len(file_lines[self.additional_info-1].rstrip)
+            end_character_abs = len(file_lines[self.additional_info-1].rstrip())
             self.four_element_range = [start_line_number, start_character_abs, self.additional_info, end_character_abs]
         elif isinstance(self.additional_info, str): # variable, attribute
-            start_character_abs = len(start_line) - len(start_line.lstrip()) + 1 # pre whitespaces
             end_character_abs = 0
             additonal_check = True
-
             start_line_splits = start_line.split(" ")
             intra_line_location_num = start_line_splits.count(self.additional_info)
             if intra_line_location_num == 1:

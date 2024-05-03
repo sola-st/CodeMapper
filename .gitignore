@@ -6,6 +6,9 @@ data/test_oracle
 data/annotation
 data/oracle_code_tracker
 data/converted_data
+data/suppression_data
+data/repos_suppression
+data/oracle_suppression
 tests/
 *__pycache_*
 .vscode/settings.json
