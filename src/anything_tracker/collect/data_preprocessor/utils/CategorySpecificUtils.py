@@ -33,13 +33,11 @@ def get_region_base_info(element_name_info, category):
         element = element_name_info.split(".")[-1] # like (public)()CopyUtils(30)
         tmp = element.split(")")
         accessor = tmp[0].replace("(", "")
-        # TODO more checks about the accessor
-        if accessor == "package":
-            accessor = ""
-        try:
-            assert accessor in ["public", "private", "default", "protected", ""]
-        except: 
+        if accessor not in ["public", "private", "default", "protected", "package"]:
+            # 1 special case: okhttp/src/main/java/okhttp3.internal.http2.(final)Http2Codec(53)
+            # the data creators missed the "public" for it.
             print(element_name_info)
+            accessor = ""
         class_name = tmp[-2].split("(")[0]
         # if needed, return the line number
         return class_name, accessor
