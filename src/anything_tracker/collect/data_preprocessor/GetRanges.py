@@ -45,10 +45,18 @@ class GetRanges():
         if not os.path.exists(self.file):
             # introduce a new file, the file does not exist in parent commit.
             return
-        
-        with open(self.file, "r") as f:
-            file_lines = f.readlines()
-        
+        file_lines = None
+        # to handle special characters (French?)
+        encodings_to_try = ['utf-8', 'latin-1', 'cp1252']
+        for encoding in encodings_to_try:
+            try:
+                with open(self.file, "r", encoding=encoding) as f:
+                    file_lines = f.readlines()
+                break
+            except UnicodeDecodeError: # try the next encoding
+                print(f"Failed to decode using, {encoding}. {self.commit}:{self.file}")
+
+        assert file_lines != None
         start_line_number = int(self.start_line_number_str)
         start_line_number_idx = start_line_number - 1
         try:
@@ -67,13 +75,13 @@ class GetRanges():
             self.four_element_range = [start_line_number, start_character_abs, self.additional_info, end_character_abs]
         elif isinstance(self.additional_info, str): # variable, attribute
             end_character_abs = 0
-            additonal_check = True
+            additional_check = True
             start_line_splits = start_line.split(" ")
             intra_line_location_num = start_line_splits.count(self.additional_info)
             if intra_line_location_num == 1:
                 addi_idx = start_line_splits.index(self.additional_info)
                 start_line_splits = start_line_splits[:addi_idx]
-                additonal_check = False
+                additional_check = False
             elif intra_line_location_num == 0:
                 clean = [re.sub(r"[^\w\s]", "", s).strip() for s in start_line_splits]
                 if self.additional_info not in clean:
@@ -81,14 +89,14 @@ class GetRanges():
                 else:
                     addi_idx = clean.index(self.additional_info)
                     start_line_splits = start_line_splits[:addi_idx]
-                    additonal_check = False
+                    additional_check = False
             else:
                 print(f"{intra_line_location_num}, {self.commit}, {self.file}")
                 self.multi_location_recorder = [intra_line_location_num, f"{self.commit}", self.file]
                 return
 
             for s in start_line_splits:
-                if additonal_check == True:
+                if additional_check == True:
                     if s.startswith(self.additional_info):
                         if re.sub(r"[^\w\s]", "", s).strip() == self.additional_info:
                             break
