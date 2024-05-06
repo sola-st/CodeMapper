@@ -1,5 +1,4 @@
 import argparse
-import csv
 import json
 import os
 from os.path import join
@@ -15,7 +14,6 @@ from anything_tracker. ComputeTargetRegion import ComputeTargetRegion
 from anything_tracker.GitDiffToCandidateRegion import GitDiffToCandidateRegion
 from anything_tracker.SearchLinesToCandidateRegion import SearchLinesToCandidateRegion
 from anything_tracker.collect.data_preprocessor.GetCommitsModifiedFile import get_modified_commit_file_pairs
-from anything_tracker.collect.data_preprocessor.utils.UnifyKeys import UnifyKeys
 from anything_tracker.multiple.on_converted_data.RecordComputeExecutionTimes import RecordComputeExecutionTimes
 from anything_tracker.utils.ReadFile import checkout_to_read_file
 
@@ -150,7 +148,14 @@ class AnythingTrackerOnConvertedData():
         print(f"Executing time (1st phase): {first_phrase_executing_time} seconds")
         if candidate_regions == [] and self.target_file_lines:
             print(f"--No candidate regions.\n  {self.repo_dir}\n  {self.source_file_path}\n  {self.interest_character_range.four_element_list}\n")
-            return self.unique_target_range, self.accumulate_dist_based, self.one_round_time_info
+            self.one_round_time_info[2] = 0
+            # return self.unique_target_range, self.accumulate_dist_based, self.one_round_time_info
+            # create an "null" candidate region
+            candidate_region_character_range = CharacterRange([0, 0, 0, 0])
+            target_characters = None
+            marker = "no candidate regions"
+            null_region = CandidateRegion(self.source_character_range, candidate_region_character_range, target_characters, marker)
+            candidate_regions.append(null_region)
         
         # write source character to json files
         source_region_characters_str = "".join(self.source_region_characters)
@@ -202,59 +207,80 @@ class AnythingTrackerOnConvertedData():
             print(f"Executing time (2nd phase): 1 candidate, {second_phrase_executing_time} seconds")
             target_candidate = candidate_regions[0]
             results_set_dict.update({"dist_based": { 
-                "idx": 0,
                 "target_candidate_edit_distance": "Unknown",
                 "target_candidate_index" : 0
                 }})
         else:
             candiate_str_list = []
             source_str = ""
-            # option 1: without context
-            if self.context_line_num == 0:
-                source_str = source_region_characters_str
-                for candidate in candidate_regions:
-                    candidate_characters = candidate.character_sources
-                    candiate_str_list.append(candidate_characters)
-            else: # option 2: with context
-            #     # 2.1 check the characters with contexts ar once
-            #     before_lines_num = self.context_line_num
-            #     after_line_num = self.context_line_num
-            #     source_str = get_context_aware_characters(self.base_file_lines, self.interest_character_range, before_lines_num, after_line_num)
-            #     for candidate in candidate_regions:
-            #         candidate_range = candidate.candidate_region_character_range
-            #         candidate_with_context = get_context_aware_characters(self.target_file_lines, candidate_range, before_lines_num, after_line_num)
-            #         candiate_str_list.append(candidate_with_context)
-            # results_set_dict, average_highest, vote_most = ComputeTargetRegion(source_str, candiate_str_list).run()
-                
-                # 2.2 check pre, post separately
-                source_str = source_region_characters_str
-                before_lines_num = self.context_line_num
-                after_line_num = self.context_line_num
-                source_pre_lines_str, source_post_lines_str = get_context_aware_characters(self.base_file_lines, \
-                            self.interest_character_range, before_lines_num, after_line_num)
-                for candidate in candidate_regions:
-                    candidate_range = candidate.candidate_region_character_range
-                    # candidate_with_context 
-                    candidate_pre_lines_str, candidate_post_lines_str = get_context_aware_characters(self.target_file_lines, \
-                            candidate_range, before_lines_num, after_line_num)
-                    candidate_str = candidate.character_sources
-                    candiate_str_list.append([candidate_pre_lines_str, candidate_str, candidate_post_lines_str])
+
+            # Deduplicate candidate ranges at line level
+            start_end_line_pairs = []
+            idx_recorder = []
+            for i, candidate in enumerate(candidate_regions):
+                candidate_range = candidate.candidate_region_character_range
+                start = candidate_range.start_line_idx
+                end = candidate_range.end_line_idx
+                pair = [start, end]
+                if pair not in start_end_line_pairs:
+                    start_end_line_pairs.append(pair)
+                    idx_recorder.append(i)
+                    # option 1: without context
+                    if self.context_line_num == 0:
+                        source_str = source_region_characters_str
+                        candidate_characters = candidate.character_sources
+                        candiate_str_list.append(candidate_characters)
+                    else: # option 2: with context
+                    #     # 2.1 check the characters with contexts ar once
+                    #     before_lines_num = self.context_line_num
+                    #     after_line_num = self.context_line_num
+                    #     source_str = get_context_aware_characters(self.base_file_lines, self.interest_character_range, before_lines_num, after_line_num)
+                    #     for candidate in candidate_regions:
+                    #         candidate_range = candidate.candidate_region_character_range
+                    #         candidate_with_context = get_context_aware_characters(self.target_file_lines, candidate_range, before_lines_num, after_line_num)
+                    #         candiate_str_list.append(candidate_with_context)
+                    # results_set_dict, average_highest, vote_most = ComputeTargetRegion(source_str, candiate_str_list).run()
+                        
+                        # 2.2 check pre, post separately
+                        source_str = source_region_characters_str
+                        before_lines_num = self.context_line_num
+                        after_line_num = self.context_line_num
+                        # source_pre_lines_str, source_post_lines_str = get_context_aware_characters(self.base_file_lines, \
+                        #             self.interest_character_range, before_lines_num, after_line_num)
+
+                        candidate_range = candidate.candidate_region_character_range
+                        # candidate_with_context 
+                        candidate_pre_lines_str, candidate_post_lines_str = get_context_aware_characters(self.target_file_lines, \
+                                candidate_range, before_lines_num, after_line_num)
+                        candidate_str = candidate.character_sources
+                        candiate_str_list.append([candidate_pre_lines_str, candidate_str, candidate_post_lines_str])
             # special for 2.2
             # results_set_dict, average_highest, vote_most = ComputeTargetRegionWithContext(\
             #         [source_pre_lines_str, source_str, source_post_lines_str], candiate_str_list).run()
                     
             # for both 1 and 2.1
-            results_set_dict = ComputeTargetRegion(source_str, candiate_str_list).run()
-
-            # phase 2: compute candidate regions ends.
-            second_phrase_end_time = time.time()
-            second_phrase_executing_time = round((second_phrase_end_time - second_phrase_start_time), 3)
-            print(f"Executing time (2nd phase): {second_phrase_executing_time} seconds")
+            assert candiate_str_list != []
+            if len(candiate_str_list) > 1:
+                results_set_dict = ComputeTargetRegion(source_str, candiate_str_list).run()
+                # phase 2: compute candidate regions ends.
+                second_phrase_end_time = time.time()
+                second_phrase_executing_time = round((second_phrase_end_time - second_phrase_start_time), 3)
+                print(f"Executing time (2nd phase): {second_phrase_executing_time} seconds")
+            else: # == 1
+                second_phrase_end_time = time.time()
+                second_phrase_executing_time = round((second_phrase_end_time - second_phrase_start_time), 3)
+                print(f"Executing time (2nd phase): line deduplicate, 1 candidate, {second_phrase_executing_time} seconds")
+                idx = idx_recorder[0]
+                target_candidate = candidate_regions[idx]
+                results_set_dict.update({"dist_based": { 
+                    "target_candidate_edit_distance": "Unknown",
+                    "target_candidate_index" : idx
+                }})
 
         self.one_round_time_info[2] = second_phrase_executing_time
 
         for key, target_dict in results_set_dict.items():
-            target_candidate = candidate_regions[target_dict["idx"]]
+            target_candidate = candidate_regions[target_dict["target_candidate_index"]]
             target_range: list = target_candidate.candidate_region_character_range.four_element_list
             target_json = {
                 "iteration": self.iteration_index,

@@ -61,7 +61,7 @@ class TrackConvertedData():
         repo_folder_java = join("data", "repos_java")
         source_repo_init = SourceRepos(repo_urls_file, repo_folder_java)
         repo_dirs = source_repo_init.get_repo_dirs()
-        # source_repo_init.checkout_latest_commits()
+        source_repo_init.checkout_latest_commits()
         print(f"Found {len(repo_dirs)} repositories.")
 
         args_for_all_maps = self.get_meta_inputs()
@@ -79,12 +79,12 @@ class TrackConvertedData():
 if __name__ == "__main__":
     result_dir_parent = join("data", "results", "tracked_maps", "mapped_regions_convert_test")
     oracle_file = join("data", "converted_data", "converted_data.json")
-    time_file_to_write = join("data", "results", "executing_time.csv")
+    time_file_to_write = join("data", "results", "execution_time", "executing_time.csv")
     # context_line_num >=0.
     # 0 means no contexts, >0 means get the corresponding number of lines before and after respectively as contexts
     context_line_num = 0 
     # 3 techniques can be optionally turned off, support turn off one or multiple at a time.
     # 1. move detection  2. search matches  3. fine-grain borders
-    turn_off_techniques = [False, False, False] # change the boolean to True to turn off the corresponding technique.
+    turn_off_techniques = [False, False, True] # change the boolean to True to turn off the corresponding technique.
     turn_off_techniques_obj = SpecifyToTurnOffTechniques(turn_off_techniques)
     TrackConvertedData(oracle_file, result_dir_parent, context_line_num, time_file_to_write, turn_off_techniques_obj).run()

@@ -15,7 +15,7 @@ def load_json_file(file):
     return data
         
 
-class WhichMetricIsBetter():
+class MeasureHistoriesCharacterLevel():
     def __init__(self, oracle_file_folder, results_dir, results_csv_file):
         self.oracle_file_folder = oracle_file_folder
         self.results_dir = results_dir
@@ -135,7 +135,7 @@ class WhichMetricIsBetter():
 
     def run(self):
         # start from reading all the oracles
-        subfolders = os.listdir(self.oracle_file_folder)
+        subfolders = os.listdir(self.results_dir) # oracle_file_folder
         oracle_num = len(subfolders)
         for num in range(oracle_num):
             # expected
@@ -157,6 +157,8 @@ class WhichMetricIsBetter():
                 for region in histories_regions:
                     region_target_commit = region["target_commit"]
                     region_target_range = json.loads(region["target_range"])
+                    if region_target_range == [0, 0, 0, 0]:
+                        region_target_range = None
                     expected_range = ""
                     if region_target_commit in expected_commits:
                         region_target_file = region["target_file"]
@@ -204,5 +206,5 @@ class WhichMetricIsBetter():
 if __name__=="__main__":
     oracle_file_folder = join("data", "converted_data")
     results_dir = join("data", "results", "tracked_maps", "mapped_regions")
-    results_csv_file = join("data", "results", "measurement_results", "measurement_results_metrics_attribute.csv")
-    WhichMetricIsBetter(oracle_file_folder, results_dir, results_csv_file).run()
+    results_csv_file = join("data", "results", "measurement_results", "measurement_results_metrics.csv")
+    MeasureHistoriesCharacterLevel(oracle_file_folder, results_dir, results_csv_file).run()

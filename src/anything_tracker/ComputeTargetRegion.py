@@ -1,6 +1,3 @@
-from anything_tracker.similarity.ComputeSimilarity import ComputeSimilarity
-
-    
 class ComputeTargetRegion():
     def __init__(self, source_region_characters, candidate_string_lists):
         # source_region_characters and candidate_string_lists are expended strings (list)
@@ -45,7 +42,6 @@ class ComputeTargetRegion():
         top_idx = edit_dists.index(top_dist)
         results_set_dict = {}
         metrics_based_dict = {
-                "idx": top_idx,
                 "target_candidate_edit_distance" : top_dist,
                 "target_candidate_index" : top_idx
             }
