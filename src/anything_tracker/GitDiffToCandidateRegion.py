@@ -81,7 +81,7 @@ class GitDiffToCandidateRegion():
         # suffix = f"{self.base_commit} {self.target_commit} -- {self.source_file_path}"
         suffix = f"{self.base_commit}:{self.source_file_path} {self.target_commit}:{self.target_file_path}"
         for algorithm in diff_algorithms:
-            prefix = f"git diff --diff-algorithm={algorithm} --color --unified=0"
+            prefix = f"git diff --diff-algorithm={algorithm} --ignore-space-at-eol --color --unified=0"
             for level in levels:
                 if level == "line":
                     command = f"{prefix} {suffix}"
@@ -103,6 +103,21 @@ class GitDiffToCandidateRegion():
         '''
         Analyze diff results, return target changed hunk range map, and the changed hunk sources.
         '''
+
+        candidate_regions = set()
+        top_diff_hunks = set()
+        middle_diff_hunks = set()
+        bottom_diff_hunks = set()
+        may_moved = False
+
+        if not diff_result:
+            # the source range is not changed
+            candidate_characters = "".join(self.source_region_characters)
+            candidate_region = CandidateRegion(self.interest_character_range, \
+                    self.interest_character_range, candidate_characters, "<WHOLE_FILE_NO_CHANGE>")
+            candidate_regions.add(candidate_region)
+            return candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved
+        
         # for character start and end
         candidate_character_start_idx = 0
         candidate_character_end_idx = 0
@@ -112,11 +127,7 @@ class GitDiffToCandidateRegion():
 
         # for checking changed hunk
         all_covered_mark = False
-        candidate_regions = set()
-        top_diff_hunks = set()
-        middle_diff_hunks = set()
-        bottom_diff_hunks = set()
-        may_moved = False
+        
         uncovered_lines = self.interest_line_numbers
         changed_line_numbers_list = self.interest_line_numbers # all numbers start at 1.
         current_hunk_range_line = None

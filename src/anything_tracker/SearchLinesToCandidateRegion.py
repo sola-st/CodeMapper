@@ -113,12 +113,12 @@ class SearchLinesToCandidateRegion():
                 if self.middle_diff_hunks:
                     # also remove the changed lines in middle hunk when identify the unchanged lines
                     specified_diff_hunks.extend(self.middle_diff_hunks)
-                bottom_unchanged_line_numbers = self.get_first_and_last_unchanged_line_numbers(specified_diff_hunks, True, False)
+                bottom_unchanged_line_numbers = self.get_first_and_last_unchanged_line_numbers(specified_diff_hunks, False, True)
 
                 # Map unchanged lines
                 unchanged_lines = self.source_region_characters[-(len(bottom_unchanged_line_numbers)):]
                 unchanged_str = "".join(unchanged_lines)
-                unchanged_mapped_ranges = self.search_exactly_mapped_context(unchanged_str, "keep_lower_part", [self.top_diff_hunk]) 
+                unchanged_mapped_ranges = self.search_exactly_mapped_context(unchanged_str, "keep_lower_part", specified_diff_hunks) 
             else:
                 # Scenario 2: top diff hunk + ... + bottom diff hunk
                 candidate_region_top_bottom_with_changed_lines = self.top_bottom_overlap()
@@ -126,12 +126,14 @@ class SearchLinesToCandidateRegion():
         else: # "bottom"
             # Scenario 4
             specified_diff_hunks.append(self.bottom_diff_hunk)
+            to_check_hunk = [self.bottom_diff_hunk]
             if self.middle_diff_hunks:
                 specified_diff_hunks.extend(self.middle_diff_hunks)
+                to_check_hunk = self.middle_diff_hunks
             top_unchanged_line_numbers = self.get_first_and_last_unchanged_line_numbers(specified_diff_hunks, True, False)
             unchanged_lines = self.source_region_characters[0: len(top_unchanged_line_numbers)]
             unchanged_str = "".join(unchanged_lines)
-            unchanged_mapped_ranges = self.search_exactly_mapped_context(unchanged_str, "keep_upper_part", [self.bottom_diff_hunk]) 
+            unchanged_mapped_ranges = self.search_exactly_mapped_context(unchanged_str, "keep_upper_part", to_check_hunk) 
         
         # Map the mapped unchanged line ranges with diff hunk
         if location == "top":
