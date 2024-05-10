@@ -1,3 +1,6 @@
+import re
+
+
 def get_region_base_info(element_name_info, category):
     '''
     Get program element meta-information, eg., variable names, method definitions, and line number/ranges.
@@ -46,7 +49,13 @@ def get_region_base_info(element_name_info, category):
         tmp = element.split("(")
         method_name = tmp[0]
         parameter_types = tmp[1].replace(")", "")
-        return method_name, parameter_types
+        # exclude the special characters, eg,. DocWriteRequest[] --> DocWriteRequest
+        paras = [parameter_types]
+        if "," in parameter_types:
+            paras = parameter_types.split(",")
+        clean_parameter_types_list = [re.sub(r"[^\w\s]", "", p) for p in paras]
+        clean_parameter_types = ",".join(clean_parameter_types_list)
+        return method_name, clean_parameter_types
     
     assert element != None
 

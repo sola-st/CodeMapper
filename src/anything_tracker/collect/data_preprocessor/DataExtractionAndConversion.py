@@ -90,7 +90,8 @@ class DataExtractionAndConversion():
             repo.git.checkout(source_commit, force=True)
             start_name = data[self.key_set[category]["start_name"]]
             element_key_line = data[self.key_set[category]["start_info"]]
-            start_name_copy, identifier = get_region_base_info(element_key_line, category)
+            source_info = get_region_base_info(element_key_line, category)
+            start_name_copy, identifier = source_info
             assert start_name == start_name_copy
             ast_init = self.class_ast_init
             if category == "method":

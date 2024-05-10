@@ -14,7 +14,7 @@ def write_extracted_json_strings(json_file, to_write):
 
 def get_json_strs(url, file_path, commit, range, suppression_text, mapped_meta=None):
         # the following 2 strings are different on keys
-        converted_json_str_hsitories = {
+        converted_json_str_histories = {
             "url": url,
             "file_path": file_path,
             "commit": commit,
@@ -32,7 +32,7 @@ def get_json_strs(url, file_path, commit, range, suppression_text, mapped_meta=N
                 "source_info": suppression_text,
                 "mapped_meta": mapped_meta
             }
-        return converted_json_str_input, converted_json_str_hsitories
+        return converted_json_str_input, converted_json_str_histories
 
 def convert_histories(repo_parent_folder, result_parent_folder, file_path, repo_name, url):
     overall_backward_inputs = []
@@ -117,7 +117,7 @@ if __name__=="__main__":
     source_repo_init = SourceRepos(repo_file, repo_parent_folder)
     source_repo_init.checkout_latest_commits()
 
-    # get parameters to start covention
+    # get parameters to start convention
     args_for_all_repos = []
     with open(repo_file, "r") as f:
         repo_urls = f.readlines()
