@@ -315,10 +315,11 @@ def main(*args):
             results_dir, context_line_num, time_file_to_write, turn_off_techniques = args
     # commits_to_track = check_modified_commits(repo_dir, base_commit, start_file_path, category, additional_info)
     commits_to_track, file_paths = get_modified_commit_file_pairs(repo_dir, base_commit, start_file_path)
-    print(commits_to_track)
     if base_commit != commits_to_track[0]:
         assert base_commit not in commits_to_track
         commits_to_track.insert(0, base_commit)
+        file_paths.insert(0, start_file_path)
+    print(commits_to_track)
 
     source_commits = commits_to_track[:-1]
     target_commits = commits_to_track[1:]
@@ -351,7 +352,11 @@ def main(*args):
         times_1st.append(one_round_time_info[1])
         times_2nd.append(one_round_time_info[2])
 
-        if middle_target_range == [0, 0, 0, 0]:
+        if middle_target_range == [0, 0, 0, 0] or middle_target_range == []:
+            break
+        elif middle_target_range[0] > middle_target_range[2]:
+            ori_kind = accumulate_dist_based[-1]["kind"]
+            accumulate_dist_based[-1]["kind"] = f"{ori_kind}<Interrupted>" 
             break
         source_range = middle_target_range
 
