@@ -3,6 +3,7 @@ import csv
 
 class RecordComputeExecutionTimes():
     '''
+    For AnythingTrackerOnConvertedData:
     Expected recorded execution time format:
         For the 1st round/iteration: "ground_truth_index", "candidate_numbers", "time_1st", "time_2nd", "overall"
         For the 2nd round/iteration: "ground_truth_index", "candidate_numbers", "time_1st", "time_2nd", "overall"
@@ -18,10 +19,10 @@ class RecordComputeExecutionTimes():
     time_1st" = 0.130, "time_2nd" = 1.025, the overall all with 3 digits.
     '''
 
-    def __init__(self, write_mode, time_file_to_write, indices, candi_nums, times_1st, times_2nd):
+    def __init__(self, write_mode, time_file_to_write, ground_truth_indices, candi_nums, times_1st, times_2nd):
         self.write_mode = write_mode
         self.time_file_to_write = time_file_to_write
-        self.indices = indices
+        self.ground_truth_indices = ground_truth_indices
         self.candi_nums = candi_nums
         self.times_1st = times_1st
         self.times_2nd = times_2nd
@@ -38,7 +39,7 @@ class RecordComputeExecutionTimes():
 
     def compute_one_round_overall_time(self):
         times_round_level_overall = []
-        for idx, num, t1, t2 in zip(self.indices, self.candi_nums, self.times_1st, self.times_2nd):
+        for idx, num, t1, t2 in zip(self.ground_truth_indices, self.candi_nums, self.times_1st, self.times_2nd):
             overall = round((t1 + t2), self.digits)
             times_round_level_overall.append(overall)
             self.times_to_write.append([idx, num, t1, t2, overall])
