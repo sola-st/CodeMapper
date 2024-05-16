@@ -299,12 +299,24 @@ class SearchLinesToCandidateRegion():
         # Requirements 1: Expected first mapped range should starts earlier than the first middle changed hunk ends.
         first_unchanged_mapped_ranges = self.search_exactly_mapped_context(first_unchanged_str, "keep_upper_part", self.middle_diff_hunks) 
         # Requirements 2: always get the closet first range (base: first middle changed hunk)
-        expected_first_range = first_unchanged_mapped_ranges[-1]
+        if first_unchanged_mapped_ranges:
+            expected_first_range = first_unchanged_mapped_ranges[-1]
+        else:
+            print("H_ERROR: git diff gives the wrong numbers. No 1st.")
+            candidate_region = self.create_a_null_region("NO_1ST")
+            candidate_region_cover_changed_lines.append(candidate_region)
+            return candidate_region_cover_changed_lines
 
         # Requirements 3: Expected last mapped range should starts later than the last middle changed hunk ends.
         last_unchanged_mapped_ranges = self.search_exactly_mapped_context(last_unchanged_str, "keep_lower_part", self.middle_diff_hunks) 
         # Requirements 4: always get the closet last range ((base: last middle changed hunk))
-        expected_last_range = last_unchanged_mapped_ranges[0]
+        if last_unchanged_mapped_ranges:
+            expected_last_range = last_unchanged_mapped_ranges[0]
+        else:
+            print("H_ERROR: git diff gives the wrong numbers. No_last.")
+            candidate_region = self.create_a_null_region("NO_LAST")
+            candidate_region_cover_changed_lines.append(candidate_region)
+            return candidate_region_cover_changed_lines
 
         # the line numbers in middle hunks help to locate the unchanged lines before and after
         # character level
@@ -394,7 +406,7 @@ class SearchLinesToCandidateRegion():
             if truncate == "keep_upper_part":
                 specified_hunk = specified_hunks[0]
                 first_middle_hunk_start_line_number = specified_hunk.target_start_line_number
-                target_file_lines_str = "".join(self.target_file_lines[:first_middle_hunk_start_line_number-1])
+                target_file_lines_str = "".join(self.target_file_lines[:first_middle_hunk_start_line_number])
                 if specified_hunk.target_start_line_number == specified_hunk.target_end_line_number:
                     # empty target hunk
                     target_file_lines_str = "".join(self.target_file_lines[:first_middle_hunk_start_line_number])
@@ -501,6 +513,14 @@ class SearchLinesToCandidateRegion():
             return character_ranges
         else:
             return candidate_region_with_only_unchanged_lines
+        
+    def create_a_null_region(self, marker_tail):
+        marker = f"<GIT_REPORTS_WRONG_NUMBERS_{marker_tail}>"
+        region_range = [0, 0, 0, 0]
+        candidate_region_range = CharacterRange(region_range)
+        candidate_characters = None
+        candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
+        return candidate_region
 
 
 def get_character_length_of_lines(file_lines):

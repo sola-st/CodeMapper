@@ -128,6 +128,8 @@ class TrackConvertedData():
     def write_target_regions(self, result_dir, target_regions_for_1_data):
         # write target candidate to a Json file.  
         ground_truth_results_dir = result_dir.rsplit("/", 1)[0]
+        # to handle the case only has 1 history pair and the file is deleted.
+        os.makedirs(ground_truth_results_dir, exist_ok=True) 
         target_json_file = join(ground_truth_results_dir, "target.json")
         with open(target_json_file, "w") as ds:
             json.dump(target_regions_for_1_data, ds, indent=4, ensure_ascii=False)
