@@ -70,12 +70,18 @@ class TrackConvertedData():
                     # and we use it as source commit for backward tracking, 
                     source_commit = meta["target_commit"]
                     character_range_list = json.loads(meta["target_range"])
+                    # TODO check the converted data
+                    if not character_range_list:
+                        continue
+                    target_commit = meta["source_commit"]
+                    if target_commit == "0": # the initial commit
+                        continue
 
                     parameter = [
                         repo_dir,
                         source_commit,
-                        meta["target_file"],
-                        meta["source_commit"],
+                        meta["target_file"], # means source file
+                        target_commit,
                         character_range_list,
                         result_dir,
                         self.context_line_num,
@@ -83,9 +89,6 @@ class TrackConvertedData():
                         self.turn_off_techniques
                     ]
                     parameters.append(parameter)
-
-                if num_folder == 1:
-                    break
 
         return parameters
 

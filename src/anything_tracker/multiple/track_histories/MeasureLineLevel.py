@@ -132,7 +132,7 @@ class MeasureLineLevel():
                     if file_range_info["range"] not in [None, "[]"]:
                         expected_range = json.loads(file_range_info["range"])
                     expected_file = file_range_info["file"]
-                    if region_target_file == expected_file or (region_target_file == True and expected_range == None):
+                    if region_target_file == expected_file or (region_target_file == None and expected_range == None):
                         if region_target_range == expected_range:
                             # result 1: exact matches
                             self.update_results("Y")
