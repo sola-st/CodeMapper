@@ -100,9 +100,9 @@ class AnythingTrackerOnHistoryPairs():
         # search to map characters
         for iter in diff_hunk_lists:
             search_candidates = []
-            algorithm, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved = iter
+            algorithm, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks = iter
             search_candidates = SearchLinesToCandidateRegion(algorithm, self,
-                    top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved).search_maps()
+                    top_diff_hunks, middle_diff_hunks, bottom_diff_hunks).search_maps()
             if search_candidates:
                 depulicated_search_candidates, regions = deduplicate_candidates(search_candidates, regions)
                 candidate_regions.extend(depulicated_search_candidates)

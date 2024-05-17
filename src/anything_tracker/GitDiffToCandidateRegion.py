@@ -48,7 +48,7 @@ class GitDiffToCandidateRegion():
             algorithm = d["algorithm"]
             level = d["level"]
             diff_result = d["diff_result"]
-            sub_candidate_regions, sub_top_diff_hunks, sub_middle_diff_hunks, sub_bottom_diff_hunks, sub_may_moved = \
+            sub_candidate_regions, sub_top_diff_hunks, sub_middle_diff_hunks, sub_bottom_diff_hunks = \
                     self.diff_result_to_target_changed_hunk(algorithm, level, diff_result)
             for sub in sub_candidate_regions:
                 r = sub.candidate_region_character_range.four_element_list
@@ -58,7 +58,7 @@ class GitDiffToCandidateRegion():
                 else:
                     if not r in regions:
                         candidate_regions.append(sub)
-            diff_hunk_lists.append([algorithm, list(sub_top_diff_hunks), list(sub_middle_diff_hunks), list(sub_bottom_diff_hunks), sub_may_moved])
+            diff_hunk_lists.append([algorithm, list(sub_top_diff_hunks), list(sub_middle_diff_hunks), list(sub_bottom_diff_hunks)])
         return candidate_regions, diff_hunk_lists
 
     def get_changed_hunks_from_different_algorithms(self):
@@ -108,7 +108,6 @@ class GitDiffToCandidateRegion():
         top_diff_hunks = set()
         middle_diff_hunks = set()
         bottom_diff_hunks = set()
-        may_moved = False
 
         if not diff_result:
             # the source range is not changed
@@ -116,7 +115,7 @@ class GitDiffToCandidateRegion():
             candidate_region = CandidateRegion(self.interest_character_range, \
                     self.interest_character_range, candidate_characters, "<WHOLE_FILE_NO_CHANGE>")
             candidate_regions.add(candidate_region)
-            return candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved
+            return candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks
         
         # for character start and end
         candidate_character_start_idx = 0
@@ -221,8 +220,6 @@ class GitDiffToCandidateRegion():
                                             current_hunk_range_line, diffs, self.target_file_lines, self.turn_off_techniques.turn_off_fine_grains).run()
                                     if movement_candidate_region != []:
                                         candidate_regions.update(set(movement_candidate_region))
-                                    else:
-                                        may_moved = True
                                 continue
 
                             hunk_end = target_hunk_range.stop - 1
@@ -265,8 +262,6 @@ class GitDiffToCandidateRegion():
                                         current_hunk_range_line, diffs, self.target_file_lines, self.turn_off_techniques.turn_off_fine_grains).run()
                                 if movement_candidate_region != []:
                                     candidate_regions.update(set(movement_candidate_region))
-                                else:
-                                    may_moved = True # 19.03.2024: so far, it's useless, because the SearchLinesToCandidateRegion has no corresponding runnings.
                     else:
                         location = locate_changes(overlapped_line_numbers, self.interest_line_numbers)
                         diff_hunk = DiffHunk(base_hunk_range.start, base_hunk_range.stop, 
@@ -292,7 +287,7 @@ class GitDiffToCandidateRegion():
             candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters,  f"<{algorithm}><{level}><LOCATION_HELPER:DIFF_NO_CHANGE>")
             candidate_regions.add(candidate_region)
 
-        return candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks, may_moved
+        return candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks
     
 def locate_changes(overlapped_line_numbers, interest_line_numbers):
     location = None
