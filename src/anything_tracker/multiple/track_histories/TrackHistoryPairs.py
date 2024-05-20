@@ -30,11 +30,11 @@ class TrackConvertedData():
     Computes candidate region for all the source regions across multiple commits.
     """
     def __init__(self, oracle_history_parent_folder, result_dir_parent, context_line_num, 
-                time_file_to_write, turn_off_techniques):
+                time_file_folder, turn_off_techniques):
         self.oracle_history_parent_folder = oracle_history_parent_folder
         self.result_dir_parent = result_dir_parent
         self.context_line_num = context_line_num
-        self.time_file_to_write = time_file_to_write
+        self.time_file_folder = time_file_folder
         self.turn_off_techniques = turn_off_techniques
 
     def get_meta_inputs(self):
@@ -46,6 +46,7 @@ class TrackConvertedData():
         category_subset_pairs = get_category_subfolder_info(self.oracle_history_parent_folder)
         # category_subset_pairs = [["method", "test"]]
         for category, subset in category_subset_pairs: # eg., method, test
+            time_file_to_write = join(self.time_file_folder, f"execution_time_{category}_{subset}")
             subset_folder = join(self.oracle_history_parent_folder, category, subset)
             subset_folder_len = len(os.listdir(subset_folder))
             for num_folder in range(subset_folder_len):
@@ -85,7 +86,7 @@ class TrackConvertedData():
                         character_range_list,
                         result_dir,
                         self.context_line_num,
-                        self.time_file_to_write,
+                        time_file_to_write,
                         self.turn_off_techniques
                     ]
                     parameters.append(parameter)
@@ -138,12 +139,13 @@ class TrackConvertedData():
 if __name__ == "__main__":
     result_dir_parent = join("data", "results", "tracked_maps", "mapped_regions")
     oracle_history_parent_folder = join("data", "converted_data")
-    time_file_to_write = join("data", "results", "execution_time", "executing_time.csv")
+    time_file_folder = join("data", "results", "execution_time")
+    os.makedirs(time_file_folder, exist_ok=True)
     # context_line_num >=0.
     # 0 means no contexts, >0 means get the corresponding number of lines before and after respectively as contexts
     context_line_num = 0 
     # 3 techniques can be optionally turned off, support turn off one or multiple at a time.
     # 1. move detection  2. search matches  3. fine-grain borders
-    turn_off_techniques = [False, False, True] # change the boolean to True to turn off the corresponding technique.
+    turn_off_techniques = [False, False, False] # change the boolean to True to turn off the corresponding technique.
     turn_off_techniques_obj = SpecifyToTurnOffTechniques(turn_off_techniques)
-    TrackConvertedData(oracle_history_parent_folder, result_dir_parent, context_line_num, time_file_to_write, turn_off_techniques_obj).run()
+    TrackConvertedData(oracle_history_parent_folder, result_dir_parent, context_line_num, time_file_folder, turn_off_techniques_obj).run()

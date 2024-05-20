@@ -50,6 +50,11 @@ class GitDiffToCandidateRegion():
             diff_result = d["diff_result"]
             sub_candidate_regions, sub_top_diff_hunks, sub_middle_diff_hunks, sub_bottom_diff_hunks = \
                     self.diff_result_to_target_changed_hunk(algorithm, level, diff_result)
+            # empty the hunks for current round
+            self.top_diff_hunks = set()
+            self.middle_diff_hunks = set()
+            self.bottom_diff_hunks = set()
+
             for sub in sub_candidate_regions:
                 r = sub.candidate_region_character_range.four_element_list
                 if regions == []:
@@ -58,7 +63,9 @@ class GitDiffToCandidateRegion():
                 else:
                     if not r in regions:
                         candidate_regions.append(sub)
-            diff_hunk_lists.append([algorithm, list(sub_top_diff_hunks), list(sub_middle_diff_hunks), list(sub_bottom_diff_hunks)])
+            # make sure the sub_middle_diff_hunks are in order (incresed)
+            sorted_sub_middle_diff_hunks = sorted(list(sub_middle_diff_hunks), key=lambda obj: obj.base_start_line_number)
+            diff_hunk_lists.append([algorithm, list(sub_top_diff_hunks), sorted_sub_middle_diff_hunks, list(sub_bottom_diff_hunks)])
         return candidate_regions, diff_hunk_lists
 
     def get_changed_hunks_from_different_algorithms(self):
@@ -105,9 +112,9 @@ class GitDiffToCandidateRegion():
         '''
 
         candidate_regions = set()
-        top_diff_hunks = set()
-        middle_diff_hunks = set()
-        bottom_diff_hunks = set()
+        self.top_diff_hunks = set()
+        self.middle_diff_hunks = set()
+        self.bottom_diff_hunks = set()
 
         if not diff_result:
             # the source range is not changed
@@ -115,7 +122,7 @@ class GitDiffToCandidateRegion():
             candidate_region = CandidateRegion(self.interest_character_range, \
                     self.interest_character_range, candidate_characters, "<WHOLE_FILE_NO_CHANGE>")
             candidate_regions.add(candidate_region)
-            return candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks
+            return candidate_regions, self.top_diff_hunks, self.middle_diff_hunks, self.bottom_diff_hunks
         
         # for character start and end
         candidate_character_start_idx = 0
@@ -141,7 +148,7 @@ class GitDiffToCandidateRegion():
                 # Can be in format: @@ -168,14 +168,13 @@ | @@ -233 +236 @@ | @@ -235,2 +238 @@
                 # line numbers starts at 1, step is the absolute numbers of lines.
                 tmp = diff_line.split(" ")
-                # last_line_number is the actual line numbers, starts at 1.
+                # last_line_number is the abs line numbers, starts at 1.
                 base_hunk_range, base_step, last_line_number = get_diff_reported_range(tmp[1])
                 target_hunk_range, target_step = get_diff_reported_range(tmp[2], False)
                 '''
@@ -202,10 +209,8 @@ class GitDiffToCandidateRegion():
                     '''
                     if list(set(self.interest_line_numbers) - set(base_hunk_range_list)) == []: 
                         if base_hunk_range.start == base_hunk_range.stop: # no changed, bottom overlap
-                            diff_hunk = DiffHunk(base_hunk_range.start, base_hunk_range.stop, 
-                                             target_hunk_range.start, target_hunk_range.stop,
-                                             candidate_character_start_idx, candidate_character_end_idx)
-                            bottom_diff_hunks.add(diff_hunk)
+                            self.add_overlapped_hunks(base_hunk_range, target_hunk_range, overlapped_line_numbers, \
+                                    candidate_character_start_idx, candidate_character_end_idx, "bottom")
                         else:
                             # fully covered by changed hunk
                             # Heuristic: set character indices as 0 and the length of the last line in target range.
@@ -223,7 +228,7 @@ class GitDiffToCandidateRegion():
                                 continue
 
                             hunk_end = target_hunk_range.stop - 1
-                            if hunk_end <= target_hunk_range.start:
+                            if hunk_end < target_hunk_range.start:
                                 hunk_end = target_hunk_range.start
                             marker += "<LOCATION_HELPER:DIFF_FULLY_COVER>"
                             if candidate_character_start_idx == 0:
@@ -263,16 +268,8 @@ class GitDiffToCandidateRegion():
                                 if movement_candidate_region != []:
                                     candidate_regions.update(set(movement_candidate_region))
                     else:
-                        location = locate_changes(overlapped_line_numbers, self.interest_line_numbers)
-                        diff_hunk = DiffHunk(base_hunk_range.start, base_hunk_range.stop, 
-                                             candidate_start_line, candidate_end_line + 1,
-                                             candidate_character_start_idx, candidate_character_end_idx)
-                        if location == "top":
-                            top_diff_hunks.add(diff_hunk)
-                        elif location == "middle":
-                            middle_diff_hunks.add(diff_hunk)
-                        elif location == "bottom":
-                            bottom_diff_hunks.add(diff_hunk)
+                        self.add_overlapped_hunks(base_hunk_range, target_hunk_range, overlapped_line_numbers, \
+                                candidate_character_end_idx, candidate_character_end_idx)
                 else: # no overlap
                     if last_line_number < self.interest_line_numbers[0]:
                         # current hunk changes before the source region, unchanged lines, update changed line numbers.
@@ -280,14 +277,39 @@ class GitDiffToCandidateRegion():
                         move_steps = target_step - base_step
                         changed_line_numbers_list = [(num + move_steps) for num in changed_line_numbers_list]
 
-        if not candidate_regions and not top_diff_hunks and not middle_diff_hunks and not bottom_diff_hunks:
+        if not candidate_regions and not self.top_diff_hunks and not self.middle_diff_hunks and not self.bottom_diff_hunks:
             # No changed lines, with only line number changed.
             character_range = CharacterRange([changed_line_numbers_list[0], self.characters_start_idx, changed_line_numbers_list[-1], self.characters_end_idx])
             candidate_characters = get_region_characters(self.target_file_lines, character_range)
             candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters,  f"<{algorithm}><{level}><LOCATION_HELPER:DIFF_NO_CHANGE>")
             candidate_regions.add(candidate_region)
 
-        return candidate_regions, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks
+        return candidate_regions, self.top_diff_hunks, self.middle_diff_hunks, self.bottom_diff_hunks
+    
+    def add_overlapped_hunks(self, base_hunk_range, target_hunk_range, overlapped_line_numbers, \
+                candidate_character_start_idx, candidate_character_end_idx, location=None):
+        
+        if not location: # if exists, is always "bottom"
+            location = locate_changes(overlapped_line_numbers, self.interest_line_numbers)
+        
+        candidate_start_line = target_hunk_range.start
+        candidate_end_line = target_hunk_range.stop - 1
+        target_hunk_stare_line = self.target_file_lines[candidate_start_line-1]
+        if candidate_character_start_idx <= 0:
+            candidate_character_start_idx = len(target_hunk_stare_line) - len(target_hunk_stare_line.lstrip()) + 1 # at least is 1
+        candidate_character_end_idx = len(self.target_file_lines[candidate_end_line-1]) - 1
+        diff_hunk = DiffHunk(base_hunk_range.start, base_hunk_range.stop, 
+                                candidate_start_line, candidate_end_line + 1,
+                                candidate_character_start_idx, candidate_character_end_idx)
+        # assert candidate_character_start_idx > 0
+        # assert candidate_character_end_idx > 0 # TODO check why
+
+        if location == "top":
+            self.top_diff_hunks.add(diff_hunk)
+        elif location == "middle":
+            self.middle_diff_hunks.add(diff_hunk)
+        elif location == "bottom":
+            self.bottom_diff_hunks.add(diff_hunk)
     
 def locate_changes(overlapped_line_numbers, interest_line_numbers):
     location = None

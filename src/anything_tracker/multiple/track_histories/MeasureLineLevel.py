@@ -5,6 +5,8 @@ import json
 import os
 from os.path import join
 
+from anything_tracker.multiple.track_histories.TrackHistoryPairs import get_category_subfolder_info
+
 
 def load_json_file(file):
     with open(file) as f:
@@ -24,7 +26,8 @@ def compute_line_level_matches(expected_location, predicted_location):
     expected_lines = range(start_line1, end_line1)
     predicted_lines = range(start_line2, end_line2)
 
-    if expected_lines == predicted_lines:
+    # if expected_lines == predicted_lines: # line level
+    if expected_location == predicted_location: # character level
         compare_results = "Y" # "TP"
     else:
         intersection = list(set(expected_lines) & set(predicted_lines))
@@ -102,6 +105,7 @@ class MeasureLineLevel():
         subfolders = os.listdir(self.results_dir)
         ordered_subfolders = [int(num) for num in subfolders]
         ordered_subfolders.sort()
+        # ordered_subfolders = list(range(20))
         for num in ordered_subfolders:
             if not os.path.exists(join(self.results_dir, str(num))): 
                 # AnythingTracker fails to get results.
@@ -167,7 +171,11 @@ class MeasureLineLevel():
         
 
 if __name__=="__main__":
-    oracle_file_folder = join("data", "converted_data")
-    results_dir = join("data", "results", "tracked_maps", "mapped_regions")
-    results_csv_file = join("data", "results", "measurement_results", "measurement_results_metrics.csv")
-    MeasureLineLevel(oracle_file_folder, results_dir, results_csv_file).run()
+    oracle_file_folder = join("data", "converted_data/method/test")
+    category_subset_pairs = get_category_subfolder_info(oracle_file_folder)
+    # category_subset_pairs = [["method", "test"]]
+    for category, subset in category_subset_pairs:
+        detailed_oracle_file_folder = join(oracle_file_folder, category, subset)
+        results_dir = join("data", "results", "tracked_maps", f"mapped_regions_{category}_{subset}")
+        results_csv_file = join("data", "results", "measurement_results", f"measurement_results_metrics_{category}_{subset}_char.csv")
+        MeasureLineLevel(oracle_file_folder, results_dir, results_csv_file).run()

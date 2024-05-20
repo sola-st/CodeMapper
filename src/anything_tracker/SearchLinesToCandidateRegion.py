@@ -118,9 +118,9 @@ class SearchLinesToCandidateRegion():
                 return candidate_region_top_bottom_with_changed_lines
         else: # "bottom"
             # Scenario 4
-            specified_diff_hunks.append(self.bottom_diff_hunk)
             if self.middle_diff_hunks:
                 specified_diff_hunks.extend(self.middle_diff_hunks)
+            specified_diff_hunks.append(self.bottom_diff_hunk)
             unchanged_line_number = self.get_first_and_last_unchanged_line_numbers(specified_diff_hunks, True, False)
             candidate_region_bottom_with_changed_lines = self.bottom_overlap(unchanged_line_number)
             return candidate_region_bottom_with_changed_lines
