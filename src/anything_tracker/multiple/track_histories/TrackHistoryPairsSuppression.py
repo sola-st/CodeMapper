@@ -3,7 +3,7 @@ import os
 from anything_tracker.multiple.track_histories.AnythingTrackerOnHistoryPairs import main as AnythingTrackerOnHistoryPairs
 from anything_tracker.SpecifyToTurnOffTechniques import SpecifyToTurnOffTechniques
 from anything_tracker.experiments.SourceRepos import SourceRepos
-from os.path import join, isdir,exists
+from os.path import join
 
 
 class TrackConvertedData():
