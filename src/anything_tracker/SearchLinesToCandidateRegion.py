@@ -161,8 +161,9 @@ class SearchLinesToCandidateRegion():
         candidate_region_top_bottom_with_changed_lines.append(candidate_region)
 
         # line level
-        candidate_region_line_level = self.transfer_to_line_levl_region(region_range, marker)
-        candidate_region_top_bottom_with_changed_lines.append(candidate_region_line_level)
+        candidate_region_line_level = self.transfer_to_line_level_region(region_range, marker)
+        if candidate_region_line_level:
+            candidate_region_top_bottom_with_changed_lines.append(candidate_region_line_level)
 
         return candidate_region_top_bottom_with_changed_lines
 
@@ -188,8 +189,9 @@ class SearchLinesToCandidateRegion():
         candidate_region_top_with_changed_lines.append(candidate_region)
 
         # line level
-        candidate_region_line_level = self.transfer_to_line_levl_region(region_range, marker)
-        candidate_region_top_with_changed_lines.append(candidate_region_line_level)
+        candidate_region_line_level = self.transfer_to_line_level_region(region_range, marker)
+        if candidate_region_line_level:
+            candidate_region_top_with_changed_lines.append(candidate_region_line_level)
         return candidate_region_top_with_changed_lines
     
     def bottom_overlap(self, top_1st_unchanged_line):
@@ -262,8 +264,9 @@ class SearchLinesToCandidateRegion():
         candidate_region_cover_changed_lines.append(candidate_region)
 
         # line level
-        candidate_region_line_level = self.transfer_to_line_levl_region(region_range, marker)
-        candidate_region_cover_changed_lines.append(candidate_region_line_level)
+        candidate_region_line_level = self.transfer_to_line_level_region(region_range, marker)
+        if candidate_region_line_level:
+            candidate_region_cover_changed_lines.append(candidate_region_line_level)
         
         return candidate_region_cover_changed_lines
 
@@ -475,7 +478,8 @@ class SearchLinesToCandidateRegion():
         candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
         return candidate_region
     
-    def transfer_to_line_levl_region(self, character_level_range, marker):
+    def transfer_to_line_level_region(self, character_level_range, marker):
+        candidate_region = None
         start_line, start_char, end_line, end_char = character_level_range
         line_level_end_char = len(self.target_file_lines[end_line-1]) - 1 # -1 to exclude the "\n"
         if start_char != 1 or end_char != line_level_end_char:

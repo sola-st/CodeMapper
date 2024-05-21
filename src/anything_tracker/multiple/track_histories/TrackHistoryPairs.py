@@ -46,7 +46,7 @@ class TrackConvertedData():
         category_subset_pairs = get_category_subfolder_info(self.oracle_history_parent_folder)
         # category_subset_pairs = [["method", "test"]]
         for category, subset in category_subset_pairs: # eg., method, test
-            time_file_to_write = join(self.time_file_folder, f"execution_time_{category}_{subset}")
+            time_file_to_write = join(self.time_file_folder, f"execution_time_{category}_{subset}.csv")
             subset_folder = join(self.oracle_history_parent_folder, category, subset)
             subset_folder_len = len(os.listdir(subset_folder))
             for num_folder in range(subset_folder_len):
@@ -70,9 +70,12 @@ class TrackConvertedData():
                     # here target commit is the newer commit,
                     # and we use it as source commit for backward tracking, 
                     source_commit = meta["target_commit"]
+                    if meta["target_range"] == "None":
+                        continue
                     character_range_list = json.loads(meta["target_range"])
                     # TODO check the converted data
-                    if not character_range_list:
+                    if not character_range_list or \
+                        (character_range_list[1] == character_range_list[3]) and (character_range_list[0] == character_range_list[2]):
                         continue
                     target_commit = meta["source_commit"]
                     if target_commit == "0": # the initial commit

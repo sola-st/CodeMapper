@@ -69,11 +69,14 @@ class GetRanges():
         if self.suppression:
             end_character_abs = len(start_line)
             self.four_element_range = [start_line_number, start_character_abs, start_line_number, end_character_abs]
+            return
 
-        if isinstance(self.additional_info, int): # block
+        try:
+            self.additional_info = int(self.additional_info) # block
             end_character_abs = len(file_lines[self.additional_info-1].rstrip())
             self.four_element_range = [start_line_number, start_character_abs, self.additional_info, end_character_abs]
-        elif isinstance(self.additional_info, str): # variable, attribute
+        except:
+            # elif isinstance(self.additional_info, str): # variable, attribute
             end_character_abs = 0
             additional_check = True
             start_line_splits = start_line.split(" ")

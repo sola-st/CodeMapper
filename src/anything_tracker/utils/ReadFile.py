@@ -5,8 +5,14 @@ def checkout_to_read_file(repo_dir, commit, file_path):
     repo = Repo(repo_dir)
     repo.git.checkout(commit, force=True)
     if exists(join(repo_dir, file_path)):
-        with open(join(repo_dir, file_path)) as f:
-            file_lines= f.readlines()
+        encodings_to_try = ['utf-8', 'latin-1', 'cp1252']
+        for encoding in encodings_to_try:
+            try:
+                with open(join(repo_dir, file_path), "r", encoding=encoding) as f:
+                    file_lines = f.readlines()
+                break
+            except UnicodeDecodeError: # try the next encoding
+                print(f"Failed to decode using, {encoding}. {commit}:{file_path}")
         return file_lines
     else:
         return None

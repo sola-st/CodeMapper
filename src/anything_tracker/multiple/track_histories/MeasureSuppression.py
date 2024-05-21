@@ -102,29 +102,23 @@ class MeasureLineLevel():
 
     def run(self):
         # start from reading all the oracles
-        subfolders = os.listdir(self.results_dir)
-        ordered_subfolders = [int(num) for num in subfolders]
-        ordered_subfolders.sort()
+        repo_folders = os.listdir(self.results_dir)
         # ordered_subfolders = list(range(20))
-        for num in ordered_subfolders:
-            if not os.path.exists(join(self.results_dir, str(num))): 
-                # AnythingTracker fails to get results.
-                continue
-
+        for repo in repo_folders:
             # predicted
-            json_results_file = join(self.results_dir, f"{num}/target.json")
+            json_results_file = join(self.results_dir, f"{repo}/target.json")
             if os.path.exists(json_results_file) == True:
-                self.indices.append(num)
+                self.indices.append(repo)
             else:
                 continue
 
-            # expected
-            oracle_expected_file = join(self.oracle_file_folder, str(num), "expect_simple.json")
-            expected_commit_range_pieces:dict = load_json_file(oracle_expected_file)
-            expected_commits = expected_commit_range_pieces.keys()
-
             histories_regions_all = load_json_file(json_results_file)
-            for region in histories_regions_all:
+            for i, region in enumerate(histories_regions_all):
+                # expected
+                oracle_expected_file = join(self.oracle_file_folder, repo, str(i), "expected_simple.json")
+                expected_commit_range_pieces:dict = load_json_file(oracle_expected_file)
+                expected_commits = expected_commit_range_pieces.keys()
+
                 region_target_commit = region["target_commit"]
                 region_target_range = region["target_range"]
                 if region_target_range != None:
@@ -171,11 +165,7 @@ class MeasureLineLevel():
         
 
 if __name__=="__main__":
-    oracle_file_folder = join("data", "converted_data")
-    category_subset_pairs = get_category_subfolder_info(oracle_file_folder)
-    # category_subset_pairs = [["method", "test"]]
-    for category, subset in category_subset_pairs:
-        detailed_oracle_file_folder = join(oracle_file_folder, category, subset)
-        results_dir = join("data", "results", "tracked_maps", f"mapped_regions_{category}_{subset}")
-        results_csv_file = join("data", "results", "measurement_results", f"measurement_results_metrics_{category}_{subset}.csv")
-        MeasureLineLevel(detailed_oracle_file_folder, results_dir, results_csv_file).run()
+    oracle_file_folder = join("data", "suppression_data")
+    results_dir = join("data", "results", "tracked_maps", "latest", "mapped_regions_suppression")
+    results_csv_file = join("data", "results", "measurement_results", "measurement_results_metrics_suppression.csv")
+    MeasureLineLevel(oracle_file_folder, results_dir, results_csv_file).run()
