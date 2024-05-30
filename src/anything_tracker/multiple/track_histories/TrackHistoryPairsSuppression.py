@@ -1,35 +1,34 @@
 import json
 import os
-from anything_tracker.multiple.track_histories.AnythingTrackerOnHistoryPairs import main as AnythingTrackerOnHistoryPairs
+from anything_tracker.multiple.track_histories.AnythingTrackerOnHistoryPairs import main_suppression as AnythingTrackerOnHistoryPairs
 from anything_tracker.SpecifyToTurnOffTechniques import SpecifyToTurnOffTechniques
 from anything_tracker.experiments.SourceRepos import SourceRepos
 from os.path import join
 
 
-class TrackConvertedData():
+class TrackHistoryPairsSuppression():
     """
     Computes candidate region for all the source regions across multiple commits.
     """
     def __init__(self, oracle_history_parent_folder, result_dir_parent, context_line_num, 
-                time_file_folder, turn_off_techniques):
+                time_file_to_write, turn_off_techniques):
         self.oracle_history_parent_folder = oracle_history_parent_folder
         self.result_dir_parent = result_dir_parent
         self.context_line_num = context_line_num
-        self.time_file_folder = time_file_folder
+        self.time_file_to_write = time_file_to_write
         self.turn_off_techniques = turn_off_techniques
 
-    def get_meta_inputs(self):
+    def get_meta_inputs(self, repo_dirs):
         """
         Returns a list of parameter list.
         Each inner list contains repo_dir, base_commit, target_commit, file_path, and interest_character_range.
         """
         parameters = []
-        time_file_to_write = join(self.time_file_folder, f"execution_time_suppression.csv")
-        suppression_repos = os.listdir(self.oracle_history_parent_folder)
-        for repo in suppression_repos:
+        for repo_dir in repo_dirs:
+            repo = repo_dir.split("/")[-1]
             repo_contents = os.listdir(join(self.oracle_history_parent_folder, repo))
             hist_len = len(repo_contents) - 2
-            result_dir_tmp = join(self.result_dir_parent, repo)
+            result_dir = join(self.result_dir_parent, repo)
             for num_folder in range(hist_len):
                 num_folder_str = str(num_folder)
                 history_file_path = join(self.oracle_history_parent_folder, repo, \
@@ -43,12 +42,14 @@ class TrackConvertedData():
                 source = histories_pairs[0]
                 target = histories_pairs[1]
 
+                assert str(source["mapped_meta"]) == num_folder_str # mapped ground truth
+
                 url = source["url"]
                 tmp = url.split("/")
                 repo_name = tmp[-1].replace(".git", "")
                 repo_dir = join("data", "repos_suppression", repo_name)
 
-                result_dir = join(result_dir_tmp, num_folder_str)
+                # result_dir = join(result_dir_tmp, num_folder_str)
 
                 if not source["range"]:
                     continue
@@ -61,8 +62,9 @@ class TrackConvertedData():
                     source_range,
                     result_dir,
                     self.context_line_num,
-                    time_file_to_write,
-                    self.turn_off_techniques
+                    self.time_file_to_write,
+                    self.turn_off_techniques,
+                    num_folder_str
                 ]
                 parameters.append(parameter)
 
@@ -77,36 +79,35 @@ class TrackConvertedData():
         source_repo_init.checkout_latest_commits()
         print(f"Found {len(repo_dirs)} repositories.")
 
-        args_for_all_maps = self.get_meta_inputs()
-        refer_idx = -1
+        args_for_all_maps = self.get_meta_inputs(repo_dirs)
         target_regions_for_1_data = []
+        refer_result_dir = args_for_all_maps[0][5]
 
-        for i, args in enumerate(args_for_all_maps):
+        for args in args_for_all_maps:
             result_dir = args[5]
-            tmp = result_dir.split('/')
-            history_pair_index = int(tmp[-1])
+            if refer_result_dir != result_dir: # write results for current repo
+                repo_name = refer_result_dir.rsplit("/", 1)[1]
+                self.write_target_regions(refer_result_dir, target_regions_for_1_data)
+                print(f"*A* Compute candidates done, #{repo_name} **.\n")
+                refer_result_dir = result_dir
+                target_regions_for_1_data = []
 
-            if refer_idx + 1 != history_pair_index:
-                if target_regions_for_1_data:
-                    self.write_target_regions(args_for_all_maps[i-1][5], target_regions_for_1_data)
-                    target_regions_for_1_data = []
-                    source_region_index = tmp[-2]
-                    print(f"Compute candidates done, source region #{source_region_index}.\n")
-
-            refer_idx = history_pair_index
             dist_based = AnythingTrackerOnHistoryPairs(*args)
             target_regions_for_1_data.extend(dist_based)
+            # print(f"Compute candidates done, source region #{args[-1]}.\n")
 
         if target_regions_for_1_data:
-            # write the target region for the last piece of data
-            self.write_target_regions(args_for_all_maps[-1][5], target_regions_for_1_data)
+            # write the target region for the last repo
+            result_dir = args_for_all_maps[-1][5]
+            repo_name = result_dir.rsplit("/", 1)[1]
+            self.write_target_regions(result_dir, target_regions_for_1_data)
+            print(f"*Z* Compute candidates done, #{repo_name} **.\n")
 
     def write_target_regions(self, result_dir, target_regions_for_1_data):
         # write target candidate to a Json file.  
-        ground_truth_results_dir = result_dir.rsplit("/", 1)[0]
         # to handle the case only has 1 history pair and the file is deleted.
-        os.makedirs(ground_truth_results_dir, exist_ok=True) 
-        target_json_file = join(ground_truth_results_dir, "target.json")
+        os.makedirs(result_dir, exist_ok=True) 
+        target_json_file = join(result_dir, "target.json")
         with open(target_json_file, "w") as ds:
             json.dump(target_regions_for_1_data, ds, indent=4, ensure_ascii=False)
         
@@ -114,8 +115,9 @@ class TrackConvertedData():
 if __name__ == "__main__":
     result_dir_parent = join("data", "results", "tracked_maps", "latest", "mapped_regions_suppression")
     oracle_history_parent_folder = join("data", "suppression_data")
-    time_file_folder = join("data", "results", "execution_time", "latest")
+    time_file_folder = join("data", "results", "execution_time", "latest") 
     os.makedirs(time_file_folder, exist_ok=True)
+    time_file_to_write = join(time_file_folder, "execution_time_suppression.csv")
     # context_line_num >=0.
     # 0 means no contexts, >0 means get the corresponding number of lines before and after respectively as contexts
     context_line_num = 0 
@@ -123,4 +125,4 @@ if __name__ == "__main__":
     # 1. move detection  2. search matches  3. fine-grain borders
     turn_off_techniques = [True, False, False] # change the boolean to True to turn off the corresponding technique.
     turn_off_techniques_obj = SpecifyToTurnOffTechniques(turn_off_techniques)
-    TrackConvertedData(oracle_history_parent_folder, result_dir_parent, context_line_num, time_file_folder, turn_off_techniques_obj).run()
+    TrackHistoryPairsSuppression(oracle_history_parent_folder, result_dir_parent, context_line_num, time_file_to_write, turn_off_techniques_obj).run()

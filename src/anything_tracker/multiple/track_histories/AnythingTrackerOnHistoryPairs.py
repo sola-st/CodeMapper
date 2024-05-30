@@ -29,9 +29,6 @@ parser.add_argument("--results_dir", help="Directory to put the results", requir
 parser.add_argument("--iteration_index", type=str, help="the xxth round of tracking", required=True)
 parser.add_argument("--context_line_num", type=int, help="specify the line numbers of contexts", required=True) # 0 means no contexts
 parser.add_argument("--turn_off_techniques", help="specify techniques to turn off", required=True)
-parser.add_argument("--expected_character_range", nargs='+', 
-                    type=int, help="a 4-element list, to show the expected character range", 
-                    required=False) # only for the regions that with ground truth
 
 
 class AnythingTrackerOnHistoryPairs():
@@ -337,5 +334,45 @@ def main(*args):
     # current_history_pair_idx is used to control where to add an empty line
     RecordExecutionTimes(write_mode, time_file_to_write, ground_truth_index, \
             candidate_numbers, times_1st, times_2nd, current_history_pair_idx).run()
+    
+    return dist_based
+
+def main_suppression(*args):
+    repo_dir, source_commit, source_file_path, target_commit, source_range, \
+            results_dir, context_line_num, time_file_to_write, turn_off_techniques, ground_truth_index = args
+    dist_based = []
+    candidate_numbers = 0
+    times_1st = 0
+    times_2nd = 0
+    # get target file path
+    check_copy_files = False
+    target_file_path = get_target_file_path(repo_dir, source_commit, target_commit, source_file_path, check_copy_files)
+    if isinstance(target_file_path, bool):
+        # the file was deleted
+        target_json = {
+            "iteration": ground_truth_index,
+            "version" : "dist_based",
+            "source_commit": source_commit,
+            "target_commit": target_commit,
+            "source_file": source_file_path,
+            "target_file": None,
+            "source_range": str(source_range),
+            "target_range": None,
+            "kind": "no target file (deleted)",
+            "levenshtein_distance" : None,
+            "index": 0, 
+            "all_candidates_num": 1
+        }
+        dist_based.append(target_json)
+        candidate_numbers = 1
+        print("No target file.")
+    else:
+        dist_based, one_round_time_info = AnythingTrackerOnHistoryPairs(repo_dir, source_commit, source_file_path,\
+                target_commit, target_file_path, source_range, results_dir, ground_truth_index, \
+                context_line_num, turn_off_techniques).run()
+        candidate_numbers, times_1st, times_2nd = one_round_time_info
+
+    # write exection times
+    RecordExecutionTimes("a", time_file_to_write, ground_truth_index, candidate_numbers, times_1st, times_2nd).run()
     
     return dist_based

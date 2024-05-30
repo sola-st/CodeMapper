@@ -19,7 +19,8 @@ def get_json_strs(url, file_path, commit, range, suppression_text, mapped_meta=N
             "file_path": file_path,
             "commit": commit,
             "range": range,
-            "source_info": suppression_text
+            "source_info": suppression_text,
+            "mapped_meta": mapped_meta
         }
 
         converted_json_str_input = None

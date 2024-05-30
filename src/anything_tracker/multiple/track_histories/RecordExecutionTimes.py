@@ -4,7 +4,7 @@ import csv
 class RecordExecutionTimes():
     # For AnythingTrackerOnHistoryPairs
     def __init__(self, write_mode, time_file_to_write, ground_truth_index, \
-                candi_num, times_1st, times_2nd, current_history_pair_idx):
+                candi_num, times_1st, times_2nd, current_history_pair_idx=None):
         self.write_mode = write_mode
         self.time_file_to_write = time_file_to_write
         self.current_history_pair_idx = current_history_pair_idx
