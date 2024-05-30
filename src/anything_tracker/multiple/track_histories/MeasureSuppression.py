@@ -5,8 +5,6 @@ import json
 import os
 from os.path import join
 
-from anything_tracker.multiple.track_histories.TrackHistoryPairs import get_category_subfolder_info
-
 
 def load_json_file(file):
     with open(file) as f:
@@ -18,23 +16,30 @@ def compute_line_level_matches(expected_location, predicted_location):
     # compare_results has 3 categories: 
     # exactly matches(Y), make sense(overalpped)(M), wrong(W). 
     compare_results = None
-    try:
-        start_line1, start_char1, end_line1, end_char1 = expected_location
-    except:
-        pass
+    start_line1, start_char1, end_line1, end_char1 = expected_location
     start_line2, start_char2, end_line2, end_char2 = predicted_location
-    expected_lines = range(start_line1, end_line1)
-    predicted_lines = range(start_line2, end_line2)
+    expected_lines = range(start_line1, end_line1 + 1)
+    predicted_lines = range(start_line2, end_line2 + 1)
 
     # if expected_lines == predicted_lines: # line level
     if expected_location == predicted_location: # character level
         compare_results = "Y" # "TP"
     else:
-        intersection = list(set(expected_lines) & set(predicted_lines))
-        if intersection:
-            compare_results = "M" # ideally, not exists
+        if len(expected_lines) == 1 and expected_lines == predicted_lines: 
+            # the same single line, make sure the character location also matches
+            expected_characters = range(start_char1, end_char1 + 1)
+            predicted_characters = range(start_char2, end_char2 + 1)
+            character_intersection = list(set(expected_characters) & set(predicted_characters))
+            if character_intersection:
+                compare_results = "M"
+            else:
+                compare_results = "W" # "FP"
         else:
-            compare_results = "W" # "FP"
+            intersection = list(set(expected_lines) & set(predicted_lines))
+            if intersection:
+                compare_results = "M" 
+            else:
+                compare_results = "W"
 
     return compare_results
 
@@ -113,9 +118,10 @@ class MeasureLineLevel():
                 continue
 
             histories_regions_all = load_json_file(json_results_file)
-            for i, region in enumerate(histories_regions_all):
+            for region in histories_regions_all:
+                ground_truth_idx = region["iteration"]
                 # expected
-                oracle_expected_file = join(self.oracle_file_folder, repo, str(i), "expected_simple.json")
+                oracle_expected_file = join(self.oracle_file_folder, repo, ground_truth_idx, "expected_simple.json")
                 expected_commit_range_pieces:dict = load_json_file(oracle_expected_file)
                 expected_commits = expected_commit_range_pieces.keys()
 
@@ -140,7 +146,9 @@ class MeasureLineLevel():
                             else:
                                 compare_results = compute_line_level_matches(expected_range, region_target_range)
                                 self.update_results(compare_results)
-                    else:
+                    elif region_target_file == None and expected_range != None:
+                        self.update_results("file deleted but range exists", "fr")
+                    elif region_target_file != expected_file:
                         # file path is not matched
                         note = f"Expected: {expected_file}\nPredicted: {region_target_file}"
                         self.update_results("--", note)
@@ -150,7 +158,10 @@ class MeasureLineLevel():
                     self.update_results("-")
                     expected_range = "-" # "not in expected"
 
-                self.indices.append("")
+                if self.indices[-1] == repo:
+                    self.indices[-1] = f"{repo} - {ground_truth_idx}"
+                else: 
+                    self.indices.append(ground_truth_idx)
                 self.metrics.append(region["version"])
                 self.candidate_nums.append(region["all_candidates_num"])
                 self.target_region_indices.append(region["index"])
@@ -158,7 +169,7 @@ class MeasureLineLevel():
                 self.expected.append(expected_range)
                 self.predicted.append(region_target_range)
 
-            self.indices.pop() # pop 1 items to get enough space for the indices.
+            # self.indices.pop() # pop 1 items to get enough space for the indices.
             self.empty_line_mark.append(len(self.metrics)) # +1 is abs number, note that the csv file has title row.
 
         self.compute_to_write_measuement()
@@ -167,5 +178,5 @@ class MeasureLineLevel():
 if __name__=="__main__":
     oracle_file_folder = join("data", "suppression_data")
     results_dir = join("data", "results", "tracked_maps", "latest", "mapped_regions_suppression")
-    results_csv_file = join("data", "results", "measurement_results", "measurement_results_metrics_suppression.csv")
+    results_csv_file = join("data", "results", "measurement_results", "latest", "measurement_results_metrics_suppression.csv")
     MeasureLineLevel(oracle_file_folder, results_dir, results_csv_file).run()
