@@ -1,9 +1,12 @@
-from collections import defaultdict
 import csv
 from itertools import zip_longest
 import json
 import os
 from os.path import join
+
+from anything_tracker.SearchLinesToCandidateRegion import get_character_length_of_lines
+from anything_tracker.measurement.CharacterDistanceAndOverlapScore import calculate_overlap
+from anything_tracker.utils.ReadFile import checkout_to_read_file
 
 
 def load_json_file(file):
@@ -11,37 +14,12 @@ def load_json_file(file):
         data = json.load(f)
     return data
 
+def calculation_helper(list, digits):
+    min_value = min(list)
+    max_value = max(list)
+    avg_value = round((sum(list)) / len(list), digits)
+    return min_value, max_value, avg_value
 
-def compute_line_level_matches(expected_location, predicted_location):
-    # compare_results has 3 categories: 
-    # exactly matches(Y), make sense(overalpped)(M), wrong(W). 
-    compare_results = None
-    start_line1, start_char1, end_line1, end_char1 = expected_location
-    start_line2, start_char2, end_line2, end_char2 = predicted_location
-    expected_lines = range(start_line1, end_line1 + 1)
-    predicted_lines = range(start_line2, end_line2 + 1)
-
-    # if expected_lines == predicted_lines: # line level
-    if expected_location == predicted_location: # character level
-        compare_results = "Y" # "TP"
-    else:
-        if len(expected_lines) == 1 and expected_lines == predicted_lines: 
-            # the same single line, make sure the character location also matches
-            expected_characters = range(start_char1, end_char1 + 1)
-            predicted_characters = range(start_char2, end_char2 + 1)
-            character_intersection = list(set(expected_characters) & set(predicted_characters))
-            if character_intersection:
-                compare_results = "M"
-            else:
-                compare_results = "W" # "FP"
-        else:
-            intersection = list(set(expected_lines) & set(predicted_lines))
-            if intersection:
-                compare_results = "M" 
-            else:
-                compare_results = "W"
-
-    return compare_results
 
 class MeasureLineLevel():
     def __init__(self, oracle_file_folder, results_dir, results_csv_file):
@@ -56,46 +34,74 @@ class MeasureLineLevel():
         self.predicted_commits = ["Predicted commits"]
         self.expected = ["Expected ranges"]
         self.predicted = ["Predicted ranges"]
-        self.is_matched_set = ["Line matches"]
+        self.is_matched_set = ["Range matches"]
+        self.pre_dist = ["Pre-character distance"]
+        self.post_dist = ["Post-character distance"]
+        self.dists = ["Character distance"]
+        self.recalls = ["Recall"]
+        self.precisions = ["Precision"]
+        self.f1s = ["F1-score"]
         self.notes = ["Notes"]
+
+        self.digits = 3
 
         # record the abs row number that should be an empty line in the output csv file.
         self.empty_line_mark = [] 
 
-    def update_results(self, compare_results, note=""):
+    def update_results(self, pre, post, dist, recall, precision, f1, compare_results, note=""):
+        self.pre_dist.append(pre)
+        self.post_dist.append(post)
+        self.dists.append(dist)
+        self.recalls.append(recall)
+        self.precisions.append(precision)
+        self.f1s.append(f1)
         self.is_matched_set.append(compare_results)
         self.notes.append(note)
 
     def compute_to_write_measuement(self):
-        # Dictionary to store grouped values
-        grouped_is_matched_set = defaultdict(list)
+        y_num = self.is_matched_set.count("Y")
+        m_num = self.is_matched_set.count("M")
+        w_num = self.is_matched_set.count("W")
+        match_dict = {
+            "Y": y_num, 
+            "M": m_num, 
+            "W": w_num
+        }
+        # self.is_matched_set.append(f"{match_dict}")
+        match_str = json.dumps(match_dict)
+        self.is_matched_set.append(match_str)
+        
+        # compute the average, min, and max of character distance, only for overlapped ranges
+        overlapped_pre = [pre for pre in self.pre_dist[1:] if pre != None]
+        overlapped_post = [post for post in self.post_dist[1:] if post != None]
+        overlapped_dist = [dist for dist in self.dists[1:] if dist != None]
 
-        # Grouping the values
-        for metric, is_matched in zip(self.metrics[1:], self.is_matched_set[1:]):
-            grouped_is_matched_set[metric].append(is_matched)
+        min_pre, max_pre, avg_pre = calculation_helper(overlapped_pre, self.digits)
+        min_post, max_post, avg_post = calculation_helper(overlapped_post, self.digits)
+        min_dist, max_dist, avg_dist = calculation_helper(overlapped_dist, self.digits)
+        char_dist_dict = {
+            "pre_dist": {"min": min_pre, "max": max_pre, "avg": avg_pre},
+            "post_dist": {"min": min_post, "max": max_post, "avg": avg_post},
+            "dist": {"min": min_dist, "max": max_dist, "avg": avg_dist}
+        }
+        char_dist_str = json.dumps(char_dist_dict)
+        self.dists.append(char_dist_str)
 
-        for key in grouped_is_matched_set.keys():
-            self.metrics.append(key)
-            y_num = grouped_is_matched_set[key].count("Y")
-            m_num = grouped_is_matched_set[key].count("M")
-            w_num = grouped_is_matched_set[key].count("W")
-            match_dict = {
-                "Y": y_num, 
-                "M": m_num, 
-                "W": w_num
-            }
-            all_cases = y_num + m_num + w_num
-            recall = round((y_num / all_cases), 3)
-            score_dict = {
-                "recall": recall,
-                "precision": recall,
-                "f1-score": recall
-            }
-            self.is_matched_set.append(f"{match_dict}\n{score_dict}")
-                    
+        recalls = self.recalls[1:]
+        precisions = self.precisions[1:]
+        f1s = self.f1s[1:]
+        avg_recall = round(sum(recalls) / len(recalls), self.digits)
+        avg_precision = round(sum(precisions) / len(precisions), self.digits)
+        avg_f1 = round(sum(f1s) / len(f1s), self.digits)
+        self.recalls.append(avg_recall)
+        self.precisions.append(avg_precision)
+        self.f1s.append(avg_f1)
+
+        # write results
         results = zip_longest(self.indices, self.metrics, self.candidate_nums, self.target_region_indices, \
-                self.predicted_commits, self.expected, self.predicted, self.is_matched_set, self.notes)
-        self.write_results(results)   
+                self.predicted_commits, self.expected, self.predicted, self.is_matched_set, \
+                self.pre_dist, self.post_dist, self.dists, self.recalls, self.precisions, self.f1s, self.notes)
+        self.write_results(results)
 
     def write_results(self, results):
         with open(self.results_csv_file, "w") as f:
@@ -110,6 +116,7 @@ class MeasureLineLevel():
         repo_folders = os.listdir(self.results_dir)
         # ordered_subfolders = list(range(20))
         for repo in repo_folders:
+            repo_dir = join("data", "repos_suppression", repo)
             # predicted
             json_results_file = join(self.results_dir, f"{repo}/target.json")
             if os.path.exists(json_results_file) == True:
@@ -139,23 +146,29 @@ class MeasureLineLevel():
                     if region_target_file == expected_file or (region_target_file == None and expected_range == None):
                         if region_target_range == expected_range:
                             # result 1: exact matches
-                            self.update_results("Y")
+                            self.update_results(None, None, None, 1, 1, 1,"Y")
                         else:
                             if not expected_range or (not region_target_range):
-                                self.update_results("W")
+                                self.update_results(None, None, None, 0, 0, 0, "W")
                             else:
-                                compare_results = compute_line_level_matches(expected_range, region_target_range)
-                                self.update_results(compare_results)
+                                target_lines = checkout_to_read_file(repo_dir, region_target_commit, region_target_file)
+                                target_lines_str = "".join(target_lines)
+                                target_lines_len_list = get_character_length_of_lines(target_lines)
+
+                                # compare_results = compute_line_level_matches(expected_range, region_target_range)
+                                pre_distance, post_distance, distance, recall, precision, f1_score, compare_results =\
+                                        calculate_overlap(expected_range, region_target_range, target_lines_len_list, target_lines_str)
+                                self.update_results(pre_distance, post_distance, distance, recall, precision, f1_score, compare_results)
                     elif region_target_file == None and expected_range != None:
-                        self.update_results("file deleted but range exists", "fr")
+                        self.update_results(None, None, None, 0, 0, 0, "file deleted but range exists", "fr") # wrong
                     elif region_target_file != expected_file:
                         # file path is not matched
                         note = f"Expected: {expected_file}\nPredicted: {region_target_file}"
-                        self.update_results("--", note)
+                        self.update_results(None, None, None, 0, 0, 0, "--", note)
                         print(f"File path is not matched: {region_target_commit}, {json_results_file}")
                 
                 else: # the predicted commit history is not in the expected history list.
-                    self.update_results("-")
+                    self.update_results(None, None, None, None, None, None, "-")
                     expected_range = "-" # "not in expected"
 
                 if self.indices[-1] == repo:
