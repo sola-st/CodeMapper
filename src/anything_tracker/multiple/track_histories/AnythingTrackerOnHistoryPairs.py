@@ -345,8 +345,7 @@ def main_suppression(*args):
     times_1st = 0
     times_2nd = 0
     # get target file path
-    check_copy_files = False
-    target_file_path = get_target_file_path(repo_dir, source_commit, target_commit, source_file_path, check_copy_files)
+    target_file_path = get_target_file_path(repo_dir, source_commit, target_commit, source_file_path)
     if isinstance(target_file_path, bool):
         # the file was deleted
         target_json = {
