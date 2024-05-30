@@ -58,7 +58,7 @@ class MeasureLineLevel():
         self.is_matched_set.append(compare_results)
         self.notes.append(note)
 
-    def compute_to_write_measuement(self):
+    def count_exact_matches(self):
         y_num = self.is_matched_set.count("Y")
         m_num = self.is_matched_set.count("M")
         w_num = self.is_matched_set.count("W")
@@ -70,7 +70,8 @@ class MeasureLineLevel():
         # self.is_matched_set.append(f"{match_dict}")
         match_str = json.dumps(match_dict)
         self.is_matched_set.append(match_str)
-        
+
+    def character_distance_computation(self):
         # compute the average, min, and max of character distance, only for overlapped ranges
         overlapped_pre = [pre for pre in self.pre_dist[1:] if pre != None]
         overlapped_post = [post for post in self.post_dist[1:] if post != None]
@@ -87,6 +88,11 @@ class MeasureLineLevel():
         char_dist_str = json.dumps(char_dist_dict)
         self.dists.append(char_dist_str)
 
+    def compute_to_write_measuement(self):
+        self.count_exact_matches() # 1
+        self.character_distance_computation() # 2
+        
+        # 3
         recalls = self.recalls[1:]
         precisions = self.precisions[1:]
         f1s = self.f1s[1:]
@@ -96,6 +102,20 @@ class MeasureLineLevel():
         self.recalls.append(avg_recall)
         self.precisions.append(avg_precision)
         self.f1s.append(avg_f1)
+
+        # 4.1 count the file path different cases
+        file_path_extras = [n for n in self.notes if "Expected:" in n]
+        refer_csv_line_numbers = []
+        for extra in set(file_path_extras):
+            refer_csv_line_numbers.append(self.notes.index(extra))
+        diff_path_str = f"path diff count: {len(file_path_extras)}\nLines: {refer_csv_line_numbers}"
+
+        # 4.2 count the file is predicted as deleted, but expected location exists
+        file_path_extras_del = [n for n in self.notes if n == "fr"]
+        refer_csv_line_numbers_del = []
+        for extra in set(file_path_extras_del):
+            refer_csv_line_numbers_del.append(self.notes.index(extra))
+        self.notes.append(f"{diff_path_str}\npath delete count: {len(file_path_extras_del)}\nLines: {refer_csv_line_numbers_del}")
 
         # write results
         results = zip_longest(self.indices, self.metrics, self.candidate_nums, self.target_region_indices, \
@@ -165,7 +185,7 @@ class MeasureLineLevel():
                         # file path is not matched
                         note = f"Expected: {expected_file}\nPredicted: {region_target_file}"
                         self.update_results(None, None, None, 0, 0, 0, "--", note)
-                        print(f"File path is not matched: {region_target_commit}, {json_results_file}")
+                        # print(f"File path is not matched: {region_target_commit}\n{note}\n")
                 
                 else: # the predicted commit history is not in the expected history list.
                     self.update_results(None, None, None, None, None, None, "-")
