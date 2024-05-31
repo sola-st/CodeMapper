@@ -23,6 +23,9 @@ class TrackHistoryPairsSuppression():
         Returns a list of parameter list.
         Each inner list contains repo_dir, base_commit, target_commit, file_path, and interest_character_range.
         """
+
+        write_mode = "w"
+        write_mode_write_new_file = True
         parameters = []
         for repo_dir in repo_dirs:
             repo = repo_dir.split("/")[-1]
@@ -54,6 +57,7 @@ class TrackHistoryPairsSuppression():
                 if not source["range"]:
                     continue
                 source_range = json.loads(source["range"])
+                    
                 parameter = [
                     repo_dir,
                     source["commit"],
@@ -64,9 +68,14 @@ class TrackHistoryPairsSuppression():
                     self.context_line_num,
                     self.time_file_to_write,
                     self.turn_off_techniques,
-                    num_folder_str
+                    num_folder_str,
+                    write_mode
                 ]
                 parameters.append(parameter)
+
+                if write_mode_write_new_file == True:
+                    write_mode = "a"
+                    write_mode_write_new_file = False
 
         return parameters
 

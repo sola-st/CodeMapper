@@ -12,6 +12,14 @@ def split_line_and_char(line_char_list): # 2-dimension list
     return columns
 
 def find_pair(start_line_char_list, end_line_char_list, delta):
+    '''
+    match 2 list, and meet the requiements. 
+    For examaple:
+        list 1: [3, 5]
+        list 2: [13, 18, 32]
+        --> find a from list 1 and b from list 2 that a + delta = b
+    '''
+
     start_end_pairs = []
 
     start_line_list, start_char_list = split_line_and_char(start_line_char_list)
@@ -42,81 +50,42 @@ class DetectMovement():
 
         # start
         first_source_line = self.source_region_characters[0]
-        # start, check the location of the 1st line
-        start_line_char_pairs = self.finder_helper(first_source_line)
-        multi_starts = (len(start_line_char_pairs) != 1)
-        if not multi_starts:
-            candidate_start_line, candidate_character_start_idx = start_line_char_pairs[0]
-        
+        # check the location of the 1st line
+        # start_line_char_pairs can be or more (multi starts)
+        start_line_char_pairs = self.finder_helper(first_source_line) 
+
         # end
-        if self.moved_lines_num > 1: # multi line source region
-            last_source_line = self.source_region_characters[-1]
-            # end, check the last line by running helper function
-            if multi_starts:
-                end_line_char_pairs = self.finder_helper(last_source_line)
-            else:
-                end_line_char_pairs = self.finder_helper(last_source_line, False, candidate_start_line)
+        last_source_line = self.source_region_characters[-1]
+        # check the last line by running helper function, laso can be one or more
+        end_line_char_pairs = self.finder_helper(last_source_line)
 
-            multi_ends = (len(end_line_char_pairs) != 1)
-            if not multi_ends:
-                candidate_end_line, candidate_character_end_idx = end_line_char_pairs[0]
-                if not multi_starts: # #1: 1 start and 1 end
-                    return [[candidate_start_line, candidate_character_start_idx, candidate_end_line, candidate_character_end_idx]]
+        start_end_pairs = find_pair(start_line_char_pairs, end_line_char_pairs, self.moved_lines_num-1)
+        return start_end_pairs # also can be multiple
 
-            if multi_starts:
-                if multi_ends: #2: multi_starts and multi_ends
-                    # check the ony 1 pair start and end which meets "start + move_size - 1 == num"
-                    start_end_pairs = find_pair(start_line_char_pairs, end_line_char_pairs, self.moved_lines_num-1)
-                    return start_end_pairs
-                else: # #3: multi_starts and 1 end
-                    for line, char in multi_starts:
-                        if line + self.moved_lines_num - 1 == candidate_end_line:
-                            candidate_start_line, candidate_character_start_idx = line, char
-                            return [[candidate_start_line, candidate_character_start_idx, candidate_end_line, candidate_character_end_idx]]
-            else: 
-                if multi_ends: # #4: 1 start and multi_ends
-                    for line, char in multi_ends:
-                        if candidate_start_line + self.moved_lines_num - 1 == line:
-                            candidate_end_line, candidate_character_end_idx = line, char
-                            return [[candidate_start_line, candidate_character_start_idx, candidate_end_line, candidate_character_end_idx]]
-
-        else:
-            # check the 1st line, and compute the end_char_idx based on start_char_idx
-            # the 1st line and the last line are the same line, only the char locations are different
-            candidate_end_line = candidate_start_line
-            candidate_character_end_idx = candidate_character_start_idx + len(first_source_line.rstrip())
-            
-        return [[candidate_start_line, candidate_character_start_idx, candidate_end_line, candidate_character_end_idx]]
-
-    def finder_helper(self, source_line, is_start=True, candidate_start_line=None):
+    def finder_helper(self, source_line):
         # can be start or end.
         line_char_pairs = []
-        candidate_start_or_end_line = None
-        candidate_start_or_end_character_idx = None
+        candidate_source_line = None # can be start or end line of source region
+        candidate_source_idx = None
 
         occur_times = "".join(self.move_hunk_lines).count(source_line)
         for num, line in zip(self.unique_hunk, self.move_hunk_lines):
             if line.strip() == source_line.strip():
                 # line
-                candidate_start_or_end_line = num
+                candidate_source_line = num
                 # character
                 if self.turn_off_fine_grains == True:
-                    candidate_start_or_end_character_idx = 1
+                    candidate_source_idx = 1
                 else: # we always annotate region start with no whitespaces.
-                    candidate_start_or_end_character_idx = line.index(source_line) + 1 # to start at 1
+                    candidate_source_idx = line.index(source_line.strip()) + 1 # to start at 1
 
-                assert candidate_start_or_end_line != None
-                assert candidate_start_or_end_character_idx != None
-                line_char_pairs.append([candidate_start_or_end_line, candidate_start_or_end_character_idx])
+                assert candidate_source_line != None
+                assert candidate_source_idx != None
+                line_char_pairs.append([candidate_source_line, candidate_source_idx])
 
-                if is_start == True:
-                    if occur_times == 1:
-                        break # the only 1 start is found
-                    # else: keep finding the other may_starts
-                else: # end
-                    # here we ignore multiple end, because we can the only 1 end by refering to the start.
-                    if candidate_start_line + self.moved_lines_num - 1 == candidate_start_or_end_line:
-                        break
+                if occur_times == 1:
+                    break # the only 1 start is found
+                # else: keep finding the other may_starts/ends
 
         return line_char_pairs
 
@@ -166,7 +135,7 @@ class DetectMovement():
 
         if len(unique_target_hunk_range) == 1:
             self.unique_hunk = list(unique_target_hunk_range)[0]
-            self.move_hunk_lines = self.target_file_lines[self.unique_hunk.start: self.unique_hunk.stop]
+            self.move_hunk_lines = self.target_file_lines[self.unique_hunk.start-1: self.unique_hunk.stop-1]
             # all the source region lines was moved to another and the same location
             locations = self.get_region_indices()
             if locations:

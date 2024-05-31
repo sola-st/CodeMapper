@@ -9,11 +9,6 @@ from anything_tracker.measurement.CharacterDistanceAndOverlapScore import calcul
 from anything_tracker.utils.ReadFile import checkout_to_read_file
 
 
-def load_json_file(file):
-    with open(file) as f:
-        data = json.load(f)
-    return data
-
 def calculation_helper(list, digits):
     min_value = min(list)
     max_value = max(list)
@@ -22,8 +17,8 @@ def calculation_helper(list, digits):
 
 
 class MeasureLineLevel():
-    def __init__(self, oracle_file_folder, results_dir, results_csv_file):
-        self.oracle_file_folder = oracle_file_folder
+    def __init__(self, oracle_file, results_dir, results_csv_file):
+        self.oracle_file = oracle_file
         self.results_dir = results_dir
         self.results_csv_file = results_csv_file
 
@@ -44,9 +39,6 @@ class MeasureLineLevel():
         self.notes = ["Notes"]
 
         self.digits = 3
-
-        # record the abs row number that should be an empty line in the output csv file.
-        self.empty_line_mark = [] 
 
     def update_results(self, pre, post, dist, recall, precision, f1, compare_results, note=""):
         self.pre_dist.append(pre)
@@ -126,90 +118,95 @@ class MeasureLineLevel():
     def write_results(self, results):
         with open(self.results_csv_file, "w") as f:
             csv_writer = csv.writer(f)
-            for i, row in enumerate(results):
-                if i in self.empty_line_mark:
-                    f.write("\n")
+            for row in results:
                 csv_writer.writerow(row)
 
     def run(self):
-        # start from reading all the oracles
-        repo_folders = os.listdir(self.results_dir)
-        # ordered_subfolders = list(range(20))
-        for repo in repo_folders:
-            repo_dir = join("data", "repos_suppression", repo)
+        # start from reading oracles
+        with open(self.oracle_file) as f:
+            maps = json.load(f)
+        for i, meta in enumerate(maps):
+            target_lines = []
+            url = meta["url"]
+            tmp = url.split("/")
+            repo = tmp[-1]
+            repo_dir = join("data", "repos", repo)
+
             # predicted
-            json_results_file = join(self.results_dir, f"{repo}/target.json")
+            json_results_file = join(self.results_dir, f"{i}/target.json")
             if os.path.exists(json_results_file) == True:
                 self.indices.append(repo)
             else:
                 continue
 
-            histories_regions_all = load_json_file(json_results_file)
-            for region in histories_regions_all:
-                ground_truth_idx = region["iteration"]
-                # expected
-                oracle_expected_file = join(self.oracle_file_folder, repo, ground_truth_idx, "expected_simple.json")
-                expected_commit_range_pieces:dict = load_json_file(oracle_expected_file)
-                expected_commits = expected_commit_range_pieces.keys()
+            # expected
+            mapping:dict = meta["mapping"]
+            expected_commit = mapping["target_commit"]
+            expected_file = mapping["target_file"]
+            
+            expected_range = None
+            if mapping["target_range"] != None:
+                expected_range = json.loads(mapping["target_range"])
 
-                region_target_commit = region["target_commit"]
-                region_target_range = region["target_range"]
-                if region_target_range != None:
-                    region_target_range = json.loads(region["target_range"])
-                expected_range = None
-                if region_target_commit in expected_commits:
-                    region_target_file = region["target_file"]
-                    file_range_info = expected_commit_range_pieces[region_target_commit]
-                    if file_range_info["range"] not in [None, "[]"]:
-                        expected_range = json.loads(file_range_info["range"])
-                    expected_file = file_range_info["file"]
-                    if region_target_file == expected_file or (region_target_file == None and expected_range == None):
-                        if region_target_range == expected_range:
-                            # result 1: exact matches
-                            self.update_results(None, None, None, 1, 1, 1,"Y")
+            # predicted 
+            with open(json_results_file, 'r') as f:
+                candidate_regions = json.load(f)
+
+            for region in candidate_regions: 
+                # for target region, should be only one
+                # can be multiple for candidate list
+
+                # predicted_commit = region["target_commit"]
+                # assert  predicted_commit == expected_commit # this is fixed, it starts tracking with the expected commit
+                predicted_file = region["target_file"]
+                predicted_range = None
+                if region["target_range"] != None:
+                    predicted_range = json.loads(region["target_range"])
+                    
+                if predicted_file == expected_file or (predicted_file == None and expected_range == None):
+                    if predicted_range == expected_range:
+                        # result 1: exact matches
+                        self.update_results(None, None, None, 1, 1, 1,"Y")
+                    else:
+                        if not expected_range or (not predicted_range):
+                            self.update_results(None, None, None, 0, 0, 0, "W")
                         else:
-                            if not expected_range or (not region_target_range):
-                                self.update_results(None, None, None, 0, 0, 0, "W")
-                            else:
-                                target_lines = checkout_to_read_file(repo_dir, region_target_commit, region_target_file)
-                                target_lines_str = "".join(target_lines)
-                                target_lines_len_list = get_character_length_of_lines(target_lines)
-
-                                # compare_results = compute_line_level_matches(expected_range, region_target_range)
-                                pre_distance, post_distance, distance, recall, precision, f1_score, compare_results =\
-                                        calculate_overlap(expected_range, region_target_range, target_lines_len_list, target_lines_str)
-                                self.update_results(pre_distance, post_distance, distance, recall, precision, f1_score, compare_results)
-                    elif region_target_file == None and expected_range != None:
-                        self.update_results(None, None, None, 0, 0, 0, "file deleted but range exists", "fr") # wrong
-                    elif region_target_file != expected_file:
-                        # file path is not matched
-                        note = f"Expected: {expected_file}\nPredicted: {region_target_file}"
-                        self.update_results(None, None, None, 0, 0, 0, "--", note)
-                        # print(f"File path is not matched: {region_target_commit}\n{note}\n")
+                            target_lines = checkout_to_read_file(repo_dir, expected_commit, predicted_file)
+                            target_lines_str = "".join(target_lines)
+                            target_lines_len_list = get_character_length_of_lines(target_lines)
+                            pre_distance, post_distance, distance, recall, precision, f1_score, compare_results =\
+                                    calculate_overlap(expected_range, predicted_range, target_lines_len_list, target_lines_str)
+                            self.update_results(pre_distance, post_distance, distance, recall, precision, f1_score, compare_results)
+                elif predicted_file == None and expected_range != None:
+                    self.update_results(None, None, None, 0, 0, 0, "file deleted but range exists", "fr") # wrong
+                elif predicted_file != expected_file:
+                    # file path is not matched
+                    note = f"Expected: {expected_file}\nPredicted: {predicted_file}"
+                    self.update_results(None, None, None, 0, 0, 0, "--", note)
+                    # print(f"File path is not matched: {region_target_commit}\n{note}\n")
                 
                 else: # the predicted commit history is not in the expected history list.
                     self.update_results(None, None, None, None, None, None, "-")
                     expected_range = "-" # "not in expected"
 
                 if self.indices[-1] == repo:
-                    self.indices[-1] = f"{repo} - {ground_truth_idx}"
+                    self.indices[-1] = f"{repo} - {i}"
                 else: 
-                    self.indices.append(ground_truth_idx)
+                    self.indices.append(i)
                 self.metrics.append(region["version"])
                 self.candidate_nums.append(region["all_candidates_num"])
                 self.target_region_indices.append(region["index"])
-                self.predicted_commits.append(region_target_commit)
+                self.predicted_commits.append(expected_commit)
                 self.expected.append(expected_range)
-                self.predicted.append(region_target_range)
-
-            # self.indices.pop() # pop 1 items to get enough space for the indices.
-            self.empty_line_mark.append(len(self.metrics)) # +1 is abs number, note that the csv file has title row.
+                self.predicted.append(predicted_range)
 
         self.compute_to_write_measuement()
         
 
 if __name__=="__main__":
-    oracle_file_folder = join("data", "suppression_data")
-    results_dir = join("data", "results", "tracked_maps", "latest", "mapped_regions_suppression")
-    results_csv_file = join("data", "results", "measurement_results", "latest", "measurement_results_metrics_suppression.csv")
-    MeasureLineLevel(oracle_file_folder, results_dir, results_csv_file).run()
+    oracle_file = join("data", "annotation", "annotations_100.json")
+    results_dir = join("data", "results", "tracked_maps", "final", "mapped_regions_anno")
+    results_csv_file_folder = join("data", "results", "measurement_results", "final")
+    os.makedirs(results_csv_file_folder, exist_ok=True)
+    results_csv_file = join(results_csv_file_folder, "measurement_results_metrics_anno.csv")
+    MeasureLineLevel(oracle_file, results_dir, results_csv_file).run()

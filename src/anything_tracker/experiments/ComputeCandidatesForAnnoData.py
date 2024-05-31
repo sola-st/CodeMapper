@@ -1,9 +1,9 @@
 import json
-from multiprocessing import Pool
-from anything_tracker.AnythingTracker import AnythingTracker
+from anything_tracker.multiple.track_histories.AnythingTrackerOnHistoryPairs import main_suppression as AnythingTracker
 from anything_tracker.SpecifyToTurnOffTechniques import SpecifyToTurnOffTechniques
 from anything_tracker.experiments.SourceRepos import SourceRepos
 from os.path import join
+from os import makedirs
 
 
 class ComputeCandidatesForAnnoData():
@@ -27,31 +27,33 @@ class ComputeCandidatesForAnnoData():
         with open(self.oracle_file) as f:
             maps = json.load(f)
 
+        write_mode = "w" # for writing execution times
         # get inputs for computing candidates
         for i, meta in enumerate(maps):
             url = meta["url"]
             tmp = url.split("/")
             repo_name = tmp[-1]
             repo_dir = join("data", "repos", repo_name)
-            result_dir = join(self.result_dir_parent, str(i))
+            result_dir = join(self.result_dir_parent)
 
             mapping:dict = meta["mapping"]
             character_range_list = json.loads(mapping["source_range"])
+            if i != 0:
+                write_mode = "a"
+
             parameter = [
                 repo_dir,
                 mapping["source_commit"],
-                mapping["target_commit"],
                 mapping["source_file"],
+                mapping["target_commit"],
                 character_range_list,
                 result_dir,
                 self.context_line_num,
                 self.time_file_to_write,
-                self.turn_off_techniques
+                self.turn_off_techniques,
+                str(i),
+                write_mode
             ]
-            expected_character_range_list = None
-            if mapping["target_range"] != None:
-                expected_character_range_list = json.loads(mapping["target_range"])
-            parameter.append(expected_character_range_list)
             parameters.append(parameter)
 
         return parameters
@@ -64,21 +66,27 @@ class ComputeCandidatesForAnnoData():
         print(f"Found {len(repo_dirs)} repositories.")
 
         args_for_all_maps = self.get_meta_inputs()
-        
-        cores_to_use = 1
-        with Pool(processes=cores_to_use) as pool:
-            pool.map(self.wrapper, args_for_all_maps)
+        for args in args_for_all_maps:
+            target_regions_for_1_data = AnythingTracker(*args)
+            source_region_index = args[-2]
+            print(f"Compute candidates is done, source region #{source_region_index}.\n")
+            result_dir_with_num = join(args[5], source_region_index)
+            self.write_target_regions(result_dir_with_num, target_regions_for_1_data)
 
-    def wrapper(self, args):
-        AnythingTracker(*args).run()
-        source_region_index = args[5].split('/')[-1]
-        print(f"Compute candidates is done, source region #{source_region_index}.\n")
-        
+    def write_target_regions(self, result_dir, target_regions_for_1_data):
+        # write target candidate to a Json file.  
+        makedirs(result_dir, exist_ok=True) 
+        target_json_file = join(result_dir, "target.json")
+        with open(target_json_file, "w") as ds:
+            json.dump(target_regions_for_1_data, ds, indent=4, ensure_ascii=False)
+
 
 if __name__ == "__main__":
-    result_dir_parent = join("data", "results", "tracked_maps", "mapped_regions_whether_61_v4")
+    result_dir_parent = join("data", "results", "tracked_maps", "final", "mapped_regions_annodata")
     oracle_file = join("data", "annotation", "annotations_100.json")
-    time_file_to_write = join("data", "results", "executing_time_4_metrics.csv")
+    time_file_folder = join("data", "results", "execution_time", "final")
+    makedirs(time_file_folder, exist_ok=True)
+    time_file_to_write = join(time_file_folder, "executing_time_annodata.csv")
     # context_line_num >=0.
     # 0 means no contexts, >0 means get the corresponding number of lines before and after respectively as contexts
     context_line_num = 0 

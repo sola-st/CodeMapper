@@ -337,9 +337,9 @@ def main(*args):
     
     return dist_based
 
-def main_suppression(*args):
-    repo_dir, source_commit, source_file_path, target_commit, source_range, \
-            results_dir, context_line_num, time_file_to_write, turn_off_techniques, ground_truth_index = args
+def main_suppression(*args): # can be used to start tracking annotation and suppressions
+    repo_dir, source_commit, source_file_path, target_commit, source_range, results_dir, \
+            context_line_num, time_file_to_write, turn_off_techniques, ground_truth_index, write_mode = args
     dist_based = []
     candidate_numbers = 0
     times_1st = 0
@@ -372,6 +372,6 @@ def main_suppression(*args):
         candidate_numbers, times_1st, times_2nd = one_round_time_info
 
     # write exection times
-    RecordExecutionTimes("a", time_file_to_write, ground_truth_index, candidate_numbers, times_1st, times_2nd).run()
+    RecordExecutionTimes(write_mode, time_file_to_write, ground_truth_index, candidate_numbers, times_1st, times_2nd).run()
     
     return dist_based
