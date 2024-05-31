@@ -196,46 +196,36 @@ class AnythingTrackerOnHistoryPairs():
             candiate_str_list = []
             source_str = ""
 
-            # Deduplicate candidate ranges at line level
-            start_end_line_pairs = []
-            idx_recorder = []
-            for i, candidate in enumerate(candidate_regions):
-                candidate_range = candidate.candidate_region_character_range
-                start = candidate_range.start_line_idx
-                end = candidate_range.end_line_idx
-                pair = [start, end]
-                if pair not in start_end_line_pairs:
-                    start_end_line_pairs.append(pair)
-                    idx_recorder.append(i)
-                    # option 1: without context
-                    if self.context_line_num == 0:
-                        source_str = source_region_characters_str
-                        candidate_characters = candidate.character_sources
-                        candiate_str_list.append(candidate_characters)
-                    else: # option 2: with context
-                    #     # 2.1 check the characters with contexts ar once
-                    #     before_lines_num = self.context_line_num
-                    #     after_line_num = self.context_line_num
-                    #     source_str = get_context_aware_characters(self.base_file_lines, self.interest_character_range, before_lines_num, after_line_num)
-                    #     for candidate in candidate_regions:
-                    #         candidate_range = candidate.candidate_region_character_range
-                    #         candidate_with_context = get_context_aware_characters(self.target_file_lines, candidate_range, before_lines_num, after_line_num)
-                    #         candiate_str_list.append(candidate_with_context)
-                    # results_set_dict, average_highest, vote_most = ComputeTargetRegion(source_str, candiate_str_list).run()
-                        
-                        # 2.2 check pre, post separately
-                        source_str = source_region_characters_str
-                        before_lines_num = self.context_line_num
-                        after_line_num = self.context_line_num
-                        # source_pre_lines_str, source_post_lines_str = get_context_aware_characters(self.base_file_lines, \
-                        #             self.interest_character_range, before_lines_num, after_line_num)
+            for candidate in candidate_regions:
+                # option 1: without context
+                if self.context_line_num == 0:
+                    source_str = source_region_characters_str
+                    candidate_characters = candidate.character_sources
+                    candiate_str_list.append(candidate_characters)
+                else: # option 2: with context
+                #     # 2.1 check the characters with contexts at once
+                #     before_lines_num = self.context_line_num
+                #     after_line_num = self.context_line_num
+                #     source_str = get_context_aware_characters(self.base_file_lines, self.interest_character_range, before_lines_num, after_line_num)
+                #     for candidate in candidate_regions:
+                #         candidate_range = candidate.candidate_region_character_range
+                #         candidate_with_context = get_context_aware_characters(self.target_file_lines, candidate_range, before_lines_num, after_line_num)
+                #         candiate_str_list.append(candidate_with_context)
+                # results_set_dict, average_highest, vote_most = ComputeTargetRegion(source_str, candiate_str_list).run()
+                    
+                    # 2.2 check pre, post separately
+                    source_str = source_region_characters_str
+                    before_lines_num = self.context_line_num
+                    after_line_num = self.context_line_num
+                    # source_pre_lines_str, source_post_lines_str = get_context_aware_characters(self.base_file_lines, \
+                    #             self.interest_character_range, before_lines_num, after_line_num)
 
-                        candidate_range = candidate.candidate_region_character_range
-                        # candidate_with_context 
-                        candidate_pre_lines_str, candidate_post_lines_str = get_context_aware_characters(self.target_file_lines, \
-                                candidate_range, before_lines_num, after_line_num)
-                        candidate_str = candidate.character_sources
-                        candiate_str_list.append([candidate_pre_lines_str, candidate_str, candidate_post_lines_str])
+                    candidate_range = candidate.candidate_region_character_range
+                    # candidate_with_context 
+                    candidate_pre_lines_str, candidate_post_lines_str = get_context_aware_characters(self.target_file_lines, \
+                            candidate_range, before_lines_num, after_line_num)
+                    candidate_str = candidate.character_sources
+                    candiate_str_list.append([candidate_pre_lines_str, candidate_str, candidate_post_lines_str])
             # special for 2.2
             # results_set_dict, average_highest, vote_most = ComputeTargetRegionWithContext(\
             #         [source_pre_lines_str, source_str, source_post_lines_str], candiate_str_list).run()
@@ -252,7 +242,7 @@ class AnythingTrackerOnHistoryPairs():
                 second_phrase_end_time = time.time()
                 second_phrase_executing_time = round((second_phrase_end_time - second_phrase_start_time), 3)
                 print(f"Executing time (2nd phase): line deduplicate, 1 candidate, {second_phrase_executing_time} seconds")
-                idx = idx_recorder[0]
+                idx = 0
                 target_candidate = candidate_regions[idx]
                 results_set_dict.update({"dist_based": { 
                     "target_candidate_edit_distance": "Unknown",

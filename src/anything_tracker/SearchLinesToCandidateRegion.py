@@ -73,15 +73,15 @@ class SearchLinesToCandidateRegion():
             else:
                 candidate_regions.extend(searched_candidate_regions)
         
-        if self.turn_off_techniques.turn_off_fine_grains == False:
-            if candidate_regions:
-                for candidate in candidate_regions:
-                    # update start character position
-                    candidate.candidate_region_character_range.characters_start_idx = 1
-                    # update end character position
-                    fine_grained_end_line = candidate.candidate_region_character_range.end_line_idx
-                    no_fine_grained_end_char = len(self.target_file_lines[fine_grained_end_line-1])
-                    candidate.candidate_region_character_range.characters_end_idx = no_fine_grained_end_char
+        # if self.turn_off_techniques.turn_off_fine_grains == False:
+        #     if candidate_regions:
+        #         for candidate in candidate_regions:
+        #             # update start character position
+        #             candidate.candidate_region_character_range.characters_start_idx = 1
+        #             # update end character position
+        #             fine_grained_end_line = candidate.candidate_region_character_range.end_line_idx
+        #             no_fine_grained_end_char = len(self.target_file_lines[fine_grained_end_line-1])-1
+        #             candidate.candidate_region_character_range.characters_end_idx = no_fine_grained_end_char
         
         return candidate_regions
     
@@ -160,10 +160,10 @@ class SearchLinesToCandidateRegion():
         candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
         candidate_region_top_bottom_with_changed_lines.append(candidate_region)
 
-        # line level
-        candidate_region_line_level = self.transfer_to_line_level_region(region_range, marker)
-        if candidate_region_line_level:
-            candidate_region_top_bottom_with_changed_lines.append(candidate_region_line_level)
+        # # line level
+        # candidate_region_line_level = self.transfer_to_line_level_region(region_range, marker)
+        # if candidate_region_line_level:
+        #     candidate_region_top_bottom_with_changed_lines.append(candidate_region_line_level)
 
         return candidate_region_top_bottom_with_changed_lines
 
@@ -188,10 +188,10 @@ class SearchLinesToCandidateRegion():
         candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
         candidate_region_top_with_changed_lines.append(candidate_region)
 
-        # line level
-        candidate_region_line_level = self.transfer_to_line_level_region(region_range, marker)
-        if candidate_region_line_level:
-            candidate_region_top_with_changed_lines.append(candidate_region_line_level)
+        # # line level
+        # candidate_region_line_level = self.transfer_to_line_level_region(region_range, marker)
+        # if candidate_region_line_level:
+        #     candidate_region_top_with_changed_lines.append(candidate_region_line_level)
         return candidate_region_top_with_changed_lines
     
     def bottom_overlap(self, top_1st_unchanged_line):
@@ -217,24 +217,24 @@ class SearchLinesToCandidateRegion():
         candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
         candidate_region_bottom_with_changed_lines.append(candidate_region)
         
-        # line level
-        end_line = self.bottom_diff_hunk.target_end_line_number - 1
-        end_char_empty = len(self.target_file_lines[end_line-1])
-        end_char_nonempty = len(self.target_file_lines[end_line-2])
-        if start_char != 1:
-            if "<EMPTY>" in marker:
-                if characters_end_idx != end_char_empty:
-                    characters_end_idx = end_char_empty
-            elif characters_end_idx != end_char_nonempty:
-                end_line-=1
-                characters_end_idx = end_char_nonempty
+        # # line level
+        # end_line = self.bottom_diff_hunk.target_end_line_number - 1
+        # end_char_empty = len(self.target_file_lines[end_line-1])
+        # end_char_nonempty = len(self.target_file_lines[end_line-2])
+        # if start_char != 1:
+        #     if "<EMPTY>" in marker:
+        #         if characters_end_idx != end_char_empty:
+        #             characters_end_idx = end_char_empty
+        #     elif characters_end_idx != end_char_nonempty:
+        #         end_line-=1
+        #         characters_end_idx = end_char_nonempty
 
-            marker += "<LINE>"
-            region_range = [top_1st_unchanged_line, 1, end_line, characters_end_idx]
-            candidate_region_range = CharacterRange(region_range)
-            candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
-            candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
-            candidate_region_bottom_with_changed_lines.append(candidate_region)
+        #     marker += "<LINE>"
+        #     region_range = [top_1st_unchanged_line, 1, end_line, characters_end_idx]
+        #     candidate_region_range = CharacterRange(region_range)
+        #     candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
+        #     candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
+        #     candidate_region_bottom_with_changed_lines.append(candidate_region)
         return candidate_region_bottom_with_changed_lines
 
     def cover_changed_lines_in_between(self):
@@ -263,10 +263,10 @@ class SearchLinesToCandidateRegion():
         candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
         candidate_region_cover_changed_lines.append(candidate_region)
 
-        # line level
-        candidate_region_line_level = self.transfer_to_line_level_region(region_range, marker)
-        if candidate_region_line_level:
-            candidate_region_cover_changed_lines.append(candidate_region_line_level)
+        # # line level
+        # candidate_region_line_level = self.transfer_to_line_level_region(region_range, marker)
+        # if candidate_region_line_level:
+        #     candidate_region_cover_changed_lines.append(candidate_region_line_level)
         
         return candidate_region_cover_changed_lines
 
