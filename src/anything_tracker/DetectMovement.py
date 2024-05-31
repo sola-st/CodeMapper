@@ -47,7 +47,7 @@ class DetectMovement():
 
     def get_region_indices(self):
         # get location hints from unique_target_hunk_range (the may moved to location)
-
+        start_end_pairs = []
         # start
         first_source_line = self.source_region_characters[0]
         # check the location of the 1st line
@@ -58,8 +58,8 @@ class DetectMovement():
         last_source_line = self.source_region_characters[-1]
         # check the last line by running helper function, laso can be one or more
         end_line_char_pairs = self.finder_helper(last_source_line, False)
-
-        start_end_pairs = find_pair(start_line_char_pairs, end_line_char_pairs, self.moved_lines_num-1)
+        if start_line_char_pairs and end_line_char_pairs:
+            start_end_pairs = find_pair(start_line_char_pairs, end_line_char_pairs, self.moved_lines_num-1)
         return start_end_pairs # also can be multiple
 
     def finder_helper(self, source_line,is_start=True):
@@ -79,6 +79,7 @@ class DetectMovement():
                         candidate_source_idx = 1
                     else: # we always annotate region start with no whitespaces.
                         candidate_source_idx = line.index(source_line.strip()) + 1 # to start at 1
+                        # andidate_source_idx = len(line) - len(line.lstrip()) + 1 # this is should be the same as above
                 else:
                     candidate_source_idx = len(line) - 1 # to exclude the final "\n"
 

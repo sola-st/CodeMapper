@@ -83,6 +83,7 @@ class GitDiffToCandidateRegion():
         dicts = []
         diff_algorithms = ["default", "minimal", "patience", "histogram"]
         levels = ["line", "word"]
+        encodings_to_try = ['utf-8', 'latin-1', 'cp1252']
         # The \w+ pattern is a regular expression that matches one or more word characters (letters, digits, or underscores). 
         # -w to ignore whitespaces. It's add to solve a special case where only more or less whitespace in a line.
         # suffix = f"{self.base_commit} {self.target_commit} -- {self.source_file_path}"
@@ -94,9 +95,14 @@ class GitDiffToCandidateRegion():
                     command = f"{prefix} {suffix}"
                 else:
                     command = f"{prefix} --word-diff {suffix}" # -regex='\w+'
-                result = subprocess.run(command, cwd=self.repo_dir, shell=True,
-                        stdout = subprocess.PIPE, universal_newlines=True)
-                diff_result = result.stdout
+                for encoding in encodings_to_try:
+                    try:
+                        result = subprocess.run(command, cwd=self.repo_dir, shell=True, encoding=encoding,
+                                stdout = subprocess.PIPE, universal_newlines=True)
+                        diff_result = result.stdout
+                        break
+                    except UnicodeDecodeError:
+                        print(f"Failed to decode using, {encoding}. Subprocess")
                 if not diff_result in dicts:
                     dicts.append(diff_result)
                     diff_results.append({
