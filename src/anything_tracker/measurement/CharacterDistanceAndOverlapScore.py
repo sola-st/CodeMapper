@@ -40,6 +40,8 @@ def calculate_overlap(expected_location, predicted_location, line_lengths, targe
     expected_start_char = get_absolute_char_position(start_line1, start_char1, line_lengths)
     expected_end_char = get_absolute_char_position(end_line1, end_char1, line_lengths)
     predicted_start_char = get_absolute_char_position(start_line2, start_char2, line_lengths)
+    if predicted_start_char < 1:
+        predicted_start_char = 1
     predicted_end_char = get_absolute_char_position(end_line2, end_char2, line_lengths)
 
     # from location perspective

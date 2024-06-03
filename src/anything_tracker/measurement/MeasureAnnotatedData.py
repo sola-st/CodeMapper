@@ -12,7 +12,7 @@ from anything_tracker.utils.ReadFile import checkout_to_read_file
 def calculation_helper(list, digits):
     min_value = min(list)
     max_value = max(list)
-    avg_value = round((sum(list)) / len(list), digits)
+    avg_value = format((sum(list)) / len(list), digits)
     return min_value, max_value, avg_value
 
 
@@ -27,6 +27,7 @@ class MeasureLineLevel():
         self.candidate_nums = ["Number of Candidates"]
         self.target_region_indices = ["Target region index"]
         self.predicted_commits = ["Predicted commits"]
+        self.change = ["Change operation"]
         self.expected = ["Expected ranges"]
         self.predicted = ["Predicted ranges"]
         self.is_matched_set = ["Range matches"]
@@ -38,7 +39,8 @@ class MeasureLineLevel():
         self.f1s = ["F1-score"]
         self.notes = ["Notes"]
 
-        self.digits = 3
+        self.digits = ".3f"
+        self.digit_1 = ".1f"
 
     def update_results(self, pre, post, dist, recall, precision, f1, compare_results, note=""):
         self.pre_dist.append(pre)
@@ -69,9 +71,9 @@ class MeasureLineLevel():
         overlapped_post = [post for post in self.post_dist[1:] if post != None]
         overlapped_dist = [dist for dist in self.dists[1:] if dist != None]
 
-        min_pre, max_pre, avg_pre = calculation_helper(overlapped_pre, self.digits)
-        min_post, max_post, avg_post = calculation_helper(overlapped_post, self.digits)
-        min_dist, max_dist, avg_dist = calculation_helper(overlapped_dist, self.digits)
+        min_pre, max_pre, avg_pre = calculation_helper(overlapped_pre, self.digit_1)
+        min_post, max_post, avg_post = calculation_helper(overlapped_post, self.digit_1)
+        min_dist, max_dist, avg_dist = calculation_helper(overlapped_dist, self.digit_1)
         char_dist_dict = {
             "pre_dist": {"min": min_pre, "max": max_pre, "avg": avg_pre},
             "post_dist": {"min": min_post, "max": max_post, "avg": avg_post},
@@ -88,9 +90,9 @@ class MeasureLineLevel():
         recalls = self.recalls[1:]
         precisions = self.precisions[1:]
         f1s = self.f1s[1:]
-        avg_recall = round(sum(recalls) / len(recalls), self.digits)
-        avg_precision = round(sum(precisions) / len(precisions), self.digits)
-        avg_f1 = round(sum(f1s) / len(f1s), self.digits)
+        avg_recall = format(sum(recalls) / len(recalls), self.digits)
+        avg_precision = format(sum(precisions) / len(precisions), self.digits)
+        avg_f1 = format(sum(f1s) / len(f1s), self.digits)
         self.recalls.append(avg_recall)
         self.precisions.append(avg_precision)
         self.f1s.append(avg_f1)
@@ -111,7 +113,7 @@ class MeasureLineLevel():
 
         # write results
         results = zip_longest(self.indices, self.metrics, self.candidate_nums, self.target_region_indices, \
-                self.predicted_commits, self.expected, self.predicted, self.is_matched_set, \
+                self.predicted_commits, self.change, self.expected, self.predicted, self.is_matched_set, \
                 self.pre_dist, self.post_dist, self.dists, self.recalls, self.precisions, self.f1s, self.notes)
         self.write_results(results)
 
@@ -197,6 +199,7 @@ class MeasureLineLevel():
                 self.candidate_nums.append(region["all_candidates_num"])
                 self.target_region_indices.append(region["index"])
                 self.predicted_commits.append(expected_commit)
+                self.change.append(region["kind"])
                 self.expected.append(expected_range)
                 self.predicted.append(predicted_range)
 
@@ -205,8 +208,8 @@ class MeasureLineLevel():
 
 if __name__=="__main__":
     oracle_file = join("data", "annotation", "annotations_100.json")
-    results_dir = join("data", "results", "tracked_maps", "final", "mapped_regions_anno")
-    results_csv_file_folder = join("data", "results", "measurement_results", "final")
+    results_dir = join("data", "results", "tracked_maps", "annotation", "mapped_regions_annodata_update")
+    results_csv_file_folder = join("data", "results", "measurement_results", "annotation")
     os.makedirs(results_csv_file_folder, exist_ok=True)
-    results_csv_file = join(results_csv_file_folder, "measurement_results_metrics_anno.csv")
+    results_csv_file = join(results_csv_file_folder, "measurement_results_metrics_anno_0603.csv")
     MeasureLineLevel(oracle_file, results_dir, results_csv_file).run()

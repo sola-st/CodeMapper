@@ -179,9 +179,10 @@ class GitDiffToCandidateRegion():
                             if self.turn_off_techniques.turn_off_fine_grains == False:
                                 if level == "word":
                                     interest_first_line_characters = self.source_region_characters[0]
+                                    # add another True at the final position, to turn off character level fine-grained for world level baseline
                                     fine_grain_start = FineGrainLineCharacterIndices(
                                             self.target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
-                                            self.characters_start_idx, self.interest_first_number, interest_first_line_characters, True)
+                                            self.characters_start_idx, self.interest_first_number, interest_first_line_characters, True) 
                                     candidate_character_start_idx, start_line_delta_hint = fine_grain_start.fine_grained_line_character_indices()
                                     if start_line_delta_hint != None:
                                         candidate_start_line += start_line_delta_hint

@@ -49,6 +49,7 @@ class TrackConvertedData():
             time_file_to_write = join(self.time_file_folder, f"execution_time_{category}_{subset}.csv")
             subset_folder = join(self.oracle_history_parent_folder, category, subset)
             subset_folder_len = len(os.listdir(subset_folder))
+            subset_result_dir = join(f"{self.result_dir_parent}_{category}_{subset}")
             for num_folder in range(subset_folder_len):
                 num_folder_str = str(num_folder)
                 history_file_path = join(self.oracle_history_parent_folder, category, subset,\
@@ -57,7 +58,7 @@ class TrackConvertedData():
                 with open(history_file_path) as f:
                     histories_pairs = json.load(f)
 
-                result_dir_parent_tmp = join(self.result_dir_parent, num_folder_str)
+                result_dir_parent_tmp = join(subset_result_dir, num_folder_str)
                 # get inputs for computing candidates
                 # Note: here the keys are special for converted code tracker data
                 for i, meta in enumerate(histories_pairs):
@@ -140,9 +141,9 @@ class TrackConvertedData():
         
 
 if __name__ == "__main__":
-    result_dir_parent = join("data", "results", "tracked_maps", "mapped_regions")
+    result_dir_parent = join("data", "results", "tracked_maps", "element", "mapped_regions")
     oracle_history_parent_folder = join("data", "converted_data")
-    time_file_folder = join("data", "results", "execution_time")
+    time_file_folder = join("data", "results", "execution_time", "element")
     os.makedirs(time_file_folder, exist_ok=True)
     # context_line_num >=0.
     # 0 means no contexts, >0 means get the corresponding number of lines before and after respectively as contexts

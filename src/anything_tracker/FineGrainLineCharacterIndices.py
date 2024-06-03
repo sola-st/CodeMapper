@@ -4,7 +4,8 @@ from anything_tracker.utils.FineGrainedWhitespace import count_leading_whitespac
 
 class FineGrainLineCharacterIndices():
     def __init__(self, target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
-                character_idx, interest_line_number, interest_line_characters, is_start):
+                character_idx, interest_line_number, interest_line_characters, 
+                is_start, character_level_fine_grained_off=False):
         self.target_file_lines = target_file_lines
         self.diffs = diffs
         self.diff_line_num = diff_line_num
@@ -15,6 +16,7 @@ class FineGrainLineCharacterIndices():
         self.interest_line_number = interest_line_number
         self.interest_line_characters = interest_line_characters 
         self.is_start = is_start # true: start line/character; false: end line/character
+        self.character_level_fine_grained_off = character_level_fine_grained_off
     
     def get_partial_diff_hunk(self, specified_line_number_idx):
         diff_len = len(self.diffs)
@@ -207,7 +209,7 @@ class FineGrainLineCharacterIndices():
                         # the fine_grained_character_idx locates in the first *unchanged* split.
                         fine_grained_character_idx = self.character_idx
                     else: 
-                        if pre_in_color == True:
+                        if pre_in_color == True or self.character_level_fine_grained_off == True:
                             fine_grained_character_idx = candidate_pre_characters_len + 1 
                         else: # changed, do not need to compute overlap
                             # focus on previous
@@ -216,7 +218,7 @@ class FineGrainLineCharacterIndices():
             else:
                 if source_pre_characters_len >= self.character_idx:
                     fit_condition = True
-                    if "[32m" in s:
+                    if "[32m" in s or self.character_level_fine_grained_off == True:
                         ns = s[6:-2]
                         # changed, do not need to compute overlap
                         fine_grained_character_idx = candidate_pre_characters_len + len(ns)
@@ -251,13 +253,13 @@ class FineGrainLineCharacterIndices():
         if fit_condition == False:
             if self.is_start == True:
                 # the candidate_pre_characters are added
-                if pre_in_color == True:
+                if pre_in_color == True or self.character_level_fine_grained_off == True:
                     fine_grained_character_idx = candidate_pre_characters_len - pre_1_s_len + 1
                 else:
                     fine_grained_character_idx = self.fine_grained_return_helper(
                             pre_1_s, pre_1_s_len, candidate_pre_characters_len)
             else:
-                if pre_in_color == True:
+                if pre_in_color == True or self.character_level_fine_grained_off == True:
                     fine_grained_character_idx = candidate_pre_characters_len
                 else:
                     fine_grained_character_idx = self.fine_grained_return_helper(
