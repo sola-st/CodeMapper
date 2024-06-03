@@ -117,7 +117,10 @@ class FineGrainWordIndices():
             else:
                 fine_grained_character_idx = candidate_pre_characters_len
 
-            return fine_grained_character_idx
+        if candidate_pre_characters_len < 1:
+            fine_grained_character_idx = self.character_idx
+
+        return fine_grained_character_idx
 
     def fine_grained_return_helper(self, s, s_len, candidate_pre_characters_len):
         fine_grained_character_idx = 0

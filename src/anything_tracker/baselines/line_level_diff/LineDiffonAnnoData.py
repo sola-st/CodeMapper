@@ -52,17 +52,15 @@ class LineDiffonAnnoData():
                 write_mode
             ]
             parameters.append(parameter)
-            if i == 3:
-                break
 
         return parameters
 
     def run(self):
         # prepare repositories
-        # source_repo_init = SourceRepos()
-        # repo_dirs = source_repo_init.get_repo_dirs()
-        # source_repo_init.checkout_latest_commits()
-        # print(f"Found {len(repo_dirs)} repositories.")
+        source_repo_init = SourceRepos()
+        repo_dirs = source_repo_init.get_repo_dirs()
+        source_repo_init.checkout_latest_commits()
+        print(f"Found {len(repo_dirs)} repositories.")
 
         args_for_all_maps = self.get_meta_inputs()
         for args in args_for_all_maps:

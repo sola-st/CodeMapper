@@ -177,6 +177,10 @@ class LineCharacterGitDiffToCandidateRegion():
                                 candidate_character_start_idx_tmp = fine_grain_start.fine_grained_line_character_indices()
                                 if candidate_character_start_idx_tmp != None:
                                     candidate_character_start_idx = candidate_character_start_idx_tmp
+                                else:
+                                    start_line = self.target_file_lines[target_hunk_range.start-1]
+                                    candidate_character_start_idx = len(start_line) - len(start_line.lstrip()) + 1
+                            else:
                                 marker = f"{marker}"
                         candidate_character_start_idx_done = True
 
@@ -216,20 +220,24 @@ class LineCharacterGitDiffToCandidateRegion():
                                 character_range = CharacterRange([0, 0, 0, 0])
                                 candidate_region = CandidateRegion(self.interest_character_range, character_range, None, "<LOCATION_HELPER:DIFF_DELETE>")
                                 candidate_regions.add(candidate_region)
+                            else:
+                                hunk_end = target_hunk_range.stop - 1
+                                if hunk_end < target_hunk_range.start:
+                                    hunk_end = target_hunk_range.start
+                                marker += "<LOCATION_HELPER:DIFF_FULLY_COVER>"
+                                if candidate_character_start_idx == 0:
+                                    if self.level == "word":
+                                        start_line = self.target_file_lines[target_hunk_range.start-1]
+                                        candidate_character_start_idx = len(start_line) - len(start_line.lstrip()) + 1
+                                    else:
+                                        candidate_character_start_idx = 1
+                                if candidate_character_end_idx == 0:
+                                    candidate_character_end_idx = len(self.target_file_lines[hunk_end-1]) - 1
 
-                            hunk_end = target_hunk_range.stop - 1
-                            if hunk_end < target_hunk_range.start:
-                                hunk_end = target_hunk_range.start
-                            marker += "<LOCATION_HELPER:DIFF_FULLY_COVER>"
-                            if candidate_character_start_idx == 0:
-                                candidate_character_start_idx = 1
-                            if candidate_character_end_idx == 0:
-                                candidate_character_end_idx = len(self.target_file_lines[hunk_end-1]) - 1
-
-                            character_range = CharacterRange([candidate_start_line, candidate_character_start_idx, candidate_end_line, candidate_character_end_idx])
-                            candidate_characters = get_region_characters(self.target_file_lines, character_range)
-                            candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, marker)
-                            candidate_regions.add(candidate_region) 
+                                character_range = CharacterRange([candidate_start_line, candidate_character_start_idx, candidate_end_line, candidate_character_end_idx])
+                                candidate_characters = get_region_characters(self.target_file_lines, character_range)
+                                candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, marker)
+                                candidate_regions.add(candidate_region) 
                     else:
                         self.add_overlapped_hunks(base_hunk_range, candidate_start_line, candidate_end_line, overlapped_line_numbers, \
                                 candidate_character_start_idx, candidate_character_end_idx)
