@@ -5,7 +5,7 @@ from anything_tracker.utils.FineGrainedWhitespace import count_leading_whitespac
 class FineGrainLineCharacterIndices():
     def __init__(self, target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
                 character_idx, interest_line_number, interest_line_characters, 
-                is_start, character_level_fine_grained_off=False):
+                is_start):
         self.target_file_lines = target_file_lines
         self.diffs = diffs
         self.diff_line_num = diff_line_num
@@ -16,7 +16,6 @@ class FineGrainLineCharacterIndices():
         self.interest_line_number = interest_line_number
         self.interest_line_characters = interest_line_characters 
         self.is_start = is_start # true: start line/character; false: end line/character
-        self.character_level_fine_grained_off = character_level_fine_grained_off
     
     def get_partial_diff_hunk(self, specified_line_number_idx):
         diff_len = len(self.diffs)
@@ -34,11 +33,11 @@ class FineGrainLineCharacterIndices():
         for delta, diff_line in enumerate(partial_diffs):
             if "[36m" in diff_line: # @@ hunk ranges @@ line
                 # +2: 1 to get delta start from 1, 1 to get range_end be an open border
-                range_end = self.diff_line_num + delta + 2 
+                range_end = self.diff_line_num + delta + 1 # TODO To check 
                 break
         # compute the to-check range end
         if range_end == None or range_end > diff_len:
-            range_end = diff_len
+            range_end = diff_len - 1
 
         assert range_end != None
         return range_start, range_end
@@ -86,7 +85,9 @@ class FineGrainLineCharacterIndices():
             # get the first 1) modified, or 2) no change
             if "[36m" in interest_line_characters_in_diff:
                 break # diff misreport
-            elif "[31m" in interest_line_characters_in_diff:
+            elif "[31m" in interest_line_characters_in_diff or \
+                    ("[32" in interest_line_characters_in_diff and \
+                        not (interest_line_characters_in_diff.startswith("\033[32") and interest_line_characters_in_diff.endswith("[m"))):
                 identified_diff_line = interest_line_characters_in_diff
                 line_delta = z
                 break
@@ -209,7 +210,7 @@ class FineGrainLineCharacterIndices():
                         # the fine_grained_character_idx locates in the first *unchanged* split.
                         fine_grained_character_idx = self.character_idx
                     else: 
-                        if pre_in_color == True or self.character_level_fine_grained_off == True:
+                        if pre_in_color == True:
                             fine_grained_character_idx = candidate_pre_characters_len + 1 
                         else: # changed, do not need to compute overlap
                             # focus on previous
@@ -218,7 +219,7 @@ class FineGrainLineCharacterIndices():
             else:
                 if source_pre_characters_len >= self.character_idx:
                     fit_condition = True
-                    if "[32m" in s or self.character_level_fine_grained_off == True:
+                    if "[32m" in s:
                         ns = s[6:-2]
                         # changed, do not need to compute overlap
                         fine_grained_character_idx = candidate_pre_characters_len + len(ns)
@@ -253,19 +254,23 @@ class FineGrainLineCharacterIndices():
         if fit_condition == False:
             if self.is_start == True:
                 # the candidate_pre_characters are added
-                if pre_in_color == True or self.character_level_fine_grained_off == True:
+                if pre_in_color == True:
+                    # if the color is [31, candidate_pre_characters_len can be 0, and reultsin < 0 index here
                     fine_grained_character_idx = candidate_pre_characters_len - pre_1_s_len + 1
                 else:
                     fine_grained_character_idx = self.fine_grained_return_helper(
                             pre_1_s, pre_1_s_len, candidate_pre_characters_len)
             else:
-                if pre_in_color == True or self.character_level_fine_grained_off == True:
+                if pre_in_color == True:
                     fine_grained_character_idx = candidate_pre_characters_len
                 else:
                     fine_grained_character_idx = self.fine_grained_return_helper(
                             pre_1_s, pre_1_s_len, candidate_pre_characters_len)
+        
+        if candidate_pre_characters_len < 1:
+            fine_grained_character_idx = self.character_idx
 
-            return fine_grained_character_idx, line_delta
+        return fine_grained_character_idx, line_delta
 
     def fine_grained_return_helper(self, s, s_len, candidate_pre_characters_len):
         fine_grained_character_idx = 0

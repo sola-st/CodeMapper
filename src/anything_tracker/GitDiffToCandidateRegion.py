@@ -179,14 +179,13 @@ class GitDiffToCandidateRegion():
                             if self.turn_off_techniques.turn_off_fine_grains == False:
                                 if level == "word":
                                     interest_first_line_characters = self.source_region_characters[0]
-                                    # add another True at the final position, to turn off character level fine-grained for world level baseline
                                     fine_grain_start = FineGrainLineCharacterIndices(
                                             self.target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
                                             self.characters_start_idx, self.interest_first_number, interest_first_line_characters, True) 
                                     candidate_character_start_idx, start_line_delta_hint = fine_grain_start.fine_grained_line_character_indices()
                                     if start_line_delta_hint != None:
                                         candidate_start_line += start_line_delta_hint
-                                    marker = f"<A>{marker}"
+                                    marker = f"{marker}"
                         candidate_character_start_idx_done = True
 
                     if self.interest_last_number in overlapped_line_numbers and candidate_character_end_idx_done == False:
@@ -199,8 +198,6 @@ class GitDiffToCandidateRegion():
                                 candidate_character_end_idx, end_line_delta_hint = fine_grain_end.fine_grained_line_character_indices()
                                 if end_line_delta_hint != None:
                                     candidate_end_line -= end_line_delta_hint
-                                if not marker.startswith("<A>"):
-                                    marker = f"<A>{marker}"
                         candidate_character_end_idx_done = True
 
                     base_hunk_range_list = list(base_hunk_range)
@@ -216,7 +213,7 @@ class GitDiffToCandidateRegion():
                     '''
                     if list(set(self.interest_line_numbers) - set(base_hunk_range_list)) == []: 
                         if base_hunk_range.start == base_hunk_range.stop: # no changed, bottom overlap
-                            self.add_overlapped_hunks(base_hunk_range, target_hunk_range, overlapped_line_numbers, \
+                            self.add_overlapped_hunks(base_hunk_range, candidate_start_line, candidate_end_line, overlapped_line_numbers, \
                                     candidate_character_start_idx, candidate_character_end_idx, "bottom")
                         else:
                             # fully covered by changed hunk
@@ -275,8 +272,8 @@ class GitDiffToCandidateRegion():
                                 if movement_candidate_region != []:
                                     candidate_regions.update(set(movement_candidate_region))
                     else:
-                        self.add_overlapped_hunks(base_hunk_range, target_hunk_range, overlapped_line_numbers, \
-                                candidate_character_end_idx, candidate_character_end_idx)
+                        self.add_overlapped_hunks(base_hunk_range, candidate_start_line, candidate_end_line, overlapped_line_numbers, \
+                                candidate_character_start_idx, candidate_character_end_idx)
                 else: # no overlap
                     if last_line_number < self.interest_line_numbers[0]:
                         # current hunk changes before the source region, unchanged lines, update changed line numbers.
@@ -293,14 +290,12 @@ class GitDiffToCandidateRegion():
 
         return candidate_regions, self.top_diff_hunks, self.middle_diff_hunks, self.bottom_diff_hunks
     
-    def add_overlapped_hunks(self, base_hunk_range, target_hunk_range, overlapped_line_numbers, \
+    def add_overlapped_hunks(self, base_hunk_range, candidate_start_line, candidate_end_line, overlapped_line_numbers, \
                 candidate_character_start_idx, candidate_character_end_idx, location=None):
         
         if not location: # if exists, is always "bottom"
             location = locate_changes(overlapped_line_numbers, self.interest_line_numbers)
         
-        candidate_start_line = target_hunk_range.start
-        candidate_end_line = target_hunk_range.stop - 1
         target_hunk_stare_line = self.target_file_lines[candidate_start_line-1]
         if candidate_character_start_idx <= 0:
             candidate_character_start_idx = len(target_hunk_stare_line) - len(target_hunk_stare_line.lstrip()) + 1 # at least is 1
@@ -308,9 +303,6 @@ class GitDiffToCandidateRegion():
         diff_hunk = DiffHunk(base_hunk_range.start, base_hunk_range.stop, 
                                 candidate_start_line, candidate_end_line + 1,
                                 candidate_character_start_idx, candidate_character_end_idx)
-        # assert candidate_character_start_idx > 0
-        # assert candidate_character_end_idx > 0 # TODO check why
-
         if location == "top":
             self.top_diff_hunks.add(diff_hunk)
         elif location == "middle":
