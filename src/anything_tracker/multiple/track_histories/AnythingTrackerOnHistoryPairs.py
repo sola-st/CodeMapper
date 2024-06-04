@@ -189,17 +189,26 @@ class AnythingTrackerOnHistoryPairs():
             print(f"Executing time (2nd phase): 1 candidate, {second_phrase_executing_time} seconds")
             target_candidate = candidate_regions[0]
             results_set_dict.update({"dist_based": { 
-                "target_candidate_edit_distance": "Unknown",
-                "target_candidate_index" : 0
+                "target_candidate_edit_distance": None,
+                "target_candidate_index" : 0,
+                "region_weight": None
                 }})
         else:
             candiate_str_list = []
-            source_str = ""
+            source_str = source_region_characters_str
+            source_context = ""
+            candidate_context_list = []
+            if self.context_line_num != 0:
+                # before_lines_num = self.context_line_num
+                # after_line_num = self.context_line_num
+                source_pre_lines_str, source_post_lines_str = get_context_aware_characters(self.base_file_lines, \
+                            self.interest_character_range, self.context_line_num, self.context_line_num)
+                source_context = f"{source_pre_lines_str} {source_post_lines_str}"
 
+            # collect candidate str, and contexts
             for candidate in candidate_regions:
                 # option 1: without context
                 if self.context_line_num == 0:
-                    source_str = source_region_characters_str
                     candidate_characters = candidate.character_sources
                     candiate_str_list.append(candidate_characters)
                 else: # option 2: with context
@@ -214,40 +223,27 @@ class AnythingTrackerOnHistoryPairs():
                 # results_set_dict, average_highest, vote_most = ComputeTargetRegion(source_str, candiate_str_list).run()
                     
                     # 2.2 check pre, post separately
-                    source_str = source_region_characters_str
-                    before_lines_num = self.context_line_num
-                    after_line_num = self.context_line_num
-                    # source_pre_lines_str, source_post_lines_str = get_context_aware_characters(self.base_file_lines, \
-                    #             self.interest_character_range, before_lines_num, after_line_num)
-
                     candidate_range = candidate.candidate_region_character_range
                     # candidate_with_context 
                     candidate_pre_lines_str, candidate_post_lines_str = get_context_aware_characters(self.target_file_lines, \
-                            candidate_range, before_lines_num, after_line_num)
+                            candidate_range, self.context_line_num, self.context_line_num)
+                    candidate_context = f"{candidate_pre_lines_str} {candidate_post_lines_str}"
+                    candidate_context_list.append(candidate_context)
                     candidate_str = candidate.character_sources
-                    candiate_str_list.append([candidate_pre_lines_str, candidate_str, candidate_post_lines_str])
-            # special for 2.2
-            # results_set_dict, average_highest, vote_most = ComputeTargetRegionWithContext(\
-            #         [source_pre_lines_str, source_str, source_post_lines_str], candiate_str_list).run()
-                    
-            # for both 1 and 2.1
+                    if candidate_str == None:
+                        candidate_str = ""
+                    candiate_str_list.append(candidate_str)
+
             assert candiate_str_list != []
-            if len(candiate_str_list) > 1:
+            if self.context_line_num == 0:
                 results_set_dict = ComputeTargetRegion(source_str, candiate_str_list).run()
-                # phase 2: compute candidate regions ends.
-                second_phrase_end_time = time.time()
-                second_phrase_executing_time = round((second_phrase_end_time - second_phrase_start_time), 3)
-                print(f"Executing time (2nd phase): {second_phrase_executing_time} seconds")
-            else: # == 1
-                second_phrase_end_time = time.time()
-                second_phrase_executing_time = round((second_phrase_end_time - second_phrase_start_time), 3)
-                print(f"Executing time (2nd phase): line deduplicate, 1 candidate, {second_phrase_executing_time} seconds")
-                idx = 0
-                target_candidate = candidate_regions[idx]
-                results_set_dict.update({"dist_based": { 
-                    "target_candidate_edit_distance": "Unknown",
-                    "target_candidate_index" : idx
-                }})
+            else: # consider contexts
+                results_set_dict = ComputeTargetRegion(source_str, candiate_str_list, \
+                        source_context, candidate_context_list).compute_context_aware_similary()
+            # phase 2: compute candidate regions ends.
+            second_phrase_end_time = time.time()
+            second_phrase_executing_time = round((second_phrase_end_time - second_phrase_start_time), 3)
+            print(f"Executing time (2nd phase): {second_phrase_executing_time} seconds")
 
         self.one_round_time_info[2] = second_phrase_executing_time
 
@@ -273,7 +269,8 @@ class AnythingTrackerOnHistoryPairs():
                 "kind": target_candidate.marker,
                 "levenshtein_distance" : target_dict["target_candidate_edit_distance"],
                 "index": target_dict["target_candidate_index"], 
-                "all_candidates_num": len(candidate_regions)
+                "all_candidates_num": len(candidate_regions),
+                "region_weight": target_dict["region_weight"]
             }
             self.dist_based_target_str_list.append(target_json)
 
@@ -306,7 +303,8 @@ def main(*args):
             "kind": "no target file (deleted)",
             "levenshtein_distance" : None,
             "index": 0, 
-            "all_candidates_num": 1
+            "all_candidates_num": 1,
+            "region_weight": None
         }
         dist_based.append(target_json)
         candidate_numbers = 1
@@ -350,7 +348,8 @@ def main_suppression(*args): # can be used to start tracking annotation and supp
             "kind": "no target file (deleted)",
             "levenshtein_distance" : None,
             "index": 0, 
-            "all_candidates_num": 1
+            "all_candidates_num": 1,
+            "region_weight": None
         }
         dist_based.append(target_json)
         candidate_numbers = 1
