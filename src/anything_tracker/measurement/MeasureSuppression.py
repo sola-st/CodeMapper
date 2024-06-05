@@ -208,8 +208,8 @@ class MeasureLineLevel():
 
 if __name__=="__main__":
     oracle_file_folder = join("data", "suppression_data")
-    results_dir = join("data", "results", "tracked_maps", "latest", "mapped_regions_suppression")
-    results_csv_file_folder = join("data", "results", "measurement_results", "latest")
+    results_dir = join("data", "results", "tracked_maps", "suppression", "mapped_regions_suppression")
+    results_csv_file_folder = join("data", "results", "measurement_results", "suppression")
     os.makedirs(results_csv_file_folder, exist_ok=True)
     results_csv_file = join(results_csv_file_folder, "measurement_results_metrics_suppression.csv")
     MeasureLineLevel(oracle_file_folder, results_dir, results_csv_file).run()

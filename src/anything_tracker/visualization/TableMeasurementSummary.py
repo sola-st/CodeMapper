@@ -1,5 +1,7 @@
 import csv
 import json
+from os import makedirs
+from os.path import join
 
 def get_data(file_list):
     summaries = []
@@ -16,15 +18,18 @@ def get_data(file_list):
     for file in file_list:
         with open(file, "r") as f:
             csv_reader = csv.reader(f)
-            summary_line = list(csv_reader)[-1]
+            line_list = list(csv_reader)
+            # include the outliers, like file path not match
+            all = len(line_list) - 3 # 1 empty line, 1 head, 1 summary
+            summary_line = line_list[-1]
 
         # summary should be [YMW, pre character distance, post, all, recall, presicion, f1, note]
         summary = [s for s in summary_line if s] 
         match_results = json.loads(summary[0])
         matches = match_results["Y"]
         overlaps = match_results["M"]
-        nonoverlaps = match_results["W"]
-        all = matches + overlaps + nonoverlaps
+        # nonoverlaps = match_results["W"]
+        # all = matches + overlaps + nonoverlaps
         matches_rate = format((matches / all) * 100, digit)
         overlaps_rate = format((overlaps / all) * 100, digit)
 
@@ -46,7 +51,11 @@ def get_data(file_list):
     return summaries
 
 
-def generate_table(row_names, col_names, data, caption, label, tex_file, the_higher_the_better):
+def generate_table(data, caption, label, tex_file):
+    row_names = ["Line level diff", "Word level diff", "AnythingTracker"]
+    col_names = ["Exact matches", "Overlapping", "Recall", "Precision", "F1-score", "Character distance"]
+    the_higher_the_better = [True, False, True, True, True, False]
+
     latex_table = "\\begin{table*}[htbp]\n\\centering\n"
     latex_table += "\\caption{" + caption + "}\n"
     latex_table += "\\begin{tabular}{" + "l" + "".join(["r"] * len(col_names)) + "}\n"
@@ -87,17 +96,41 @@ def generate_table(row_names, col_names, data, caption, label, tex_file, the_hig
     with open(tex_file, "w") as f:
         f.write(latex_table + "\n")
 
-# suppression data
-row_names = ["Line level diff", "Character level diff", "AnythingTracker"]
-col_names = ["Exact matches", "Overlapping", "Recall", "Precision", "F1-score", "Character distance"]
-file_list = [
-             "data/results/measurement_results/annotation/measurement_results_metrics_anno_line_0603.csv",
-             "data/results/measurement_results/annotation/measurement_results_metrics_anno_character_0603.csv",
-             "data/results/measurement_results/annotation/measurement_results_metrics_anno_update.csv"]
-data = get_data(file_list)
-caption = "Performance on tracking annotated data"
-label = "performance_on_annotated_data"
-tex_file = "data/results/table_plots/annodata_comparison_table.tex"
-the_higher_the_better = [True, False, True, True, True, False]
+def annotated_data_main():
+    # annotated data
+    common = join("data", "results", "measurement_results", "annotation")
+    file_name_base = "measurement_results_metrics_anno"
+    file_list = [
+            join(common, f"{file_name_base}_line.csv"),
+            join(common, f"{file_name_base}_word.csv"),
+            join(common, f"{file_name_base}.csv")]
+    data = get_data(file_list)
+    caption = "Results on tracking annotated data"
+    label = "results_on_annotated_data"
+    output_dir = join("data", "results", "table_plots")
+    makedirs(output_dir, exist_ok=True)
+    tex_file = join(output_dir, "annodata_comparison_table.tex")
 
-generate_table(row_names, col_names, data, caption, label, tex_file, the_higher_the_better)
+    generate_table(data, caption, label, tex_file)
+
+def suppression_main():
+    # suppression data
+    common = join("data", "results", "measurement_results", "suppression")
+    file_name_base = "measurement_results_metrics_suppression"
+    file_list = [
+            join(common, f"{file_name_base}_line.csv"),
+            join(common, f"{file_name_base}_word.csv"),
+            join(common, f"{file_name_base}.csv")]
+    data = get_data(file_list)
+    caption = "Results on tracking Python suppressions"
+    label = "results_on_suppressions"
+    output_dir = join("data", "results", "table_plots")
+    makedirs(output_dir, exist_ok=True)
+    tex_file = join(output_dir, "suppression_comparison_table.tex")
+
+    generate_table(data, caption, label, tex_file)
+
+
+if __name__=="__main__":
+    annotated_data_main()
+    suppression_main()

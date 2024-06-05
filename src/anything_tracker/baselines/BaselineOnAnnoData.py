@@ -5,7 +5,7 @@ from os.path import join
 from os import makedirs
 
 
-class LineDiffonAnnoData():
+class BaselineOnAnnoData():
     """
     Computes candidate region for all the source regions.
     """
@@ -79,10 +79,10 @@ class LineDiffonAnnoData():
 
 
 if __name__ == "__main__":
-    result_dir_parent = join("data", "results", "tracked_maps", "baseline", "mapped_regions_annodata_word")
+    result_dir_parent = join("data", "results", "tracked_maps", "annotation", "mapped_regions_annodata_line")
     oracle_file = join("data", "annotation", "annotations_100.json")
-    time_file_folder = join("data", "results", "execution_time", "baseline")
+    time_file_folder = join("data", "results", "execution_time", "annotation")
     makedirs(time_file_folder, exist_ok=True)
-    time_file_to_write = join(time_file_folder, "executing_time_baseline_word.csv")
-    level = "word"
-    LineDiffonAnnoData(oracle_file, result_dir_parent, time_file_to_write, level).run()
+    time_file_to_write = join(time_file_folder, "execution_time_baseline_line.csv")
+    level = "line"
+    BaselineOnAnnoData(oracle_file, result_dir_parent, time_file_to_write, level).run()
