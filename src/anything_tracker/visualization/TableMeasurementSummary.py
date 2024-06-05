@@ -53,7 +53,7 @@ def get_data(file_list):
 
 def generate_table(data, caption, label, tex_file):
     row_names = ["Line level diff", "Word level diff", "AnythingTracker"]
-    col_names = ["Exact matches", "Overlapping", "Recall", "Precision", "F1-score", "Character distance"]
+    col_names = ["Approach", "Exact matches", "Overlapping", "Recall", "Precision", "F1-score", "Character distance"]
     the_higher_the_better = [True, False, True, True, True, False]
 
     latex_table = "\\begin{table*}[htbp]\n\\centering\n"
@@ -61,7 +61,7 @@ def generate_table(data, caption, label, tex_file):
     latex_table += "\\begin{tabular}{" + "l" + "".join(["r"] * len(col_names)) + "}\n"
     latex_table += "\\hline\n"
 
-    latex_table += " & " + " & ".join(col_names) + " \\\\\n"
+    latex_table += " & ".join(col_names) + " \\\\\n"
     latex_table += "\\hline\n"
 
     # Determine the best performance locations in each column
@@ -123,7 +123,7 @@ def suppression_main():
             join(common, f"{file_name_base}.csv")]
     data = get_data(file_list)
     caption = "Results on tracking Python suppressions"
-    label = "results_on_suppressions"
+    label = "results_on_suppression"
     output_dir = join("data", "results", "table_plots")
     makedirs(output_dir, exist_ok=True)
     tex_file = join(output_dir, "suppression_comparison_table.tex")

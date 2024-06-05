@@ -156,7 +156,7 @@ class MeasureLineLevel():
             expected_commits = expected_commit_range_pieces.keys()
             url = expected_commit_range_pieces["url"]
             repo = url.split("/")[-1].replace(".git", "")
-            repo_dir = repo_dir = join("data", "repos_java", repo)
+            repo_dir = join("data", "repos_java", repo)
 
             histories_regions_all = load_json_file(json_results_file)
             for region in histories_regions_all:
