@@ -137,6 +137,8 @@ def main():
             file_list_1 = file_list
         else:
             file_list_2 = file_list
+
+        if file_list_1 and file_list_2:
             element_level_data = get_data(file_list_1, file_list_2)
             elements.append(element)
             for i in range(len(file_list_1)-1):
