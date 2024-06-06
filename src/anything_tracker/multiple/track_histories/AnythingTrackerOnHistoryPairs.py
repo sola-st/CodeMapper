@@ -96,13 +96,16 @@ class AnythingTrackerOnHistoryPairs():
             candidate_regions.extend(depulicated_diff_candidates)
         # search to map characters
         for iter in diff_hunk_lists:
-            search_candidates = []
-            algorithm, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks = iter
-            search_candidates = SearchLinesToCandidateRegion(algorithm, self,
-                    top_diff_hunks, middle_diff_hunks, bottom_diff_hunks).search_maps()
-            if search_candidates:
-                depulicated_search_candidates, regions = deduplicate_candidates(search_candidates, regions)
-                candidate_regions.extend(depulicated_search_candidates)
+            hunks = [h for h in iter if h]
+            if len(hunks) > 1:
+                search_candidates = []
+                algorithm, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks = iter
+                search_candidates = SearchLinesToCandidateRegion(algorithm, self,
+                        top_diff_hunks, middle_diff_hunks, bottom_diff_hunks).search_maps()
+                if search_candidates:
+                    depulicated_search_candidates, regions = deduplicate_candidates(search_candidates, regions)
+                    candidate_regions.extend(depulicated_search_candidates)
+            # else: no overlapped hunks
         return candidate_regions
 
     def run(self):

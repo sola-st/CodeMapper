@@ -82,7 +82,7 @@ class MeasureLineLevel():
         char_dist_str = json.dumps(char_dist_dict)
         self.dists.append(char_dist_str)
 
-    def compute_to_write_measuement(self):
+    def compute_to_write_measurement(self):
         self.count_exact_matches() # 1
         self.character_distance_computation() # 2
         
@@ -203,7 +203,7 @@ class MeasureLineLevel():
                 self.expected.append(expected_range)
                 self.predicted.append(predicted_range)
 
-        self.compute_to_write_measuement()
+        self.compute_to_write_measurement()
         
 
 if __name__=="__main__":

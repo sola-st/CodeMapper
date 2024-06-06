@@ -88,7 +88,7 @@ class MeasureLineLevel():
         char_dist_str = json.dumps(char_dist_dict)
         self.dists.append(char_dist_str)
 
-    def compute_to_write_measuement(self):
+    def compute_to_write_measurement(self):
         self.count_exact_matches() # 1
         self.character_distance_computation() # 2
         
@@ -203,7 +203,7 @@ class MeasureLineLevel():
 
             self.empty_line_mark.append(len(self.metrics)) # +1 is abs number, note that the csv file has title row.
 
-        self.compute_to_write_measuement()
+        self.compute_to_write_measurement()
         
 
 if __name__=="__main__":

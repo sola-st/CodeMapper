@@ -89,7 +89,7 @@ class MeasureLineLevel():
         char_dist_str = json.dumps(char_dist_dict)
         self.dists.append(char_dist_str)
 
-    def compute_to_write_measuement(self):
+    def compute_to_write_measurement(self):
         self.count_exact_matches() # 1
         self.character_distance_computation() # 2
         
@@ -145,10 +145,6 @@ class MeasureLineLevel():
 
             # predicted
             json_results_file = join(self.results_dir, f"{num}/target.json")
-            if os.path.exists(json_results_file) == True:
-                self.indices.append(num)
-            else:
-                continue
 
             # expected
             oracle_expected_file = join(self.oracle_file_folder, str(num), "expect_simple.json")
@@ -199,10 +195,7 @@ class MeasureLineLevel():
                     self.update_results(None, None, None, None, None, None, "-")
                     expected_range = "-" # "not in expected"
 
-                if self.indices[-1] == repo:
-                    self.indices[-1] = f"{repo} - {ground_truth_idx}"
-                else: 
-                    self.indices.append(ground_truth_idx) # TODO check why the indices is longer than expected
+                self.indices.append(ground_truth_idx)
                 self.metrics.append(region["version"])
                 self.candidate_nums.append(region["all_candidates_num"])
                 self.target_region_indices.append(region["index"])
@@ -212,7 +205,7 @@ class MeasureLineLevel():
 
             self.empty_line_mark.append(len(self.metrics)) # +1 is abs number, note that the csv file has title row.
 
-        self.compute_to_write_measuement()
+        self.compute_to_write_measurement()
         
 
 if __name__=="__main__":
