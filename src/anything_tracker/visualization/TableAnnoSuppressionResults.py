@@ -10,7 +10,7 @@ def get_data(file_list):
     overlapping = []
     overlapping_num_rate = []
     recalls = []
-    presicions = []
+    precisions = []
     f1s = []
     dists = []
     digit = ".1f"
@@ -23,7 +23,7 @@ def get_data(file_list):
             all = len(line_list) - 3 # 1 empty line, 1 head, 1 summary
             summary_line = line_list[-1]
 
-        # summary should be [YMW, pre character distance, post, all, recall, presicion, f1, note]
+        # summary should be [YMW, pre character distance, post, all, recall, precision, f1, note]
         summary = [s for s in summary_line if s] 
         match_results = json.loads(summary[0])
         matches = match_results["Y"]
@@ -36,24 +36,24 @@ def get_data(file_list):
         dist_results = json.loads(summary[1])
         dist = float(dist_results["dist"]["avg"])
 
-        recall, presicion, f1 = summary[2: 5] 
+        recall, precision, f1 = summary[2: 5] 
 
         exact_match.append(matches)
         exact_match_num_rate.append(f"{matches}({matches_rate}\%)")
         overlapping.append(overlaps)
         overlapping_num_rate.append(f"{overlaps}({overlaps_rate}\%)")
         recalls.append(float(recall))
-        presicions.append(float(presicion))
+        precisions.append(float(precision))
         f1s.append(float(f1))
         dists.append(dist)
 
-    summaries = [exact_match, overlapping, recalls, presicions, f1s, dists, exact_match_num_rate, overlapping_num_rate]
+    summaries = [exact_match, overlapping, recalls, precisions, f1s, dists, exact_match_num_rate, overlapping_num_rate]
     return summaries
 
 
 def generate_table(data, caption, label, tex_file):
     row_names = ["Line level diff", "Word level diff", "AnythingTracker"]
-    col_names = ["Approach", "Exact matches", "Overlapping", "Recall", "Precision", "F1-score", "Character distance"]
+    col_names = ["Approaches", "Exact matches", "Overlapping", "Recall", "Precision", "F1-score", "Character distance"]
     the_higher_the_better = [True, False, True, True, True, False]
 
     latex_table = "\\begin{table*}[htbp]\n\\centering\n"
@@ -83,7 +83,7 @@ def generate_table(data, caption, label, tex_file):
 
     # replace to the number with rate 
     data_numbers[:2] = num_rates
-    # match, ovelapping, recall, presicion, f1, dist = data_numbers
+    # match, ovelapping, recall, precision, f1, dist = data_numbers
     transposed_data = list(zip(*data_numbers))
     for i, row_data in enumerate(transposed_data):
         latex_table += row_names[i] + " & " + " & ".join(map(str, row_data)) + " \\\\\n"
