@@ -9,10 +9,10 @@ from anything_tracker.measurement.CharacterDistanceAndOverlapScore import calcul
 from anything_tracker.utils.ReadFile import checkout_to_read_file
 
 
-def calculation_helper(list, digits):
+def calculation_helper(list):
     min_value = min(list)
     max_value = max(list)
-    avg_value = format((sum(list)) / len(list), digits)
+    avg_value = "{:.1f}".format((sum(list)) / len(list))
     return min_value, max_value, avg_value
 
 
@@ -38,9 +38,6 @@ class MeasureLineLevel():
         self.precisions = ["Precision"]
         self.f1s = ["F1-score"]
         self.notes = ["Notes"]
-
-        self.digits = ".3f"
-        self.digit_1 = ".1f"
 
     def update_results(self, pre, post, dist, recall, precision, f1, compare_results, note=""):
         self.pre_dist.append(pre)
@@ -71,9 +68,9 @@ class MeasureLineLevel():
         overlapped_post = [post for post in self.post_dist[1:] if post != None]
         overlapped_dist = [dist for dist in self.dists[1:] if dist != None]
 
-        min_pre, max_pre, avg_pre = calculation_helper(overlapped_pre, self.digit_1)
-        min_post, max_post, avg_post = calculation_helper(overlapped_post, self.digit_1)
-        min_dist, max_dist, avg_dist = calculation_helper(overlapped_dist, self.digit_1)
+        min_pre, max_pre, avg_pre = calculation_helper(overlapped_pre)
+        min_post, max_post, avg_post = calculation_helper(overlapped_post)
+        min_dist, max_dist, avg_dist = calculation_helper(overlapped_dist)
         char_dist_dict = {
             "pre_dist": {"min": min_pre, "max": max_pre, "avg": avg_pre},
             "post_dist": {"min": min_post, "max": max_post, "avg": avg_post},
@@ -90,9 +87,9 @@ class MeasureLineLevel():
         recalls = self.recalls[1:]
         precisions = self.precisions[1:]
         f1s = self.f1s[1:]
-        avg_recall = format(sum(recalls) / len(recalls), self.digits)
-        avg_precision = format(sum(precisions) / len(precisions), self.digits)
-        avg_f1 = format(sum(f1s) / len(f1s), self.digits)
+        avg_recall = "{:.3f}".format(sum(recalls) / len(recalls))
+        avg_precision = "{:.3f}".format(sum(precisions) / len(precisions))
+        avg_f1 = "{:.3f}".format(sum(f1s) / len(f1s))
         self.recalls.append(avg_recall)
         self.precisions.append(avg_precision)
         self.f1s.append(avg_f1)
