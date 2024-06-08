@@ -79,7 +79,7 @@ class LineCharacterGitDiffToCandidateRegion():
         '''
         diff_results = [] # to store all the 4 versions og git diff results
         dicts = []
-        diff_algorithms = ["default", "minimal", "patience", "histogram"]
+        diff_algorithms = ["default"]
         encodings_to_try = ['utf-8', 'latin-1', 'cp1252']
         # The \w+ pattern is a regular expression that matches one or more word characters (letters, digits, or underscores). 
         # -w to ignore whitespaces. It's add to solve a special case where only more or less whitespace in a line.
