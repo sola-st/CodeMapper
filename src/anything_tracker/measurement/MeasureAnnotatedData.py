@@ -16,7 +16,7 @@ def calculation_helper(list):
     return min_value, max_value, avg_value
 
 
-class MeasureLineLevel():
+class MeasureAnnotatedData():
     def __init__(self, oracle_file, results_dir, results_csv_file):
         self.oracle_file = oracle_file
         self.results_dir = results_dir
@@ -209,4 +209,4 @@ if __name__=="__main__":
     results_csv_file_folder = join("data", "results", "measurement_results", "annotation")
     os.makedirs(results_csv_file_folder, exist_ok=True)
     results_csv_file = join(results_csv_file_folder, "measurement_results_metrics_anno_0603.csv")
-    MeasureLineLevel(oracle_file, results_dir, results_csv_file).run()
+    MeasureAnnotatedData(oracle_file, results_dir, results_csv_file).run()

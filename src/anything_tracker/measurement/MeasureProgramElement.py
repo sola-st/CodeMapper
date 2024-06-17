@@ -6,6 +6,7 @@ from os.path import join
 
 from anything_tracker.SearchLinesToCandidateRegion import get_character_length_of_lines
 from anything_tracker.measurement.CharacterDistanceAndOverlapScore import calculate_overlap
+from anything_tracker.measurement.MeasureAnnotatedData import calculation_helper
 from anything_tracker.utils.ReadFile import checkout_to_read_file
 from anything_tracker.multiple.track_histories.TrackHistoryPairs import get_category_subfolder_info
 
@@ -15,14 +16,8 @@ def load_json_file(file):
         data = json.load(f)
     return data
 
-def calculation_helper(list, digits):
-    min_value = min(list)
-    max_value = max(list)
-    avg_value = round((sum(list)) / len(list), digits)
-    return min_value, max_value, avg_value
 
-
-class MeasureLineLevel():
+class MeasureProgramElement():
     def __init__(self, oracle_file_folder, results_dir, results_csv_file):
         self.oracle_file_folder = oracle_file_folder
         self.results_dir = results_dir
@@ -43,8 +38,6 @@ class MeasureLineLevel():
         self.precisions = ["Precision"]
         self.f1s = ["F1-score"]
         self.notes = ["Notes"]
-
-        self.digits = 3
 
         # record the abs row number that should be an empty line in the output csv file.
         self.empty_line_mark = [] 
@@ -78,9 +71,9 @@ class MeasureLineLevel():
         overlapped_post = [post for post in self.post_dist[1:] if post != None]
         overlapped_dist = [dist for dist in self.dists[1:] if dist != None]
 
-        min_pre, max_pre, avg_pre = calculation_helper(overlapped_pre, self.digits)
-        min_post, max_post, avg_post = calculation_helper(overlapped_post, self.digits)
-        min_dist, max_dist, avg_dist = calculation_helper(overlapped_dist, self.digits)
+        min_pre, max_pre, avg_pre = calculation_helper(overlapped_pre)
+        min_post, max_post, avg_post = calculation_helper(overlapped_post)
+        min_dist, max_dist, avg_dist = calculation_helper(overlapped_dist)
         char_dist_dict = {
             "pre_dist": {"min": min_pre, "max": max_pre, "avg": avg_pre},
             "post_dist": {"min": min_post, "max": max_post, "avg": avg_post},
@@ -97,9 +90,9 @@ class MeasureLineLevel():
         recalls = [r for r in self.recalls[1:] if r != None]
         precisions = [p for p in self.precisions[1:] if p != None] 
         f1s = [f for f in self.f1s[1:] if f != None] 
-        avg_recall = round(sum(recalls) / len(recalls), self.digits)
-        avg_precision = round(sum(precisions) / len(precisions), self.digits)
-        avg_f1 = round(sum(f1s) / len(f1s), self.digits)
+        avg_recall = "{:.3f}".format(sum(recalls) / len(recalls))
+        avg_precision = "{:.3f}".format(sum(precisions) / len(precisions))
+        avg_f1 = "{:.3f}".format(sum(f1s) / len(f1s))
         self.recalls.append(avg_recall)
         self.precisions.append(avg_precision)
         self.f1s.append(avg_f1)
@@ -216,4 +209,4 @@ if __name__=="__main__":
         detailed_oracle_file_folder = join(oracle_file_folder, category, subset)
         results_dir = join("data", "results", "tracked_maps", "element", f"mapped_regions_{category}_{subset}")
         results_csv_file = join("data", "results", "measurement_results", "element", f"measurement_results_metrics_{category}_{subset}.csv")
-        MeasureLineLevel(detailed_oracle_file_folder, results_dir, results_csv_file).run()
+        MeasureProgramElement(detailed_oracle_file_folder, results_dir, results_csv_file).run()
