@@ -3,7 +3,7 @@ from multiprocessing import Pool, cpu_count
 import os
 from os.path import join
 
-from anything_tracker.collect.data_preprocessor.GetRanges import GetRanges
+from anything_tracker.collect.data_preprocessor.GetSuppressionRanges import GetRanges
 from anything_tracker.collect.data_preprocessor.utils.CommitRangePiece import get_commit_range_pieces
 from anything_tracker.experiments.SourceRepos import SourceRepos
 
@@ -55,14 +55,18 @@ def convert_histories(repo_parent_folder, result_parent_folder, file_path, repo_
             commit = h["commit_id"]
             file_path = h["file_path"]
             suppression_text = h["warning_type"]
+            try:
+                suppression_text = suppression_text.split("=")[1]
+            except:
+                pass
             line_number = h["line_number"]
             change_operation = h["change_operation"]
             range = None
             if change_operation == "merge add": # line number is merge unknown
                 pass
             elif "add" in change_operation or change_operation == "remaining": # add, file add
-                range, multi_location_list = GetRanges(repo_dir, commit,\
-                        join(repo_dir, file_path), line_number, suppression_text, True).run()
+                range = GetRanges(repo_dir, commit,\
+                        join(repo_dir, file_path), line_number, suppression_text).run()
                 range = f"{range}"
             # else: # delete, file delete
 
