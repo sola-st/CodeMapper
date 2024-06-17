@@ -13,7 +13,6 @@ def get_data(file_list):
     precisions = []
     f1s = []
     dists = []
-    digit = ".1f"
 
     for file in file_list:
         with open(file, "r") as f:
@@ -31,8 +30,8 @@ def get_data(file_list):
         overlaps = match_results["M"]
         # nonoverlaps = match_results["W"]
         # all = matches + overlaps + nonoverlaps
-        matches_rate = format((matches / all) * 100, digit)
-        overlaps_rate = format((overlaps / all) * 100, digit)
+        matches_rate = ":.1f".format((matches / all) * 100)
+        overlaps_rate = ":.1f".format((overlaps / all) * 100)
 
         dist_results = json.loads(summary[1])
         dist = float(dist_results["dist"]["avg"])
@@ -53,7 +52,7 @@ def get_data(file_list):
 
 
 def generate_table(data, caption, label, tex_file):
-    row_names = ["Line level diff", "Word level diff", "AnythingTracker"]
+    row_names = ["- all", "- movement detection", "- character searching", "- fine-grained range", "AnythingTracker"]
     col_names = ["Approaches", "Exact matches", "Overlapping", "Recall", "Precision", "F1-score", "Character distance"]
     the_higher_the_better = [True, False, True, True, True, False]
 
@@ -102,32 +101,42 @@ def annotated_data_main():
     common = join("data", "results", "measurement_results", "annotation")
     file_name_base = "measurement_results_metrics_anno"
     file_list = [
-            join(common, f"{file_name_base}_line.csv"),
-            join(common, f"{file_name_base}_word.csv"),
+            join(common, "off_all", f"{file_name_base}.csv"),
+            join(common, "off_move", f"{file_name_base}.csv"),
+            join(common, "off_search", f"{file_name_base}.csv"),
+            join(common, "off_fine", f"{file_name_base}.csv"),
             join(common, f"{file_name_base}.csv")]
     data = get_data(file_list)
-    caption = "Results on tracking annotated data"
-    label = "results_on_annotated_data"
+    caption = "Impact of disabling partial techniques on tracking annotated data"
+    label = "ablation_on_annotated_data"
     output_dir = join("data", "results", "table_plots")
     makedirs(output_dir, exist_ok=True)
-    tex_file = join(output_dir, "annodata_comparison_table.tex")
+    tex_file = join(output_dir, "annodata_ablation_table_new.tex")
 
     generate_table(data, caption, label, tex_file)
 
 def suppression_main():
     # suppression data
     common = join("data", "results", "measurement_results", "suppression")
-    file_name_base = "measurement_results_metrics_suppression"
+    file_name_base = "measurement_results"
     file_list = [
-            join(common, f"{file_name_base}_line.csv"),
-            join(common, f"{file_name_base}_word.csv"),
+            join(common, "off_all", f"{file_name_base}.csv"),
+            join(common, "off_move", f"{file_name_base}.csv"),
+            join(common, "off_search", f"{file_name_base}.csv"),
+            join(common, "off_fine", f"{file_name_base}.csv"),
             join(common, f"{file_name_base}.csv")]
+    # file_list = [
+    #         join(common, f"{file_name_base}_suppression_off_all.csv"),
+    #         join(common, f"{file_name_base}_suppression_off_move.csv"),
+    #         join(common, f"{file_name_base}_metrics_suppression_off_search.csv"),
+    #         join(common, f"{file_name_base}_metrics_suppression_off_fine.csv"),
+    #         join(common, f"{file_name_base}_suppression.csv")]
     data = get_data(file_list)
-    caption = "Results on tracking Python suppressions"
-    label = "results_on_suppression"
+    caption = "Impact of disabling partial techniques on tracking Python suppression"
+    label = "ablation_on_suppression"
     output_dir = join("data", "results", "table_plots")
     makedirs(output_dir, exist_ok=True)
-    tex_file = join(output_dir, "suppression_comparison_table.tex")
+    tex_file = join(output_dir, "suppression_ablation_table.tex")
 
     generate_table(data, caption, label, tex_file)
 
