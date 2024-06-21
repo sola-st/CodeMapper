@@ -188,7 +188,7 @@ class MeasureProgramElement():
                     self.update_results(None, None, None, None, None, None, "-")
                     expected_range = "-" # "not in expected"
 
-                self.indices.append(ground_truth_idx)
+                self.indices.append(f"{num}-{ground_truth_idx}")
                 self.metrics.append(region["version"])
                 self.candidate_nums.append(region["all_candidates_num"])
                 self.target_region_indices.append(region["index"])
