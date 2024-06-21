@@ -45,12 +45,18 @@ class ComputeTargetRegion():
 
     def run(self): # no context
         edit_dists = []
-
-        for candidate_characters in self.candidate_string_list:
-            if candidate_characters == None:
-                candidate_characters = ""
-            dist = edit_distance(self.source_region_characters, candidate_characters)
-            edit_dists.append(dist)
+        if isinstance(self.source_region_characters, list):
+            for source_characters, candidate_characters in zip(self.source_region_characters, self.candidate_string_list):
+                if candidate_characters == None:
+                    candidate_characters = ""
+                dist = edit_distance(source_characters, candidate_characters)
+                edit_dists.append(dist)
+        else:
+            for candidate_characters in self.candidate_string_list:
+                if candidate_characters == None:
+                    candidate_characters = ""
+                dist = edit_distance(self.source_region_characters, candidate_characters)
+                edit_dists.append(dist)
 
         # top-1 edit distance
         top_dist = min(edit_dists)

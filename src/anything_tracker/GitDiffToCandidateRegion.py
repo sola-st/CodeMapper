@@ -4,6 +4,7 @@ from anything_tracker.CharacterRange import CharacterRange
 from anything_tracker.DetectMovement import DetectMovement
 from anything_tracker.DiffHunk import DiffHunk
 from anything_tracker.FineGrainLineCharacterIndices import FineGrainLineCharacterIndices
+from anything_tracker.utils.GetUnchangedLineNumbers import get_changed_line_numbers_file_level
 from anything_tracker.utils.ReadFile import get_region_characters
 from anything_tracker.utils.TransferRanges import get_diff_reported_range
 
@@ -42,12 +43,17 @@ class GitDiffToCandidateRegion():
         # start to get changed hunks with "git diff" command
         diff_results = self.get_changed_hunks_from_different_algorithms()
         candidate_regions = []
+        changed_line_numbers_version_maps_source = [] # for candidates
+        changed_line_numbers_version_maps_source_for_hunklists = []
+        changed_line_numbers_version_maps_target = [] # for candidates
+        changed_line_numbers_version_maps_target_for_hunklists = []
         regions = []
         diff_hunk_lists = []
         for d in diff_results:
             algorithm = d["algorithm"]
             level = d["level"]
             diff_result = d["diff_result"]
+            changed_line_numbers_source, changed_line_numbers_target = get_changed_line_numbers_file_level(diff_result)
             sub_candidate_regions, sub_top_diff_hunks, sub_middle_diff_hunks, sub_bottom_diff_hunks = \
                     self.diff_result_to_target_changed_hunk(algorithm, level, diff_result)
             # empty the hunks for current round
@@ -57,16 +63,22 @@ class GitDiffToCandidateRegion():
 
             for sub in sub_candidate_regions:
                 r = sub.candidate_region_character_range.four_element_list
-                if regions == []:
+                if not r in regions:
                     regions.append(r)
                     candidate_regions.append(sub)
-                else:
-                    if not r in regions:
-                        candidate_regions.append(sub)
+                    changed_line_numbers_version_maps_source.append(changed_line_numbers_source)
+                    changed_line_numbers_version_maps_target.append(changed_line_numbers_target)
             # make sure the sub_middle_diff_hunks are in order (incresed)
             sorted_sub_middle_diff_hunks = sorted(list(sub_middle_diff_hunks), key=lambda obj: obj.base_start_line_number)
-            diff_hunk_lists.append([algorithm, list(sub_top_diff_hunks), sorted_sub_middle_diff_hunks, list(sub_bottom_diff_hunks)])
-        return candidate_regions, diff_hunk_lists
+            hunk_list = [algorithm, list(sub_top_diff_hunks), sorted_sub_middle_diff_hunks, list(sub_bottom_diff_hunks)]
+            elements = [l for l in hunk_list[1:] if l]
+            if elements:
+                diff_hunk_lists.append(hunk_list)
+                changed_line_numbers_version_maps_source_for_hunklists.append(changed_line_numbers_source)
+                changed_line_numbers_version_maps_target_for_hunklists.append(changed_line_numbers_target)
+        changed_line_numbers_version_maps_source.extend(changed_line_numbers_version_maps_source_for_hunklists)
+        changed_line_numbers_version_maps_target.extend(changed_line_numbers_version_maps_target_for_hunklists)
+        return candidate_regions, diff_hunk_lists, changed_line_numbers_version_maps_source, changed_line_numbers_version_maps_target
 
     def get_changed_hunks_from_different_algorithms(self):
         '''

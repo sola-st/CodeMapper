@@ -6,6 +6,7 @@ import time
 from anything_tracker.AnythingTrackerUtils import (
     deduplicate_candidates,
     get_context_aware_characters,
+    get_context_aware_unchanged_characters,
     get_source_and_expected_region_characters,
 )
 from anything_tracker.CandidateRegion import CandidateRegion, get_candidate_region_range
@@ -58,6 +59,8 @@ class AnythingTrackerOnHistoryPairs():
         # record execution time
         # "candidate_numbers", "compute_candidates_executing_time", "select_target_executing_time"
         self.one_round_time_info = [None]*3
+        self.changed_line_numbers_version_maps_source = []
+        self.changed_line_numbers_version_maps_target = []
         
     def write_regions_to_files(self, characters_to_write, is_source=True):
         json_file = join(self.results_dir, self.iteration_index, "source.json")
@@ -90,22 +93,44 @@ class AnythingTrackerOnHistoryPairs():
         candidate_regions = []
         regions = []
         # get candidates from git diff
-        diff_candidates, diff_hunk_lists = GitDiffToCandidateRegion(self).run_git_diff()
+        diff_candidates, diff_hunk_lists, self.changed_line_numbers_version_maps_source, \
+                self.changed_line_numbers_version_maps_target = GitDiffToCandidateRegion(self).run_git_diff()
+        
+        item_to_extend_source = self.changed_line_numbers_version_maps_source[0]
+        item_to_extend_target = self.changed_line_numbers_version_maps_target[0]
+
+        depulicated_diff_candidates = []
         if diff_candidates:
-            depulicated_diff_candidates, regions = deduplicate_candidates(diff_candidates, regions) # True
-            candidate_regions.extend(depulicated_diff_candidates)
+            depulicated_diff_candidates, regions, duplicated_indices = deduplicate_candidates(diff_candidates, regions)
+            if depulicated_diff_candidates:
+                candidate_regions.extend(depulicated_diff_candidates)
+            # if the candidates is dupliacted, remove the pre-added changed_line_numbers
+            for removed_count, idx in enumerate(duplicated_indices):
+                pop_idx = len(diff_candidates) + idx - removed_count
+                self.changed_line_numbers_version_maps_source.pop(pop_idx)
+                self.changed_line_numbers_version_maps_target.pop(pop_idx)
+
         # search to map characters
         for iter in diff_hunk_lists:
-            hunks = [h for h in iter if h]
-            if len(hunks) > 1:
-                search_candidates = []
-                algorithm, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks = iter
-                search_candidates = SearchLinesToCandidateRegion(algorithm, self,
-                        top_diff_hunks, middle_diff_hunks, bottom_diff_hunks).search_maps()
-                if search_candidates:
-                    depulicated_search_candidates, regions = deduplicate_candidates(search_candidates, regions)
+            search_candidates = []
+            algorithm, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks = iter
+            search_candidates = SearchLinesToCandidateRegion(algorithm, self,
+                    top_diff_hunks, middle_diff_hunks, bottom_diff_hunks).search_maps()
+            if search_candidates:
+                depulicated_search_candidates, regions, duplicated_indices = deduplicate_candidates(search_candidates, regions)
+                if depulicated_search_candidates:
                     candidate_regions.extend(depulicated_search_candidates)
+                for removed_count, idx in enumerate(duplicated_indices):
+                    pop_idx = len(depulicated_diff_candidates) + idx - removed_count
+                    self.changed_line_numbers_version_maps_source.pop(pop_idx)
+                    self.changed_line_numbers_version_maps_target.pop(pop_idx)
             # else: no overlapped hunks
+        len_delta = len(candidate_regions) - len(self.changed_line_numbers_version_maps_source)
+        if len_delta != 0:
+            for i in range(len_delta):
+                self.changed_line_numbers_version_maps_source.append(item_to_extend_source)
+                self.changed_line_numbers_version_maps_target.append(item_to_extend_target)
+
         return candidate_regions
 
     def run(self):
@@ -152,7 +177,7 @@ class AnythingTrackerOnHistoryPairs():
         self.record_candiates(candidate_regions)
         # phase 2: compute target region
         # accumulate target, write to json file later.
-        self.compute_get_target_region_info(candidate_regions, source_region_characters_str)
+        self.compute_target_region_info(candidate_regions, source_region_characters_str)
 
         self.one_round_time_info[0] = len(candidate_regions)
         return self.dist_based_target_str_list, self.one_round_time_info
@@ -180,7 +205,7 @@ class AnythingTrackerOnHistoryPairs():
         with open(candidate_json_file, "w") as ds:
             json.dump(output_maps, ds, indent=4, ensure_ascii=False)
 
-    def compute_get_target_region_info(self, candidate_regions, source_region_characters_str):
+    def compute_target_region_info(self, candidate_regions, source_region_characters_str):
         # phase 2: compute candidate regions starts.
         second_phrase_start_time = time.time()
         # -- Select top-1 candidate from multiple candidates
@@ -199,51 +224,28 @@ class AnythingTrackerOnHistoryPairs():
         else:
             candiate_str_list = []
             source_str = source_region_characters_str
-            source_context = ""
-            candidate_context_list = []
-            if self.context_line_num != 0:
-                # before_lines_num = self.context_line_num
-                # after_line_num = self.context_line_num
-                source_pre_lines_str, source_post_lines_str = get_context_aware_characters(self.base_file_lines, \
-                            self.interest_character_range, self.context_line_num, self.context_line_num)
-                source_context = f"{source_pre_lines_str} {source_post_lines_str}"
+            source_str_list = [] # only for with context
 
             # collect candidate str, and contexts
-            for candidate in candidate_regions:
+            for i, candidate in enumerate(candidate_regions):
                 # option 1: without context
                 if self.context_line_num == 0:
                     candidate_characters = candidate.character_sources
                     candiate_str_list.append(candidate_characters)
                 else: # option 2: with context
-                #     # 2.1 check the characters with contexts at once
-                #     before_lines_num = self.context_line_num
-                #     after_line_num = self.context_line_num
-                #     source_str = get_context_aware_characters(self.base_file_lines, self.interest_character_range, before_lines_num, after_line_num)
-                #     for candidate in candidate_regions:
-                #         candidate_range = candidate.candidate_region_character_range
-                #         candidate_with_context = get_context_aware_characters(self.target_file_lines, candidate_range, before_lines_num, after_line_num)
-                #         candiate_str_list.append(candidate_with_context)
-                # results_set_dict, average_highest, vote_most = ComputeTargetRegion(source_str, candiate_str_list).run()
-                    
-                    # 2.2 check pre, post separately
+                    # 2.1 check the characters with contexts at once
+                    source_with_context = get_context_aware_unchanged_characters(self.base_file_lines, self.interest_character_range, \
+                                self.context_line_num, self.context_line_num, self.changed_line_numbers_version_maps_source[i])
+                    source_str_list.append(source_with_context)
                     candidate_range = candidate.candidate_region_character_range
-                    # candidate_with_context 
-                    candidate_pre_lines_str, candidate_post_lines_str = get_context_aware_characters(self.target_file_lines, \
-                            candidate_range, self.context_line_num, self.context_line_num)
-                    candidate_context = f"{candidate_pre_lines_str} {candidate_post_lines_str}"
-                    candidate_context_list.append(candidate_context)
-                    candidate_str = candidate.character_sources
-                    if candidate_str == None:
-                        candidate_str = ""
-                    candiate_str_list.append(candidate_str)
+                    candidate_with_context = get_context_aware_unchanged_characters(self.target_file_lines, candidate_range, \
+                            self.context_line_num, self.context_line_num, self.changed_line_numbers_version_maps_target[i])
+                    candiate_str_list.append(candidate_with_context)
 
             assert candiate_str_list != []
-            if self.context_line_num == 0:
-                results_set_dict = ComputeTargetRegion(source_str, candiate_str_list).run()
-            else: # consider contexts
-                results_set_dict = ComputeTargetRegion(source_str, candiate_str_list, \
-                        source_context, candidate_context_list).compute_context_aware_similary()
-            # phase 2: compute candidate regions ends.
+            if source_str_list:
+                source_str = source_str_list
+            results_set_dict = ComputeTargetRegion(source_str, candiate_str_list).run()
             second_phrase_end_time = time.time()
             second_phrase_executing_time = round((second_phrase_end_time - second_phrase_start_time), 3)
             print(f"Executing time (2nd phase): {second_phrase_executing_time} seconds")

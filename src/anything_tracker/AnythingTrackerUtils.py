@@ -19,27 +19,20 @@ def get_renamed_file_path(repo_dir, base_commit, target_commit, base_file_path):
 
     return renamed_file_path
 
-def deduplicate_candidates(candidates, regions, reorder=False):
+def deduplicate_candidates(candidates, regions):
     deduplicated_candidates = []
-    for s in candidates:
+    duplicated_indices = []
+    for idx, s in enumerate(candidates):
         r = s.candidate_region_character_range.four_element_list
-        marker = s.marker
-        if regions == []:
+        if r not in regions:
             regions.append(r)
             deduplicated_candidates.append(s)
         else:
-            if r not in regions:
-                if reorder == True and marker.startswith("<A>"):
-                    # keep the one from anythingtracker core idea work, especially for single words.
-                    regions.insert(0, r)
-                    deduplicated_candidates.insert(0, s)
-                else:
-                    regions.append(r)
-                    deduplicated_candidates.append(s)
-    return deduplicated_candidates, regions
+            duplicated_indices.append(idx)
+    return deduplicated_candidates, regions, duplicated_indices
 
 def get_context_aware_characters(file_lines, character_range, before_lines, after_lines):
-    # character_range: start_line, start_character, end_line, end_character
+    # character_range: start_line, start_character, end_line, end_character (abs numbers)
     max_idx = len(file_lines)
     start_line_idx = character_range.start_line_idx
     end_line_idx = character_range.end_line_idx
@@ -62,6 +55,69 @@ def get_context_aware_characters(file_lines, character_range, before_lines, afte
     post_lines_str = "".join(post_lines_list)
     return pre_lines_str, post_lines_str
 
+def get_context_aware_unchanged_characters(file_lines, character_range, before_lines, after_lines, changed_line_numbers):
+    all_lines = []
+    # character_range: start_line, start_character, end_line, end_character (abs numbers)
+    max_idx = len(file_lines) + 1
+    all_numbers = list(range(1, max_idx))
+    unchanged_numbers = list(set(all_numbers) - set(changed_line_numbers))
+
+    start_line_idx = character_range.start_line_idx - 1
+    end_line_idx = character_range.end_line_idx - 1
+    start_character_idx = character_range.characters_start_idx - 1
+    end_characters_idx = character_range.characters_end_idx # range, right open
+    region_first_line = file_lines[start_line_idx][start_character_idx:]
+    region_last_line = file_lines[end_line_idx][:end_line_idx]
+    region_lines = []
+    region_lines.append(region_first_line)
+    region_lines.extend(file_lines[start_line_idx+1: end_line_idx])
+    region_lines.append(region_last_line)
+
+    pre_lines = []
+    post_lines = []
+    pre_context_line_nums = locate_lines(start_line_idx, before_lines, unchanged_numbers)
+    if pre_context_line_nums:
+        pre_lines = file_lines[(pre_context_line_nums[0]-1) : pre_context_line_nums[-1]]
+    post_context_line_nums = locate_lines(end_line_idx, after_lines, unchanged_numbers, False)
+    if post_context_line_nums:
+        post_lines = file_lines[(post_context_line_nums[0]-1) : post_context_line_nums[-1]]
+
+    all_lines.extend(pre_lines)
+    all_lines.extend(region_lines)
+    all_lines.extend(post_lines)
+    context_aware_characters = "".join(all_lines)
+
+    # expected_start_idx = 0
+    # if pre_context_line_nums:
+    #     expected_start_idx = pre_context_line_nums[0] - 1
+    # expected_end_idx = all_numbers[-1]
+    # if post_context_line_nums:
+    #     expected_end_idx = post_context_line_nums[-1]
+    # region_lines = file_lines[expected_start_idx: expected_end_idx]
+    # context_aware_characters = "".join(region_lines)
+
+    return context_aware_characters
+
+def locate_lines(line_idx, context_num, unchanged_numbers, start=True):
+    context_lines = []
+    line_abs = line_idx + 1
+
+    if start == True:
+        tmp = []
+        for num_abs in unchanged_numbers:
+            if num_abs < line_abs:
+                tmp.append(num_abs)
+            else:
+                if len(tmp) > context_num:
+                    context_lines = tmp[-context_num:]
+                return context_lines
+    else:
+        for num_abs in unchanged_numbers:
+            if len(context_lines) == context_num:
+                return context_lines
+            if num_abs > line_abs:
+                context_lines.append(num_abs)
+        return context_lines
 
 def get_source_and_expected_region_characters(file_lines, character_range):
     '''

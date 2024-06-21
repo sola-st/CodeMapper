@@ -1,3 +1,6 @@
+from anything_tracker.utils.TransferRanges import get_diff_reported_range
+
+
 def get_first_and_last_unchanged_line_numbers(interest_line_numbers, specified_diff_hunks, first=True, last=True):
         # get all the no changed line numbers
         changed_line_numbers = []
@@ -45,3 +48,29 @@ def get_first_and_last_unchanged_line_numbers(interest_line_numbers, specified_d
             return first_unchanged_line_numbers
         elif first == False and last == True:
             return last_unchanged_line_numbers
+        
+
+def get_changed_line_numbers_file_level(diff_result):
+    '''
+    Iterate through the diff reports, and get all the changed line numbers.
+    '''
+    changed_line_numbers_source = []
+    changed_line_numbers_target = []
+
+    if not diff_result:
+        # the source range is not changed
+        return changed_line_numbers_source, changed_line_numbers_target
+        
+    diffs = diff_result.split("\n")
+    for diff_line in diffs:
+        diff_line = diff_line.strip()
+        if "\033[36m" in diff_line:
+            tmp = diff_line.split(" ")
+            base_meta_range = tmp[1]
+            base_hunk_range, step, abd_end = get_diff_reported_range(base_meta_range)
+            changed_line_numbers_source.extend(list(base_hunk_range))
+            target_meta_range = tmp[2]
+            target_hunk_range, step = get_diff_reported_range(target_meta_range, False)
+            changed_line_numbers_target.extend(list(target_hunk_range))
+    
+    return changed_line_numbers_source, changed_line_numbers_target
