@@ -232,7 +232,7 @@ class GitDiffToCandidateRegion():
                             # Heuristic: set character indices as 0 and the length of the last line in target range.
                             if target_hunk_range.stop == target_hunk_range.start:
                                 # source region lines are deleted
-                                character_range = CharacterRange([0, 0, 0, 0])
+                                character_range = CharacterRange([0, 0, target_hunk_range.stop, 0]) # set the delete line as an anchor to get contexts for this candidate
                                 candidate_region = CandidateRegion(self.interest_character_range, character_range, None, "<LOCATION_HELPER:DIFF_DELETE>")
                                 candidate_regions.add(candidate_region)
 

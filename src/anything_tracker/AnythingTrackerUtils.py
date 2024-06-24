@@ -56,39 +56,57 @@ def get_context_aware_characters(file_lines, character_range, before_lines, afte
     return pre_lines_str, post_lines_str
 
 def get_context_aware_unchanged_characters(file_lines, character_range, before_lines, after_lines, changed_line_numbers):
-    all_lines = []
-    # character_range: start_line, start_character, end_line, end_character (abs numbers)
+    region_lines = [] # for the source and candidate region only
+    all_lines = [] # includes the pre and post contexts
+    
     max_idx = len(file_lines) + 1
     all_numbers = list(range(1, max_idx))
     unchanged_numbers = list(set(all_numbers) - set(changed_line_numbers))
 
-    start_line_idx = character_range.start_line_idx - 1
-    end_line_idx = character_range.end_line_idx - 1
-    start_character_idx = character_range.characters_start_idx - 1
-    end_characters_idx = character_range.characters_end_idx # range, right open
+    start_line_idx = 0
+    end_line_idx = 0
 
-    # the region is split into 3 parts: first line, middle lines, and the last line.
-    # if the region is relevant to only 1 line, the first and the last are the same, and no middle lines.
-    region_lines = []
-    if start_line_idx == end_line_idx:
-        region_lines_tmp = file_lines[start_line_idx]
-        region_lines.append(region_lines_tmp[start_character_idx: end_characters_idx])
+    # # to include the given line when run Function locate_lines, False: normal case, True: deletions.
+    # to_include = False 
+    if character_range.four_element_list.count(0) >= 3: 
+        # special for deletions, allow the deleted cases get reasonable contexts, not always around line 0.
+        start_line_idx = character_range.end_line_idx # -1 for index, +1 to include the given line when run Function locate_lines
+        end_line_idx = start_line_idx -1  # -1 for both index and including the given line when run Function locate_lines
+        # to_include == True
     else:
-        region_first_line = file_lines[start_line_idx][start_character_idx:]
-        region_last_line = file_lines[end_line_idx][:end_characters_idx]
-        
-        region_lines.append(region_first_line)
-        region_lines.extend(file_lines[start_line_idx+1: end_line_idx])
-        region_lines.append(region_last_line)
+        # character_range: start_line, start_character, end_line, end_character (abs numbers)
+        start_line_idx = character_range.start_line_idx - 1
+        end_line_idx = character_range.end_line_idx - 1
+        start_character_idx = character_range.characters_start_idx - 1
+        end_characters_idx = character_range.characters_end_idx # range, right open
 
+        # the region is split into 3 parts: first line, middle lines, and the last line.
+        # if the region is relevant to only 1 line, the first and the last are the same, and no middle lines.
+        if start_line_idx == end_line_idx:
+            region_lines_tmp = file_lines[start_line_idx]
+            region_lines.append(region_lines_tmp[start_character_idx: end_characters_idx])
+        else:
+            region_first_line = file_lines[start_line_idx][start_character_idx:]
+            region_last_line = file_lines[end_line_idx][:end_characters_idx]
+            
+            region_lines.append(region_first_line)
+            region_lines.extend(file_lines[start_line_idx+1: end_line_idx])
+            region_lines.append(region_last_line)
+    
+    if not unchanged_numbers:
+        context_aware_characters = " ".join(region_lines)
+        return context_aware_characters
+    
     pre_lines = []
     post_lines = []
+    # The pre or post line numbers could be inconsecutive, 
+    # like context line number is set to 2, but the pre context lines can be line 10, and line 13.
     pre_context_line_nums = locate_lines(start_line_idx, before_lines, unchanged_numbers)
-    if pre_context_line_nums:
-        pre_lines = file_lines[(pre_context_line_nums[0]-1) : pre_context_line_nums[-1]]
+    for pre_num in pre_context_line_nums:
+        pre_lines.append(file_lines[pre_num - 1]) # -1 to change abs numbers to indices
     post_context_line_nums = locate_lines(end_line_idx, after_lines, unchanged_numbers, False)
-    if post_context_line_nums:
-        post_lines = file_lines[(post_context_line_nums[0]-1) : post_context_line_nums[-1]]
+    for post_num in post_context_line_nums:
+        post_lines.append(file_lines[post_num - 1])
 
     all_lines.extend(pre_lines)
     all_lines.extend(region_lines)
@@ -102,11 +120,20 @@ def locate_lines(line_idx, context_num, unchanged_numbers, start=True):
     line_abs = line_idx + 1
 
     if start == True:
+        # if all unchanged numbers is smaller than the specified line number
+        if unchanged_numbers[-1] < line_abs:
+            if len(unchanged_numbers) > context_num:
+                context_lines = unchanged_numbers[-context_num:]
+            else:
+                context_lines = unchanged_numbers
+            return context_lines
+        
         tmp = []
         for num_abs in unchanged_numbers:
             if num_abs < line_abs:
                 tmp.append(num_abs)
             else:
+                context_lines = tmp
                 if len(tmp) > context_num:
                     context_lines = tmp[-context_num:]
                 return context_lines

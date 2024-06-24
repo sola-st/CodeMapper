@@ -264,7 +264,7 @@ class AnythingTrackerOnHistoryPairs():
         for key, target_dict in results_set_dict.items():
             target_candidate = candidate_regions[target_dict["target_candidate_index"]]
             target_range: list = target_candidate.candidate_region_character_range.four_element_list
-            if target_range == [0, 0, 0, 0]:
+            if target_range.count(0) >= 3: # for diff deletions: [0, 0, target_hunk_range.stop, 0]
                 target_range = None
             else:
                 target_range = str(target_range)
