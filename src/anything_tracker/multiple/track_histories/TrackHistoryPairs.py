@@ -74,10 +74,6 @@ class TrackConvertedData():
                     if meta["target_range"] == "None":
                         continue
                     character_range_list = json.loads(meta["target_range"])
-                    # TODO check the converted data
-                    if not character_range_list or \
-                        (character_range_list[1] == character_range_list[3]) and (character_range_list[0] == character_range_list[2]):
-                        continue
                     target_commit = meta["source_commit"]
                     if target_commit == "0": # the initial commit
                         continue

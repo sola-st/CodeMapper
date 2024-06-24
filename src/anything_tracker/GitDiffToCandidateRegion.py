@@ -254,9 +254,6 @@ class GitDiffToCandidateRegion():
 
                             character_range = CharacterRange([candidate_start_line, candidate_character_start_idx, candidate_end_line, candidate_character_end_idx])
                             candidate_characters = get_region_characters(self.target_file_lines, character_range)
-                            # if candidate_character_end_idx == len(self.target_file_lines[hunk_end-1]) and candidate_characters.endswith("\n"):
-                            #     character_range = CharacterRange([candidate_start_line, candidate_character_start_idx, candidate_end_line, candidate_character_end_idx - 1])
-                            #     candidate_characters = candidate_characters.replace("\n", "", 1)
                             candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, marker)
                             candidate_regions.add(candidate_region)
 

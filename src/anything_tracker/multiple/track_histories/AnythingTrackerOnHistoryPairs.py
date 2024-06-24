@@ -41,7 +41,7 @@ class AnythingTrackerOnHistoryPairs():
         self.target_commit = target_commit
         self.target_file_path = target_file_path
         self.source_character_range = interest_character_range
-        self.interest_character_range  = character_range_init = CharacterRange(interest_character_range)
+        self.interest_character_range = character_range_init = CharacterRange(interest_character_range)
         interest_line_range = character_range_init.character_range_to_line_range() # all numbers starts at 1.
         self.interest_line_numbers = list(interest_line_range)
         self.results_dir = results_dir
@@ -115,7 +115,7 @@ class AnythingTrackerOnHistoryPairs():
         if not diff_hunk_lists:
             # add an empty hunkj list to get searched candidate regions.
             no_hunk_list = True
-            diff_hunk_lists.append(["Searach-specific", [], [], []])
+            diff_hunk_lists.append(["Search-specific", [], [], []])
         for iter in diff_hunk_lists:
             search_candidates = []
             algorithm, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks = iter

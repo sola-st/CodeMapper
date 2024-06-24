@@ -208,5 +208,5 @@ if __name__=="__main__":
     results_dir = join("data", "results", "tracked_maps", "annotation", "mapped_regions_annodata_update")
     results_csv_file_folder = join("data", "results", "measurement_results", "annotation")
     os.makedirs(results_csv_file_folder, exist_ok=True)
-    results_csv_file = join(results_csv_file_folder, "measurement_results_metrics_anno_0603.csv")
+    results_csv_file = join(results_csv_file_folder, "measurement_results_metrics_anno.csv")
     MeasureAnnotatedData(oracle_file, results_dir, results_csv_file).run()

@@ -159,7 +159,7 @@ def get_source_and_expected_region_characters(file_lines, character_range):
 
     start_line = str(file_lines[start_line_idx-1])
 
-    if start_line_idx == end_line_idx: 
+    if start_line_idx == end_line_idx: # abs numbers
         # the source or expected region is inside one line.
         # only records one line number, that is, the start and end are on the same line.
         characters.append(start_line[characters_start_idx-1 : characters_end_idx])
