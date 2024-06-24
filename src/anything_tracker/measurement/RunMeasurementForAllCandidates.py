@@ -117,7 +117,7 @@ class RunMeasurement():
         write_results(results, self.results_csv_file_name)   
 
 def write_results(results_set, file_name):
-    with open(f"data/results/{file_name}", "w") as f:
+    with open(file_name, "w") as f:
         csv_writer = csv.writer(f)
         for row in results_set:
             csv_writer.writerow(row)
@@ -126,6 +126,6 @@ def write_results(results_set, file_name):
 if __name__=="__main__":
     oracle_file = join("data", "annotation", "annotations_100.json")
     candidates_dir = join("data", "results", "tracked_maps", "mapped_regions")
-    results_csv_file_name = join("measurement_results", "measurement_results_candidates.csv")
+    results_csv_file_name = join("data", "results", "measurement_results", "measurement_results_candidates.csv")
     measurement = "candidates.json"
     RunMeasurement(oracle_file, candidates_dir, results_csv_file_name, measurement).run()

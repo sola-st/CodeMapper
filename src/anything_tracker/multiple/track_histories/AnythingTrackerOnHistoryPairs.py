@@ -111,6 +111,11 @@ class AnythingTrackerOnHistoryPairs():
                 self.changed_line_numbers_version_maps_target.pop(pop_idx)
 
         # search to map characters
+        no_hunk_list = False
+        if not diff_hunk_lists:
+            # add an empty hunkj list to get searched candidate regions.
+            no_hunk_list = True
+            diff_hunk_lists.append(["Searach-specific", [], [], []])
         for iter in diff_hunk_lists:
             search_candidates = []
             algorithm, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks = iter
@@ -120,10 +125,11 @@ class AnythingTrackerOnHistoryPairs():
                 depulicated_search_candidates, regions, duplicated_indices = deduplicate_candidates(search_candidates, regions)
                 if depulicated_search_candidates:
                     candidate_regions.extend(depulicated_search_candidates)
-                for removed_count, idx in enumerate(duplicated_indices):
-                    pop_idx = len(depulicated_diff_candidates) + idx - removed_count
-                    self.changed_line_numbers_version_maps_source.pop(pop_idx)
-                    self.changed_line_numbers_version_maps_target.pop(pop_idx)
+                if no_hunk_list == False:
+                    for removed_count, idx in enumerate(duplicated_indices):
+                        pop_idx = len(depulicated_diff_candidates) + idx - removed_count
+                        self.changed_line_numbers_version_maps_source.pop(pop_idx)
+                        self.changed_line_numbers_version_maps_target.pop(pop_idx)
             # else: no overlapped hunks
         len_delta = len(candidate_regions) - len(self.changed_line_numbers_version_maps_source)
         if len_delta != 0:
