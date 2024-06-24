@@ -66,12 +66,20 @@ def get_context_aware_unchanged_characters(file_lines, character_range, before_l
     end_line_idx = character_range.end_line_idx - 1
     start_character_idx = character_range.characters_start_idx - 1
     end_characters_idx = character_range.characters_end_idx # range, right open
-    region_first_line = file_lines[start_line_idx][start_character_idx:]
-    region_last_line = file_lines[end_line_idx][:end_line_idx]
+
+    # the region is split into 3 parts: first line, middle lines, and the last line.
+    # if the region is relevant to only 1 line, the first and the last are the same, and no middle lines.
     region_lines = []
-    region_lines.append(region_first_line)
-    region_lines.extend(file_lines[start_line_idx+1: end_line_idx])
-    region_lines.append(region_last_line)
+    if start_line_idx == end_line_idx:
+        region_lines_tmp = file_lines[start_line_idx]
+        region_lines.append(region_lines_tmp[start_character_idx: end_characters_idx])
+    else:
+        region_first_line = file_lines[start_line_idx][start_character_idx:]
+        region_last_line = file_lines[end_line_idx][:end_characters_idx]
+        
+        region_lines.append(region_first_line)
+        region_lines.extend(file_lines[start_line_idx+1: end_line_idx])
+        region_lines.append(region_last_line)
 
     pre_lines = []
     post_lines = []
@@ -85,16 +93,7 @@ def get_context_aware_unchanged_characters(file_lines, character_range, before_l
     all_lines.extend(pre_lines)
     all_lines.extend(region_lines)
     all_lines.extend(post_lines)
-    context_aware_characters = "".join(all_lines)
-
-    # expected_start_idx = 0
-    # if pre_context_line_nums:
-    #     expected_start_idx = pre_context_line_nums[0] - 1
-    # expected_end_idx = all_numbers[-1]
-    # if post_context_line_nums:
-    #     expected_end_idx = post_context_line_nums[-1]
-    # region_lines = file_lines[expected_start_idx: expected_end_idx]
-    # context_aware_characters = "".join(region_lines)
+    context_aware_characters = " ".join(all_lines)
 
     return context_aware_characters
 

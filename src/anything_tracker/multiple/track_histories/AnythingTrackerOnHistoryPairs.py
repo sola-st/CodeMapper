@@ -233,6 +233,8 @@ class AnythingTrackerOnHistoryPairs():
             source_str_list = [] # only for with context
 
             # collect candidate str, and contexts
+            pre_changed_line_numbers = None
+            source_with_context = ""
             for i, candidate in enumerate(candidate_regions):
                 # option 1: without context
                 if self.context_line_num == 0:
@@ -240,8 +242,9 @@ class AnythingTrackerOnHistoryPairs():
                     candiate_str_list.append(candidate_characters)
                 else: # option 2: with context
                     # 2.1 check the characters with contexts at once
-                    source_with_context = get_context_aware_unchanged_characters(self.base_file_lines, self.interest_character_range, \
-                                self.context_line_num, self.context_line_num, self.changed_line_numbers_version_maps_source[i])
+                    if pre_changed_line_numbers != self.changed_line_numbers_version_maps_source[i]:
+                        source_with_context = get_context_aware_unchanged_characters(self.base_file_lines, self.interest_character_range, \
+                                    self.context_line_num, self.context_line_num, self.changed_line_numbers_version_maps_source[i])
                     source_str_list.append(source_with_context)
                     candidate_range = candidate.candidate_region_character_range
                     candidate_with_context = get_context_aware_unchanged_characters(self.target_file_lines, candidate_range, \

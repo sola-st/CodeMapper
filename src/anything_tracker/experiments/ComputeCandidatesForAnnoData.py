@@ -82,14 +82,14 @@ class ComputeCandidatesForAnnoData():
 
 
 if __name__ == "__main__":
-    result_dir_parent = join("data", "results", "tracked_maps", "final", "mapped_regions_annodata")
+    result_dir_parent = join("data", "results", "tracked_maps", "mapped_regions_annodata")
     oracle_file = join("data", "annotation", "annotations_100.json")
-    time_file_folder = join("data", "results", "execution_time", "final")
+    time_file_folder = join("data", "results", "execution_time")
     makedirs(time_file_folder, exist_ok=True)
     time_file_to_write = join(time_file_folder, "executing_time_annodata.csv")
     # context_line_num >=0.
     # 0 means no contexts, >0 means get the corresponding number of lines before and after respectively as contexts
-    context_line_num = 0 
+    context_line_num = 2 
     # 3 techniques can be optionally turned off, support turn off one or multiple at a time.
     # 1. move detection  2. search matches  3. fine-grain borders
     turn_off_techniques = [False, False, False] # change the boolean to True to turn off the corresponding technique.
