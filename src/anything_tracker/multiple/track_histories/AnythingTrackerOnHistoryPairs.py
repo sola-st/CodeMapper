@@ -127,10 +127,13 @@ class AnythingTrackerOnHistoryPairs():
                     candidate_regions.extend(depulicated_search_candidates)
                 if no_hunk_list == False:
                     for removed_count, idx in enumerate(duplicated_indices):
-                        pop_idx = len(depulicated_diff_candidates) + idx - removed_count
-                        self.changed_line_numbers_version_maps_source.pop(pop_idx)
-                        self.changed_line_numbers_version_maps_target.pop(pop_idx)
+                        if "SEARCH" not in search_candidates[idx].marker: # do not have changed line numbers for searched candidate yet.
+                            pop_idx = len(depulicated_diff_candidates) + idx - removed_count
+                            self.changed_line_numbers_version_maps_source.pop(pop_idx)
+                            self.changed_line_numbers_version_maps_target.pop(pop_idx)
             # else: no overlapped hunks
+            
+        # add change line numbers for the searched candidates 
         len_delta = len(candidate_regions) - len(self.changed_line_numbers_version_maps_source)
         if len_delta != 0:
             for i in range(len_delta):
