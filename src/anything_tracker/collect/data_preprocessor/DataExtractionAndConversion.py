@@ -202,7 +202,7 @@ class DataExtractionAndConversion():
         # get range for attribute, variable and block
         source_range = None
         parent_commit = h["parentCommitId"]
-        if parent_commit != "0":
+        if parent_commit != "0" and h["changeType"] != "introduced":
             source_file_path = join(repo_dir, h["elementFileBefore"])
             source_range, source_multi_location_list = GetRanges(repo_dir, \
                     parent_commit, source_file_path, source_line_number, source_additional_info).run()
@@ -276,23 +276,24 @@ class DataExtractionAndConversion():
                     category = file
                 else:
                     subfolder = file
-                    
-                self.recursive_get_json_files(file_path, category, subfolder)
-                end_time = time.time()
-                print(f"{category}-{subfolder}: {round((end_time - self.start_time), 3)} seconds.\n")
 
-                # Write an overall source file to start checking.
-                if self.overall_source_json_strs:
-                    file_for_overall = join(self.output_folder, f"converted_data_{category}_{subfolder}.json")
-                    write_extracted_json_strings(file_for_overall, self.overall_source_json_strs, "w")
-                    self.overall_source_json_strs = []
+                if category and subfolder:
+                    self.recursive_get_json_files(file_path, category, subfolder)
+                    end_time = time.time()
+                    print(f"{category}-{subfolder}: {round((end_time - self.start_time), 3)} seconds.\n")
 
-                if len(self.multi_location_infos) > 1:
-                    file_for_multi_location = join(self.output_folder, f"converted_data_{category}_{subfolder}_multi.csv")
-                    with open(file_for_multi_location, 'w') as f:
-                        writer = csv.writer(f)
-                        writer.writerows(self.multi_location_infos)
-                    self.multi_location_infos = [["Folder number", "Multi-location", "Commit", "File path"]]
+                    # Write an overall source file to start checking.
+                    if self.overall_source_json_strs:
+                        file_for_overall = join(self.output_folder, f"converted_data_{category}_{subfolder}.json")
+                        write_extracted_json_strings(file_for_overall, self.overall_source_json_strs, "w")
+                        self.overall_source_json_strs = []
+
+                    if len(self.multi_location_infos) > 1:
+                        file_for_multi_location = join(self.output_folder, f"converted_data_{category}_{subfolder}_multi.csv")
+                        with open(file_for_multi_location, 'w') as f:
+                            writer = csv.writer(f)
+                            writer.writerows(self.multi_location_infos)
+                        self.multi_location_infos = [["Folder number", "Multi-location", "Commit", "File path"]]
                 
 
     def main(self):
