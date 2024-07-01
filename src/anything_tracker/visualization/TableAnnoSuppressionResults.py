@@ -5,10 +5,12 @@ from os.path import join
 
 def get_data(file_list):
     summaries = []
+    match = []
+    match_num_rate = []
     exact_match = []
     exact_match_num_rate = []
     overlapping = []
-    overlapping_num_rate = []
+    overlapping_num_dist = []
     recalls = []
     precisions = []
     f1s = []
@@ -27,45 +29,48 @@ def get_data(file_list):
         # summary should be [YMW, pre character distance, post, all, recall, precision, f1, note]
         summary = [s for s in summary_line if s] 
         match_results = json.loads(summary[0])
-        matches = match_results["Y"]
-        overlaps = match_results["M"]
-        # nonoverlaps = match_results["W"]
-        # all = matches + overlaps + nonoverlaps
+        e_matches = match_results["Y"]
+        overlapping = match_results["M"]
+        matches = e_matches + overlapping
         matches_rate = format((matches / all) * 100, digit)
-        overlaps_rate = format((overlaps / all) * 100, digit)
+        e_matches_rate = format((e_matches / all) * 100, digit)
+        overlapping_rate = format((overlapping / all) * 100, digit)
 
         dist_results = json.loads(summary[1])
         dist = float(dist_results["dist"]["avg"])
 
         recall, precision, f1 = summary[2: 5] 
 
-        exact_match.append(matches)
-        exact_match_num_rate.append(f"{matches}({matches_rate}\%)")
-        overlapping.append(overlaps)
-        overlapping_num_rate.append(f"{overlaps}({overlaps_rate}\%)")
+        match.append(matches)
+        match_num_rate.append(f"{matches}({matches_rate}\%)")
+        exact_match.append(e_matches)
+        exact_match_num_rate.append(f"{e_matches}({e_matches_rate}\%)")
+        # overlapping.append(overlapping)
+        overlapping_num_dist.append(f"{overlapping}({overlapping_rate}\%) | {dist}")
+
         recalls.append(float(recall))
         precisions.append(float(precision))
         f1s.append(float(f1))
         dists.append(dist)
 
-    summaries = [exact_match, overlapping, recalls, precisions, f1s, dists, exact_match_num_rate, overlapping_num_rate]
+    summaries = [match, exact_match, dists, recalls, precisions, f1s, match_num_rate, exact_match_num_rate, overlapping_num_dist]
     return summaries
 
 
 def generate_table(data, caption, label, tex_file):
-    row_names = ["Line level diff", "Word level diff", "AnythingTracker"]
-    col_names = ["Approaches", "Exact matches", "Overlapping", "Recall", "Precision", "F1-score", "Character distance"]
-    the_higher_the_better = [True, False, True, True, True, False]
+    row_names = ["Matches", "E. matches", "Char. dist", "Recall", "Precision", "F1-score"]
+    col_names = ["", "diff\\textsubscript{line}", "diff\\textsubscript{word}", "\\name{}"]
+    the_higher_the_better = [True, True, False, True, True, True]
 
-    latex_table = "\\begin{table*}[htbp]\n\\centering\n"
+    latex_table = "\\begin{table}[htbp]\n\\centering\n\\footnotesize\n"
     latex_table += "\\caption{" + caption + "}\n"
-    latex_table += "\\begin{tabular}{" + "l" + "".join(["r"] * len(col_names)) + "}\n"
+    latex_table += "\\begin{tabular}{@{}" + "l" + "".join(["r"] * len(col_names)) + "@{}}\n"
     latex_table += "\\hline\n"
 
     latex_table += " & ".join(col_names) + " \\\\\n"
     latex_table += "\\hline\n"
 
-    # Determine the best performance locations in each column
+    # Determine the best performance locations in each row
     split_num = 6
     data_numbers = data[:split_num]
     num_rates = data[split_num:]
@@ -77,22 +82,20 @@ def generate_table(data, caption, label, tex_file):
 
         for j, num in enumerate(col):
             if num == textbf:
-                if i < 2:
+                if i < 3:
                     num_rates[i][j] = "\\textbf{" + num_rates[i][j] + "}"
                 else:
                     col[j] = "\\textbf{" + str(col[j]) + "}"
 
     # replace to the number with rate 
-    data_numbers[:2] = num_rates
-    # match, ovelapping, recall, precision, f1, dist = data_numbers
-    transposed_data = list(zip(*data_numbers))
-    for i, row_data in enumerate(transposed_data):
+    data_numbers[:3] = num_rates
+    for i, row_data in enumerate(data_numbers):
         latex_table += row_names[i] + " & " + " & ".join(map(str, row_data)) + " \\\\\n"
 
     latex_table += "\\hline\n"
     latex_table += "\\end{tabular}\n"
     latex_table += "\\label{tab:" + label + "}\n"
-    latex_table += "\\end{table*}"
+    latex_table += "\\end{table}"
 
     with open(tex_file, "w") as f:
         f.write(latex_table + "\n")
@@ -116,7 +119,7 @@ def annotated_data_main():
 
 def suppression_main():
     # suppression data
-    common = join("data", "results", "measurement_results", "suppression")
+    common = join("data", "results", "measurement_results")
     file_name_base = "measurement_results_metrics_suppression"
     file_list = [
             join(common, f"{file_name_base}_line.csv"),
