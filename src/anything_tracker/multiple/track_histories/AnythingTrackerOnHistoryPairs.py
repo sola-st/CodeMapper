@@ -245,13 +245,21 @@ class AnythingTrackerOnHistoryPairs():
                     candiate_str_list.append(candidate_characters)
                 else: # option 2: with context
                     # 2.1 check the characters with contexts at once
-                    if pre_changed_line_numbers != self.changed_line_numbers_version_maps_source[i]:
-                        source_with_context = get_context_aware_unchanged_characters(self.base_file_lines, self.interest_character_range, \
-                                    self.context_line_num, self.context_line_num, self.changed_line_numbers_version_maps_source[i])
-                    source_str_list.append(source_with_context)
+                    # 2.1.1 no contexts for movement detected candidates
                     candidate_range = candidate.candidate_region_character_range
-                    candidate_with_context = get_context_aware_unchanged_characters(self.target_file_lines, candidate_range, \
-                            self.context_line_num, self.context_line_num, self.changed_line_numbers_version_maps_target[i])
+                    if "MOVE" in candidate.marker:
+                        source_str_list.append(source_str) # source
+                        candidate_with_context = get_context_aware_unchanged_characters(self.target_file_lines, candidate_range, \
+                                0, 0, self.changed_line_numbers_version_maps_target[i]) # target, 0 contexts
+                    else:
+                        # source
+                        if pre_changed_line_numbers != self.changed_line_numbers_version_maps_source[i]:
+                            source_with_context = get_context_aware_unchanged_characters(self.base_file_lines, self.interest_character_range, \
+                                        self.context_line_num, self.context_line_num, self.changed_line_numbers_version_maps_source[i])
+                        source_str_list.append(source_with_context)
+                        # candidate
+                        candidate_with_context = get_context_aware_unchanged_characters(self.target_file_lines, candidate_range, \
+                                self.context_line_num, self.context_line_num, self.changed_line_numbers_version_maps_target[i])
                     candiate_str_list.append(candidate_with_context)
 
             assert candiate_str_list != []

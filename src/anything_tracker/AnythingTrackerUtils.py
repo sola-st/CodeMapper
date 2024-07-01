@@ -93,7 +93,7 @@ def get_context_aware_unchanged_characters(file_lines, character_range, before_l
             region_lines.extend(file_lines[start_line_idx+1: end_line_idx])
             region_lines.append(region_last_line)
     
-    if not unchanged_numbers:
+    if not unchanged_numbers or (before_lines == after_lines == 0):
         context_aware_characters = " ".join(region_lines)
         return context_aware_characters
     
