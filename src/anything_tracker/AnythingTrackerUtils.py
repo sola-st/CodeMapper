@@ -31,6 +31,15 @@ def deduplicate_candidates(candidates, regions):
             duplicated_indices.append(idx)
     return deduplicated_candidates, regions, duplicated_indices
 
+def deduplicate_candidates_baseline(candidates, regions):
+    deduplicated_candidates = []
+    for s in candidates:
+        r = s.candidate_region_character_range.four_element_list
+        if r not in regions:
+            regions.append(r)
+            deduplicated_candidates.append(s)
+    return deduplicated_candidates, regions, 
+
 def get_context_aware_characters(file_lines, character_range, before_lines, after_lines):
     # character_range: start_line, start_character, end_line, end_character (abs numbers)
     max_idx = len(file_lines)

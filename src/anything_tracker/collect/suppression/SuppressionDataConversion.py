@@ -2,9 +2,9 @@ import json
 from multiprocessing import Pool, cpu_count
 import os
 from os.path import join
-
-from anything_tracker.collect.data_preprocessor.GetSuppressionRanges import GetRanges
 from anything_tracker.collect.data_preprocessor.utils.CommitRangePiece import get_commit_range_pieces
+from anything_tracker.collect.suppression.GetSuppressionRange import GetSuppressionRange
+from anything_tracker.collect.suppression.SuppressionTypeNumericMaps import read_to_get_type_numeric_maps
 from anything_tracker.experiments.SourceRepos import SourceRepos
 
 
@@ -12,33 +12,19 @@ def write_extracted_json_strings(json_file, to_write):
     with open(json_file, "w") as ds:
         json.dump(to_write, ds, indent=4, ensure_ascii=False)
 
-def get_json_strs(url, file_path, commit, range, suppression_text, mapped_meta=None):
-        # the following 2 strings are different on keys
-        converted_json_str_histories = {
-            "url": url,
-            "file_path": file_path,
-            "commit": commit,
-            "range": range,
-            "source_info": suppression_text,
-            "mapped_meta": mapped_meta
-        }
+def get_json_strs(url, file_path, commit, range, suppression_text, suppression_characters, mapped_meta):
+    converted_json_str_histories = {
+        "url": url,
+        "file_path": file_path,
+        "commit": commit,
+        "range": range,
+        "source_info_study": suppression_text,
+        "source_info_extracted": suppression_characters,
+        "mapped_meta": mapped_meta
+    }
+    return converted_json_str_histories
 
-        converted_json_str_input = None
-        if range:
-            converted_json_str_input = {
-                "url": url,
-                "source_file": file_path,
-                "source_commit": commit,
-                "source_range": range,
-                "source_info": suppression_text,
-                "mapped_meta": mapped_meta
-            }
-        return converted_json_str_input, converted_json_str_histories
-
-def convert_histories(repo_parent_folder, result_parent_folder, file_path, repo_name, url):
-    overall_backward_inputs = []
-    overall_forward_inputs = []
-
+def convert_histories(maps, repo_parent_folder, result_parent_folder, file_path, repo_name, url):
     repo_dir = join(repo_parent_folder, repo_name)
     with open(file_path, "r") as f:
         data = json.load(f)
@@ -46,39 +32,37 @@ def convert_histories(repo_parent_folder, result_parent_folder, file_path, repo_
     for meta_idx, history in enumerate(data):
         converted_history = [] # full version
         extracted_commit_range_pieces = {"url":  url} # simplified version
-        backward_input = None
-        forward_input = None
         
         key = f"# S{meta_idx}"
         history_list = history[key] # 0:add, 1:delete or remaining
-        for j, h in enumerate(history_list):
+        for h in history_list:
+            suppression_text = h["warning_type"]
+            if suppression_text in ["[]", None, ""]:
+                break
+            
             commit = h["commit_id"]
             file_path = h["file_path"]
-            suppression_text = h["warning_type"]
-            try:
-                suppression_text = suppression_text.split("=")[1]
-            except:
-                pass
+            suppression_type = suppression_text.split("=")[1]
             line_number = h["line_number"]
             change_operation = h["change_operation"]
+
             range = None
+            suppression_characters = None
             if change_operation == "merge add": # line number is merge unknown
                 pass
             elif "add" in change_operation or change_operation == "remaining": # add, file add
-                range = GetRanges(repo_dir, commit,\
-                        join(repo_dir, file_path), line_number, suppression_text).run()
-                range = f"{range}"
+                range, suppression_characters = GetSuppressionRange(maps, repo_dir, commit,\
+                        join(repo_dir, file_path), line_number, suppression_text, suppression_type).run()
+                if range:
+                    range = f"{range}"
+                else: # inaccurate history from suppression study
+                    print(f"{change_operation}, {key}, {repo_name}")
+                    if change_operation == "remaining":
+                        exit()
+                    break
             # else: # delete, file delete
 
-            input_str, history_str = get_json_strs(url, file_path, commit, range, suppression_text, meta_idx) 
-            if input_str:
-                if j == 0:
-                    forward_input = input_str 
-                    overall_forward_inputs.append(forward_input)
-                else: # 1
-                    backward_input = input_str
-                    overall_backward_inputs.append(backward_input)
-
+            history_str = get_json_strs(url, file_path, commit, range, suppression_text, suppression_characters, meta_idx) 
             converted_history.append(history_str)
             extracted_pieces = get_commit_range_pieces(commit, file_path, range)
             extracted_commit_range_pieces.update(extracted_pieces)
@@ -87,22 +71,11 @@ def convert_histories(repo_parent_folder, result_parent_folder, file_path, repo_
             current_folder = join(result_parent_folder, repo_name, str(meta_idx))
             os.makedirs(current_folder, exist_ok=True)
 
-            json_file_forward = join(current_folder, "source_forward.json")
-            write_extracted_json_strings(json_file_forward, forward_input)
-            json_file_backward = join(current_folder, "source_backward.json")
-            write_extracted_json_strings(json_file_backward, backward_input)
-
-            json_file_full = join(current_folder, "expected_full_histories.json")
+            json_file_full = join(current_folder, "expect_full_histories.json")
             write_extracted_json_strings(json_file_full, converted_history)
 
-            json_file_simple = join(current_folder, "expected_simple.json")
+            json_file_simple = join(current_folder, "expect_simple.json")
             write_extracted_json_strings(json_file_simple, extracted_commit_range_pieces)
-    
-    # write overall input strings
-    file_overall_backward = join(result_parent_folder, repo_name, "suppression_track_backward.json")
-    write_extracted_json_strings(file_overall_backward, overall_backward_inputs)
-    file_overall_forward = join(result_parent_folder, repo_name, "suppression_track_forward.json")
-    write_extracted_json_strings(file_overall_forward, overall_forward_inputs)
 
 
 def extract_history_wrapper(args):
@@ -114,9 +87,12 @@ def extract_history_wrapper(args):
 
 if __name__=="__main__":
     repo_parent_folder = join("data", "repos_suppression")
-    repo_file = join("data", "results", "suppression_data", "python_repos.txt")
+    repo_file = join("data", "python_repos.txt")
     suppression_oracle_folder = join("data", "oracle_suppression")
     result_parent_folder = join("data", "suppression_data")
+
+    # get numeric type mappings
+    maps = read_to_get_type_numeric_maps()
 
     # prepare repositories
     source_repo_init = SourceRepos(repo_file, repo_parent_folder)
@@ -131,7 +107,7 @@ if __name__=="__main__":
         url = url.strip()
         repo_name = url.split("/")[-1].replace(".git", "")
         history_file = join(suppression_oracle_folder, repo_name, "histories_suppression_level_all.json")
-        args = [repo_parent_folder, result_parent_folder, history_file, repo_name, url]
+        args = [maps, repo_parent_folder, result_parent_folder, history_file, repo_name, url]
         args_for_all_repos.append(args)
         
     cores_to_use = cpu_count() - 1 

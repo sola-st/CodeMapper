@@ -3,7 +3,7 @@ import os
 from anything_tracker.multiple.track_histories.AnythingTrackerOnHistoryPairs import main_suppression as AnythingTrackerOnHistoryPairs
 from anything_tracker.SpecifyToTurnOffTechniques import SpecifyToTurnOffTechniques
 from anything_tracker.experiments.SourceRepos import SourceRepos
-from os.path import join
+from os.path import join, exists
 
 
 class TrackHistoryPairsSuppression():
@@ -35,7 +35,9 @@ class TrackHistoryPairsSuppression():
             for num_folder in range(hist_len):
                 num_folder_str = str(num_folder)
                 history_file_path = join(self.oracle_history_parent_folder, repo, \
-                        num_folder_str, "expected_full_histories.json")
+                        num_folder_str, "expect_full_histories.json")
+                if not exists(history_file_path):
+                    continue
 
                 with open(history_file_path) as f:
                     histories_pairs = json.load(f)
@@ -81,7 +83,7 @@ class TrackHistoryPairsSuppression():
 
     def run(self):
         # prepare repositories
-        repo_urls_file = join("data", "results", "analysis_on_codetracker_data", "source_repos_suppression.txt") # python projects
+        repo_urls_file = join("data", "python_repos.txt") # python projects
         repo_folder_suppression = join("data", "repos_suppression")
         source_repo_init = SourceRepos(repo_urls_file, repo_folder_suppression)
         repo_dirs = source_repo_init.get_repo_dirs()
@@ -122,14 +124,14 @@ class TrackHistoryPairsSuppression():
         
 
 if __name__ == "__main__":
-    result_dir_parent = join("data", "results", "tracked_maps", "latest", "mapped_regions_suppression")
+    result_dir_parent = join("data", "results", "tracked_maps", "mapped_regions_suppression0701")
     oracle_history_parent_folder = join("data", "suppression_data")
-    time_file_folder = join("data", "results", "execution_time", "latest") 
+    time_file_folder = join("data", "results", "execution_time") 
     os.makedirs(time_file_folder, exist_ok=True)
     time_file_to_write = join(time_file_folder, "execution_time_suppression.csv")
     # context_line_num >=0.
     # 0 means no contexts, >0 means get the corresponding number of lines before and after respectively as contexts
-    context_line_num = 0 
+    context_line_num = 2 
     # 3 techniques can be optionally turned off, support turn off one or multiple at a time.
     # 1. move detection  2. search matches  3. fine-grain borders
     turn_off_techniques = [False, False, False] # change the boolean to True to turn off the corresponding technique.

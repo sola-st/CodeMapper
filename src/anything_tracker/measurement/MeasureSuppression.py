@@ -141,7 +141,7 @@ class MeasureSuppression():
             for region in histories_regions_all:
                 ground_truth_idx = region["iteration"]
                 # expected
-                oracle_expected_file = join(self.oracle_file_folder, repo, ground_truth_idx, "expected_simple.json")
+                oracle_expected_file = join(self.oracle_file_folder, repo, ground_truth_idx, "expect_simple.json")
                 expected_commit_range_pieces:dict = load_json_file(oracle_expected_file)
                 expected_commits = expected_commit_range_pieces.keys()
 

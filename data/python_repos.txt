@@ -1,0 +1,10 @@
+https://github.com/buildbot/buildbot.git
+https://github.com/celery/celery.git
+https://github.com/google/clusterfuzz.git
+https://github.com/dmlc/dgl.git
+https://github.com/iterative/dvc.git
+https://github.com/kedro-org/kedro.git
+https://github.com/magenta/magenta.git
+https://github.com/PaddlePaddle/PaddleNLP.git
+https://github.com/thumbor/thumbor.git
+https://github.com/google/yapf.git

@@ -4,7 +4,7 @@ import os
 from os.path import join
 import time
 from anything_tracker.AnythingTrackerUtils import (
-    deduplicate_candidates,
+    deduplicate_candidates_baseline,
     get_source_and_expected_region_characters,
 )
 from anything_tracker.CandidateRegion import CandidateRegion, get_candidate_region_range
@@ -72,7 +72,7 @@ class BaselineTracker():
         # get candidates from git diff
         diff_candidates, diff_hunk_lists = LineCharacterGitDiffToCandidateRegion(self).run_git_diff()
         if diff_candidates:
-            depulicated_diff_candidates, regions = deduplicate_candidates(diff_candidates, regions) # True
+            depulicated_diff_candidates, regions = deduplicate_candidates_baseline(diff_candidates, regions) # True
             candidate_regions.extend(depulicated_diff_candidates)
         # search to map characters
         for iter in diff_hunk_lists:
@@ -80,7 +80,7 @@ class BaselineTracker():
             combined_candidates = CombineToCandidateRegion(algorithm, self,
                     top_diff_hunks, middle_diff_hunks, bottom_diff_hunks).search_maps()
             if combined_candidates:
-                depulicated_candidates, regions = deduplicate_candidates(combined_candidates, regions)
+                depulicated_candidates, regions = deduplicate_candidates_baseline(combined_candidates, regions)
                 candidate_regions.extend(depulicated_candidates)
         return candidate_regions
 

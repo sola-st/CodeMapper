@@ -1,7 +1,7 @@
 import json
 from anything_tracker.baselines.BaselineTracker import main_suppression_annodata as AnythingTracker
 from anything_tracker.experiments.SourceRepos import SourceRepos
-from os.path import join
+from os.path import join, exists
 from os import makedirs, listdir
 
 
@@ -27,7 +27,9 @@ class BaselineOnSuprression():
             for num_folder in range(hist_len):
                 num_folder_str = str(num_folder)
                 history_file_path = join(self.oracle_history_parent_folder, repo, \
-                        num_folder_str, "expected_full_histories.json")
+                        num_folder_str, "expect_full_histories.json")
+                if not exists(history_file_path):
+                    continue
 
                 with open(history_file_path) as f:
                     histories_pairs = json.load(f)
@@ -73,7 +75,7 @@ class BaselineOnSuprression():
 
     def run(self):
         # prepare repositories
-        repo_urls_file = join("data", "results", "analysis_on_codetracker_data", "source_repos_suppression.txt") # python projects
+        repo_urls_file = join("data", "python_repos.txt")
         repo_folder_suppression = join("data", "repos_suppression")
         source_repo_init = SourceRepos(repo_urls_file, repo_folder_suppression)
         repo_dirs = source_repo_init.get_repo_dirs()
