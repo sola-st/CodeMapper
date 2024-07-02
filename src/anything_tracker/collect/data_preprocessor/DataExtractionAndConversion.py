@@ -34,6 +34,8 @@ class DataExtractionAndConversion():
 
         self.class_ast_init = None
         self.method_ast_init = None
+        self.attribute_ast_init = None
+        self.variable_ast_init = None
 
         self.overall_source_json_strs = []
         self.multi_location_infos = [["Folder number", "Multi-location", "Commit", "File path"]]
@@ -82,10 +84,7 @@ class DataExtractionAndConversion():
 
         if category in self.group_1:
             source_range, multi_location_list = GetRanges(repo_dir, source_commit, file_path, start_line_number, additional_info).run()
-            if multi_location_list:
-                multi_location_list.insert(0, file_number)
-                self.multi_location_infos.append(multi_location_list)
-        else: # group_2
+        else: # group 2: class, method, attribute and varable
             repo = Repo(repo_dir)
             repo.git.checkout(source_commit, force=True)
             start_name = data[self.key_set[category]["start_name"]]
@@ -93,10 +92,23 @@ class DataExtractionAndConversion():
             source_info = get_region_base_info(element_key_line, category)
             start_name_copy, identifier = source_info
             assert start_name == start_name_copy
-            ast_init = self.class_ast_init
             if category == "method":
                 ast_init = self.method_ast_init
+            elif category == "class":
+                ast_init = self.class_ast_init
+            elif category == "attribute":
+                ast_init = self.attribute_ast_init
+            else: 
+                ast_init = self.variable_ast_init
             source_range = ast_init.parseJavaFile(file_path, start_name, identifier) 
+            
+        if multi_location_list or len(source_range) > 1:
+            if multi_location_list:
+                multi_location_list.insert(0, file_number)
+            else:
+                multi_location_list.append([file_number, source_range, source_commit, file_path])
+
+            self.multi_location_infos.append(multi_location_list)
 
         converted_json_str_input = { 
             "url":  repo_url,
@@ -129,27 +141,20 @@ class DataExtractionAndConversion():
             source_results = get_region_base_info(h["elementNameBefore"], category)
             target_results = get_region_base_info(h["elementNameAfter"], category)
 
-            if category in self.partial_categories:
-                # _info shows the source element, like method definition
-                source_additional_info, source_line_number = source_results
-                target_additional_info, target_line_number = target_results
-                source_info = source_additional_info
-                target_info = target_additional_info
-            elif category == "block":
+            if category == "block":
                 source_info, source_line_number, source_end_line_number = source_results
                 target_info, target_line_number, target_end_line_number = target_results
                 source_additional_info = source_end_line_number
                 target_additional_info = target_end_line_number
-            else: # method, class
+            else: 
                 # _info for reference, it includes:
-                #   method/class name, accessors, parameters, line numbers(only for class)
+                # element name, accessors, parameters, line numbers
                 source_info = source_results
                 target_info = target_results
                 source_range, target_range = self.analyze_histories_group_2(repo_dir, \
                         h, source_info, target_info, category)
             
-            if category not in self.group_2:
-                # attribute, variable and block
+            if category in self.group_1: # block
                 source_range, target_range = self.analyze_histories_group_1(repo_dir, \
                         h, source_line_number, target_line_number, \
                         source_additional_info, target_additional_info, file_number)
@@ -219,22 +224,26 @@ class DataExtractionAndConversion():
         return source_range , target_range
     
     def analyze_histories_group_2(self, repo_dir, h, source_reference, target_reference, category):
-        # group 2: method and class
         repo = Repo(repo_dir)
-
+        
         '''
         the parameters to start AST are:
-            file_path,
-            class name, or method name,                 --> generalized as element_name in current function
-            class accessor, or method parameter types.  --> generalized as identifier in current function
+         * file_path,
+         * class name, method name, variable name, or attribute name    --> generalized as element_name in current function
+         * class accessor, method parameter types, or variable/attribute line number.  --> generalized as identifier in current function
         '''
 
         source_element_name, source_identifier = source_reference
         target_element_name, target_identifier = target_reference
 
-        ast_init = self.class_ast_init
         if category == "method":
             ast_init = self.method_ast_init
+        elif category == "class":
+            ast_init = self.class_ast_init
+        elif category == "attribute":
+            ast_init = self.attribute_ast_init
+        else: 
+            ast_init = self.variable_ast_init
 
         source_range = None
         parent_commit = h["parentCommitId"]
@@ -243,24 +252,36 @@ class DataExtractionAndConversion():
             source_file_path = join(repo_dir, h["elementFileBefore"])
             if os.path.exists(source_file_path):
                 source_range = ast_init.parseJavaFile(source_file_path, source_element_name, source_identifier)
-            
+   
         repo.git.checkout(h["commitId"], force=True)
         target_file_path = join(repo_dir, h["elementFileAfter"])  
         target_range = ast_init.parseJavaFile(target_file_path, target_element_name, target_identifier)
 
+
         return source_range , target_range
 
     def recursive_get_json_files(self, data_folder, category, subfolder):
-        if (category == "method" and not self.method_ast_init) or (category == "class" and not self.class_ast_init) :
+        # initialize the parser
+        if (category == "method" and not self.method_ast_init) \
+                or (category == "class" and not self.class_ast_init) \
+                or (category == "variable" and not self.variable_ast_init) \
+                or (category == "attribute" and not self.attribute_ast_init):
             jar_path = "/home/huimin/projects/anything_tracker_related/AnythingTracker/jparser.jar"
             jpype.startJVM(jpype.getDefaultJVMPath(), "-ea", "-Djava.class.path=%s" % jar_path)
             if category == "method":
                 parser_obj = jpype.JClass("jparser.JavaMethodParser")
                 self.method_ast_init = parser_obj()
-            else:
+            elif category == "class":
                 parser_obj = jpype.JClass("jparser.JavaClassParser")
                 self.class_ast_init = parser_obj()
+            elif category == "variable":
+                parser_obj = jpype.JClass("jparser.JavaVariableParser")
+                self.class_ast_init = parser_obj()
+            else:
+                parser_obj = jpype.JClass("jparser.JavaAttributeParser")
+                self.class_ast_init = parser_obj()
 
+        # recursive to convert data
         files = os.listdir(data_folder)
         i = 0
         for file in files:
