@@ -4,12 +4,11 @@ import json
 import os
 from os.path import join
 
+from anything_tracker.ELementCategory import ELementCategory
 from anything_tracker.SearchLinesToCandidateRegion import get_character_length_of_lines
 from anything_tracker.measurement.CharacterDistanceAndOverlapScore import calculate_overlap
 from anything_tracker.measurement.MeasureAnnotatedData import calculation_helper
 from anything_tracker.utils.ReadFile import checkout_to_read_file
-from anything_tracker.multiple.track_histories.TrackHistoryPairs import get_category_subfolder_info
-
 
 def load_json_file(file):
     with open(file) as f:
@@ -203,10 +202,10 @@ class MeasureProgramElement():
 
 if __name__=="__main__":
     oracle_file_folder = join("data", "converted_data")
-    category_subset_pairs = get_category_subfolder_info(oracle_file_folder)
-    # category_subset_pairs = [["method", "training"]]
-    for category, subset in category_subset_pairs:
-        detailed_oracle_file_folder = join(oracle_file_folder, category, subset)
-        results_dir = join("data", "results", "tracked_maps", "element", f"mapped_regions_{category}_{subset}")
-        results_csv_file = join("data", "results", "measurement_results", "element", f"measurement_results_metrics_{category}_{subset}.csv")
+    categories = ELementCategory().categories
+    # categories = ["variable"]
+    for category in categories:
+        detailed_oracle_file_folder = join(oracle_file_folder, category)
+        results_dir = join("data", "results", "tracked_maps", "element", f"mapped_regions_{category}")
+        results_csv_file = join("data", "results", "measurement_results", "element", f"measurement_results_metrics_{category}.csv")
         MeasureProgramElement(detailed_oracle_file_folder, results_dir, results_csv_file).run()

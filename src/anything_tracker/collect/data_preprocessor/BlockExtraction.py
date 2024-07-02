@@ -81,11 +81,11 @@ class BlockExtraction():
                 
     def main(self):
         # prepare repositories
-        # repo_urls_file = join("data", "results", "analysis_on_codetracker_data", "source_repos_java.txt")
-        # source_repo_init = SourceRepos(repo_urls_file, repo_parent_folder)
-        # repo_dirs = source_repo_init.get_repo_dirs()
-        # source_repo_init.checkout_latest_commits()
-        # print(f"Found {len(repo_dirs)} repositories.")
+        repo_urls_file = join("data", "results", "analysis_on_codetracker_data", "source_repos_java.txt")
+        source_repo_init = SourceRepos(repo_urls_file, repo_parent_folder)
+        repo_dirs = source_repo_init.get_repo_dirs()
+        source_repo_init.checkout_latest_commits()
+        print(f"Found {len(repo_dirs)} repositories.")
 
         self.recursive_get_json_files(self.data_folder)
         

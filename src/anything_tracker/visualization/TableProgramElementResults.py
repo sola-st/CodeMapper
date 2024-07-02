@@ -2,7 +2,7 @@ import csv
 import json
 from os import makedirs
 from os.path import join
-from anything_tracker.multiple.track_histories.TrackHistoryPairs import get_category_subfolder_info
+from anything_tracker.ELementCategory import ELementCategory
 from anything_tracker.visualization.TableAnnoSuppressionResults import get_data
 
 
@@ -119,20 +119,19 @@ def main():
     # suppression data
     common = join("data", "results", "ase", "measurement_results", "element")
     file_name_base = "measurement_results_element"
-    oracle_file_folder = join("data", "converted_data")
-    category_subset_pairs = get_category_subfolder_info(oracle_file_folder)
-
+    categories = ELementCategory().categories
     overall_data = []
     file_list_1 = []
     file_list_2 = []
 
     elements = []
     i = 1
-    for element, subset in category_subset_pairs:
+    categories = ["variable"]
+    for element in categories:
         file_list = [
-                join(common, "line", f"{file_name_base}_{element}_{subset}.csv"),
-                join(common, "word", f"{file_name_base}_{element}_{subset}.csv"),
-                join(common, "at", f"{file_name_base}_{element}_{subset}.csv")]
+                join(common, "line", f"{file_name_base}_{element}.csv"),
+                join(common, "word", f"{file_name_base}_{element}.csv"),
+                join(common, "at", f"{file_name_base}_{element}.csv")]
         if i % 2 != 0:
             file_list_1 = file_list
         else:

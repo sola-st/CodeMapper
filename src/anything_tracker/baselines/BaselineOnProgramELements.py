@@ -1,9 +1,9 @@
 import json
+from anything_tracker.ELementCategory import ELementCategory
 from anything_tracker.baselines.BaselineTracker import main as AnythingTracker
 from anything_tracker.experiments.SourceRepos import SourceRepos
 from os.path import join
 from os import makedirs, listdir
-from anything_tracker.multiple.track_histories.TrackHistoryPairs import get_category_subfolder_info
 
 
 class BaselineOnProgramELements():
@@ -18,16 +18,16 @@ class BaselineOnProgramELements():
         
     def get_meta_inputs(self):
         parameters = []
-        category_subset_pairs = get_category_subfolder_info(self.oracle_history_parent_folder)
-        # category_subset_pairs = [["variable", "training"]]
-        for category, subset in category_subset_pairs: # eg., method, test
-            time_file_to_write = join(self.time_file_folder, f"execution_time_{category}_{subset}_{self.level}.csv")
-            subset_folder = join(self.oracle_history_parent_folder, category, subset)
+        categories = ELementCategory().categories
+        # categories = ["variable"]
+        for category in categories: 
+            time_file_to_write = join(self.time_file_folder, f"execution_time_{category}_{self.level}.csv")
+            subset_folder = join(self.oracle_history_parent_folder, category)
             subset_folder_len = len(listdir(subset_folder))
-            subset_result_dir = join(f"{self.result_dir_parent}_{category}_{subset}")
+            subset_result_dir = join(f"{self.result_dir_parent}_{category}")
             for num_folder in range(subset_folder_len):
                 num_folder_str = str(num_folder)
-                history_file_path = join(self.oracle_history_parent_folder, category, subset,\
+                history_file_path = join(self.oracle_history_parent_folder, category,\
                         num_folder_str, "expect_full_histories.json")
 
                 with open(history_file_path) as f:

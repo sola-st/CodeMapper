@@ -1,28 +1,10 @@
 import json
 import os
+from anything_tracker.ELementCategory import ELementCategory
 from anything_tracker.multiple.track_histories.AnythingTrackerOnHistoryPairs import main as AnythingTrackerOnHistoryPairs
 from anything_tracker.SpecifyToTurnOffTechniques import SpecifyToTurnOffTechniques
 from anything_tracker.experiments.SourceRepos import SourceRepos
-from os.path import join, isdir,exists
-
-
-def get_category_subfolder_info(parent_folder):
-    category_subset_pairs = []
-    subfolders = ["test", "training"]
-
-    folders = os.listdir(parent_folder)
-    for folder in folders:
-        category_folder = join(parent_folder, folder)
-        if isdir(category_folder):
-            exists_num = 0
-            for f in subfolders:
-                if exists(join(category_folder, f)) == True:
-                    exists_num+=1
-            if exists_num == 2:
-                for f in subfolders:
-                    category_subset_pairs.append([folder, f])
-
-    return category_subset_pairs
+from os.path import join
 
 
 class TrackConvertedData():
@@ -43,16 +25,16 @@ class TrackConvertedData():
         Each inner list contains repo_dir, base_commit, target_commit, file_path, and interest_character_range.
         """
         parameters = []
-        category_subset_pairs = get_category_subfolder_info(self.oracle_history_parent_folder)
-        # category_subset_pairs = [["method", "test"]]
-        for category, subset in category_subset_pairs: # eg., method, test
-            time_file_to_write = join(self.time_file_folder, f"execution_time_{category}_{subset}.csv")
-            subset_folder = join(self.oracle_history_parent_folder, category, subset)
+        categories = ELementCategory().categories
+        # categories = ["variable"]
+        for category in categories: 
+            time_file_to_write = join(self.time_file_folder, f"execution_time_{category}.csv")
+            subset_folder = join(self.oracle_history_parent_folder, category)
             subset_folder_len = len(os.listdir(subset_folder))
-            subset_result_dir = join(f"{self.result_dir_parent}_{category}_{subset}")
+            subset_result_dir = join(f"{self.result_dir_parent}_{category}")
             for num_folder in range(subset_folder_len):
                 num_folder_str = str(num_folder)
-                history_file_path = join(self.oracle_history_parent_folder, category, subset,\
+                history_file_path = join(self.oracle_history_parent_folder, category,
                         num_folder_str, "expect_full_histories.json")
 
                 with open(history_file_path) as f:
@@ -143,7 +125,7 @@ if __name__ == "__main__":
     os.makedirs(time_file_folder, exist_ok=True)
     # context_line_num >=0.
     # 0 means no contexts, >0 means get the corresponding number of lines before and after respectively as contexts
-    context_line_num = 0 
+    context_line_num = 2 
     # 3 techniques can be optionally turned off, support turn off one or multiple at a time.
     # 1. move detection  2. search matches  3. fine-grain borders
     turn_off_techniques = [False, False, False] # change the boolean to True to turn off the corresponding technique.

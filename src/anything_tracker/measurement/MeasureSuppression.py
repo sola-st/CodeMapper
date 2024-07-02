@@ -55,8 +55,11 @@ class MeasureSuppression():
     def count_no_change(self):
         file_no_change_num = self.change.count("<WHOLE_FILE_NO_CHANGE>")
         line_no_change_num = len([c for c in self.change if "<LOCATION_HELPER:DIFF_NO_CHANGE>" in c])
+        file_deleted_num = len([c for c, match in zip(self.change, self.is_matched_set) \
+                                if "no target file (deleted)" == c and match == "Y"])
         no_change_dict = {
             "file_no_change": file_no_change_num,
+            "file_deleted": file_deleted_num,
             "line_no_change": line_no_change_num
         }
         no_change_str = json.dumps(no_change_dict)
