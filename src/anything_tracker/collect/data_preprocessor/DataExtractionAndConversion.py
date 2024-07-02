@@ -39,14 +39,17 @@ class DataExtractionAndConversion():
 
         self.multi_location_infos = [["Folder number", "Multi-location", "Commit", "File path"]]
         self.write_mode = "w"
+        self.category_subset_count = 0 # count how many subsets are done, if it is 2, the category processing  is done.
+        self.element_i = 0 # overall index for one lind of element, e.g., for both method training and test set.
 
-    def convert_data(self, file_number, json_file, category, subfolder):
+    def convert_data(self, json_file, category):
         # Convert data to extract what AnythingTracker needs. 
         with open(json_file) as f:
             data = json.load(f)
         
         repo_name = data["repositoryWebURL"].split("/")[-1].replace(".git", "")
         repo_dir = join(self.repo_parent_folder, repo_name)
+        file_number = self.element_i
 
         # Analyze and write expected histories
         change_histories = data["expectedChanges"]
@@ -55,10 +58,7 @@ class DataExtractionAndConversion():
                 self.analyze_histories(repo_dir, change_histories, category, repo_url, file_number)
 
         if converted_json_str_expect: # equal to if expect_simple, they are always in the same status: exists or not.
-            if subfolder: 
-                output_dir = join(self.output_folder, category, subfolder, str(file_number))
-            else:
-                output_dir = join(self.output_folder, category, str(file_number))
+            output_dir = join(self.output_folder, category, str(file_number))
             os.makedirs(output_dir, exist_ok=True)
 
             file_for_expect = join(output_dir, "expect_full_histories.json")
@@ -178,6 +178,11 @@ class DataExtractionAndConversion():
 
         source_element_name, source_identifier = source_reference
         target_element_name, target_identifier = target_reference
+        try: # transfer the line numbers to int. (variable and attribute)
+            source_identifier = int(source_identifier)
+            target_identifier = int(target_identifier)
+        except:
+            pass
 
         if category == "method":
             ast_init = self.method_ast_init
@@ -202,13 +207,18 @@ class DataExtractionAndConversion():
         target_range = ast_init.parseJavaFile(target_file_path, target_element_name, target_identifier)
 
         multi_location_list = []
-        if len(source_range) > 1:
-            multi_location_list.append(f"{category}_{file_number}", source_range, parent_commit, source_file_path)
-        if len(target_range) > 1:
-            multi_location_list.append(f"{category}_{file_number}", source_range, child_commit, target_file_path)
+        if source_range and len(source_range) > 1:
+            multi_location_list.append([f"{category}_{file_number}", source_range, parent_commit, source_file_path])
+        if target_range and len(target_range) > 1:
+            multi_location_list.append([f"{category}_{file_number}", source_range, child_commit, target_file_path])
         if multi_location_list:
             self.multi_location_infos.extend(multi_location_list)
             source_range == target_range == "drop_current_data"
+        
+        if source_range:
+            source_range = source_range[0]
+        if target_range:
+            target_range = target_range[0]
 
         return source_range , target_range
 
@@ -228,22 +238,20 @@ class DataExtractionAndConversion():
                 self.class_ast_init = parser_obj()
             elif category == "variable":
                 parser_obj = jpype.JClass("jparser.JavaVariableParser")
-                self.class_ast_init = parser_obj()
+                self.variable_ast_init = parser_obj()
             else:
                 parser_obj = jpype.JClass("jparser.JavaAttributeParser")
-                self.class_ast_init = parser_obj()
+                self.attribute_ast_init = parser_obj()
 
         # recursive to convert data
         files = os.listdir(data_folder)
-        i = 0
         for file in files:
             file_path = os.path.join(data_folder, file)
             if os.path.isfile(file_path):
                 if not file.startswith("jgit-"):
-                    source_json_str = self.convert_data(i, file_path, category, subfolder)
-                    print(f"{category}-{subfolder} #{i}: {file_path} done.")
-                    self.overall_source_json_strs.append(source_json_str)
-                    i += 1
+                    self.convert_data(file_path, category)
+                    print(f"{category} #{self.element_i}: {file_path} done.")
+                    self.element_i += 1
             elif os.path.isdir(file_path):
                 if file != "test" and file != "training":
                     category = file
@@ -255,14 +263,18 @@ class DataExtractionAndConversion():
                     end_time = time.time()
                     print(f"{category}-{subfolder}: {round((end_time - self.start_time), 3)} seconds.\n")
 
-                    # all multi-location cases in one file
-                    if len(self.multi_location_infos) > 1:
-                        file_for_multi_location = join(self.output_folder, f"converted_data_{category}_{subfolder}_multi.csv")
+                    # all multi-location cases in one file, write once when a subset is done.
+                    if (len(self.multi_location_infos) > 1 and self.write_mode == "w") or self.multi_location_infos:
+                        file_for_multi_location = join(self.output_folder, f"converted_data_multi_location.csv")
                         with open(file_for_multi_location, self.write_mode) as f:
                             writer = csv.writer(f)
                             writer.writerows(self.multi_location_infos)
-                        self.multi_location_infos = [["Folder number", "Multi-location", "Commit", "File path"]]
                         self.write_mode = "a"
+                    if self.category_subset_count < 2:
+                        self.category_subset_count +=1
+                    else:
+                        assert self.category_subset_count == 2
+                        self.element_i = 0 # ready to start for the next element
 
     def main(self):
         self.start_time = time.time()

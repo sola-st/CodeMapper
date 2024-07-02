@@ -27,6 +27,7 @@ class MeasureSuppression():
         self.candidate_nums = ["Number of Candidates"]
         self.target_region_indices = ["Target region index"]
         self.predicted_commits = ["Predicted commits"]
+        self.change = ["Change operation"]
         self.expected = ["Expected ranges"]
         self.predicted = ["Predicted ranges"]
         self.is_matched_set = ["Range matches"]
@@ -50,6 +51,16 @@ class MeasureSuppression():
         self.f1s.append(f1)
         self.is_matched_set.append(compare_results)
         self.notes.append(note)
+
+    def count_no_change(self):
+        file_no_change_num = self.change.count("<WHOLE_FILE_NO_CHANGE>")
+        line_no_change_num = len([c for c in self.change if "<LOCATION_HELPER:DIFF_NO_CHANGE>" in c])
+        no_change_dict = {
+            "file_no_change": file_no_change_num,
+            "line_no_change": line_no_change_num
+        }
+        no_change_str = json.dumps(no_change_dict)
+        self.change.append(no_change_str)
 
     def count_exact_matches(self):
         y_num = self.is_matched_set.count("Y")
@@ -82,6 +93,7 @@ class MeasureSuppression():
         self.dists.append(char_dist_str)
 
     def compute_to_write_measurement(self):
+        self.count_no_change() # 0
         self.count_exact_matches() # 1
         self.character_distance_computation() # 2
         
@@ -112,7 +124,7 @@ class MeasureSuppression():
 
         # write results
         results = zip_longest(self.indices, self.metrics, self.candidate_nums, self.target_region_indices, \
-                self.predicted_commits, self.expected, self.predicted, self.is_matched_set, \
+                self.predicted_commits, self.change, self.expected, self.predicted, self.is_matched_set, \
                 self.pre_dist, self.post_dist, self.dists, self.recalls, self.precisions, self.f1s, self.notes)
         self.write_results(results)
 
@@ -191,6 +203,7 @@ class MeasureSuppression():
                 self.candidate_nums.append(region["all_candidates_num"])
                 self.target_region_indices.append(region["index"])
                 self.predicted_commits.append(region_target_commit)
+                self.change.append(region["kind"])
                 self.expected.append(expected_range)
                 self.predicted.append(region_target_range)
 
