@@ -9,7 +9,6 @@ from anything_tracker.AnythingTrackerUtils import (
 )
 from anything_tracker.CandidateRegion import CandidateRegion, get_candidate_region_range
 from anything_tracker.CharacterRange import CharacterRange
-from anything_tracker. ComputeTargetRegion import ComputeTargetRegion
 from anything_tracker.baselines.CombineToCandidateRegion import CombineToCandidateRegion
 from anything_tracker.baselines.LineCharacterGitDiffToCandidateRegion import LineCharacterGitDiffToCandidateRegion
 from anything_tracker.multiple.GetTargetFilePath import get_target_file_path
@@ -46,7 +45,7 @@ class BaselineTracker():
 
         self.source_region_characters = []
         # return the following values
-        self.dist_based_target_str_list = []
+        self.target_json_str_list = []
 
         # record execution time
         # "candidate_numbers", "compute_candidates_executing_time", "select_target_executing_time"
@@ -72,7 +71,7 @@ class BaselineTracker():
         # get candidates from git diff
         diff_candidates, diff_hunk_lists = LineCharacterGitDiffToCandidateRegion(self).run_git_diff()
         if diff_candidates:
-            depulicated_diff_candidates, regions = deduplicate_candidates_baseline(diff_candidates, regions) # True
+            depulicated_diff_candidates, regions = deduplicate_candidates_baseline(diff_candidates, regions)
             candidate_regions.extend(depulicated_diff_candidates)
         # search to map characters
         for iter in diff_hunk_lists:
@@ -85,13 +84,7 @@ class BaselineTracker():
         return candidate_regions
 
     def run(self):
-        ''' 
-        Step 1: Get all candidate candidates
-        * 1.1 git diff changed hunks
-        * 1.2 exactly mapped characters
-        * 1.3 ...
-        '''
-       
+        # Get all diff-based candidate candidates
         first_phrase_start_time = time.time()
         # create output folder
         os.makedirs(join(self.results_dir, self.iteration_index), exist_ok=True)
@@ -104,33 +97,29 @@ class BaselineTracker():
 
         # phase 1: compute candidate regions
         candidate_regions = self.compute_candidate_regions()
-        print(f"Iteration #{self.iteration_index}")
+        # print(f"Iteration #{self.iteration_index}")
         first_phrase_end_time = time.time()
-        first_phrase_executing_time = round((first_phrase_end_time - first_phrase_start_time), 3)
+        first_phrase_executing_time = f"{(first_phrase_end_time - first_phrase_start_time):.5f}"
         self.one_round_time_info[1] = first_phrase_executing_time
-        print(f"Executing time (1st phase): {first_phrase_executing_time} seconds")
+        print(f"Executing time: {first_phrase_executing_time} seconds")
         if candidate_regions == [] and self.target_file_lines:
             print(f"--No candidate regions.\n  {self.repo_dir}\n  {self.source_file_path}\n  {self.interest_character_range.four_element_list}\n")
             self.one_round_time_info[2] = 0
-            # return self.dist_based_target_str_list, self.one_round_time_info
             # create an "null" candidate region
             candidate_region_character_range = CharacterRange([0, 0, 0, 0])
             target_characters = None
             marker = "no candidate regions"
             null_region = CandidateRegion(self.source_character_range, candidate_region_character_range, target_characters, marker)
             candidate_regions.append(null_region)
-        
-        # write source character to json files
-        source_region_characters_str = "".join(self.source_region_characters)
 
         # write the candidates to json files
         self.record_candiates(candidate_regions)
         # phase 2: compute target region
         # accumulate target, write to json file later.
-        self.compute_get_target_region_info(candidate_regions, source_region_characters_str)
+        self.compute_get_target_region_info(candidate_regions)
 
         self.one_round_time_info[0] = len(candidate_regions)
-        return self.dist_based_target_str_list, self.one_round_time_info
+        return self.target_json_str_list, self.one_round_time_info
     
     def record_candiates(self, candidate_regions):
         output_maps = []
@@ -154,77 +143,33 @@ class BaselineTracker():
         with open(candidate_json_file, "w") as ds:
             json.dump(output_maps, ds, indent=4, ensure_ascii=False)
 
-    def compute_get_target_region_info(self, candidate_regions, source_region_characters_str):
-        # phase 2: compute candidate regions starts.
-        second_phrase_start_time = time.time()
-        # -- Select top-1 candidate from multiple candidates
-        results_set_dict = {}
-        
-        second_phrase_executing_time = 0
-        if len(candidate_regions) == 1:
-            # phase 2: compute candidate regions ends.
-            print(f"Executing time (2nd phase): 1 candidate, {second_phrase_executing_time} seconds")
-            target_candidate = candidate_regions[0]
-            results_set_dict.update({"dist_based": { 
-                "target_candidate_edit_distance": "Unknown",
-                "target_candidate_index" : 0
-                }})
+    def compute_get_target_region_info(self, candidate_regions):
+        self.one_round_time_info[2] = 0
+        assert len(candidate_regions) == 1
+        # only 1 candidate and it's the target
+        target_region = candidate_regions[0]
+        target_range: list = target_region.candidate_region_character_range.four_element_list
+        if target_range == [0, 0, 0, 0]:
+            target_range = None
         else:
-            candiate_str_list = []
-            source_str = ""
+            target_range = str(target_range)
 
-            for candidate in candidate_regions:
-                # without context
-                source_str = source_region_characters_str
-                candidate_characters = candidate.character_sources
-                candiate_str_list.append(candidate_characters)
-                    
-            assert candiate_str_list != []
-            if len(candiate_str_list) > 1:
-                results_set_dict = ComputeTargetRegion(source_str, candiate_str_list).run()
-                # phase 2: compute candidate regions ends.
-                second_phrase_end_time = time.time()
-                second_phrase_executing_time = round((second_phrase_end_time - second_phrase_start_time), 3)
-                print(f"Executing time (2nd phase): {second_phrase_executing_time} seconds")
-            else: # == 1
-                second_phrase_end_time = time.time()
-                second_phrase_executing_time = round((second_phrase_end_time - second_phrase_start_time), 3)
-                print(f"Executing time (2nd phase): line deduplicate, 1 candidate, {second_phrase_executing_time} seconds")
-                idx = 0
-                target_candidate = candidate_regions[idx]
-                results_set_dict.update({"dist_based": { 
-                    "target_candidate_edit_distance": "Unknown",
-                    "target_candidate_index" : idx
-                }})
-
-        self.one_round_time_info[2] = second_phrase_executing_time
-
-        for key, target_dict in results_set_dict.items():
-            target_candidate = candidate_regions[target_dict["target_candidate_index"]]
-            target_range: list = target_candidate.candidate_region_character_range.four_element_list
-            if target_range == [0, 0, 0, 0]:
-                target_range = None
-            else:
-                target_range = str(target_range)
-
-            target_json = {
-                "iteration": self.iteration_index,
-                "version" : key,
-                "source_commit": self.base_commit,
-                "target_commit": self.target_commit,
-                "source_file": self.source_file_path,
-                "target_file": self.target_file_path,
-                "source_range": str(self.source_character_range),
-                "target_range": target_range,
-                "kind": target_candidate.marker,
-                "levenshtein_distance" : target_dict["target_candidate_edit_distance"],
-                "index": target_dict["target_candidate_index"], 
-                "all_candidates_num": len(candidate_regions)
-            }
-            self.dist_based_target_str_list.append(target_json)
+        target_json = {
+            "iteration": self.iteration_index,
+            "source_commit": self.base_commit,
+            "target_commit": self.target_commit,
+            "source_file": self.source_file_path,
+            "target_file": self.target_file_path,
+            "source_range": str(self.source_character_range),
+            "target_range": target_range,
+            "kind": target_region.marker,
+            "index": 0, 
+            "all_candidates_num": len(candidate_regions)
+        }
+        self.target_json_str_list.append(target_json)
 
 
-def main(*args):
+def main(*args): # for java elements
     level, repo_dir, source_commit, source_file_path, target_commit, source_range, \
             results_dir, time_file_to_write = args
     dist_based = []
@@ -242,7 +187,6 @@ def main(*args):
         # the file was deleted
         target_json = {
             "iteration": current_history_pair_idx,
-            "version" : "dist_based",
             "source_commit": source_commit,
             "target_commit": target_commit,
             "source_file": source_file_path,
@@ -250,7 +194,6 @@ def main(*args):
             "source_range": str(source_range),
             "target_range": None,
             "kind": "no target file (deleted)",
-            "levenshtein_distance" : None,
             "index": 0, 
             "all_candidates_num": 1
         }
@@ -285,7 +228,6 @@ def main_suppression_annodata(*args): # can be used to start tracking annotation
         # the file was deleted
         target_json = {
             "iteration": ground_truth_index,
-            "version" : "dist_based",
             "source_commit": source_commit,
             "target_commit": target_commit,
             "source_file": source_file_path,
@@ -293,7 +235,6 @@ def main_suppression_annodata(*args): # can be used to start tracking annotation
             "source_range": str(source_range),
             "target_range": None,
             "kind": "no target file (deleted)",
-            "levenshtein_distance" : None,
             "index": 0, 
             "all_candidates_num": 1
         }

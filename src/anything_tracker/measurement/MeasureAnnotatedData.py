@@ -23,7 +23,6 @@ class MeasureAnnotatedData():
         self.results_csv_file = results_csv_file
 
         self.indices = ["Ground truth index"]
-        self.metrics = ["Metric"]
         self.candidate_nums = ["Number of Candidates"]
         self.target_region_indices = ["Target region index"]
         self.predicted_commits = ["Predicted commits"]
@@ -109,7 +108,7 @@ class MeasureAnnotatedData():
         self.notes.append(f"{diff_path_str}\npath delete count: {len(file_path_extras_del)}\nLines: {refer_csv_line_numbers_del}")
 
         # write results
-        results = zip_longest(self.indices, self.metrics, self.candidate_nums, self.target_region_indices, \
+        results = zip_longest(self.indices, self.candidate_nums, self.target_region_indices, \
                 self.predicted_commits, self.change, self.expected, self.predicted, self.is_matched_set, \
                 self.pre_dist, self.post_dist, self.dists, self.recalls, self.precisions, self.f1s, self.notes)
         self.write_results(results)
@@ -192,7 +191,6 @@ class MeasureAnnotatedData():
                     self.indices[-1] = f"{repo} - {i}"
                 else: 
                     self.indices.append(i)
-                self.metrics.append(region["version"])
                 self.candidate_nums.append(region["all_candidates_num"])
                 self.target_region_indices.append(region["index"])
                 self.predicted_commits.append(expected_commit)
@@ -205,8 +203,8 @@ class MeasureAnnotatedData():
 
 if __name__=="__main__":
     oracle_file = join("data", "annotation", "annotations_100.json")
-    results_dir = join("data", "results", "tracked_maps", "annotation", "mapped_regions_annodata_update")
-    results_csv_file_folder = join("data", "results", "measurement_results", "annotation")
+    results_dir = join("data", "results", "tracked_maps", "annodata", "mapped_regions_annodata")
+    results_csv_file_folder = join("data", "results", "measurement_results", "annodata")
     os.makedirs(results_csv_file_folder, exist_ok=True)
-    results_csv_file = join(results_csv_file_folder, "measurement_results_metrics_anno.csv")
+    results_csv_file = join(results_csv_file_folder, "measurement_results_metrics_annodata.csv")
     MeasureAnnotatedData(oracle_file, results_dir, results_csv_file).run()

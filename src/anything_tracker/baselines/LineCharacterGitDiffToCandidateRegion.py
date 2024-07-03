@@ -26,7 +26,7 @@ class LineCharacterGitDiffToCandidateRegion():
         self.characters_start_idx = self.interest_character_range.characters_start_idx
         self.characters_end_idx = self.interest_character_range.characters_end_idx
         
-    def run_git_diff(self):
+    def run_git_diff(self, algorithm = "default"):
         '''
         The self.target_commit refers to a new version where you want to know where the elements you're interested in are located. 
         It can be newer or older than base_commits.
@@ -39,73 +39,50 @@ class LineCharacterGitDiffToCandidateRegion():
         '''
 
         # start to get changed hunks with "git diff" command
-        diff_results = self.get_changed_hunks_from_different_algorithms()
+        diff_result = self.get_changed_hunks()
         candidate_regions = []
         regions = []
         diff_hunk_lists = []
-        for d in diff_results:
-            algorithm = d["algorithm"]
-            diff_result = d["diff_result"]
-            sub_candidate_regions, sub_top_diff_hunks, sub_middle_diff_hunks, sub_bottom_diff_hunks = \
-                    self.diff_result_to_target_changed_hunk(algorithm, diff_result)
-            # empty the hunks for current round
-            self.top_diff_hunks = set()
-            self.middle_diff_hunks = set()
-            self.bottom_diff_hunks = set()
+        
+        sub_candidate_regions, sub_top_diff_hunks, sub_middle_diff_hunks, sub_bottom_diff_hunks = \
+                self.diff_result_to_target_changed_hunk(algorithm, diff_result)
+        # empty the hunks for current round
+        self.top_diff_hunks = set()
+        self.middle_diff_hunks = set()
+        self.bottom_diff_hunks = set()
 
-            for sub in sub_candidate_regions:
-                r = sub.candidate_region_character_range.four_element_list
-                if regions == []:
-                    regions.append(r)
+        for sub in sub_candidate_regions:
+            r = sub.candidate_region_character_range.four_element_list
+            if regions == []:
+                regions.append(r)
+                candidate_regions.append(sub)
+            else:
+                if not r in regions:
                     candidate_regions.append(sub)
-                else:
-                    if not r in regions:
-                        candidate_regions.append(sub)
-            # make sure the sub_middle_diff_hunks are in order (incresed)
-            sorted_sub_middle_diff_hunks = sorted(list(sub_middle_diff_hunks), key=lambda obj: obj.base_start_line_number)
-            diff_hunk_lists.append([algorithm, list(sub_top_diff_hunks), sorted_sub_middle_diff_hunks, list(sub_bottom_diff_hunks)])
+        # make sure the sub_middle_diff_hunks are in order (incresed)
+        sorted_sub_middle_diff_hunks = sorted(list(sub_middle_diff_hunks), key=lambda obj: obj.base_start_line_number)
+        diff_hunk_lists.append([algorithm, list(sub_top_diff_hunks), sorted_sub_middle_diff_hunks, list(sub_bottom_diff_hunks)])
         return candidate_regions, diff_hunk_lists
 
-    def get_changed_hunks_from_different_algorithms(self):
-        '''
-        git diff provides 4 different algorithms to run the commands:
-            --diff-algorithm={patience|minimal|histogram|myers}
-
-        default, myers: The basic greedy diff algorithm. Currently, this is the default.
-        minimal: Spend extra time to make sure the smallest possible diff is produced.
-        patience: Use "patience diff" algorithm when generating patches.
-        histogram: This algorithm extends the patience algorithm to "support low-occurrence common elements".
-
-        '''
-        diff_results = [] # to store all the 4 versions og git diff results
-        dicts = []
-        diff_algorithms = ["default"]
+    def get_changed_hunks(self): 
+        # run only the default algorithm
         encodings_to_try = ['utf-8', 'latin-1', 'cp1252']
-        # The \w+ pattern is a regular expression that matches one or more word characters (letters, digits, or underscores). 
-        # -w to ignore whitespaces. It's add to solve a special case where only more or less whitespace in a line.
-        # suffix = f"{self.base_commit} {self.target_commit} -- {self.source_file_path}"
         suffix = f"{self.base_commit}:{self.source_file_path} {self.target_commit}:{self.target_file_path}"
-        for algorithm in diff_algorithms:
-            prefix = f"git diff --diff-algorithm={algorithm} --ignore-space-at-eol --color --unified=0"
-            if self.level == "line":
-                command = f"{prefix} {suffix}"
-            else:
-                command = f"{prefix} --word-diff {suffix}"
-            for encoding in encodings_to_try:
-                try:
-                    result = subprocess.run(command, cwd=self.repo_dir, shell=True, encoding=encoding,
-                            stdout = subprocess.PIPE, universal_newlines=True)
-                    diff_result = result.stdout
-                    break
-                except UnicodeDecodeError:
-                    print(f"Failed to decode using, {encoding}. Subprocess")
-            if not diff_result in dicts:
-                dicts.append(diff_result)
-                diff_results.append({
-                    "algorithm": algorithm,
-                    "diff_result" : diff_result
-                })
-        return diff_results
+        prefix = f"git diff --ignore-space-at-eol --color --unified=0"
+        if self.level == "line":
+            command = f"{prefix} {suffix}"
+        else:
+            command = f"{prefix} --word-diff {suffix}"
+        for encoding in encodings_to_try:
+            try:
+                result = subprocess.run(command, cwd=self.repo_dir, shell=True, encoding=encoding,
+                        stdout = subprocess.PIPE, universal_newlines=True)
+                diff_result = result.stdout
+                break
+            except UnicodeDecodeError:
+                print(f"Failed to decode using, {encoding}. Subprocess")
+
+        return diff_result
 
     def diff_result_to_target_changed_hunk(self, algorithm, diff_result):
         '''

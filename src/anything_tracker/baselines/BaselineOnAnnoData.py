@@ -79,10 +79,10 @@ class BaselineOnAnnoData():
 
 
 if __name__ == "__main__":
-    result_dir_parent = join("data", "results", "tracked_maps", "annotation", "mapped_regions_annodata_line")
+    level = "word"
+    result_dir_parent = join("data", "results", "tracked_maps", "annodata", f"mapped_regions_annodata_{level}")
     oracle_file = join("data", "annotation", "annotations_100.json")
-    time_file_folder = join("data", "results", "execution_time", "annotation")
+    time_file_folder = join("data", "results", "execution_time", "annodata")
     makedirs(time_file_folder, exist_ok=True)
-    time_file_to_write = join(time_file_folder, "execution_time_baseline_line.csv")
-    level = "line"
+    time_file_to_write = join(time_file_folder, f"execution_time_baseline_{level}.csv")
     BaselineOnAnnoData(oracle_file, result_dir_parent, time_file_to_write, level).run()
