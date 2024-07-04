@@ -40,13 +40,13 @@ def main_baseline_comparison():
 
     file_list_annodata = []
     file_list_suppression = []
-    approaches = 3
+    approaches = len(xticklabels)
     overall_data = []
 
     # colloct all execution time files
     for i, t in enumerate(data_type):
-        execution_time_file_line = join(execution_time_folder, t, f"execution_time_baseline_line.csv")
-        execution_time_file_word = join(execution_time_folder, t, f"execution_time_baseline_word.csv")
+        execution_time_file_line = join(execution_time_folder, t, f"execution_time_{t}_line.csv")
+        execution_time_file_word = join(execution_time_folder, t, f"execution_time_{t}_word.csv")
         execution_time_file_at = join(execution_time_folder, t, f"execution_time_{t}.csv")
         if i == 0:
             file_list_annodata.append(execution_time_file_line)
