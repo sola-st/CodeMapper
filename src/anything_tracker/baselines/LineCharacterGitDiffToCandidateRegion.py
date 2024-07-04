@@ -224,6 +224,9 @@ class LineCharacterGitDiffToCandidateRegion():
                         target_hunk_range, target_step = get_diff_reported_range(tmp[2], False)
                         move_steps = target_step - base_step
                         changed_line_numbers_list = [(num + move_steps) for num in changed_line_numbers_list]
+                    elif base_hunk_range.start > self.interest_line_numbers[-1]:
+                        # current (the first) changed hunk occurs after the source region, stop the hunk iteration to speed up
+                        break
 
         if not candidate_regions and not self.top_diff_hunks and not self.middle_diff_hunks and not self.bottom_diff_hunks:
             # No changed lines, with only line number changed.

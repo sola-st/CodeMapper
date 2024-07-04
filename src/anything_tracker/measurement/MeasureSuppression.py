@@ -23,7 +23,6 @@ class MeasureSuppression():
         self.results_csv_file = results_csv_file
 
         self.indices = ["Ground truth index"]
-        self.metrics = ["Metric"]
         self.candidate_nums = ["Number of Candidates"]
         self.target_region_indices = ["Target region index"]
         self.predicted_commits = ["Predicted commits"]
@@ -53,13 +52,8 @@ class MeasureSuppression():
         self.notes.append(note)
 
     def count_no_change(self):
-        file_no_change_num = self.change.count("<WHOLE_FILE_NO_CHANGE>")
         line_no_change_num = len([c for c in self.change if "<LOCATION_HELPER:DIFF_NO_CHANGE>" in c])
-        file_deleted_num = len([c for c, match in zip(self.change, self.is_matched_set) \
-                                if "no target file (deleted)" == c and match == "Y"])
         no_change_dict = {
-            "file_no_change": file_no_change_num,
-            "file_deleted": file_deleted_num,
             "line_no_change": line_no_change_num
         }
         no_change_str = json.dumps(no_change_dict)
@@ -126,7 +120,7 @@ class MeasureSuppression():
         self.notes.append(f"{diff_path_str}\npath delete count: {len(file_path_extras_del)}\nLines: {refer_csv_line_numbers_del}")
 
         # write results
-        results = zip_longest(self.indices, self.metrics, self.candidate_nums, self.target_region_indices, \
+        results = zip_longest(self.indices, self.candidate_nums, self.target_region_indices, \
                 self.predicted_commits, self.change, self.expected, self.predicted, self.is_matched_set, \
                 self.pre_dist, self.post_dist, self.dists, self.recalls, self.precisions, self.f1s, self.notes)
         self.write_results(results)
@@ -202,7 +196,6 @@ class MeasureSuppression():
                     self.indices[-1] = f"{repo} - {ground_truth_idx}"
                 else: 
                     self.indices.append(ground_truth_idx)
-                self.metrics.append(region["version"])
                 self.candidate_nums.append(region["all_candidates_num"])
                 self.target_region_indices.append(region["index"])
                 self.predicted_commits.append(region_target_commit)
@@ -210,7 +203,7 @@ class MeasureSuppression():
                 self.expected.append(expected_range)
                 self.predicted.append(region_target_range)
 
-            self.empty_line_mark.append(len(self.metrics)) # +1 is abs number, note that the csv file has title row.
+            self.empty_line_mark.append(len(self.candidate_nums)) # +1 is abs number, note that the csv file has title row.
 
         self.compute_to_write_measurement()
         

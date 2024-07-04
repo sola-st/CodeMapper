@@ -83,12 +83,12 @@ class GetSuppressionRange():
             self.suppression_type = numeric_code
 
         if truncated_line.endswith(self.suppression_type) and not "," in truncated_line: # scenario 1 or 2
-            end_character_abs = start_character_abs + len(truncated_line)
+            end_character_abs = start_character_abs + len(truncated_line) - 1
         else: # scenario 3 or 4
             # move to foucs on only the suppression type
-            start_character_abs += truncated_line.index(self.suppression_type) 
-            end_character_abs = start_character_abs + len(self.suppression_type)
+            start_character_abs += (truncated_line.index(self.suppression_type) + 1)
+            end_character_abs = start_character_abs + len(self.suppression_type) -1
 
         four_element_range = [self.line_number, start_character_abs, self.line_number, end_character_abs]
-        suppression_characters = suppression_line[start_character_abs: end_character_abs+1]
+        suppression_characters = suppression_line[start_character_abs-1: end_character_abs]
         return four_element_range, suppression_characters

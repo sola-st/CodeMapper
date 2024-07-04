@@ -3,7 +3,7 @@ import os
 from anything_tracker.multiple.track_histories.AnythingTrackerOnHistoryPairs import main_suppression as AnythingTrackerOnHistoryPairs
 from anything_tracker.SpecifyToTurnOffTechniques import SpecifyToTurnOffTechniques
 from anything_tracker.experiments.SourceRepos import SourceRepos
-from os.path import join, exists
+from os.path import join
 
 
 class TrackHistoryPairsSuppression():
@@ -30,14 +30,12 @@ class TrackHistoryPairsSuppression():
         for repo_dir in repo_dirs:
             repo = repo_dir.split("/")[-1]
             repo_contents = os.listdir(join(self.oracle_history_parent_folder, repo))
-            hist_len = len(repo_contents) - 2
+            hist_len = len(repo_contents)
             result_dir = join(self.result_dir_parent, repo)
             for num_folder in range(hist_len):
                 num_folder_str = str(num_folder)
                 history_file_path = join(self.oracle_history_parent_folder, repo, \
                         num_folder_str, "expect_full_histories.json")
-                if not exists(history_file_path):
-                    continue
 
                 with open(history_file_path) as f:
                     histories_pairs = json.load(f)
@@ -47,14 +45,10 @@ class TrackHistoryPairsSuppression():
                 source = histories_pairs[0]
                 target = histories_pairs[1]
 
-                assert str(source["mapped_meta"]) == num_folder_str # mapped ground truth
-
                 url = source["url"]
                 tmp = url.split("/")
                 repo_name = tmp[-1].replace(".git", "")
                 repo_dir = join("data", "repos_suppression", repo_name)
-
-                # result_dir = join(result_dir_tmp, num_folder_str)
 
                 if not source["range"]:
                     continue
@@ -124,9 +118,9 @@ class TrackHistoryPairsSuppression():
         
 
 if __name__ == "__main__":
-    result_dir_parent = join("data", "results", "tracked_maps", "mapped_regions_suppression0701")
+    result_dir_parent = join("data", "results", "tracked_maps", "suppression", "mapped_regions_suppression")
     oracle_history_parent_folder = join("data", "suppression_data")
-    time_file_folder = join("data", "results", "execution_time") 
+    time_file_folder = join("data", "results", "execution_time", "suppression") 
     os.makedirs(time_file_folder, exist_ok=True)
     time_file_to_write = join(time_file_folder, "execution_time_suppression.csv")
     # context_line_num >=0.

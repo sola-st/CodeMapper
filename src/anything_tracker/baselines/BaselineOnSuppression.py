@@ -1,7 +1,7 @@
 import json
 from anything_tracker.baselines.BaselineTracker import main_suppression_annodata as AnythingTracker
 from anything_tracker.experiments.SourceRepos import SourceRepos
-from os.path import join, exists
+from os.path import join
 from os import makedirs, listdir
 
 
@@ -22,15 +22,12 @@ class BaselineOnSuprression():
         for repo_dir in repo_dirs:
             repo = repo_dir.split("/")[-1]
             repo_contents = listdir(join(self.oracle_history_parent_folder, repo))
-            hist_len = len(repo_contents) - 2
+            hist_len = len(repo_contents)
             result_dir = join(self.result_dir_parent, repo)
             for num_folder in range(hist_len):
                 num_folder_str = str(num_folder)
                 history_file_path = join(self.oracle_history_parent_folder, repo, \
                         num_folder_str, "expect_full_histories.json")
-                if not exists(history_file_path):
-                    continue
-
                 with open(history_file_path) as f:
                     histories_pairs = json.load(f)
 
@@ -39,14 +36,10 @@ class BaselineOnSuprression():
                 source = histories_pairs[0]
                 target = histories_pairs[1]
 
-                assert str(source["mapped_meta"]) == num_folder_str # mapped ground truth
-
                 url = source["url"]
                 tmp = url.split("/")
                 repo_name = tmp[-1].replace(".git", "")
                 repo_dir = join("data", "repos_suppression", repo_name)
-
-                # result_dir = join(result_dir_tmp, num_folder_str)
 
                 if not source["range"]:
                     continue
@@ -114,10 +107,10 @@ class BaselineOnSuprression():
 
 
 if __name__ == "__main__":
-    result_dir_parent = join("data", "results", "tracked_maps", "suppression", "mapped_regions_suppression_line")
+    level = "line"
+    result_dir_parent = join("data", "results", "tracked_maps", "suppression", f"mapped_regions_suppression_{level}")
     oracle_history_parent_folder = join("data", "suppression_data")
     time_file_folder = join("data", "results", "execution_time", "suppression")
     makedirs(time_file_folder, exist_ok=True)
-    time_file_to_write = join(time_file_folder, "execution_time_suppression_baseline_line.csv")
-    level = "line"
+    time_file_to_write = join(time_file_folder, f"execution_time_suppression_{level}.csv")
     BaselineOnSuprression(oracle_history_parent_folder, result_dir_parent, time_file_to_write, level).run()

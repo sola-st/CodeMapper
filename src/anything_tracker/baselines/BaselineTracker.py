@@ -97,7 +97,7 @@ class BaselineTracker():
 
         # phase 1: compute candidate regions
         candidate_regions = self.compute_candidate_regions()
-        # print(f"Iteration #{self.iteration_index}")
+        print(f"Iteration #{self.iteration_index}")
         first_phrase_end_time = time.time()
         first_phrase_executing_time = f"{(first_phrase_end_time - first_phrase_start_time):.5f}"
         self.one_round_time_info[1] = first_phrase_executing_time

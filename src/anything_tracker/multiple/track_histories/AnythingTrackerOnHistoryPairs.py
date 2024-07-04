@@ -5,7 +5,6 @@ from os.path import join
 import time
 from anything_tracker.AnythingTrackerUtils import (
     deduplicate_candidates,
-    get_context_aware_characters,
     get_context_aware_unchanged_characters,
     get_source_and_expected_region_characters,
 )
@@ -164,7 +163,7 @@ class AnythingTrackerOnHistoryPairs():
         candidate_regions = self.compute_candidate_regions()
         print(f"Iteration #{self.iteration_index}")
         first_phrase_end_time = time.time()
-        first_phrase_executing_time = round((first_phrase_end_time - first_phrase_start_time), 3)
+        first_phrase_executing_time = f"{(first_phrase_end_time - first_phrase_start_time):.5f}"
         self.one_round_time_info[1] = first_phrase_executing_time
         print(f"Executing time (1st phase): {first_phrase_executing_time} seconds")
         if candidate_regions == [] and self.target_file_lines:
@@ -267,7 +266,7 @@ class AnythingTrackerOnHistoryPairs():
                 source_str = source_str_list
             results_set_dict = ComputeTargetRegion(source_str, candiate_str_list).run()
             second_phrase_end_time = time.time()
-            second_phrase_executing_time = round((second_phrase_end_time - second_phrase_start_time), 3)
+            second_phrase_executing_time = f"{(second_phrase_end_time - second_phrase_start_time):.5f}"
             print(f"Executing time (2nd phase): {second_phrase_executing_time} seconds")
 
         self.one_round_time_info[2] = second_phrase_executing_time
