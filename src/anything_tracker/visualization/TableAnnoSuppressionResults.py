@@ -3,6 +3,32 @@ import json
 from os import makedirs
 from os.path import join
 
+def get_main_table_contents_util(data):
+    the_higher_the_better = [True, True, False, True, True, True]
+    summaries, num_rates, recall_set = data
+    summaries_len = len(summaries)
+    replace_len = len(num_rates)
+    for i, col, higher_better in zip(range(summaries_len), summaries, the_higher_the_better):
+        if higher_better == True:
+            textbf = max(col)
+        else:
+            textbf = min(col)
+
+        for j, num in enumerate(col):
+            if num == textbf:
+                if i < replace_len: # overlappings, exact mactes
+                    num_rates[i][j] = "\\textbf{" + num_rates[i][j] + "}"
+                elif i > replace_len: # recall set
+                    new_i = i - replace_len - 1
+                    recall_set[new_i][j] = "\\textbf{" + str(recall_set[new_i][j]) + "}"
+                else: # i == replace_len -> character distance
+                    col[j] = "\\textbf{" + str(col[j]) + "}"
+
+    # format to replace the number with rate and keep the numbers tailing zeros for recall_set
+    summaries[:replace_len] = num_rates
+    summaries[(replace_len+1):] = recall_set
+    return summaries
+
 def get_data(file_list):
     summaries = []
     match = []
@@ -10,11 +36,16 @@ def get_data(file_list):
     exact_match = []
     exact_match_num_rate = []
     partial_overlaps = []
+    dists = []
+    digit = ".1f"
+
     recalls = []
     precisions = []
     f1s = []
-    dists = []
-    digit = ".1f"
+    # to keep the tailing zeros after numbers.
+    recalls_keep = []
+    precisions_keep = []
+    f1s_keep = []
 
     for file in file_list:
         with open(file, "r") as f:
@@ -35,26 +66,32 @@ def get_data(file_list):
         e_matches_rate = format((e_matches / all) * 100, digit)
         dist_results = json.loads(summary[1])
         dist = float(dist_results["dist"]["avg"])
-
-        recall, precision, f1 = summary[2: 5] 
+        dists.append(dist)
 
         match.append(overlappings)
         match_num_rate.append(f"{overlappings}({overlapping_rate}\%)")
         exact_match.append(e_matches)
         exact_match_num_rate.append(f"{e_matches}({e_matches_rate}\%)")
+
+        recall, precision, f1 = summary[2: 5] 
+        # the float() will truncate the tailing zeros, but we need to compare the numbers
         recalls.append(float(recall))
         precisions.append(float(precision))
         f1s.append(float(f1))
-        dists.append(dist)
+        # keep the tailing zeros
+        recalls_keep.append(recall)
+        precisions_keep.append(precision)
+        f1s_keep.append(f1)
 
-    summaries = [match, exact_match, dists, recalls, precisions, f1s, match_num_rate, exact_match_num_rate]
-    return summaries
+    summaries = [match, exact_match, dists, recalls, precisions, f1s]
+    num_rates = [match_num_rate, exact_match_num_rate]
+    recall_set = [recalls_keep, precisions_keep, f1s_keep]
+    return summaries, num_rates, recall_set
 
 
 def generate_table(data, caption, label, tex_file):
     row_names = ["Overlapping", "Exact matches", "Char. dist. of partial overlaps", "Recall", "Precision", "F1-score"]
     col_names = ["", "diff\\textsubscript{line}", "diff\\textsubscript{word}", "\\name{}"]
-    the_higher_the_better = [True, True, False, True, True, True]
 
     latex_table = "\\begin{table}[htbp]\n\\centering\n\\footnotesize\n"
     latex_table += "\\caption{" + caption + "}\n"
@@ -65,26 +102,8 @@ def generate_table(data, caption, label, tex_file):
     latex_table += "\\hline\n"
 
     # Determine the best performance locations in each row
-    split_num = 6
-    data_numbers = data[:split_num]
-    num_rates = data[split_num:]
-    replace_len = len(num_rates)
-    for i, col, higher_better in zip(range(split_num), data_numbers, the_higher_the_better):
-        if higher_better == True:
-            textbf = max(col)
-        else:
-            textbf = min(col)
-
-        for j, num in enumerate(col):
-            if num == textbf:
-                if i < replace_len:
-                    num_rates[i][j] = "\\textbf{" + num_rates[i][j] + "}"
-                else:
-                    col[j] = "\\textbf{" + str(col[j]) + "}"
-
-    # replace to the number with rate 
-    data_numbers[:replace_len] = num_rates
-    for i, row_data in enumerate(data_numbers):
+    summaries = get_main_table_contents_util(data)
+    for i, row_data in enumerate(summaries):
         latex_table += row_names[i] + " & " + " & ".join(map(str, row_data)) + " \\\\\n"
 
     latex_table += "\\hline\n"

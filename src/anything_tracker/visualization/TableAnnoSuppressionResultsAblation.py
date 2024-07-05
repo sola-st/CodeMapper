@@ -2,145 +2,143 @@ import csv
 import json
 from os import makedirs
 from os.path import join
+from anything_tracker.visualization.TableAnnoSuppressionResults import get_main_table_contents_util
+
 
 def get_data(file_list):
+    '''
+    To read the measurement results.
+    The main difference with the "get_data in TableAnnoSuppressionResults.py"[1] is:
+        * Simplify the summaries, e.g., not show exact numbers but remains only the rate.
+    If need to show all the details, here can use the [1] instead.
+    ''' 
+
     summaries = []
+    match = []
+    match_num_rate = []
     exact_match = []
     exact_match_num_rate = []
-    overlapping = []
-    overlapping_num_rate = []
+    partial_overlaps = []
+    dists = []
+    digit = ".1f"
+
     recalls = []
     precisions = []
     f1s = []
-    dists = []
+    # to keep the tailing zeros after numbers.
+    recalls_keep = []
+    precisions_keep = []
+    f1s_keep = []
 
     for file in file_list:
         with open(file, "r") as f:
             csv_reader = csv.reader(f)
             line_list = list(csv_reader)
             # include the outliers, like file path not match
-            all_match_results = [line[7] for line in line_list if line]
+            all_match_results = [line[6] for line in line_list if line]
             all = len(all_match_results) -2 # 1 head, 1 summary
             summary_line = line_list[-1]
 
         # summary should be [YMW, pre character distance, post, all, recall, precision, f1, note]
-        summary = [s for s in summary_line if s] 
+        summary = [s for s in summary_line if s and "line_no_change" not in s] 
         match_results = json.loads(summary[0])
-        matches = match_results["Y"]
-        overlaps = match_results["M"]
-        # nonoverlaps = match_results["W"]
-        # all = matches + overlaps + nonoverlaps
-        matches_rate = ":.1f".format((matches / all) * 100)
-        overlaps_rate = ":.1f".format((overlaps / all) * 100)
-
+        e_matches = match_results["Y"]
+        partial_overlaps = match_results["M"]
+        overlappings = e_matches + partial_overlaps
+        overlapping_rate = format((overlappings / all) * 100, digit)
+        e_matches_rate = format((e_matches / all) * 100, digit)
         dist_results = json.loads(summary[1])
         dist = float(dist_results["dist"]["avg"])
+        dists.append(dist)
+
+        match.append(overlappings)
+        match_num_rate.append(f"{overlapping_rate}\%")
+        exact_match.append(e_matches)
+        exact_match_num_rate.append(f"{e_matches_rate}\%")
 
         recall, precision, f1 = summary[2: 5] 
-
-        exact_match.append(matches)
-        exact_match_num_rate.append(f"{matches}({matches_rate}\%)")
-        overlapping.append(overlaps)
-        overlapping_num_rate.append(f"{overlaps}({overlaps_rate}\%)")
+        # the float() will truncate the tailing zeros, but we need to compare the numbers
         recalls.append(float(recall))
         precisions.append(float(precision))
         f1s.append(float(f1))
-        dists.append(dist)
+        # keep the tailing zeros
+        recalls_keep.append(recall)
+        precisions_keep.append(precision)
+        f1s_keep.append(f1)
 
-    summaries = [exact_match, overlapping, recalls, precisions, f1s, dists, exact_match_num_rate, overlapping_num_rate]
-    return summaries
-
+    summaries = [match, exact_match, dists, recalls, precisions, f1s]
+    only_rates = [match_num_rate, exact_match_num_rate]
+    recall_set = [recalls_keep, precisions_keep, f1s_keep]
+    return summaries, only_rates, recall_set
 
 def generate_table(data, caption, label, tex_file):
-    row_names = ["- all", "- movement detection", "- character searching", "- fine-grained range", "AnythingTracker"]
-    col_names = ["Approaches", "Exact matches", "Overlapping", "Recall", "Precision", "F1-score", "Character distance"]
-    the_higher_the_better = [True, False, True, True, True, False]
+    row_names = ["Overlapping", "Exact matches", "Char. dist.", "Recall", "Precision", "F1-score"]
+    col_names = ["", "- all", "\\makecell{- movement\\\\detection}", "\\makecell{- character\\\\searching}", "\\makecell{- char.\\\\level}", "\\name{}"]
 
-    latex_table = "\\begin{table*}[htbp]\n\\centering\n"
+    latex_table = "\\begin{table}[htbp]\n\\centering\n\\begin{threeparttable}\n\\footnotesize\n"
     latex_table += "\\caption{" + caption + "}\n"
-    latex_table += "\\begin{tabular}{" + "l" + "".join(["r"] * len(col_names)) + "}\n"
+    latex_table += "\\label{tab:" + label + "}\n"
+    latex_table += "\\begin{tabular}{@{}" + "l" + "".join(["r"] * len(col_names)) + "@{}}\n"
     latex_table += "\\hline\n"
 
     latex_table += " & ".join(col_names) + " \\\\\n"
     latex_table += "\\hline\n"
 
     # Determine the best performance locations in each column
-    split_num = 6
-    data_numbers = data[:split_num]
-    num_rates = data[split_num:]
-    for i, col, higher_better in zip(range(split_num), data_numbers, the_higher_the_better):
-        if higher_better == True:
-            textbf = max(col)
-        else:
-            textbf = min(col)
-
-        for j, num in enumerate(col):
-            if num == textbf:
-                if i < 2:
-                    num_rates[i][j] = "\\textbf{" + num_rates[i][j] + "}"
-                else:
-                    col[j] = "\\textbf{" + str(col[j]) + "}"
-
-    # replace to the number with rate 
-    data_numbers[:2] = num_rates
-    # match, ovelapping, recall, precision, f1, dist = data_numbers
-    transposed_data = list(zip(*data_numbers))
-    for i, row_data in enumerate(transposed_data):
+    summaries = get_main_table_contents_util(data)
+    for i, row_data in enumerate(summaries):
         latex_table += row_names[i] + " & " + " & ".join(map(str, row_data)) + " \\\\\n"
 
     latex_table += "\\hline\n"
     latex_table += "\\end{tabular}\n"
-    latex_table += "\\label{tab:" + label + "}\n"
-    latex_table += "\\end{table*}"
+    # start to add notes for tables
+    latex_table += "\\begin{tablenotes}[flushleft]\n\\footnotesize\n"
+    latex_table += "\\item Note: ``-'' means disabling the mentioned technique and Char. dist. indicates the average character distance of partial overlaps.\n"
+    latex_table += "\\end{tablenotes}\n"
+    latex_table += "\\end{threeparttable}\n"
+    latex_table += "\\end{table}"
 
     with open(tex_file, "w") as f:
         f.write(latex_table + "\n")
 
-def annotated_data_main():
+def annotated_data_main(file_suffies, common_file_folder, output_dir):
     # annotated data
-    common = join("data", "results", "measurement_results", "annotation")
-    file_name_base = "measurement_results_metrics_anno"
-    file_list = [
-            join(common, "off_all", f"{file_name_base}.csv"),
-            join(common, "off_move", f"{file_name_base}.csv"),
-            join(common, "off_search", f"{file_name_base}.csv"),
-            join(common, "off_fine", f"{file_name_base}.csv"),
-            join(common, f"{file_name_base}.csv")]
-    data = get_data(file_list)
-    caption = "Impact of disabling partial techniques on tracking annotated data"
-    label = "ablation_on_annotated_data"
-    output_dir = join("data", "results", "table_plots")
-    makedirs(output_dir, exist_ok=True)
-    tex_file = join(output_dir, "annodata_ablation_table_new.tex")
+    common_specific_folder = join(common_file_folder, "annodata")
+    file_name_base = "measurement_results_metrics_annodata"
 
+    file_list = []
+    for suffix in file_suffies:
+        file_list.append(join(common_specific_folder, f"{file_name_base}_{suffix}.csv"))
+    file_list.append(join(common_specific_folder, f"{file_name_base}.csv")) # the one for AnythingTracker
+
+    data = get_data(file_list)
+    caption = "Disable Partial Techniques (Annotated data)"
+    label = "ablation_on_annotated_data"
+    tex_file = join(output_dir, "annodata_ablation_table.tex")
     generate_table(data, caption, label, tex_file)
 
-def suppression_main():
+def suppression_main(file_suffies, common_file_folder, output_dir):
     # suppression data
-    common = join("data", "results", "measurement_results", "suppression")
-    file_name_base = "measurement_results"
-    file_list = [
-            join(common, "off_all", f"{file_name_base}.csv"),
-            join(common, "off_move", f"{file_name_base}.csv"),
-            join(common, "off_search", f"{file_name_base}.csv"),
-            join(common, "off_fine", f"{file_name_base}.csv"),
-            join(common, f"{file_name_base}.csv")]
-    # file_list = [
-    #         join(common, f"{file_name_base}_suppression_off_all.csv"),
-    #         join(common, f"{file_name_base}_suppression_off_move.csv"),
-    #         join(common, f"{file_name_base}_metrics_suppression_off_search.csv"),
-    #         join(common, f"{file_name_base}_metrics_suppression_off_fine.csv"),
-    #         join(common, f"{file_name_base}_suppression.csv")]
-    data = get_data(file_list)
-    caption = "Impact of disabling partial techniques on tracking Python suppression"
-    label = "ablation_on_suppression"
-    output_dir = join("data", "results", "table_plots")
-    makedirs(output_dir, exist_ok=True)
-    tex_file = join(output_dir, "suppression_ablation_table.tex")
+    common_specific_folder = join(common_file_folder, "suppression")
+    file_name_base = "measurement_results_metrics_suppression"
 
+    file_list = []
+    for suffix in file_suffies:
+        file_list.append(join(common_specific_folder, f"{file_name_base}_{suffix}.csv"))
+    file_list.append(join(common_specific_folder, f"{file_name_base}.csv"))
+
+    data = get_data(file_list)
+    caption = "Disable Partial Techniques (Python suppressions)"
+    label = "ablation_on_suppression"
+    tex_file = join(output_dir, "suppression_ablation_table.tex")
     generate_table(data, caption, label, tex_file)
 
 
 if __name__=="__main__":
-    annotated_data_main()
-    suppression_main()
+    file_suffies = ["off_all", "off_move", "off_search", "off_fine"]
+    common_file_folder = join("data", "results", "measurement_results")
+    output_dir = join("data", "results", "table_plots")
+    makedirs(output_dir, exist_ok=True)
+
+    annotated_data_main(file_suffies, common_file_folder, output_dir)
+    suppression_main(file_suffies, common_file_folder, output_dir)

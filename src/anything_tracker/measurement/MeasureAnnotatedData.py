@@ -200,11 +200,26 @@ class MeasureAnnotatedData():
 
         self.compute_to_write_measurement()
         
+def main_ablation_study(oracle_file, results_dir_parent, results_csv_file_folder):
+    ablation_settings = ["off_all", "off_move", "off_search", "off_fine"]
+    for setting in ablation_settings:
+        results_dir = join(results_dir_parent, f"mapped_regions_annodata_{setting}")
+        results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_annodata_{setting}.csv")
+        MeasureAnnotatedData(oracle_file, results_dir, results_csv_file).run()
+        print(f"Measurement: {setting} done.")
 
-if __name__=="__main__":
-    oracle_file = join("data", "annotation", "annotations_100.json")
-    results_dir = join("data", "results", "tracked_maps", "annodata", "mapped_regions_annodata")
-    results_csv_file_folder = join("data", "results", "measurement_results", "annodata")
-    os.makedirs(results_csv_file_folder, exist_ok=True)
+def main_anytingtracker(oracle_file, results_dir_parent, results_csv_file_folder):
+    results_dir = join(results_dir_parent, "mapped_regions_annodata")
     results_csv_file = join(results_csv_file_folder, "measurement_results_metrics_annodata.csv")
     MeasureAnnotatedData(oracle_file, results_dir, results_csv_file).run()
+
+if __name__=="__main__":
+    oracle_file = join("data", "annotation", "annotations_100.json") # to get the ground truth
+    results_dir_parent = join("data", "results", "tracked_maps", "annodata") # where the target regions are
+    results_csv_file_folder = join("data", "results", "measurement_results", "annodata") # to write the measurement results
+    os.makedirs(results_csv_file_folder, exist_ok=True)
+
+    # Run measurement for AnythingTracker
+    main_anytingtracker(oracle_file, results_dir_parent, results_csv_file_folder)
+    # Run measurement for ablation study
+    main_ablation_study(oracle_file, results_dir_parent, results_csv_file_folder)
