@@ -89,7 +89,7 @@ def main_ablation_study(oracle_file, result_dir_parent, time_file_folder, contex
         if i == 0:
             turn_off_techniques = [True, True, True]
         else:
-            turn_off_techniques[i] = True
+            turn_off_techniques[i-1] = True
         turn_off_techniques_obj = SpecifyToTurnOffTechniques(turn_off_techniques)
         ComputeCandidatesForAnnoData(oracle_file, result_dir, context_line_num, time_file_to_write, turn_off_techniques_obj).run()
         turn_off_techniques = [False, False, False] # to start the next iteration

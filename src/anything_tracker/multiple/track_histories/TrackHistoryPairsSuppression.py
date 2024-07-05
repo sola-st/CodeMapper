@@ -115,19 +115,49 @@ class TrackHistoryPairsSuppression():
         target_json_file = join(result_dir, "target.json")
         with open(target_json_file, "w") as ds:
             json.dump(target_regions_for_1_data, ds, indent=4, ensure_ascii=False)
-        
+
+
+def main_ablation_study(oracle_history_parent_folder, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques):
+    ablation_settings = ["off_all", "off_move", "off_search", "off_fine"]
+    for i, setting in enumerate(ablation_settings):
+        result_dir = join(result_dir_parent, f"mapped_regions_suppression_{setting}")
+        time_file_to_write = join(time_file_folder, f"execution_time_suppression_{setting}.csv")
+        if i == 0:
+            turn_off_techniques = [True, True, True]
+        else:
+            turn_off_techniques[i-1] = True
+        turn_off_techniques_obj = SpecifyToTurnOffTechniques(turn_off_techniques)
+        TrackHistoryPairsSuppression(oracle_history_parent_folder, result_dir, 
+                context_line_num, time_file_to_write, turn_off_techniques_obj).run()
+        turn_off_techniques = [False, False, False] # to start the next iteration
+
+def main_anythingtracker(oracle_history_parent_folder, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques):
+    result_dir = join(result_dir_parent, "mapped_regions_suppression")
+    time_file_to_write = join(time_file_folder, "execution_time_suppression.csv")
+    turn_off_techniques_obj = SpecifyToTurnOffTechniques(turn_off_techniques)
+    TrackHistoryPairsSuppression(oracle_history_parent_folder, result_dir, 
+            context_line_num, time_file_to_write, turn_off_techniques_obj).run()    
 
 if __name__ == "__main__":
-    result_dir_parent = join("data", "results", "tracked_maps", "suppression", "mapped_regions_suppression")
+    '''
+    * context_line_num should be a num >=0.
+        0 means no contexts.
+        >0 means get the corresponding number of lines before and after respectively as contexts.
+
+    * turn_off_techniques
+    There are 3 techniques can be optionally turned off, support turn off one or multiple at a time.
+        1. move detection  2. search matches  3. fine-grain borders
+        > change the boolean to True to turn off the corresponding technique.
+    '''
+
     oracle_history_parent_folder = join("data", "suppression_data")
+    result_dir_parent = join("data", "results", "tracked_maps", "suppression")
     time_file_folder = join("data", "results", "execution_time", "suppression") 
     os.makedirs(time_file_folder, exist_ok=True)
-    time_file_to_write = join(time_file_folder, "execution_time_suppression.csv")
-    # context_line_num >=0.
-    # 0 means no contexts, >0 means get the corresponding number of lines before and after respectively as contexts
     context_line_num = 2 
-    # 3 techniques can be optionally turned off, support turn off one or multiple at a time.
-    # 1. move detection  2. search matches  3. fine-grain borders
-    turn_off_techniques = [False, False, False] # change the boolean to True to turn off the corresponding technique.
-    turn_off_techniques_obj = SpecifyToTurnOffTechniques(turn_off_techniques)
-    TrackHistoryPairsSuppression(oracle_history_parent_folder, result_dir_parent, context_line_num, time_file_to_write, turn_off_techniques_obj).run()
+    turn_off_techniques = [False, False, False] 
+
+    # Run AnythingTracker
+    main_anythingtracker(oracle_history_parent_folder, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques)
+    # Run ablation study
+    main_ablation_study(oracle_history_parent_folder, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques)      

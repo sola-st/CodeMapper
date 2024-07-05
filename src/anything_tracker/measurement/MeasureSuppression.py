@@ -208,10 +208,26 @@ class MeasureSuppression():
         self.compute_to_write_measurement()
         
 
-if __name__=="__main__":
-    oracle_file_folder = join("data", "suppression_data")
-    results_dir = join("data", "results", "tracked_maps", "suppression", "mapped_regions_suppression")
-    results_csv_file_folder = join("data", "results", "measurement_results", "suppression")
-    os.makedirs(results_csv_file_folder, exist_ok=True)
+def main_ablation_study(oracle_file_folder, results_dir_parent, results_csv_file_folder):
+    ablation_settings = ["off_all", "off_move", "off_search", "off_fine"]
+    for setting in ablation_settings:
+        results_dir = join(results_dir_parent, f"mapped_regions_suppression_{setting}")
+        results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_suppression_{setting}.csv")
+        MeasureSuppression(oracle_file_folder, results_dir, results_csv_file).run()
+        print(f"Measurement: {setting} done.")
+
+def main_anytingtracker(oracle_file_folder, results_dir_parent, results_csv_file_folder):
+    results_dir = join(results_dir_parent, "mapped_regions_suppression")
     results_csv_file = join(results_csv_file_folder, "measurement_results_metrics_suppression.csv")
     MeasureSuppression(oracle_file_folder, results_dir, results_csv_file).run()
+
+if __name__=="__main__":
+    oracle_file_folder = join("data", "suppression_data") # to get the ground truth
+    results_dir_parent = join("data", "results", "tracked_maps", "suppression") # where the target regions are
+    results_csv_file_folder = join("data", "results", "measurement_results", "suppression") # to write the measurement results
+    os.makedirs(results_csv_file_folder, exist_ok=True)
+
+    # Run measurement for AnythingTracker
+    main_anytingtracker(oracle_file_folder, results_dir_parent, results_csv_file_folder)
+    # Run measurement for ablation study
+    main_ablation_study(oracle_file_folder, results_dir_parent, results_csv_file_folder)

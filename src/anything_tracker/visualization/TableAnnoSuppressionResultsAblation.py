@@ -112,7 +112,7 @@ def annotated_data_main(file_suffies, common_file_folder, output_dir):
     file_list.append(join(common_specific_folder, f"{file_name_base}.csv")) # the one for AnythingTracker
 
     data = get_data(file_list)
-    caption = "Disable Partial Techniques (Annotated data)"
+    caption = "Disable partial techniques (Annotated data)"
     label = "ablation_on_annotated_data"
     tex_file = join(output_dir, "annodata_ablation_table.tex")
     generate_table(data, caption, label, tex_file)
@@ -128,7 +128,7 @@ def suppression_main(file_suffies, common_file_folder, output_dir):
     file_list.append(join(common_specific_folder, f"{file_name_base}.csv"))
 
     data = get_data(file_list)
-    caption = "Disable Partial Techniques (Python suppressions)"
+    caption = "Disable partial techniques (Python suppressions)"
     label = "ablation_on_suppression"
     tex_file = join(output_dir, "suppression_ablation_table.tex")
     generate_table(data, caption, label, tex_file)

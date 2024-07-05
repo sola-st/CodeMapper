@@ -4,12 +4,17 @@ import numpy as np
 from os.path import join
 
 
-def get_execution_time(time_file):
+def get_execution_time(time_file, individual_times=False):
     with open(time_file, "r") as f:
         csv_reader = csv.reader(f)
         line_list = list(csv_reader)[1:]
-    overall_time = [float(line[4]) for line in line_list if line]
-    return overall_time
+    if individual_times == True:
+        times_1 = [float(line[2]) for line in line_list if line]
+        times_2 = [float(line[3]) for line in line_list if line]
+        return times_1, times_2
+    else:
+        overall_time = [float(line[4]) for line in line_list if line]
+        return overall_time
 
 def plot_comparison(xticklabels, overall_data, result_pdf): # [line_data, word_data, anythingtracker_data]
     fig, ax = plt.subplots()
@@ -102,4 +107,4 @@ if __name__=="__main__":
     main_baseline_comparison()
 
     # Option 2. exexcution time details for AnythingTracker
-    main_baseline_comparison()
+    main_anythingtracker()
