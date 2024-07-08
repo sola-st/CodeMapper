@@ -17,33 +17,46 @@ class FineGrainLineCharacterIndices():
         self.interest_line_characters = interest_line_characters 
         self.is_start = is_start # true: start line/character; false: end line/character
     
-    def get_partial_diff_hunk(self, specified_line_number_idx):
+    def get_partial_diff_hunk(self, specified_line_number_idx, source_words):
+        '''
+        Due to the mis-report in git diff, this function somewhat is not reliable.
+        max_len = max(len(base_list), self.target_hunk_range.stop - self.target_hunk_range.start)
+        range_end = range_start + max_len # this end is not exactly the end of changed hunk, indeed >=.
+
+        To handle thge mis-report, like the several line displayed in one line issure of diff report.
+            eg,. deleted 3 lines, but only display as 1 line in diff report.
+        source_words : Break the source line charcters into words and check if all of them are in the detected start/end line.
+        '''
+
         diff_len = len(self.diffs)
-        # compute the to-check range start
+        # compute the to-check range start, diff_line_num and specified_line_number_idx start at 0, 
         range_start = self.diff_line_num + specified_line_number_idx + 1
         if range_start >= diff_len:
             range_start = diff_len - 1
         start_line = self.diffs[range_start]
-        while "[36m" in start_line or start_line.strip() == "":
+        while range_start > 0 and \
+                ("[36m" in start_line or start_line.strip() == "" or [w for w in source_words if w not in start_line]):
             range_start -= 1
             start_line = self.diffs[range_start]
         
         range_end = None
-        partial_diffs = self.diffs[self.diff_line_num+1:]
+        partial_diffs = self.diffs[self.diff_line_num+1:] # +1 to skip the current @@ line
         for delta, diff_line in enumerate(partial_diffs):
             if "[36m" in diff_line: # @@ hunk ranges @@ line
-                # +2: 1 to get delta start from 1, 1 to get range_end be an open border
-                range_end = self.diff_line_num + delta + 1 # TODO To check 
+                range_end = self.diff_line_num + delta # the idx of end, an idx before the @@ line
                 break
         # compute the to-check range end
-        if range_end == None or range_end > diff_len:
+        if range_end == None:
             range_end = diff_len - 1
+        
+        end_line = self.diffs[range_end] 
+        while range_end > range_start and ("[36m" in end_line or [w for w in source_words if w not in end_line]):
+            range_end -= 1
+            end_line = self.diffs[range_end]
 
+        range_end += 1 # to be an open border
         assert range_end != None
         return range_start, range_end
-        # due to the mis-report in git diff, this is not reliable
-        # max_len = max(len(base_list), self.target_hunk_range.stop - self.target_hunk_range.start)
-        # range_end = range_start + max_len # this end is not exactly the end of changed hunk, indeed >=.
 
     def get_first_non_totally_added_line(self):
         '''
@@ -66,19 +79,19 @@ class FineGrainLineCharacterIndices():
             specified_line_number_idx = 0
         else:
             specified_line_number_idx = base_list.index(self.interest_line_number)
-                
-        range_start, range_end = self.get_partial_diff_hunk(specified_line_number_idx)
-        # start check to get the first non totally added line
-        identified_diff_line:str = None
-        splits = []
-        possible_diff_lines = [] 
-        line_delta = None
 
         # remove special characters, reduce/address the fail to identified issue in git diff
         special_chars = "!@#$%^&*()_+[]{};:,./<>?\|`~-='"
         for char in special_chars:
             interest_line_characters_no_special_char = self.interest_line_characters.replace(char, "")
         source_words = interest_line_characters_no_special_char.split(" ")
+                
+        range_start, range_end = self.get_partial_diff_hunk(specified_line_number_idx, source_words)
+        # start check to get the first non totally added line
+        identified_diff_line:str = None
+        splits = []
+        possible_diff_lines = [] 
+        line_delta = None
 
         for z, i in enumerate(range(range_start, range_end)):
             interest_line_characters_in_diff = self.diffs[i]
