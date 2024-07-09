@@ -91,7 +91,7 @@ class GitDiffToCandidateRegion():
         histogram: This algorithm extends the patience algorithm to "support low-occurrence common elements".
 
         '''
-        diff_results = [] # to store all the 4 versions og git diff results
+        diff_results = [] # to store all the 8 versions of git diff results
         dicts = []
         diff_algorithms = ["default", "minimal", "patience", "histogram"]
         levels = ["line", "word"]
@@ -182,18 +182,30 @@ class GitDiffToCandidateRegion():
 
                 candidate_start_line = target_hunk_range.start
                 candidate_end_line = target_hunk_range.stop -1
+
+                region_deleted = False # the fully cover hunk may includes the deletion of the source region, it should get a delete candidate.
                 if overlapped_line_numbers: # range overlap
                     marker = f"<{algorithm}><{level}>"
                     if self.interest_first_number in overlapped_line_numbers and candidate_character_start_idx_done == False:
+                        if level == "word":
+                            check_if_region_deleted = False
+                            if len(self.interest_line_numbers) == 1:
+                                check_if_region_deleted = True
+                            interest_first_line_characters = self.source_region_characters[0]
+                            deletion_check = FineGrainLineCharacterIndices(
+                                                self.target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
+                                                self.characters_start_idx, self.interest_first_number, interest_first_line_characters, True, check_if_region_deleted) 
+                            if check_if_region_deleted == True:
+                                region_deleted = deletion_check.fine_grained_line_character_indices()
+
                         if self.characters_start_idx == 1:
                             candidate_character_start_idx = 1
                         else:
                             if self.turn_off_techniques.turn_off_fine_grains == False:
                                 if level == "word":
-                                    interest_first_line_characters = self.source_region_characters[0]
                                     fine_grain_start = FineGrainLineCharacterIndices(
                                             self.target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
-                                            self.characters_start_idx, self.interest_first_number, interest_first_line_characters, True) 
+                                            self.characters_start_idx, self.interest_first_number, interest_first_line_characters, True)
                                     candidate_character_start_idx, start_line_delta_hint = fine_grain_start.fine_grained_line_character_indices()
                                     if start_line_delta_hint != None:
                                         candidate_start_line += start_line_delta_hint
@@ -223,16 +235,20 @@ class GitDiffToCandidateRegion():
                      * fully covered --> candidate region
                      * top, middle, bottom of source ranges --> diff hunks
                     '''
-                    if list(set(self.interest_line_numbers) - set(base_hunk_range_list)) == []: 
+                    if list(set(self.interest_line_numbers) - set(overlapped_line_numbers)) == []: 
                         if base_hunk_range.start == base_hunk_range.stop: # no changed, bottom overlap
                             self.add_overlapped_hunks(base_hunk_range, candidate_start_line, candidate_end_line, overlapped_line_numbers, \
                                     candidate_character_start_idx, candidate_character_end_idx, "bottom")
                         else:
                             # fully covered by changed hunk
                             # Heuristic: set character indices as 0 and the length of the last line in target range.
-                            if target_hunk_range.stop == target_hunk_range.start:
+                            if target_hunk_range.stop == target_hunk_range.start or region_deleted == True:
                                 # source region lines are deleted
-                                character_range = CharacterRange([0, 0, target_hunk_range.stop, 0]) # set the delete line as an anchor to get contexts for this candidate
+                                character_range = None
+                                if region_deleted == True:
+                                    character_range = CharacterRange([0, 0, target_hunk_range.stop -1, 0]) # set the delete line as an anchor to get contexts for this candidate
+                                else:
+                                    character_range = CharacterRange([0, 0, target_hunk_range.stop, 0])
                                 candidate_region = CandidateRegion(self.interest_character_range, character_range, None, "<LOCATION_HELPER:DIFF_DELETE>")
                                 candidate_regions.add(candidate_region)
 
@@ -241,7 +257,8 @@ class GitDiffToCandidateRegion():
                                             current_hunk_range_line, diffs, self.target_file_lines, self.turn_off_techniques.turn_off_fine_grains).run()
                                     if movement_candidate_region != []:
                                         candidate_regions.update(set(movement_candidate_region))
-                                continue
+                                if region_deleted == False:
+                                    continue
 
                             hunk_end = target_hunk_range.stop - 1
                             if hunk_end < target_hunk_range.start:

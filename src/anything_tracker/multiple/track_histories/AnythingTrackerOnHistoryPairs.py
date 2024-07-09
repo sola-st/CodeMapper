@@ -10,7 +10,7 @@ from anything_tracker.AnythingTrackerUtils import (
 )
 from anything_tracker.CandidateRegion import CandidateRegion, get_candidate_region_range
 from anything_tracker.CharacterRange import CharacterRange
-from anything_tracker. ComputeTargetRegion import ComputeTargetRegion
+from anything_tracker.ComputeTargetRegion import ComputeTargetRegion
 from anything_tracker.GitDiffToCandidateRegion import GitDiffToCandidateRegion
 from anything_tracker.SearchLinesToCandidateRegion import SearchLinesToCandidateRegion
 from anything_tracker.multiple.GetTargetFilePath import get_target_file_path
@@ -281,7 +281,6 @@ class AnythingTrackerOnHistoryPairs():
 
             target_json = {
                 "iteration": self.iteration_index,
-                "version" : key,
                 "source_commit": self.base_commit,
                 "target_commit": self.target_commit,
                 "source_file": self.source_file_path,
@@ -317,7 +316,6 @@ def main(*args):
         # the file was deleted
         target_json = {
             "iteration": current_history_pair_idx,
-            "version" : "dist_based",
             "source_commit": source_commit,
             "target_commit": target_commit,
             "source_file": source_file_path,
@@ -362,7 +360,6 @@ def main_suppression(*args): # can be used to start tracking annotation and supp
         # the file was deleted
         target_json = {
             "iteration": ground_truth_index,
-            "version" : "dist_based",
             "source_commit": source_commit,
             "target_commit": target_commit,
             "source_file": source_file_path,

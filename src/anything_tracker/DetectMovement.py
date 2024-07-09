@@ -46,7 +46,7 @@ class DetectMovement():
         self.moved_lines_num = len(source_region_characters)
 
     def get_region_indices(self):
-        # get location hints from unique_target_hunk_range (the may moved to location)
+        # get location hints from unique_target_hunk_range (may moved to another location)
         start_end_pairs = []
         # start
         first_source_line = self.source_region_characters[0]
@@ -56,13 +56,13 @@ class DetectMovement():
 
         # end
         last_source_line = self.source_region_characters[-1]
-        # check the last line by running helper function, laso can be one or more
+        # check the last line by running helper function, also can be one or more
         end_line_char_pairs = self.finder_helper(last_source_line, False)
         if start_line_char_pairs and end_line_char_pairs:
             start_end_pairs = find_pair(start_line_char_pairs, end_line_char_pairs, self.moved_lines_num-1)
         return start_end_pairs # also can be multiple
 
-    def finder_helper(self, source_line,is_start=True):
+    def finder_helper(self, source_line, is_start=True):
         # can be start or end.
         line_char_pairs = []
         candidate_source_line = None # can be start or end line of source region
@@ -99,39 +99,50 @@ class DetectMovement():
         candidate_region_list = []
 
         diffs_str_tmp = "".join(self.diffs)
+        # TODO Delete report word-level movements, really needed? or cooperation: line for whole line detection, word for partial detection.
         substrings = [
-            "\033[31m",
-            "\033[31m-",  # red color removal
-            "\033[m",     # color reset
-            "\033[32m",
-            "\033[32m+",  # green color addition
             "\033[36m"   # cyan color
+            # word level marks
+            # "\033[31m[-",  # red color removal
+            # "-]\033[m",   # color reset
+            # "+}\033[m",   
+            # "\033[32m{+",  # green color addition
+            # line level marks
+            "\033[31m-",
+            "\033[m",   
+            "\033[32m+",  
+            # pure colors
+            "\033[31m", 
+            "\033[32m", 
         ]
         escaped_substrings = map(re.escape, substrings)
         pattern = "|".join(escaped_substrings)
         regex = re.compile(pattern)
         diffs_str = regex.sub("", diffs_str_tmp)
 
-        diffs = self.diffs
         # check if each source line occurs in diff reposrts >= twice.
         # if yes, the line may moved to another location.
         moved_lines_check = [s for s in self.source_region_characters if diffs_str.count(s.strip()) >= 2]
+
+        diffs = self.diffs
         if len(moved_lines_check) == self.moved_lines_num: 
             # source lines may moved to another location
             current_hunk_range_line = None
+            current_target_hunk_range = None
             for s in self.source_region_characters:
                 for i, diff_line in enumerate(diffs):
                     diff_line = diff_line.strip()
                     if "\033[36m" in diff_line:
                         current_hunk_range_line = diff_line
+                        current_target_hunk_range = None
                     elif "\033[32m" in diff_line:
-                        diff_line_tmp = regex.sub("", diff_line)
-                        diff_line = diff_line_tmp[1:].strip()
+                        diff_line = regex.sub("", diff_line).strip()
                         if diff_line == s.strip():
                             moved_lines+=1
-                            tmp = current_hunk_range_line.split(" ")
-                            target_hunk_range, target_step = get_diff_reported_range(tmp[2], False)
-                            moved_to_range_list.append(target_hunk_range)
+                            if not current_target_hunk_range:
+                                tmp = current_hunk_range_line.split(" ")
+                                current_target_hunk_range, target_step = get_diff_reported_range(tmp[2], False)
+                            moved_to_range_list.append(current_target_hunk_range)
                             diffs = diffs[i+1:] # truncate to run faster
                             break
 
