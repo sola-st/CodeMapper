@@ -59,20 +59,27 @@ class FineGrainLineCharacterIndices():
         range_end += 1 # to be an open border
         assert range_end != None
         return range_start, range_end
-    
+
     def check_intra_hunk_deletions(self, range_start, range_end):
         for i in range(range_start, range_end):
             interest_line_characters_in_diff = self.diffs[i]
-            # option 1: check the intra-hunk deletions, fuzzy mapping, sometimes diff misdisplay the charcters
-            if "\033[32" in interest_line_characters_in_diff:
-                in_diff_check = [w for w in self.source_words if w in interest_line_characters_in_diff]
-                if (in_diff_check == self.source_words) and self.region_deleted == False: 
-                    # the source region is not interrupted
+            # check the intra-hunk deletions, fuzzy mapping, sometimes diff mis-display the characters
+            if "\033[31" in interest_line_characters_in_diff and self.source_words[0] in interest_line_characters_in_diff: 
+                # is a diff line contains deletions and the interest line may deleted
+                in_diff_check = [w for w in self.source_words if w in interest_line_characters_in_diff] # first round check
+                if (in_diff_check == self.source_words):
                     truncate_idx = interest_line_characters_in_diff.index(self.source_words[0])
-                    tmp = interest_line_characters_in_diff[:truncate_idx].strip() # the charcters before the source region
-                    if tmp.endswith("\033[31m[-"):
-                        self.region_deleted = True
-                    break
+                    # check if the last operation is deletion
+                    before_interest_str = interest_line_characters_in_diff[:truncate_idx].strip() # the characters before the source region
+                    before_tmp = before_interest_str.split("\033") # after the split, the  start of every substr can be [31, [32, [m
+                    if before_tmp[-1].startswith("[31"): # the closet one is deletion
+                        after_interest_str = interest_line_characters_in_diff[truncate_idx:].strip()
+                        first_color_end_idx = after_interest_str.index("\033[m")
+                        after_interest_str_shorten = after_interest_str[:first_color_end_idx] # the deleted string which may include the interest snippet
+                        in_diff_check_detail = [w for w in self.source_words if w in after_interest_str_shorten] # second round check
+                        if (in_diff_check_detail == self.source_words): 
+                            self.region_deleted = True
+                            break
 
     def get_first_non_totally_added_line(self):
         '''
@@ -217,7 +224,7 @@ class FineGrainLineCharacterIndices():
         '''
         results = self.get_first_non_totally_added_line()
         if isinstance(results, bool):
-            return results # check the intra-line deltions
+            return results # check the intra-line deletions
         else:
             # step 1: fine grained line index, get the first non totally added line.
             splits, line_delta = results
