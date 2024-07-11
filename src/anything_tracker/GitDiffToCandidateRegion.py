@@ -260,14 +260,14 @@ class GitDiffToCandidateRegion():
                                 if region_deleted == False:
                                     continue
 
-                            hunk_end = target_hunk_range.stop - 1
-                            if hunk_end < target_hunk_range.start:
-                                hunk_end = target_hunk_range.start
+                            target_hunk_end = target_hunk_range.stop - 1
+                            if target_hunk_end < target_hunk_range.start:
+                                target_hunk_end = target_hunk_range.start
                             marker += "<LOCATION_HELPER:DIFF_FULLY_COVER>"
                             if candidate_character_start_idx == 0:
                                 candidate_character_start_idx = 1
                             if candidate_character_end_idx == 0:
-                                candidate_character_end_idx = len(self.target_file_lines[hunk_end-1]) - 1
+                                candidate_character_end_idx = len(self.target_file_lines[target_hunk_end-1]) - 1
 
                             character_range = CharacterRange([candidate_start_line, candidate_character_start_idx, candidate_end_line, candidate_character_end_idx])
                             candidate_characters = get_region_characters(self.target_file_lines, character_range)
@@ -275,7 +275,6 @@ class GitDiffToCandidateRegion():
                             candidate_regions.add(candidate_region)
 
                             # Get additional candidate regions
-                            target_hunk_end = target_hunk_range.stop -1
                             multi_end = list(range(candidate_end_line, target_hunk_end))
                             if multi_end != []:
                                 marker+="<EXTENSION>"
@@ -287,8 +286,8 @@ class GitDiffToCandidateRegion():
                                     candidate_regions.add(candidate_region)
 
                             # Get the only one line level candidate
-                            # marker+="<LINE>"
-                            candidate_character_end_idx = len(self.target_file_lines[target_hunk_end-1])
+                            # marker+="<LINE>", may duplicated
+                            candidate_character_end_idx = len(self.target_file_lines[target_hunk_end-1]) - 1
                             character_range = CharacterRange([target_hunk_range.start, 1, target_hunk_end, candidate_character_end_idx])
                             candidate_characters = get_region_characters(self.target_file_lines, character_range)
                             candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, marker)
