@@ -71,6 +71,7 @@ def get_context_aware_unchanged_characters(file_lines, character_range, before_l
     max_idx = len(file_lines) + 1
     all_numbers = list(range(1, max_idx))
     unchanged_numbers = list(set(all_numbers) - set(changed_line_numbers))
+    unchanged_numbers.sort()
 
     start_line_idx = 0
     end_line_idx = 0
