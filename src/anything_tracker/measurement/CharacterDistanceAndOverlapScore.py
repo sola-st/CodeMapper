@@ -52,7 +52,7 @@ def calculate_overlap(expected_location, predicted_location, line_lengths, targe
         compare_results = "M" 
     else:
         compare_results = "W"
-        return pre_distance, post_distance, distance, recall, precision, f1_score, compare_results
+        return None, None, None, recall, precision, f1_score, compare_results
 
     # if overlap, check the character distance and recall
     expected_chars = target_lines_str[expected_start_char:expected_end_char+1]
