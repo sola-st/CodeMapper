@@ -1,5 +1,5 @@
+import re
 from anything_tracker.utils.ComputeOverlapBetween2Strings import compute_overlap
-from anything_tracker.utils.FineGrainedWhitespace import count_leading_whitespace
 
 
 class FineGrainLineCharacterIndices():
@@ -17,6 +17,7 @@ class FineGrainLineCharacterIndices():
         self.interest_line_characters = interest_line_characters 
         self.is_start = is_start # true: start line/character; false: end line/character
         self.check_if_region_deleted = check_if_region_deleted
+        self.special_chars = "!@#$%^&*()_[]{};/<>?\|`~'"
         self.region_deleted = False # to return
     
     def get_partial_diff_hunk(self, specified_line_number_idx):
@@ -35,11 +36,25 @@ class FineGrainLineCharacterIndices():
         range_start = self.diff_line_num + specified_line_number_idx + 1
         if range_start >= diff_len:
             range_start = diff_len - 1
+        init_range_start = range_start
         start_line = self.diffs[range_start]
-        while range_start > 0 and \
-                ("[36m" in start_line or start_line.strip() == "" or [w for w in self.source_words if w not in start_line]):
-            range_start -= 1
-            start_line = self.diffs[range_start]
+        tmp_records = []
+        interest_in_diff = []
+        interest_in_diff = [w for w in self.source_words if w not in start_line]
+        tmp_records.append(len(interest_in_diff))
+        while "[36m" in start_line or start_line.strip() == "" or interest_in_diff:
+            if range_start > self.diff_line_num + 1:
+                range_start -= 1
+                start_line = self.diffs[range_start]
+                interest_in_diff = [w for w in self.source_words if w not in start_line]
+                tmp_records.append(len(interest_in_diff))
+            else:
+                starts = list(range(self.diff_line_num + 1, init_range_start + 1))
+                starts.reverse()
+                backup_idx = tmp_records.index(min(tmp_records))
+                range_start = starts[backup_idx]
+                start_line = self.diffs[range_start]
+                break
         
         range_end = None
         partial_diffs = self.diffs[self.diff_line_num+1:] # +1 to skip the current @@ line
@@ -50,15 +65,72 @@ class FineGrainLineCharacterIndices():
         # compute the to-check range end
         if range_end == None:
             range_end = diff_len - 1
-        
+        init_range_end = range_end
+
         end_line = self.diffs[range_end] 
-        while range_end > range_start and ("[36m" in end_line or [w for w in self.source_words if w not in end_line]):
-            range_end -= 1
-            end_line = self.diffs[range_end]
+        tmp_records = []
+        interest_in_diff = []
+        interest_in_diff = [w for w in self.source_words if w not in end_line]
+        tmp_records.append(len(interest_in_diff))
+        while "[36m" in end_line or start_line.strip() == "" or interest_in_diff:
+            if range_end > range_start:
+                range_end -= 1
+                end_line = self.diffs[range_end]
+                interest_in_diff = [w for w in self.source_words if w not in end_line]
+                tmp_records.append(len(interest_in_diff))
+            else:
+                ends = list(range(range_end, init_range_end + 1))
+                ends.reverse()
+                backup_idx = tmp_records.index(min(tmp_records))
+                range_end = ends[backup_idx]
+                end_line = self.diffs[range_end]
+                break
 
         range_end += 1 # to be an open border
         assert range_end != None
-        return range_start, range_end
+        identified_diff_line = None
+        if self.is_start == True:
+            identified_diff_line = start_line
+        else:
+            identified_diff_line = end_line
+
+        identified_diff_line, fine_grained_line_abs = self.get_line_delta(identified_diff_line)
+        return range_start, range_end, identified_diff_line, fine_grained_line_abs
+
+    def get_line_delta(self, identified_diff_line):
+        the_target_lines = self.target_file_lines[self.target_hunk_range.start-1: self.target_hunk_range.stop-1]
+        patterns = [
+            r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])',  # ANSI escape sequences
+            r'\[-',
+            r'-\]',
+            r'\{\+', 
+            r'\+\}'
+        ]
+        # Combine the patterns into a single regex pattern
+        combined_pattern = '|'.join(patterns)
+        regex = re.compile(combined_pattern)
+        identified_diff_line_no_color = regex.sub('', identified_diff_line)
+        
+        check_delta = None
+        for delta, line in enumerate(the_target_lines):
+            line_no_special = line
+            for char in self.special_chars:
+                line_no_special = line_no_special.replace(char, " ")
+            target_words = line_no_special.strip().split(" ")
+            check_delta = [w for w in target_words if w not in identified_diff_line_no_color]
+            if check_delta == []:
+                break
+
+        fine_grained_line_abs = None
+        if check_delta == []:
+            fine_grained_line_abs = self.target_hunk_range.start + delta
+        else:
+            if self.is_start:
+                fine_grained_line_abs = self.target_hunk_range.start
+            else:
+                fine_grained_line_abs = self.target_hunk_range.stop - 1
+
+        return identified_diff_line, fine_grained_line_abs
 
     def check_intra_hunk_deletions(self, range_start, range_end):
         for i in range(range_start, range_end):
@@ -97,7 +169,6 @@ class FineGrainLineCharacterIndices():
         specified_line_number_idx = None
 
         base_list:list = list(self.base_hunk_range)
-        base_list_len = len(base_list)
         if base_list == []: # delete hunk
             specified_line_number_idx = 0
         else:
@@ -105,12 +176,11 @@ class FineGrainLineCharacterIndices():
 
         # remove special characters, reduce/address the fail to identified issue in git diff
         interest_line_characters_no_special_char = self.interest_line_characters
-        special_chars = "!@#$%^&*()_[]{};/<>?\|`~'"
-        for char in special_chars:
+        for char in self.special_chars:
             interest_line_characters_no_special_char = interest_line_characters_no_special_char.replace(char, "")
         self.source_words = interest_line_characters_no_special_char.strip().split(" ")
                 
-        range_start, range_end = self.get_partial_diff_hunk(specified_line_number_idx)
+        range_start, range_end, identified_diff_line, line_delta = self.get_partial_diff_hunk(specified_line_number_idx)
 
         # option 1
         if self.check_if_region_deleted == True: # only check for word level diff
@@ -118,92 +188,7 @@ class FineGrainLineCharacterIndices():
                 self.check_intra_hunk_deletions(range_start, range_end) # update the value of self.region_deleted
             return self.region_deleted
         
-        # option 2
-        # start check to get the first non totally added line
-        identified_diff_line:str = None
-        splits = []
-        possible_diff_lines = [] 
-        line_delta = None
-
-        for z, i in enumerate(range(range_start, range_end)):
-            interest_line_characters_in_diff = self.diffs[i]
-            # get the first 1) modified, or 2) no change
-            if "[36m" in interest_line_characters_in_diff:
-                break # diff misreport
-            elif "[31m" in interest_line_characters_in_diff or \
-                        ("[32" in interest_line_characters_in_diff and \
-                        not (interest_line_characters_in_diff.startswith("\033[32") and interest_line_characters_in_diff.endswith("[m"))):
-                identified_diff_line = interest_line_characters_in_diff
-                line_delta = z
-                break
-            elif not "[31m" in interest_line_characters_in_diff and not "[32m" in interest_line_characters_in_diff: 
-                # no color, no change
-                # no_change_line_idx = self.target_hunk_range.start + specified_line_number_idx + z -1
-                # no_change_line = self.target_file_lines[no_change_line_idx]
-                no_change_line = interest_line_characters_in_diff
-                # special case: git diff able to see the whitespaces changed, but can not see the small changes on special characters
-                # eg., it cannot tell the diff with "attr.start!" and "attr.start"
-                for char in special_chars:
-                    no_change_line_no_special_char = no_change_line.replace(char, "")
-                source_words_in_diff = [word for word in self.source_words if word in no_change_line_no_special_char]
-                if self.source_words == source_words_in_diff:
-                    try: # check if it is a fail to identified case
-                        fine_grained_character_idx = no_change_line.index(self.interest_line_characters)
-                    except: # some token changed, but git diff unable to catch it.
-                        fine_grained_character_idx = None
-                        if self.is_start == True:
-                            check_char_num_in_line = count_leading_whitespace(no_change_line, " ")
-                            check_char_num_in_source = count_leading_whitespace(self.interest_line_characters, " ")
-                            fine_grained_character_idx = check_char_num_in_line - check_char_num_in_source + 1
-                            if fine_grained_character_idx < 0:
-                                fine_grained_character_idx = 0
-                            return fine_grained_character_idx, specified_line_number_idx + 1
-                        else:
-                            fine_grained_character_idx = len(no_change_line)
-                            if not self.interest_line_characters.endswith("\n"):
-                                fine_grained_character_idx -= 1
-                            return fine_grained_character_idx, base_list_len - specified_line_number_idx - 1
-                
-            elif "[32m" in interest_line_characters_in_diff: 
-                if not interest_line_characters_in_diff.endswith("[m") or not interest_line_characters_in_diff.startswith("[32m"):
-                    # added characters mixed with no change characters
-                    possible_diff_lines.append([interest_line_characters_in_diff, z])
-        
-        # handle special cases
-        if identified_diff_line == None: # add characters inside a line, all the words in source are not changed.
-            # assert possible_diff_lines != []
-            # select the top-1 diff lines to get splits
-            if possible_diff_lines != []:
-                for line_list in possible_diff_lines:
-                    line= line_list[0]
-                    source_words_in_diff = [word for word in self.source_words if word in line]
-                    if self.source_words == source_words_in_diff:
-                        # all source words are in current diff line
-                        identified_diff_line = line
-                        line_delta = line_list[1]
-                        break
-                if identified_diff_line == None: # checked all the possibilities, but still fail to get the top-1
-                    # Coarse grained
-                    identified_diff_line = self.diffs[self.diff_line_num + specified_line_number_idx + 1]
-            else: # git diff mis-report, like base hunk with 3 line numbers, but onlt show in 2 lines.
-                if line_delta == None:
-                    line_delta = 0
-                if self.is_start == True:
-                    idx = self.diff_line_num+1
-                    identified_diff_line = self.diffs[idx]
-                    while len(identified_diff_line.strip()) == 0:
-                        idx+=1
-                        identified_diff_line = self.diffs[idx]
-                        line_delta+=1
-                else:
-                    # identified_diff_line = self.diffs[range_end]
-                    idx = range_end-1
-                    identified_diff_line = self.diffs[idx]
-                    while identified_diff_line.strip() == "":
-                        idx-=1
-                        identified_diff_line = self.diffs[idx]
-                        line_delta-=1
-
+        # option 2, check to get the first non totally added line
         assert identified_diff_line != None
         splits = identified_diff_line.split("\033")
         splits = [s for s in splits if not s == "[m"]
@@ -228,8 +213,6 @@ class FineGrainLineCharacterIndices():
         else:
             # step 1: fine grained line index, get the first non totally added line.
             splits, line_delta = results
-            if isinstance(splits, int):
-                return splits, line_delta # fine_grained_character_idx, specified_line_number_idx + 1
 
             # step 2: fine grained character index
             fine_grained_character_idx = None # to return
@@ -254,7 +237,7 @@ class FineGrainLineCharacterIndices():
             '''
             for i, s in enumerate(splits):
                 if self.is_start == True:
-                    if source_pre_characters_len >= self.character_idx: # the closest one before the source start
+                    if source_pre_characters_len >= self.character_idx and self.source_words[0] in pre_1_s: # the closest one before the source start
                         if i == 1 and pre_in_color == False:
                             # the fine_grained_character_idx locates in the first *unchanged* split.
                             fine_grained_character_idx = self.character_idx
@@ -266,7 +249,7 @@ class FineGrainLineCharacterIndices():
                                 fine_grained_character_idx = self.fine_grained_return_helper(
                                         pre_1_s, pre_1_s_len, candidate_pre_characters_len) 
                 else:
-                    if source_pre_characters_len >= self.character_idx:
+                    if source_pre_characters_len >= self.character_idx and self.source_words[-1] in pre_1_s:
                         fit_condition = True
                         if "[32m" in s:
                             ns = s[6:-2]
@@ -304,14 +287,16 @@ class FineGrainLineCharacterIndices():
                 if self.is_start == True:
                     # the candidate_pre_characters are added
                     if pre_in_color == True:
-                        # if the color is [31, candidate_pre_characters_len can be 0, and reultsin < 0 index here
-                        fine_grained_character_idx = candidate_pre_characters_len - pre_1_s_len + 1
+                        if "[31m" in s:
+                            fine_grained_character_idx = candidate_pre_characters_len + 1
+                        else:
+                            fine_grained_character_idx = candidate_pre_characters_len - pre_1_s_len + 1
                     else:
                         fine_grained_character_idx = self.fine_grained_return_helper(
                                 pre_1_s, pre_1_s_len, candidate_pre_characters_len)
                 else:
                     if pre_in_color == True:
-                        fine_grained_character_idx = candidate_pre_characters_len
+                            fine_grained_character_idx = candidate_pre_characters_len
                     else:
                         fine_grained_character_idx = self.fine_grained_return_helper(
                                 pre_1_s, pre_1_s_len, candidate_pre_characters_len)
@@ -326,9 +311,7 @@ class FineGrainLineCharacterIndices():
 
         if self.is_start == True: # start line
             overlapped_num = compute_overlap(s, self.interest_line_characters) # string end vs. string start
-            fine_grained_character_idx = candidate_pre_characters_len - overlapped_num + 1 # starts at 1
-            if fine_grained_character_idx < 1:
-                fine_grained_character_idx = candidate_pre_characters_len + 1
+            fine_grained_character_idx = candidate_pre_characters_len + overlapped_num + 1 # starts at 1
         else: # end line
             overlapped_num = compute_overlap(self.interest_line_characters, s)
             fine_grained_character_idx = candidate_pre_characters_len - (s_len - overlapped_num)

@@ -206,9 +206,12 @@ class GitDiffToCandidateRegion():
                                     fine_grain_start = FineGrainLineCharacterIndices(
                                             self.target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
                                             self.characters_start_idx, self.interest_first_number, interest_first_line_characters, True)
-                                    candidate_character_start_idx, start_line_delta_hint = fine_grain_start.fine_grained_line_character_indices()
-                                    if start_line_delta_hint != None:
-                                        candidate_start_line += start_line_delta_hint
+                                    candidate_character_start_idx_tmp, fine_grained_start_line = fine_grain_start.fine_grained_line_character_indices()
+                                    if fine_grained_start_line != None:
+                                        # candidate_start_line += fine_grained_start_line
+                                        candidate_start_line = fine_grained_start_line
+                                    if candidate_character_start_idx_tmp < len(self.target_file_lines[fine_grained_start_line-1]):
+                                        candidate_character_start_idx = candidate_character_start_idx_tmp
                                     marker = f"{marker}"
                         candidate_character_start_idx_done = True
 
@@ -219,9 +222,12 @@ class GitDiffToCandidateRegion():
                                 fine_grain_end = FineGrainLineCharacterIndices(
                                             self.target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
                                             self.characters_end_idx, self.interest_last_number, interest_last_line_characters, False)
-                                candidate_character_end_idx, end_line_delta_hint = fine_grain_end.fine_grained_line_character_indices()
-                                if end_line_delta_hint != None:
-                                    candidate_end_line -= end_line_delta_hint
+                                candidate_character_end_idx_tmp, fine_grained_end_line = fine_grain_end.fine_grained_line_character_indices()
+                                if fine_grained_end_line != None:
+                                    # candidate_end_line -= fine_grained_end_line
+                                    candidate_end_line = fine_grained_end_line
+                                if candidate_character_end_idx_tmp < len(self.target_file_lines[fine_grained_end_line-1]):
+                                        candidate_character_end_idx = candidate_character_end_idx_tmp
                         candidate_character_end_idx_done = True
 
                     base_hunk_range_list = list(base_hunk_range)
