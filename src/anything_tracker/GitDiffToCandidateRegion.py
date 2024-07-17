@@ -184,6 +184,7 @@ class GitDiffToCandidateRegion():
                 candidate_end_line = target_hunk_range.stop -1
 
                 region_deleted = False # the fully cover hunk may includes the deletion of the source region, it should get a delete candidate.
+                region_deleted_helper = False # as a helper for region_deleted, to show that the region was identifiied as deleted after the fine-grained steps
                 if overlapped_line_numbers: # range overlap
                     marker = f"<{algorithm}><{level}>"
                     if self.interest_first_number in overlapped_line_numbers and candidate_character_start_idx_done == False:
@@ -229,6 +230,8 @@ class GitDiffToCandidateRegion():
                                 if candidate_character_end_idx_tmp < len(self.target_file_lines[fine_grained_end_line-1]):
                                         candidate_character_end_idx = candidate_character_end_idx_tmp
                         candidate_character_end_idx_done = True
+                        if candidate_character_start_idx <= candidate_character_end_idx and candidate_start_line <= candidate_end_line:
+                            region_deleted_helper = True
 
                     base_hunk_range_list = list(base_hunk_range)
                     if base_hunk_range.start == base_hunk_range.stop:
@@ -263,7 +266,7 @@ class GitDiffToCandidateRegion():
                                             current_hunk_range_line, diffs, self.target_file_lines, self.turn_off_techniques.turn_off_fine_grains).run()
                                     if movement_candidate_region != []:
                                         candidate_regions.update(set(movement_candidate_region))
-                                if region_deleted == False:
+                                if region_deleted_helper == True:
                                     continue
 
                             target_hunk_end = target_hunk_range.stop - 1

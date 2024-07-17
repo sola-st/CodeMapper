@@ -237,6 +237,8 @@ class AnythingTrackerOnHistoryPairs():
             # collect candidate str, and contexts
             pre_changed_line_numbers = None
             source_with_context = ""
+            move_detected_candidate_exist = False
+            deleted_candidate_idx = None
             for i, candidate in enumerate(candidate_regions):
                 # option 1: without context
                 if self.context_line_num == 0:
@@ -250,6 +252,12 @@ class AnythingTrackerOnHistoryPairs():
                         source_str_list.append(source_str) # source
                         candidate_with_context = get_context_aware_unchanged_characters(self.target_file_lines, candidate_range, \
                                 0, 0, self.changed_line_numbers_version_maps_target[i]) # target, 0 contexts
+                        move_detected_candidate_exist = True
+                    elif "DELETE" in candidate.marker:
+                        # delete candidates com before movement-detected candidates
+                        source_str_list.append(source_str)
+                        candidate_with_context = source_str # actrually, the target region is empty
+                        deleted_candidate_idx = i
                     else:
                         # source
                         if pre_changed_line_numbers != self.changed_line_numbers_version_maps_source[i]:
@@ -260,6 +268,11 @@ class AnythingTrackerOnHistoryPairs():
                         candidate_with_context = get_context_aware_unchanged_characters(self.target_file_lines, candidate_range, \
                                 self.context_line_num, self.context_line_num, self.changed_line_numbers_version_maps_target[i])
                     candiate_str_list.append(candidate_with_context)
+            
+            if move_detected_candidate_exist == True and deleted_candidate_idx != None:
+                # replace the deleted target region as empty, to let it have may bigger distance than move detected candidates.
+                # in most cases, if a movement was found, the region is (high possiblity) deleted. Sometimes occassional matches also make sense. 
+                candiate_str_list[deleted_candidate_idx] = "" 
 
             assert candiate_str_list != []
             if source_str_list:
