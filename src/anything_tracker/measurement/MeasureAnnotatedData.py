@@ -201,7 +201,7 @@ class MeasureAnnotatedData():
         self.compute_to_write_measurement()
         
 def main_ablation_study(oracle_file, results_dir_parent, results_csv_file_folder):
-    ablation_settings = ["off_all", "off_move", "off_search", "off_fine"]
+    ablation_settings = ["off_diff", "off_move", "off_search", "off_fine"]
     for setting in ablation_settings:
         results_dir = join(results_dir_parent, f"mapped_regions_annodata_{setting}")
         results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_annodata_{setting}.csv")

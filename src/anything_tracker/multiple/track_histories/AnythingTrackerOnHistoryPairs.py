@@ -98,16 +98,21 @@ class AnythingTrackerOnHistoryPairs():
         item_to_extend_source = self.changed_line_numbers_version_maps_source[0]
         item_to_extend_target = self.changed_line_numbers_version_maps_target[0]
 
-        depulicated_diff_candidates = []
-        if diff_candidates:
-            depulicated_diff_candidates, regions, duplicated_indices = deduplicate_candidates(diff_candidates, regions)
-            if depulicated_diff_candidates:
-                candidate_regions.extend(depulicated_diff_candidates)
-            # if the candidates is dupliacted, remove the pre-added changed_line_numbers
-            for removed_count, idx in enumerate(duplicated_indices):
-                pop_idx = len(diff_candidates) + idx - removed_count
-                self.changed_line_numbers_version_maps_source.pop(pop_idx)
-                self.changed_line_numbers_version_maps_target.pop(pop_idx)
+        if self.turn_off_techniques.trun_off_diff_candidate_extraction == True:
+            diff_hunk_lists = []
+            self.changed_line_numbers_version_maps_source = []
+        else:
+            # only deduplicate and add the diff_candidates when the trun_off_diff_candidate_extraction is False
+            depulicated_diff_candidates = []
+            if diff_candidates:
+                depulicated_diff_candidates, regions, duplicated_indices = deduplicate_candidates(diff_candidates, regions)
+                if depulicated_diff_candidates:
+                    candidate_regions.extend(depulicated_diff_candidates)
+                # if the candidates is dupliacted, remove the pre-added changed_line_numbers
+                for removed_count, idx in enumerate(duplicated_indices):
+                    pop_idx = len(diff_candidates) + idx - removed_count
+                    self.changed_line_numbers_version_maps_source.pop(pop_idx)
+                    self.changed_line_numbers_version_maps_target.pop(pop_idx)
 
         # search to map characters
         no_hunk_list = False
