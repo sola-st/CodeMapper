@@ -78,9 +78,13 @@ class MeasureSuppression():
         overlapped_post = [post for post in self.post_dist[1:] if post != None]
         overlapped_dist = [dist for dist in self.dists[1:] if dist != None]
 
-        min_pre, max_pre, avg_pre = calculation_helper(overlapped_pre)
-        min_post, max_post, avg_post = calculation_helper(overlapped_post)
-        min_dist, max_dist, avg_dist = calculation_helper(overlapped_dist)
+        min_pre, max_pre, avg_pre, min_post, max_post, avg_post, min_dist, max_dist, avg_dist = 0, 0 ,0, 0 ,0, 0, 0 ,0 ,0 
+        if overlapped_pre:
+            min_pre, max_pre, avg_pre = calculation_helper(overlapped_pre)
+        if overlapped_post:
+            min_post, max_post, avg_post = calculation_helper(overlapped_post)
+        if overlapped_dist:
+            min_dist, max_dist, avg_dist = calculation_helper(overlapped_dist)
         char_dist_dict = {
             "pre_dist": {"min": min_pre, "max": max_pre, "avg": avg_pre},
             "post_dist": {"min": min_post, "max": max_post, "avg": avg_post},
@@ -149,12 +153,26 @@ class MeasureSuppression():
             histories_regions_all = load_json_file(json_results_file)
             for region in histories_regions_all:
                 ground_truth_idx = region["iteration"]
+                region_target_commit = region["target_commit"]
+                if region["kind"] == "no candidate regions" and "off_diff" in self.results_csv_file:
+                    self.update_results(None, None, None, 0, 0, 0, "W")
+                    if self.indices[-1] == repo:
+                        self.indices[-1] = f"{repo} - {ground_truth_idx}"
+                    else: 
+                        self.indices.append(ground_truth_idx)
+                    self.candidate_nums.append(region["all_candidates_num"])
+                    self.target_region_indices.append(region["index"])
+                    self.predicted_commits.append(region_target_commit)
+                    self.change.append(region["kind"])
+                    self.expected.append(expected_range)
+                    self.predicted.append("no candidate regions")
+                    continue
+
                 # expected
                 oracle_expected_file = join(self.oracle_file_folder, repo, ground_truth_idx, "expect_simple.json")
                 expected_commit_range_pieces:dict = load_json_file(oracle_expected_file)
                 expected_commits = expected_commit_range_pieces.keys()
 
-                region_target_commit = region["target_commit"]
                 region_target_range = region["target_range"]
                 if region_target_range != None:
                     region_target_range = json.loads(region["target_range"])

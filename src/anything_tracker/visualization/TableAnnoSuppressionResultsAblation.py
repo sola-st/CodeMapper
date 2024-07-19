@@ -73,7 +73,7 @@ def get_data(file_list):
 
 def generate_table(data, caption, label, tex_file):
     row_names = ["Overlapping", "Exact matches", "Char. dist.", "Recall", "Precision", "F1-score"]
-    col_names = ["", "- all", "\\makecell{- movement\\\\detection}", "\\makecell{- character\\\\searching}", "\\makecell{- char.\\\\level}", "\\name{}"]
+    col_names = ["", "\\makecell{- diff\\\\extraction}", "\\makecell{- movement\\\\detection}", "\\makecell{- character\\\\searching}", "\\makecell{- char.\\\\level}", "\\name{}"]
 
     latex_table = "\\begin{table}[htbp]\n\\centering\n\\begin{threeparttable}\n\\footnotesize\n"
     latex_table += "\\caption{" + caption + "}\n"
@@ -135,7 +135,7 @@ def suppression_main(file_suffies, common_file_folder, output_dir):
 
 
 if __name__=="__main__":
-    file_suffies = ["off_all", "off_move", "off_search", "off_fine"]
+    file_suffies = ["off_diff", "off_move", "off_search", "off_fine"]
     common_file_folder = join("data", "results", "measurement_results")
     output_dir = join("data", "results", "table_plots")
     makedirs(output_dir, exist_ok=True)

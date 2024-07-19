@@ -5,12 +5,14 @@ from anything_tracker.collect.suppression.SuppressionTypeNumericMaps import get_
 
 class GetSuppressionRange():
     "Return the found range, and the region characters."
-    def __init__(self, maps, repo_dir, commit, file, line_number, suppression_text, suppression_type=None):
+    def __init__(self, maps, repo_dir, commit, file, line_number, suppression_text,
+                add_event_only_suppression_type, suppression_type=None):
         self.maps = maps
         self.repo_dir = repo_dir
         self.commit = commit
         self.file= file
         self.line_number = line_number
+        self.add_event_only_suppression_type = add_event_only_suppression_type
         self.suppression_text = suppression_text # e.g., # pylint: disable=invalid-name
         self.suppression_type = suppression_type #e.g., invalid-name
 
@@ -60,7 +62,7 @@ class GetSuppressionRange():
                 break
         
         if start_split_idx_tmp == None: # inaccurate history
-            return None, None
+            return None, None, None
         
         if not start_split_idx:
             start_split_idx = start_split_idx_tmp -1 # the "#" in the previous split
@@ -77,18 +79,21 @@ class GetSuppressionRange():
         start_character_abs += (len(start_split) - end_delta)
 
         # get the end character location
+        current_only_suppression_type = False
         truncated_line = suppression_line[(start_character_abs-1):].strip()
         if self.suppression_type not in truncated_line: 
             numeric_code = get_mapping_numeric_code(self.maps, self.suppression_type)
             self.suppression_type = numeric_code
 
-        if truncated_line.endswith(self.suppression_type) and not "," in truncated_line: # scenario 1 or 2
+        if truncated_line.endswith(self.suppression_type) and not "," in truncated_line and \
+                self.add_event_only_suppression_type == False: # scenario 1 or 2
             end_character_abs = start_character_abs + len(truncated_line) - 1
         else: # scenario 3 or 4
             # move to foucs on only the suppression type
-            start_character_abs += (truncated_line.index(self.suppression_type) + 1)
+            start_character_abs += truncated_line.index(self.suppression_type)
             end_character_abs = start_character_abs + len(self.suppression_type) -1
+            current_only_suppression_type = True
 
         four_element_range = [self.line_number, start_character_abs, self.line_number, end_character_abs]
         suppression_characters = suppression_line[start_character_abs-1: end_character_abs]
-        return four_element_range, suppression_characters
+        return four_element_range, suppression_characters, current_only_suppression_type

@@ -67,9 +67,13 @@ class MeasureAnnotatedData():
         overlapped_post = [post for post in self.post_dist[1:] if post != None]
         overlapped_dist = [dist for dist in self.dists[1:] if dist != None]
 
-        min_pre, max_pre, avg_pre = calculation_helper(overlapped_pre)
-        min_post, max_post, avg_post = calculation_helper(overlapped_post)
-        min_dist, max_dist, avg_dist = calculation_helper(overlapped_dist)
+        min_pre, max_pre, avg_pre, min_post, max_post, avg_post, min_dist, max_dist, avg_dist = 0, 0 ,0, 0 ,0, 0, 0 ,0 ,0 
+        if overlapped_pre:
+            min_pre, max_pre, avg_pre = calculation_helper(overlapped_pre)
+        if overlapped_post:
+            min_post, max_post, avg_post = calculation_helper(overlapped_post)
+        if overlapped_dist:
+            min_dist, max_dist, avg_dist = calculation_helper(overlapped_dist)
         char_dist_dict = {
             "pre_dist": {"min": min_pre, "max": max_pre, "avg": avg_pre},
             "post_dist": {"min": min_post, "max": max_post, "avg": avg_post},
@@ -151,6 +155,15 @@ class MeasureAnnotatedData():
                 candidate_regions = json.load(f)
 
             for region in candidate_regions: 
+                if region["kind"] == "no candidate regions" and "off_diff" in self.results_csv_file:
+                    self.update_results(None, None, None, 0, 0, 0, "W")
+                    self.candidate_nums.append(region["all_candidates_num"])
+                    self.target_region_indices.append(region["index"])
+                    self.predicted_commits.append(expected_commit)
+                    self.change.append(region["kind"])
+                    self.expected.append(expected_range)
+                    self.predicted.append("no candidate regions")
+                    continue
                 # for target region, should be only one
                 # can be multiple for candidate list
 

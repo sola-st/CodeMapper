@@ -88,7 +88,8 @@ class SuppressionDataConversion():
                 continue
 
             # extract ranges for history peices
-            for h in history_list:
+            previous_only_suppression_type = False
+            for i, h in enumerate(history_list):
                 suppression_text = h["warning_type"]
                 if suppression_text in ["[]", None, ""]:
                     break
@@ -104,8 +105,8 @@ class SuppressionDataConversion():
                 if change_operation == "merge add": # line number is merge unknown
                     pass
                 elif "add" in change_operation or change_operation == "remaining": # add, file add
-                    range, suppression_characters = GetSuppressionRange(self.type_numeric_maps, self.repo_dir, commit,\
-                            join(self.repo_dir, file_path), line_number, suppression_text, suppression_type).run()
+                    range, suppression_characters, only_suppression_type = GetSuppressionRange(self.type_numeric_maps, self.repo_dir, commit,\
+                            join(self.repo_dir, file_path), line_number, suppression_text, previous_only_suppression_type, suppression_type).run()
                     if range:
                         range = f"{range}"
                     else: # inaccurate history from suppression study
@@ -117,6 +118,28 @@ class SuppressionDataConversion():
                 converted_history.append(history_str)
                 extracted_pieces = get_commit_range_pieces(commit, file_path, range)
                 extracted_commit_range_pieces.update(extracted_pieces)
+
+                # rerun for the add event to keep the 2 event get ranges at the same level, e.g., both only suppression type.
+                if i == 1 and previous_only_suppression_type == False and only_suppression_type == True:
+                    # add event gets a full suppression, but delete/remain event only able to get the suppression type
+                    # rerun to get only suppression type for the add event
+                    # otherwise, the ground truth will be inaccurate
+                    assert len(converted_history) == 2
+                    h = history_list[0]
+                    commit = h["commit_id"]
+                    file_path = h["file_path"]
+                    suppression_text = h["warning_type"]
+                    suppression_type = suppression_text.split("=")[1]
+                    line_number = h["line_number"]
+                    range, suppression_characters, only_suppression_type = GetSuppressionRange(self.type_numeric_maps, self.repo_dir, commit,\
+                        join(self.repo_dir, file_path), line_number, suppression_text, only_suppression_type, suppression_type).run()
+                    range = f"{range}"
+                    history_str = get_json_strs(self.url, file_path, commit, range, suppression_text, suppression_characters, meta_idx) 
+                    converted_history[0] = history_str # replace the first round history
+                    extracted_pieces = get_commit_range_pieces(commit, file_path, range)
+                    extracted_commit_range_pieces.update(extracted_pieces)
+                
+                previous_only_suppression_type = only_suppression_type
 
             if converted_history:
                 # meta_idx is the index in oracle and after_filter_idx is the consecutive idx where filtered the meaningless cases.
