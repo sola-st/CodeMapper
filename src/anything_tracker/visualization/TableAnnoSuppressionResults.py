@@ -114,26 +114,25 @@ def generate_table(data, caption, label, tex_file):
     with open(tex_file, "w") as f:
         f.write(latex_table + "\n")
 
-def annotated_data_main():
+def annotated_data_main(common_folder, output_dir):
     # annotated data
-    common = join("data", "results", "measurement_results", "annodata")
+    common = join(common_folder, "annodata")
     file_name_base = "measurement_results_metrics_annodata"
     file_list = [
             join(common, f"{file_name_base}_line.csv"),
             join(common, f"{file_name_base}_word.csv"),
             join(common, f"{file_name_base}.csv")]
     data = get_data(file_list)
-    caption = "Results on tracking annotated data"
+    caption = "Results on tracking manually annotated data"
     label = "results_on_annotated_data"
-    output_dir = join("data", "results", "table_plots")
     makedirs(output_dir, exist_ok=True)
     tex_file = join(output_dir, "annodata_comparison_table.tex")
 
     generate_table(data, caption, label, tex_file)
 
-def suppression_main():
+def suppression_main(common_folder, output_dir):
     # suppression data
-    common = join("data", "results", "measurement_results", "suppression")
+    common = join(common_folder, "suppression")
     file_name_base = "measurement_results_metrics_suppression"
     file_list = [
             join(common, f"{file_name_base}_line.csv"),
@@ -142,7 +141,6 @@ def suppression_main():
     data = get_data(file_list)
     caption = "Results on tracking Python suppressions"
     label = "results_on_suppression"
-    output_dir = join("data", "results", "table_plots")
     makedirs(output_dir, exist_ok=True)
     tex_file = join(output_dir, "suppression_comparison_table.tex")
 
@@ -150,5 +148,7 @@ def suppression_main():
 
 
 if __name__=="__main__":
-    annotated_data_main()
-    suppression_main()
+    common_folder = join("data", "results", "measurement_results")
+    output_dir = join("data", "results", "table_plots")
+    annotated_data_main(common_folder, output_dir)
+    suppression_main(common_folder, output_dir)

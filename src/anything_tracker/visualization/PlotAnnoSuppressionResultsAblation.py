@@ -36,8 +36,11 @@ def plot_recall_sets(data, xticklabels, plot_pdf):
     fig, ax = plt.subplots()
 
     rects1 = ax.barh(ind + width, recall, width, label='Recall', color='skyblue')
-    rects2 = ax.barh(ind, precision, width, label='Precision', color='lightgreen')
-    rects3 = ax.barh(ind - width, f1_score, width, label='F1-score', color='salmon')
+    rects2 = ax.barh(ind, precision, width, label='Precision', color='darkseagreen')
+    rects3 = ax.barh(ind - width, f1_score, width, label='F1-score', color='lightsalmon')
+    autolabel(ax, rects1)
+    autolabel(ax, rects2)
+    autolabel(ax, rects3)
 
     rc('axes', titlesize=12)
     ax.set_yticks(ind)
@@ -47,6 +50,20 @@ def plot_recall_sets(data, xticklabels, plot_pdf):
     plt.tight_layout()
     plt.savefig(plot_pdf)
 
+
+def autolabel(ax, rects):
+    # Attach a text label inside each bar in `rects`, aligned to the right end of the bar.
+    for rect in rects:
+        width = rect.get_width()
+        ax.text(
+            width - 0.1,                      # X position: width of the bar minus a small offset
+            rect.get_y() + rect.get_height() / 2,  # Y position: center of the bar
+            f'{width:.3f}',                   # Text to display: formatted to 2 decimal places
+            ha='right',                       # Horizontal alignment: right
+            va='center',                      # Vertical alignment: center
+            color='white',                    # Text color
+            fontsize=10                       # Font size
+        )
 
 class PlotAnnoSuppressionResultsAblation():
     def __init__(self, file_suffies, common_file_folder, xticklabels, output_dir):
