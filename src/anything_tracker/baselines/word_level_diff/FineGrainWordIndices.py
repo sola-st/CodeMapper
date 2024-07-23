@@ -1,7 +1,3 @@
-from anything_tracker.utils.ComputeOverlapBetween2Strings import compute_overlap
-from anything_tracker.utils.FineGrainedWhitespace import count_leading_whitespace
-
-
 class FineGrainWordIndices():
     def __init__(self, target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
                 character_idx, interest_line_number, interest_line_characters, is_start):
@@ -65,31 +61,22 @@ class FineGrainWordIndices():
         pre_in_color = False # in color: add(green) or delete(red); not in color: no change
         fit_condition = False # False: the condition is not fitted until the last iteration
         
-        '''
-        difference between start and end:
-         * start: [candidate_pre_characters is added, focus on previous] 
-                do not have to add the candidate after the source fit the >= condition
-                finally return: 
-                    the candidate_pre_characters_len (when source_pre_characters_len is fitted) + overlapped leading character nums
-         * end: [add the failed to add candidate_pre_characters, focus on current] 
-                add the candidate after the source fit the >= condition, and then compute overlaps at the end.
-                finally return: 
-                    the candidate_pre_characters_len (when source_pre_characters_len is fitted) + 
-                    failed to add candidate_pre_characters + overlapped ending character nums
-        '''
         for i, s in enumerate(splits):
             if self.is_start == True:
                 if source_pre_characters_len >= self.character_idx: # the closest one before the source start
                     if i == 1 and pre_in_color == False:
                         # the fine_grained_character_idx locates in the first *unchanged* split.
                         fine_grained_character_idx = self.character_idx
-                    else: 
-                        fine_grained_character_idx = candidate_pre_characters_len + 1 
+                    else:
+                        fine_grained_character_idx = candidate_pre_characters_len + 1
             else:
                 if source_pre_characters_len >= self.character_idx:
                     fit_condition = True
-                    ns = s[6:-2]
-                    fine_grained_character_idx = candidate_pre_characters_len + len(ns)
+                    if "[32m" in s:
+                        ns = s[6:-2]
+                        fine_grained_character_idx = candidate_pre_characters_len + len(ns)
+                    else: 
+                        fine_grained_character_idx = candidate_pre_characters_len
                     
             if fine_grained_character_idx != None:
                 return fine_grained_character_idx
@@ -113,25 +100,13 @@ class FineGrainWordIndices():
 
         if fit_condition == False:
             if self.is_start == True:
-                fine_grained_character_idx = candidate_pre_characters_len - pre_1_s_len + 1
+                if "[32m" in s:
+                    fine_grained_character_idx = candidate_pre_characters_len - pre_1_s_len + 1
+                else:
+                    fine_grained_character_idx = candidate_pre_characters_len + 1
             else:
+                if "[31m" in s:
+                     candidate_pre_characters_len += pre_1_s_len
                 fine_grained_character_idx = candidate_pre_characters_len
-
-        if candidate_pre_characters_len < 1:
-            fine_grained_character_idx = self.character_idx
-
-        return fine_grained_character_idx
-
-    def fine_grained_return_helper(self, s, s_len, candidate_pre_characters_len):
-        fine_grained_character_idx = 0
-
-        if self.is_start == True: # start line
-            overlapped_num = compute_overlap(s, self.interest_line_characters) # string end vs. string start
-            fine_grained_character_idx = candidate_pre_characters_len - overlapped_num + 1 # starts at 1
-            if fine_grained_character_idx < 1:
-                fine_grained_character_idx = candidate_pre_characters_len + 1
-        else: # end line
-            overlapped_num = compute_overlap(self.interest_line_characters, s)
-            fine_grained_character_idx = candidate_pre_characters_len - (s_len - overlapped_num)
 
         return fine_grained_character_idx
