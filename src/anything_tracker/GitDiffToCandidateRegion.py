@@ -263,7 +263,7 @@ class GitDiffToCandidateRegion():
 
                                 if self.turn_off_techniques.turn_off_move_detection == False:
                                     movement_candidate_region = DetectMovement(self.interest_character_range, self.source_region_characters, \
-                                            current_hunk_range_line, diffs, self.target_file_lines, self.turn_off_techniques.turn_off_fine_grains).run()
+                                            current_hunk_range_line, diffs, self.target_file_lines).run()
                                     if movement_candidate_region != []:
                                         candidate_regions.update(set(movement_candidate_region))
                                 if region_deleted_helper == True:
@@ -305,7 +305,7 @@ class GitDiffToCandidateRegion():
                             # fully covered by changed hunk, detect possible movement
                             if self.turn_off_techniques.turn_off_move_detection == False:
                                 movement_candidate_region = DetectMovement(self.interest_character_range, self.source_region_characters, \
-                                        current_hunk_range_line, diffs, self.target_file_lines, self.turn_off_techniques.turn_off_fine_grains).run()
+                                        current_hunk_range_line, diffs, self.target_file_lines).run()
                                 if movement_candidate_region != []:
                                     candidate_regions.update(set(movement_candidate_region))
                     else:

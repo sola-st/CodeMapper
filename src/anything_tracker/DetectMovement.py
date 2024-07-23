@@ -36,13 +36,12 @@ def find_pair(start_line_char_list, end_line_char_list, delta):
 
 class DetectMovement():
     def __init__(self, interest_character_range, source_region_characters:list, \
-                fully_covered_diff_line, diffs, target_file_lines, turn_off_fine_grains:bool):
+                fully_covered_diff_line, diffs, target_file_lines):
         self.interest_character_range = interest_character_range
         self.source_region_characters = source_region_characters
         self.fully_covered_diff_line = fully_covered_diff_line
         self.diffs = diffs
         self.target_file_lines = target_file_lines
-        self.turn_off_fine_grains = turn_off_fine_grains
         self.moved_lines_num = len(source_region_characters)
 
     def get_region_indices(self):
@@ -75,13 +74,10 @@ class DetectMovement():
                 candidate_source_line = num
                 # character
                 if is_start == True: # for start line and character
-                    if self.turn_off_fine_grains == True:
-                        candidate_source_idx = 1
-                    else: # we always annotate region start with no whitespaces.
-                        candidate_source_idx = line.index(source_line.strip()) + 1 # to start at 1
-                        # andidate_source_idx = len(line) - len(line.lstrip()) + 1 # this is should be the same as above
+                    candidate_source_idx = line.index(source_line.strip()) + 1 # to start at 1
                 else:
                     candidate_source_idx = len(line) - 1 # to exclude the final "\n"
+                    # candidate_source_idx = line.index(source_line.strip()) + len(source_line.strip())
 
                 assert candidate_source_line != None
                 assert candidate_source_idx != None

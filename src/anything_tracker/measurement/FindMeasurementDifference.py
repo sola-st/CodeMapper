@@ -29,7 +29,7 @@ def tell_the_differences(common_meta_lines, ranges_and_matches, results_csv_file
     i = 0
     for match_line, match_word, match_at in zip(matches_line, matches_word, matches_at):
         match_set = set([match_line, match_word, match_at])
-        if len(match_set) > 1: # the results differ
+        if not "Y" in match_set: # the results differ
             # different_cases.append
             case_data = common_meta_lines[i]
             case_data.append(range_line[i])
@@ -47,10 +47,10 @@ def tell_the_differences(common_meta_lines, ranges_and_matches, results_csv_file
             csv_writer.writerow(row)
 
 
-def annotated_data_main():
+def annotated_data_main(common_folder):
     # annotated data
-    common = join("data", "results", "measurement_results", "annodata")
-    results_csv_file = join(common, "different_cases.csv")
+    common = join(common_folder, "annodata")
+    results_csv_file = join(common, "different_cases_closer_matching.csv")
     file_name_base = "measurement_results_metrics_annodata"
     file_list = [
             join(common, f"{file_name_base}_line.csv"),
@@ -59,10 +59,10 @@ def annotated_data_main():
     common_meta_lines, ranges_and_matches = get_target_range_and_match_results(file_list)
     tell_the_differences(common_meta_lines, ranges_and_matches, results_csv_file)
 
-def suppression_main():
+def suppression_main(common_folder):
     # suppression data
-    common = join("data", "results", "measurement_results", "suppression")
-    results_csv_file = join(common, "different_cases.csv")
+    common = join(common_folder, "suppression")
+    results_csv_file = join(common, "different_cases_closer_matching.csv")
     file_name_base = "measurement_results_metrics_suppression"
     file_list = [
             join(common, f"{file_name_base}_line.csv"),
@@ -73,5 +73,6 @@ def suppression_main():
 
 
 if __name__=="__main__":
-    annotated_data_main()
-    suppression_main()
+    common_folder = join("data", "results", "icse", "measurement_results")
+    annotated_data_main(common_folder)
+    suppression_main(common_folder)

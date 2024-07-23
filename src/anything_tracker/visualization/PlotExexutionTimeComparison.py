@@ -37,6 +37,35 @@ def plot_comparison(xticklabels, overall_data, result_pdf): # [line_data, word_d
         
     plt.savefig(result_pdf)
 
+def plot_comparison_violin(xticklabels, overall_data, result_pdf):
+    fig, ax = plt.subplots()
+    parts = ax.violinplot(overall_data, showmeans=True, showmedians=True)
+
+    ax.set_xticks(np.arange(1, len(xticklabels) + 1))
+    ax.set_xticklabels(xticklabels, fontsize=12)
+    ax.set_ylabel('Execution time (seconds)', fontsize=12)
+
+    line_data, word_data, at_data = overall_data
+    medians = [np.median(line_data), np.median(word_data), np.median(at_data)]
+    means = [np.mean(line_data), np.mean(word_data), np.mean(at_data)]
+    # Add text annotations for median values
+    for i, (median, mean) in enumerate(zip(medians, means)):
+        ax.text(i + 1, median, f'Median: {median:.3f}', ha='center', va='center')
+        ax.text(i + 1, mean * 2, f'Avg: {mean:.3f}', ha='center', va='center') 
+
+    # Customize the violin plot appearance
+    for partname in ('cbars', 'cmins', 'cmaxes', 'cmedians'):
+        vp = parts[partname]
+        vp.set_edgecolor('black')
+        vp.set_linewidth(1)
+
+    for pc in parts['bodies']:
+        pc.set_facecolor('lightblue')
+        pc.set_edgecolor('black')
+        pc.set_alpha(0.7)
+
+    plt.savefig(result_pdf)
+
 def main_baseline_comparison():
     execution_time_folder = join("data", "results", "execution_time")
     xticklabels = [r'$\text{diff}_{\text{line}}$', r'$\text{diff}_{\text{word}}$', 'AnythingTracker']

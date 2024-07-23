@@ -76,11 +76,11 @@ class GetSuppressionRange():
         start_split = suppression_line_splits[start_split_idx]
         reversed(start_split)
         end_delta = start_split.index("#")
-        start_character_abs += (len(start_split) - end_delta)
+        start_character_abs += (len(start_split) - end_delta) - 1
 
         # get the end character location
         current_only_suppression_type = False
-        truncated_line = suppression_line[(start_character_abs-1):].strip()
+        truncated_line = suppression_line[(start_character_abs-1):].rstrip()
         if self.suppression_type not in truncated_line: 
             numeric_code = get_mapping_numeric_code(self.maps, self.suppression_type)
             self.suppression_type = numeric_code
@@ -91,6 +91,8 @@ class GetSuppressionRange():
         else: # scenario 3 or 4
             # move to foucs on only the suppression type
             start_character_abs += truncated_line.index(self.suppression_type)
+            if suppression_line[start_character_abs-1].isalnum() == False:
+                start_character_abs += 1
             end_character_abs = start_character_abs + len(self.suppression_type) -1
             current_only_suppression_type = True
 
