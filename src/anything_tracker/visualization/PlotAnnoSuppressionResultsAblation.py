@@ -100,12 +100,13 @@ class PlotAnnoSuppressionResultsAblation():
 
 
 if __name__=="__main__":
-    file_suffies = ["off_diff", "off_move", "off_search", "off_fine"]
+    file_suffies = ["off_diff", "off_move", "off_search", "off_fine", "off_context"]
     common_file_folder = join("data", "results", "measurement_results")
     xticklabels = ["Disable diff-based\ncandidate extraction", 
                    "Disable movement\ndetection", 
                    "Disable character\nsearching", 
-                   "Disable character-level\nregion computation", 
+                   "Disable candidate\nrefinement", 
+                   "Disable context-aware\nsimilarity",
                    "AnythingTracker"]
     output_dir = join("data", "results", "table_plots")
     makedirs(output_dir, exist_ok=True)

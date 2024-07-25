@@ -135,7 +135,7 @@ def suppression_main(file_suffies, common_file_folder, output_dir):
 
 
 if __name__=="__main__":
-    file_suffies = ["off_diff", "off_move", "off_search", "off_fine"]
+    file_suffies = ["off_diff", "off_move", "off_search", "off_fine", "off_context"]
     common_file_folder = join("data", "results", "measurement_results")
     output_dir = join("data", "results", "table_plots")
     makedirs(output_dir, exist_ok=True)

@@ -94,6 +94,9 @@ def main_ablation_study(oracle_file, result_dir_parent, time_file_folder, contex
 def main_anythingtracker(oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques):
     result_dir = join(result_dir_parent, "mapped_regions_annodata")
     time_file_to_write = join(time_file_folder, "execution_time_annodata.csv")
+    if context_line_num == 0: # off_context
+        result_dir = f"{result_dir}_off_context"
+        time_file_to_write = time_file_to_write.replace(".csv", "_off_context.csv")
     turn_off_techniques_obj = SpecifyToTurnOffTechniques(turn_off_techniques)
     ComputeCandidatesForAnnoData(oracle_file, result_dir, context_line_num, time_file_to_write, turn_off_techniques_obj).run()
 
