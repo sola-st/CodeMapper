@@ -148,7 +148,9 @@ class GitDiffToCandidateRegionUI():
                                 candidate_character_end_idx = len(self.target_file_lines[hunk_end-1])
 
                             character_range = CharacterRange([candidate_start_line, candidate_character_start_idx, candidate_end_line, candidate_character_end_idx])
-                            candidate_characters = get_region_characters(self.target_file_lines, character_range)
+                            candidate_characters, fixed_character_range = get_region_characters(self.target_file_lines, character_range)
+                            if fixed_character_range != None:
+                                character_range = fixed_character_range
                             candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, marker)
                             candidate_regions.append(candidate_region)
                     else:
@@ -176,7 +178,9 @@ class GitDiffToCandidateRegionUI():
                 not bottom_diff_hunks:
             # No changed lines, with only line number changed.
             character_range = CharacterRange([changed_line_numbers_list[0], self.characters_start_idx, changed_line_numbers_list[-1], self.characters_end_idx])
-            candidate_characters = get_region_characters(self.target_file_lines, character_range)
+            candidate_characters, fixed_character_range = get_region_characters(self.target_file_lines, character_range)
+            if fixed_character_range != None:
+                character_range = fixed_character_range
             candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, "<LOCATION_HELPER:DIFF_NO_CHANGE>")
             candidate_regions.append(candidate_region)
 

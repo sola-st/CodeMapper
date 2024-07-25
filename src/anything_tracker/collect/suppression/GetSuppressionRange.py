@@ -77,6 +77,8 @@ class GetSuppressionRange():
         reversed(start_split)
         end_delta = start_split.index("#")
         start_character_abs += (len(start_split) - end_delta) - 1
+        while suppression_line[start_character_abs-1] != "#":
+            start_character_abs += 1
 
         # get the end character location
         current_only_suppression_type = False

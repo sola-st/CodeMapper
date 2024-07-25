@@ -265,7 +265,7 @@ class AnythingTrackerOnHistoryPairs():
                                 0, 0, self.changed_line_numbers_version_maps_target[i]) # target, 0 contexts
                         move_detected_candidate_exist = True
                     elif "DELETE" in candidate.marker:
-                        # delete candidates com before movement-detected candidates
+                        # delete candidates come before movement-detected candidates
                         source_str_list.append(source_str)
                         candidate_with_context = source_str # actrually, the target region is empty
                         deleted_candidate_idx = i

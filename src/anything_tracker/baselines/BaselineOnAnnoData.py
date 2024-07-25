@@ -57,10 +57,10 @@ class BaselineOnAnnoData():
 
     def run(self):
         # prepare repositories
-        source_repo_init = SourceRepos()
-        repo_dirs = source_repo_init.get_repo_dirs()
-        source_repo_init.checkout_latest_commits()
-        print(f"Found {len(repo_dirs)} repositories.")
+        # source_repo_init = SourceRepos()
+        # repo_dirs = source_repo_init.get_repo_dirs()
+        # source_repo_init.checkout_latest_commits()
+        # print(f"Found {len(repo_dirs)} repositories.")
 
         args_for_all_maps = self.get_meta_inputs()
         for args in args_for_all_maps:
@@ -79,10 +79,10 @@ class BaselineOnAnnoData():
 
 
 if __name__ == "__main__":
-    level = "word"
-    result_dir_parent = join("data", "results", "tracked_maps", "annodata", f"mapped_regions_annodata_{level}")
+    level = "line"
+    result_dir_parent = join("data", "results", "icse", "tracked_maps", "annodata", f"mapped_regions_annodata_{level}")
     oracle_file = join("data", "annotation", "annotations_100.json")
-    time_file_folder = join("data", "results", "execution_time", "annodata")
+    time_file_folder = join("data", "results", "icse", "execution_time", "annodata")
     makedirs(time_file_folder, exist_ok=True)
     time_file_to_write = join(time_file_folder, f"execution_time_baseline_{level}.csv")
     BaselineOnAnnoData(oracle_file, result_dir_parent, time_file_to_write, level).run()

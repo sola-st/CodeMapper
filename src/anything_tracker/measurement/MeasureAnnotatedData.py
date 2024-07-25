@@ -173,6 +173,8 @@ class MeasureAnnotatedData():
                 predicted_range = None
                 if region["target_range"] != None:
                     predicted_range = json.loads(region["target_range"])
+                    if predicted_range.count(0) >= 3: # for diff deletions: [0, 0, target_hunk_range.stop, 0]
+                        predicted_range = None
                     
                 if predicted_file == expected_file or (predicted_file == None and expected_range == None):
                     if predicted_range == expected_range:

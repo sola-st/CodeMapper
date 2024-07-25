@@ -154,7 +154,9 @@ class DetectMovement():
                 for loc in locations:
                     candidate_start_line, candidate_character_start_idx, candidate_end_line, candidate_character_end_idx = loc
                     character_range = CharacterRange([candidate_start_line, candidate_character_start_idx, candidate_end_line, candidate_character_end_idx])
-                    candidate_characters = get_region_characters(self.target_file_lines, character_range)
+                    candidate_characters, fixed_character_range = get_region_characters(self.target_file_lines, character_range)
+                    if fixed_character_range != None:
+                        character_range = fixed_character_range
                     candidate_region = CandidateRegion(self.interest_character_range, character_range, candidate_characters, marker)
                     candidate_region_list.append(candidate_region)
         else:

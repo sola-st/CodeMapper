@@ -183,6 +183,8 @@ class MeasureSuppression():
                     file_range_info = expected_commit_range_pieces[region_target_commit]
                     if file_range_info["range"] not in [None, "[]"]:
                         expected_range = json.loads(file_range_info["range"])
+                        if expected_range.count(0) >= 3: # for diff deletions: [0, 0, target_hunk_range.stop, 0]
+                            expected_range = None
                     expected_file = file_range_info["file"]
                     if region_target_file == expected_file or (region_target_file == None and expected_range == None):
                         if region_target_range == expected_range:

@@ -130,7 +130,9 @@ class CombineToCandidateRegion():
 
         region_range = [range_start_line, range_start_char, range_end_line, range_end_char]
         candidate_region_range = CharacterRange(region_range)
-        candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
+        candidate_characters, fixed_character_range = get_region_characters(self.target_file_lines, candidate_region_range)
+        if fixed_character_range != None:
+            candidate_region_range = fixed_character_range
         candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
         candidate_region_top_bottom_with_changed_lines.append(candidate_region)
 
@@ -152,7 +154,9 @@ class CombineToCandidateRegion():
         
         region_range = [top_hunk_start_line, top_hunk_start_character, bottom_last_unchanged_line, end_char]
         candidate_region_range = CharacterRange(region_range)
-        candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
+        candidate_characters, fixed_character_range = get_region_characters(self.target_file_lines, candidate_region_range)
+        if fixed_character_range != None:
+            candidate_region_range = fixed_character_range
         candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
         candidate_region_top_with_changed_lines.append(candidate_region)
 
@@ -176,7 +180,9 @@ class CombineToCandidateRegion():
         
         region_range = [top_1st_unchanged_line, start_char, end_line, characters_end_idx]
         candidate_region_range = CharacterRange(region_range)
-        candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
+        candidate_characters, fixed_character_range = get_region_characters(self.target_file_lines, candidate_region_range)
+        if fixed_character_range != None:
+            candidate_region_range = fixed_character_range
         candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
         candidate_region_bottom_with_changed_lines.append(candidate_region)
         
@@ -204,7 +210,9 @@ class CombineToCandidateRegion():
         region_range = [first_unchanged_line, self.interest_character_range.characters_start_idx,
                         last_unchanged_line, self.interest_character_range.characters_end_idx]
         candidate_region_range = CharacterRange(region_range)
-        candidate_characters = get_region_characters(self.target_file_lines, candidate_region_range)
+        candidate_characters, fixed_character_range = get_region_characters(self.target_file_lines, candidate_region_range)
+        if fixed_character_range != None:
+            candidate_region_range = fixed_character_range
         candidate_region = CandidateRegion(self.interest_character_range, candidate_region_range, candidate_characters, marker)
         candidate_region_cover_changed_lines.append(candidate_region)
         
