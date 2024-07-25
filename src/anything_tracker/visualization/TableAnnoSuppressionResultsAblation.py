@@ -73,9 +73,14 @@ def get_data(file_list):
 
 def generate_table(data, caption, label, tex_file):
     row_names = ["Overlapping", "Exact matches", "Char. dist.", "Recall", "Precision", "F1-score"]
-    col_names = ["", "\\makecell{- diff\\\\extraction}", "\\makecell{- movement\\\\detection}", "\\makecell{- character\\\\searching}", "\\makecell{- char.\\\\level}", "\\name{}"]
+    col_names = ["", "\\makecell{- diff\\\\extraction}", 
+                 "\\makecell{- movement\\\\detection}", 
+                 "\\makecell{- character\\\\searching}",
+                 "\\makecell{- char.\\\\level}", 
+                 "\\makecell{- context.\\\\similarity}",
+                 "\\name{}"]
 
-    latex_table = "\\begin{table}[htbp]\n\\centering\n\\begin{threeparttable}\n\\footnotesize\n"
+    latex_table = "\\begin{table}[t]\n\\centering\n\\begin{threeparttable}\n\\footnotesize\n"
     latex_table += "\\caption{" + caption + "}\n"
     latex_table += "\\label{tab:" + label + "}\n"
     latex_table += "\\begin{tabular}{@{}" + "l" + "".join(["r"] * len(col_names)) + "@{}}\n"

@@ -154,6 +154,7 @@ class MeasureSuppression():
             for region in histories_regions_all:
                 ground_truth_idx = region["iteration"]
                 region_target_commit = region["target_commit"]
+                expected_range = None
                 if region["kind"] == "no candidate regions" and "off_diff" in self.results_csv_file:
                     self.update_results(None, None, None, 0, 0, 0, "W")
                     if self.indices[-1] == repo:
@@ -176,7 +177,7 @@ class MeasureSuppression():
                 region_target_range = region["target_range"]
                 if region_target_range != None:
                     region_target_range = json.loads(region["target_range"])
-                expected_range = None
+                
                 if region_target_commit in expected_commits:
                     region_target_file = region["target_file"]
                     file_range_info = expected_commit_range_pieces[region_target_commit]

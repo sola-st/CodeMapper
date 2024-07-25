@@ -93,7 +93,7 @@ def generate_table(data, caption, label, tex_file):
     row_names = ["Overlapping", "Exact matches", "Char. dist. of partial overlaps", "Recall", "Precision", "F1-score"]
     col_names = ["", "diff\\textsubscript{line}", "diff\\textsubscript{word}", "\\name{}"]
 
-    latex_table = "\\begin{table}[htbp]\n\\centering\n\\footnotesize\n"
+    latex_table = "\\begin{table}[t]\n\\centering\n\\footnotesize\n"
     latex_table += "\\caption{" + caption + "}\n"
     latex_table += "\\begin{tabular}{@{}" + "l" + "".join(["r"] * len(col_names)) + "@{}}\n"
     latex_table += "\\hline\n"
