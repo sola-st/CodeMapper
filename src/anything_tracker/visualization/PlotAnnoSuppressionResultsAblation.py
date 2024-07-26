@@ -45,7 +45,7 @@ def plot_recall_sets(data, xticklabels, plot_pdf):
     rc('axes', titlesize=12)
     ax.set_yticks(ind)
     ax.set_yticklabels(xticklabels)
-    ax.legend(loc='upper left', bbox_to_anchor=(0, 1))
+    ax.legend(loc='upper right', bbox_to_anchor=(1, 1))
 
     plt.tight_layout()
     plt.savefig(plot_pdf)

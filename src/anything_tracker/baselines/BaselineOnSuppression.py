@@ -107,10 +107,12 @@ class BaselineOnSuprression():
 
 
 if __name__ == "__main__":
-    level = "line"
-    result_dir_parent = join("data", "results", "tracked_maps", "suppression", f"mapped_regions_suppression_{level}")
-    oracle_history_parent_folder = join("data", "suppression_data")
-    time_file_folder = join("data", "results", "execution_time", "suppression")
-    makedirs(time_file_folder, exist_ok=True)
-    time_file_to_write = join(time_file_folder, f"execution_time_suppression_{level}.csv")
-    BaselineOnSuprression(oracle_history_parent_folder, result_dir_parent, time_file_to_write, level).run()
+    levels = ["line", "word"]
+    for level in levels:
+        result_dir_parent = join("data", "results", "tracked_maps", "suppression", f"mapped_regions_suppression_{level}")
+        oracle_history_parent_folder = join("data", "suppression_data")
+        time_file_folder = join("data", "results", "execution_time", "suppression")
+        makedirs(time_file_folder, exist_ok=True)
+        time_file_to_write = join(time_file_folder, f"execution_time_suppression_{level}.csv")
+        BaselineOnSuprression(oracle_history_parent_folder, result_dir_parent, time_file_to_write, level).run()
+        print(f"Baseline {level} level done.")

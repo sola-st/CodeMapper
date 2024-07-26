@@ -69,9 +69,9 @@ def get_data(file_list):
         dists.append(dist)
 
         match.append(overlappings)
-        match_num_rate.append(f"{overlappings}({overlapping_rate}\%)")
+        match_num_rate.append(f"{overlappings} ({overlapping_rate}\%)")
         exact_match.append(e_matches)
-        exact_match_num_rate.append(f"{e_matches}({e_matches_rate}\%)")
+        exact_match_num_rate.append(f"{e_matches} ({e_matches_rate}\%)")
 
         recall, precision, f1 = summary[2: 5] 
         # the float() will truncate the tailing zeros, but we need to compare the numbers
