@@ -51,13 +51,19 @@ class MeasureSuppression():
         self.is_matched_set.append(compare_results)
         self.notes.append(note)
 
-    def count_no_change(self):
-        line_no_change_num = len([c for c in self.change if "<LOCATION_HELPER:DIFF_NO_CHANGE>" in c])
-        no_change_dict = {
-            "line_no_change": line_no_change_num
-        }
-        no_change_str = json.dumps(no_change_dict)
-        self.change.append(no_change_str)
+    def count_operations(self):
+        operation_keywords = ["DELETE", "DIFF_FULLY_COVER", "OVERLAP", "SEARCH", "MOVE"]
+        counts = {fixed_string: 0 for fixed_string in operation_keywords}
+
+        for s in self.change:
+            for fixed_string in operation_keywords:
+                counts[fixed_string] += s.count(fixed_string)
+
+        operation_dict = {}
+        for fixed_string, count in counts.items():
+            operation_dict.update({f"{fixed_string}": count})
+
+        self.change.append(json.dumps(operation_dict))
 
     def count_exact_matches(self):
         y_num = self.is_matched_set.count("Y")
@@ -94,7 +100,7 @@ class MeasureSuppression():
         self.dists.append(char_dist_str)
 
     def compute_to_write_measurement(self):
-        self.count_no_change() # 0
+        self.count_operations() # 0
         self.count_exact_matches() # 1
         self.character_distance_computation() # 2
         

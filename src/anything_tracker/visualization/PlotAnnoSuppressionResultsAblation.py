@@ -15,7 +15,7 @@ def get_data(file_list):
             line_list = list(csv_reader)
             summary_line = line_list[-1]
         # summary should be [YMW, pre character distance, post, all, recall, precision, f1, note]
-        summary = [s for s in summary_line if s and "line_no_change" not in s] 
+        summary = [s for s in summary_line if s and "MOVE" not in s] 
         # recall, precision, f1 = summary[2: 5] 
         recall_set = summary[2: 5] 
         to_numbers = [float(n) for n in recall_set] # the float() will truncate the tailing zeros
@@ -100,15 +100,15 @@ class PlotAnnoSuppressionResultsAblation():
 
 
 if __name__=="__main__":
-    file_suffies = ["off_diff", "off_move", "off_search", "off_fine", "off_context"]
+    file_suffies = ["off_diff",  "off_fine", "off_move", "off_search", "off_context"]
     common_file_folder = join("data", "results", "measurement_results")
     xticklabels = ["Disable diff-based\ncandidate extraction", 
+                   "Disable candidate\nrefinement", 
                    "Disable movement\ndetection", 
                    "Disable character\nsearching", 
-                   "Disable candidate\nrefinement", 
                    "Disable context-aware\nsimilarity",
                    "AnythingTracker"]
-    output_dir = join("data", "results", "table_plots")
+    output_dir = join("data", "results","table_plots")
     makedirs(output_dir, exist_ok=True)
     init = PlotAnnoSuppressionResultsAblation(file_suffies, common_file_folder, xticklabels, output_dir)
     init.annotated_data_main()

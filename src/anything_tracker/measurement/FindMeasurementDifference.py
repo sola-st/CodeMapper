@@ -29,7 +29,10 @@ def tell_the_differences(common_meta_lines, ranges_and_matches, results_csv_file
     i = 0
     for match_line, match_word, match_at in zip(matches_line, matches_word, matches_at):
         match_set = set([match_line, match_word, match_at])
-        if not "Y" in match_set: # the results differ
+        # if not "Y" in match_set:  # closer matching
+        if len(match_set) > 1: # the results differ
+        # if len(match_set) > 1 and match_at == "Y": # only anythingtracker
+        # if match_line == match_word == "Y":
             # different_cases.append
             case_data = common_meta_lines[i]
             case_data.append(range_line[i])
@@ -50,7 +53,7 @@ def tell_the_differences(common_meta_lines, ranges_and_matches, results_csv_file
 def annotated_data_main(common_folder):
     # annotated data
     common = join(common_folder, "annodata")
-    results_csv_file = join(common, "different_cases_closer_matching.csv")
+    results_csv_file = join(common, "different_cases.csv")
     file_name_base = "measurement_results_metrics_annodata"
     file_list = [
             join(common, f"{file_name_base}_line.csv"),
@@ -62,7 +65,7 @@ def annotated_data_main(common_folder):
 def suppression_main(common_folder):
     # suppression data
     common = join(common_folder, "suppression")
-    results_csv_file = join(common, "different_cases_closer_matching.csv")
+    results_csv_file = join(common, "different_cases.csv")
     file_name_base = "measurement_results_metrics_suppression"
     file_list = [
             join(common, f"{file_name_base}_line.csv"),
@@ -73,6 +76,6 @@ def suppression_main(common_folder):
 
 
 if __name__=="__main__":
-    common_folder = join("data", "results", "icse", "measurement_results")
+    common_folder = join("data", "results", "measurement_results")
     annotated_data_main(common_folder)
     suppression_main(common_folder)

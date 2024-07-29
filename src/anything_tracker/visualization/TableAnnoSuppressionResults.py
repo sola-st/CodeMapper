@@ -57,7 +57,7 @@ def get_data(file_list):
             summary_line = line_list[-1]
 
         # summary should be [YMW, pre character distance, post, all, recall, precision, f1, note]
-        summary = [s for s in summary_line if s and "line_no_change" not in s] 
+        summary = [s for s in summary_line if s and "MOVE" not in s] 
         match_results = json.loads(summary[0])
         e_matches = match_results["Y"]
         partial_overlaps = match_results["M"]
