@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "b3e51fef": {
+        "file": "magenta/models/music_vae/data.py",
+        "range": "[644, 45, 644, 66]"
+    },
+    "22af57fd": {
+        "file": "magenta/models/music_vae/data.py",
+        "range": "[917, 45, 917, 66]"
+    }
+}

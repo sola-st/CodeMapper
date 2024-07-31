@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/magenta/magenta.git",
+        "file_path": "magenta/models/latent_transfer/common_joint.py",
+        "commit": "586d65f7",
+        "range": "[622, 22, 622, 36]",
+        "source_info_study": "# pylint: disable=unused-variable",
+        "source_info_extracted": "unused-variable",
+        "mapped_oracle_idx": 6
+    },
+    {
+        "url": "https://github.com/magenta/magenta.git",
+        "file_path": "magenta/models/latent_transfer/common_joint.py",
+        "commit": "22af57fd",
+        "range": "[624, 22, 624, 36]",
+        "source_info_study": "# pylint:disable=unused-variable",
+        "source_info_extracted": "unused-variable",
+        "mapped_oracle_idx": 6
+    }
+]

@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "2da41c93": {
+        "file": "celery/events/__init__.py",
+        "range": "[33, 1, 33, 38]"
+    },
+    "56f839f5": {
+        "file": "celery/events/__init__.py",
+        "range": null
+    }
+}

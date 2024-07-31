@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapf/yapflib/yapf_api.py",
+        "commit": "46fe382a",
+        "range": "[155, 66, 155, 91]",
+        "source_info_study": "# pylint: disable=g-explicit-bool-comparison",
+        "source_info_extracted": "g-explicit-bool-comparison",
+        "mapped_oracle_idx": 18
+    },
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapf/yapflib/yapf_api.py",
+        "commit": "2d5b4d87",
+        "range": "[211, 66, 211, 91]",
+        "source_info_study": "# pylint: disable=g-explicit-bool-comparison",
+        "source_info_extracted": "g-explicit-bool-comparison",
+        "mapped_oracle_idx": 18
+    }
+]

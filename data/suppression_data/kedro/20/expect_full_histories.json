@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "kedro/framework/cli/project.py",
+        "commit": "d490bf91",
+        "range": "[414, 55, 414, 69]",
+        "source_info_study": "# pylint: disable=too-many-locals",
+        "source_info_extracted": "too-many-locals",
+        "mapped_oracle_idx": 155
+    },
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "kedro/framework/cli/project.py",
+        "commit": "4bd0bee4",
+        "range": "[420, 54, 420, 68]",
+        "source_info_study": "# pylint: disable=too-many-locals",
+        "source_info_extracted": "too-many-locals",
+        "mapped_oracle_idx": 155
+    }
+]

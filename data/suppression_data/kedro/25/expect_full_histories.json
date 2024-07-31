@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "tests/extras/datasets/spark/conftest.py",
+        "commit": "8c7eb3cd",
+        "range": "[38, 27, 38, 71]",
+        "source_info_study": "# pylint: disable=abstract-class-instantiated",
+        "source_info_extracted": "# pylint: disable=abstract-class-instantiated",
+        "mapped_oracle_idx": 10
+    },
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "tests/extras/datasets/spark/conftest.py",
+        "commit": "d641339b",
+        "range": null,
+        "source_info_study": "# pylint: disable=abstract-class-instantiated",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 10
+    }
+]

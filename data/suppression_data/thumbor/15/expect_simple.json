@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "3d5fbe93": {
+        "file": "thumbor/handlers/__init__.py",
+        "range": "[36, 66, 36, 91]"
+    },
+    "a12fb1bd": {
+        "file": "thumbor/handlers/__init__.py",
+        "range": "[36, 66, 36, 91]"
+    }
+}

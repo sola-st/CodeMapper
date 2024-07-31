@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "14da1ee1": {
+        "file": "thumbor/error_handlers/sentry.py",
+        "range": "[42, 59, 42, 91]"
+    },
+    "a12fb1bd": {
+        "file": "thumbor/error_handlers/sentry.py",
+        "range": "[44, 9, 44, 41]"
+    }
+}

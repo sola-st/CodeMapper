@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "49834dd8": {
+        "file": "features/steps/test_plugin/plugin.py",
+        "range": "[38, 27, 38, 41]"
+    },
+    "4bd0bee4": {
+        "file": "features/steps/test_plugin/plugin.py",
+        "range": "[16, 27, 16, 41]"
+    }
+}

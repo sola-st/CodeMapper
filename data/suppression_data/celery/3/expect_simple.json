@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "0e93ee0c": {
+        "file": "celery/worker/consumer/consumer.py",
+        "range": "[559, 43, 559, 72]"
+    },
+    "40ef2978": {
+        "file": "celery/worker/consumer/consumer.py",
+        "range": null
+    }
+}

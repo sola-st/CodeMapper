@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapf/yapflib/subtype_assigner.py",
+        "commit": "b5bb4023",
+        "range": "[92, 35, 92, 64]",
+        "source_info_study": "# pylint: disable=invalid-name",
+        "source_info_extracted": "# pylint: disable=invalid-name",
+        "mapped_oracle_idx": 4
+    },
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapf/yapflib/subtype_assigner.py",
+        "commit": "843e48c6",
+        "range": null,
+        "source_info_study": "# pylint: disable=invalid-name",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 4
+    }
+]

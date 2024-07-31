@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "88570c94": {
+        "file": "src/python/platforms/fuchsia/device.py",
+        "range": "[17, 1, 17, 33]"
+    },
+    "7131f609": {
+        "file": "src/python/platforms/fuchsia/device.py",
+        "range": "[17, 1, 17, 33]"
+    }
+}

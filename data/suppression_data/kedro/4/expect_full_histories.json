@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "kedro/framework/cli/micropkg.py",
+        "commit": "6c579d5c",
+        "range": "[226, 5, 226, 40]",
+        "source_info_study": "# pylint: disable=too-many-arguments",
+        "source_info_extracted": "# pylint: disable=too-many-arguments",
+        "mapped_oracle_idx": 170
+    },
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "kedro/framework/cli/micropkg.py",
+        "commit": "bcd59a5d",
+        "range": null,
+        "source_info_study": "# pylint: disable=too-many-arguments",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 170
+    }
+]

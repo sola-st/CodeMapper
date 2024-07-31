@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapf/yapflib/py3compat.py",
+        "commit": "71a66592",
+        "range": "[46, 76, 46, 109]",
+        "source_info_study": "# pylint: disable=protected-access",
+        "source_info_extracted": "# pylint: disable=protected-access",
+        "mapped_oracle_idx": 53
+    },
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapf/yapflib/py3compat.py",
+        "commit": "4677c5d6",
+        "range": null,
+        "source_info_study": "# pylint: disable=protected-access",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 53
+    }
+]

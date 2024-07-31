@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "tests/framework/context/test_context.py",
+        "commit": "5484b9b4",
+        "range": "[289, 5, 289, 37]",
+        "source_info_study": "# pylint: disable=unused-argument",
+        "source_info_extracted": "# pylint: disable=unused-argument",
+        "mapped_oracle_idx": 313
+    },
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "tests/framework/context/test_context.py",
+        "commit": "4bd0bee4",
+        "range": "[193, 5, 193, 37]",
+        "source_info_study": "# pylint: disable=unused-argument",
+        "source_info_extracted": "# pylint: disable=unused-argument",
+        "mapped_oracle_idx": 313
+    }
+]

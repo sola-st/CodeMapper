@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/magenta/magenta.git",
+        "file_path": "magenta/lib/midi_io.py",
+        "commit": "21a5a962",
+        "range": "[21, 1, 21, 37]",
+        "source_info_study": "# pylint: disable=g-import-not-at-top",
+        "source_info_extracted": "# pylint: disable=g-import-not-at-top",
+        "mapped_oracle_idx": 180
+    },
+    {
+        "url": "https://github.com/magenta/magenta.git",
+        "file_path": "magenta/music/midi_io.py",
+        "commit": "b15af5bc",
+        "range": null,
+        "source_info_study": "# pylint: disable=g-import-not-at-top",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 180
+    }
+]

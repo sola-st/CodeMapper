@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "features/environment.py",
+        "commit": "9129a14f",
+        "range": "[80, 38, 80, 71]",
+        "source_info_study": "# pylint: disable=protected-access",
+        "source_info_extracted": "# pylint: disable=protected-access",
+        "mapped_oracle_idx": 181
+    },
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "features/environment.py",
+        "commit": "576fbcb5",
+        "range": null,
+        "source_info_study": "# pylint: disable=protected-access",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 181
+    }
+]

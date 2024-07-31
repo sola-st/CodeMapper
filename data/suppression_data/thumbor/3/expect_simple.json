@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "032d45c0": {
+        "file": "tests/handlers/test_base_handler_with_stored_keys.py",
+        "range": "[22, 19, 22, 30]"
+    },
+    "06306410": {
+        "file": "tests/handlers/test_base_handler_with_stored_keys.py",
+        "range": null
+    }
+}

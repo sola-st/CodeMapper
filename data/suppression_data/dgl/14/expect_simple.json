@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "74e13eea": {
+        "file": "python/dgl/nn/mxnet/softmax.py",
+        "range": "[2, 20, 2, 28]"
+    },
+    "c801a164": {
+        "file": "python/dgl/nn/mxnet/softmax.py",
+        "range": "[2, 20, 2, 28]"
+    }
+}

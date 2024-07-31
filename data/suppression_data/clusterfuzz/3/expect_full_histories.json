@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/google/clusterfuzz.git",
+        "file_path": "src/python/tests/core/platforms/android/logger_test.py",
+        "commit": "88570c94",
+        "range": "[35, 5, 35, 35]",
+        "source_info_study": "# pylint: disable=line-too-long",
+        "source_info_extracted": "# pylint: disable=line-too-long",
+        "mapped_oracle_idx": 227
+    },
+    {
+        "url": "https://github.com/google/clusterfuzz.git",
+        "file_path": "src/python/tests/core/platforms/android/logger_test.py",
+        "commit": "2b66c6bc",
+        "range": null,
+        "source_info_study": "# pylint: disable=line-too-long",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 227
+    }
+]

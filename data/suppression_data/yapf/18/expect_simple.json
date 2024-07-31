@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "e3b159be": {
+        "file": "yapftests/reformatter_basic_test.py",
+        "range": "[29, 25, 29, 62]"
+    },
+    "22ef70f3": {
+        "file": "yapftests/reformatter_basic_test.py",
+        "range": null
+    }
+}

@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "0e93ee0c": {
+        "file": "celery/utils/functional.py",
+        "range": "[257, 5, 257, 33]"
+    },
+    "0b4c8ad4": {
+        "file": "celery/utils/functional.py",
+        "range": null
+    }
+}

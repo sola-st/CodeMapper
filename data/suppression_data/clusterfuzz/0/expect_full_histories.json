@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/google/clusterfuzz.git",
+        "file_path": "src/python/bot/fuzzers/afl/launcher.py",
+        "commit": "88570c94",
+        "range": "[16, 1, 16, 44]",
+        "source_info_study": "# pylint: disable=g-statement-before-imports",
+        "source_info_extracted": "# pylint: disable=g-statement-before-imports",
+        "mapped_oracle_idx": 122
+    },
+    {
+        "url": "https://github.com/google/clusterfuzz.git",
+        "file_path": "src/python/bot/fuzzers/afl/launcher.py",
+        "commit": "7131f609",
+        "range": "[17, 1, 17, 44]",
+        "source_info_study": "# pylint: disable=g-statement-before-imports",
+        "source_info_extracted": "# pylint: disable=g-statement-before-imports",
+        "mapped_oracle_idx": 122
+    }
+]

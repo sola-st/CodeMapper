@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "kedro/framework/cli/pipeline.py",
+        "commit": "7710c7d8",
+        "range": "[28, 1, 28, 32]",
+        "source_info_study": "# pylint: disable=too-many-lines",
+        "source_info_extracted": "# pylint: disable=too-many-lines",
+        "mapped_oracle_idx": 42
+    },
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "kedro/framework/cli/pipeline.py",
+        "commit": "e6cfb423",
+        "range": null,
+        "source_info_study": "# pylint: disable=too-many-lines",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 42
+    }
+]

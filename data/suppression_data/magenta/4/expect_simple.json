@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "586d65f7": {
+        "file": "magenta/models/latent_transfer/model_dataspace.py",
+        "range": "[44, 22, 44, 36]"
+    },
+    "22af57fd": {
+        "file": "magenta/models/latent_transfer/model_dataspace.py",
+        "range": "[45, 22, 45, 36]"
+    }
+}

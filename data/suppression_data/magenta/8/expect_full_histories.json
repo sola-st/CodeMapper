@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/magenta/magenta.git",
+        "file_path": "magenta/music/notebook_utils.py",
+        "commit": "e711cfad",
+        "range": "[55, 72, 55, 90]",
+        "source_info_study": "# pylint: disable=g-import-not-at-top",
+        "source_info_extracted": "g-import-not-at-top",
+        "mapped_oracle_idx": 174
+    },
+    {
+        "url": "https://github.com/magenta/magenta.git",
+        "file_path": "magenta/music/notebook_utils.py",
+        "commit": "22af57fd",
+        "range": "[54, 71, 54, 89]",
+        "source_info_study": "# pylint:disable=g-import-not-at-top",
+        "source_info_extracted": "g-import-not-at-top",
+        "mapped_oracle_idx": 174
+    }
+]

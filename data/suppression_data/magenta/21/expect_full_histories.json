@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/magenta/magenta.git",
+        "file_path": "magenta/models/music_vae/data.py",
+        "commit": "a91c7dfc",
+        "range": "[50, 39, 50, 60]",
+        "source_info_study": "# pylint: disable=g-explicit-length-test",
+        "source_info_extracted": "g-explicit-length-test",
+        "mapped_oracle_idx": 161
+    },
+    {
+        "url": "https://github.com/magenta/magenta.git",
+        "file_path": "magenta/models/music_vae/data.py",
+        "commit": "22af57fd",
+        "range": "[90, 39, 90, 60]",
+        "source_info_study": "# pylint:disable=g-explicit-length-test",
+        "source_info_extracted": "g-explicit-length-test",
+        "mapped_oracle_idx": 161
+    }
+]

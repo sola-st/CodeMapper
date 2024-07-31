@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/google/clusterfuzz.git",
+        "file_path": "src/python/datastore/ndb.py",
+        "commit": "88570c94",
+        "range": "[22, 58, 22, 72]",
+        "source_info_study": "# pylint: disable=wildcard-import",
+        "source_info_extracted": "wildcard-import",
+        "mapped_oracle_idx": 151
+    },
+    {
+        "url": "https://github.com/google/clusterfuzz.git",
+        "file_path": "src/python/datastore/ndb.py",
+        "commit": "7131f609",
+        "range": "[33, 58, 33, 72]",
+        "source_info_study": "# pylint:disable=wildcard-import",
+        "source_info_extracted": "wildcard-import",
+        "mapped_oracle_idx": 151
+    }
+]

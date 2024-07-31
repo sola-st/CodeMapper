@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "b0b500c5": {
+        "file": "magenta/music/__init__.py",
+        "range": "[17, 26, 17, 58]"
+    },
+    "22af57fd": {
+        "file": "magenta/music/__init__.py",
+        "range": "[39, 40, 39, 72]"
+    }
+}

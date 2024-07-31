@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "kedro/framework/cli/starters.py",
+        "commit": "6d9ffaba",
+        "range": "[94, 5, 94, 37]",
+        "source_info_study": "# pylint: disable=unused-argument",
+        "source_info_extracted": "# pylint: disable=unused-argument",
+        "mapped_oracle_idx": 192
+    },
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "kedro/framework/cli/starters.py",
+        "commit": "bcd59a5d",
+        "range": null,
+        "source_info_study": "# pylint: disable=unused-argument",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 192
+    }
+]

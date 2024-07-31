@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "tests/handlers/test_fetch_result.py",
+        "commit": "032d45c0",
+        "range": "[18, 48, 18, 77]",
+        "source_info_study": "# pylint: disable=attribute-defined-outside-init",
+        "source_info_extracted": "attribute-defined-outside-init",
+        "mapped_oracle_idx": 194
+    },
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "tests/handlers/test_fetch_result.py",
+        "commit": "06306410",
+        "range": null,
+        "source_info_study": "# pylint: disable=attribute-defined-outside-init",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 194
+    }
+]

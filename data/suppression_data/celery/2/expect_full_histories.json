@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/celery/celery.git",
+        "file_path": "celery/events/__init__.py",
+        "commit": "2da41c93",
+        "range": "[33, 1, 33, 38]",
+        "source_info_study": "# pylint: disable=redefined-outer-name",
+        "source_info_extracted": "# pylint: disable=redefined-outer-name",
+        "mapped_oracle_idx": 24
+    },
+    {
+        "url": "https://github.com/celery/celery.git",
+        "file_path": "celery/events/__init__.py",
+        "commit": "56f839f5",
+        "range": null,
+        "source_info_study": "# pylint: disable=redefined-outer-name",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 24
+    }
+]

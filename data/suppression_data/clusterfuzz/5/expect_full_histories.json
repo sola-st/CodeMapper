@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/google/clusterfuzz.git",
+        "file_path": "src/appengine/handlers/testcase_list.py",
+        "commit": "88570c94",
+        "range": "[201, 5, 201, 44]",
+        "source_info_study": "# pylint: disable=unexpected-keyword-arg",
+        "source_info_extracted": "# pylint: disable=unexpected-keyword-arg",
+        "mapped_oracle_idx": 139
+    },
+    {
+        "url": "https://github.com/google/clusterfuzz.git",
+        "file_path": "src/appengine/handlers/testcase_list.py",
+        "commit": "7131f609",
+        "range": "[203, 5, 203, 44]",
+        "source_info_study": "# pylint: disable=unexpected-keyword-arg",
+        "source_info_extracted": "# pylint: disable=unexpected-keyword-arg",
+        "mapped_oracle_idx": 139
+    }
+]

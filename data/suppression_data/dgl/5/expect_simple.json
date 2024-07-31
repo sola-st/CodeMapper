@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "5d3f470b": {
+        "file": "python/dgl/nn/pytorch/glob.py",
+        "range": "[2, 56, 2, 60]"
+    },
+    "c801a164": {
+        "file": "python/dgl/nn/pytorch/glob.py",
+        "range": "[2, 63, 2, 67]"
+    }
+}

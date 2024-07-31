@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/dmlc/dgl.git",
+        "file_path": "python/dgl/nn/mxnet/glob.py",
+        "commit": "5d3f470b",
+        "range": "[2, 56, 2, 60]",
+        "source_info_study": "# pylint: disable=useless-super-delegation",
+        "source_info_extracted": "W0235",
+        "mapped_oracle_idx": 258
+    },
+    {
+        "url": "https://github.com/dmlc/dgl.git",
+        "file_path": "python/dgl/nn/mxnet/glob.py",
+        "commit": "c801a164",
+        "range": "[2, 63, 2, 67]",
+        "source_info_study": "# pylint: disable=useless-super-delegation",
+        "source_info_extracted": "W0235",
+        "mapped_oracle_idx": 258
+    }
+]

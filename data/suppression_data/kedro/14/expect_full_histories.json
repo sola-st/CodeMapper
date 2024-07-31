@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "kedro/extras/extensions/ipython.py",
+        "commit": "4b218b8a",
+        "range": "[1, 73, 1, 87]",
+        "source_info_study": "# pylint: disable=too-many-locals",
+        "source_info_extracted": "too-many-locals",
+        "mapped_oracle_idx": 70
+    },
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "kedro/extras/extensions/ipython.py",
+        "commit": "5f018acb",
+        "range": null,
+        "source_info_study": "# pylint: disable=too-many-locals",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 70
+    }
+]

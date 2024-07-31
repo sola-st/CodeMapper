@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "thumbor/context.py",
+        "commit": "3d5fbe93",
+        "range": "[89, 23, 89, 84]",
+        "source_info_study": "# pylint: disable=invalid-name",
+        "source_info_extracted": "# Other people may depend on this pylint: disable=invalid-name",
+        "mapped_oracle_idx": 47
+    },
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "thumbor/context.py",
+        "commit": "a12fb1bd",
+        "range": "[94, 22, 94, 83]",
+        "source_info_study": "# pylint: disable=invalid-name",
+        "source_info_extracted": "# Other people may depend on this pylint: disable=invalid-name",
+        "mapped_oracle_idx": 47
+    }
+]

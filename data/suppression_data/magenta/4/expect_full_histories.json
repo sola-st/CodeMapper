@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/magenta/magenta.git",
+        "file_path": "magenta/models/latent_transfer/model_dataspace.py",
+        "commit": "586d65f7",
+        "range": "[44, 22, 44, 36]",
+        "source_info_study": "# pylint: disable=unused-variable",
+        "source_info_extracted": "unused-variable",
+        "mapped_oracle_idx": 9
+    },
+    {
+        "url": "https://github.com/magenta/magenta.git",
+        "file_path": "magenta/models/latent_transfer/model_dataspace.py",
+        "commit": "22af57fd",
+        "range": "[45, 22, 45, 36]",
+        "source_info_study": "# pylint:disable=unused-variable",
+        "source_info_extracted": "unused-variable",
+        "mapped_oracle_idx": 9
+    }
+]

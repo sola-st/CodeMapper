@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/dmlc/dgl.git",
+        "file_path": "python/dgl/nn/pytorch/conv/gatedgraphconv.py",
+        "commit": "ddb5d804",
+        "range": "[2, 49, 2, 60]",
+        "source_info_study": "# pylint: disable=invalid-name",
+        "source_info_extracted": "invalid-name",
+        "mapped_oracle_idx": 140
+    },
+    {
+        "url": "https://github.com/dmlc/dgl.git",
+        "file_path": "python/dgl/nn/pytorch/conv/gatedgraphconv.py",
+        "commit": "c801a164",
+        "range": "[2, 49, 2, 60]",
+        "source_info_study": "# pylint: disable=invalid-name",
+        "source_info_extracted": "invalid-name",
+        "mapped_oracle_idx": 140
+    }
+]

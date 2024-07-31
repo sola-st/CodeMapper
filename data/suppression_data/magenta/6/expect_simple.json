@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "586d65f7": {
+        "file": "magenta/models/latent_transfer/model_joint.py",
+        "range": "[120, 22, 120, 36]"
+    },
+    "22af57fd": {
+        "file": "magenta/models/latent_transfer/model_joint.py",
+        "range": "[121, 22, 121, 36]"
+    }
+}

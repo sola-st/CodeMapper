@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapf/yapflib/py3compat.py",
+        "commit": "fa350064",
+        "range": "[27, 66, 27, 98]",
+        "source_info_study": "# pylint: disable=unused-argument",
+        "source_info_extracted": "# pylint: disable=unused-argument",
+        "mapped_oracle_idx": 45
+    },
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapf/yapflib/py3compat.py",
+        "commit": "4677c5d6",
+        "range": null,
+        "source_info_study": "# pylint: disable=unused-argument",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 45
+    }
+]

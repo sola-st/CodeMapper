@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapftests/reformatter_buganizer_test.py",
+        "commit": "9fb475bb",
+        "range": "[200, 86, 200, 118]",
+        "source_info_study": "# pylint: disable=protected-access",
+        "source_info_extracted": "# pylint:disable=protected-access",
+        "mapped_oracle_idx": 48
+    },
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapftests/reformatter_buganizer_test.py",
+        "commit": "2d5b4d87",
+        "range": "[1293, 69, 1293, 101]",
+        "source_info_study": "# pylint:disable=protected-access",
+        "source_info_extracted": "# pylint:disable=protected-access",
+        "mapped_oracle_idx": 48
+    }
+]

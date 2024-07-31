@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "ddb5d804": {
+        "file": "python/dgl/nn/pytorch/conv/sageconv.py",
+        "range": "[2, 49, 2, 60]"
+    },
+    "c801a164": {
+        "file": "python/dgl/nn/pytorch/conv/sageconv.py",
+        "range": "[2, 49, 2, 60]"
+    }
+}

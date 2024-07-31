@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "15df0f33": {
+        "file": "kedro/framework/hooks/specs.py",
+        "range": "[138, 5, 138, 39]"
+    },
+    "2ffbcf8f": {
+        "file": "kedro/framework/hooks/specs.py",
+        "range": null
+    }
+}

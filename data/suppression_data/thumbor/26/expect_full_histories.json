@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "tests/handlers/test_base_handler_with_native_gif_handling.py",
+        "commit": "032d45c0",
+        "range": "[26, 79, 26, 91]",
+        "source_info_study": "# pylint: disable=line-too-long",
+        "source_info_extracted": "line-too-long",
+        "mapped_oracle_idx": 187
+    },
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "tests/handlers/test_base_handler_with_native_gif_handling.py",
+        "commit": "06306410",
+        "range": null,
+        "source_info_study": "# pylint: disable=line-too-long",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 187
+    }
+]

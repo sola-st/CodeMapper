@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapf/yapflib/comment_splicer.py",
+        "commit": "46fe382a",
+        "range": "[124, 80, 124, 91]",
+        "source_info_study": "# pylint: disable=invalid-name",
+        "source_info_extracted": "invalid-name",
+        "mapped_oracle_idx": 20
+    },
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapf/pytree/comment_splicer.py",
+        "commit": "2d5b4d87",
+        "range": "[125, 80, 125, 91]",
+        "source_info_study": "# pylint: disable=invalid-name",
+        "source_info_extracted": "invalid-name",
+        "mapped_oracle_idx": 20
+    }
+]

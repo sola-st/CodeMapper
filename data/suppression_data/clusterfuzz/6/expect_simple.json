@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "88570c94": {
+        "file": "src/python/platforms/android/gestures.py",
+        "range": "[28, 42, 28, 74]"
+    },
+    "2b66c6bc": {
+        "file": "src/python/platforms/android/gestures.py",
+        "range": null
+    }
+}

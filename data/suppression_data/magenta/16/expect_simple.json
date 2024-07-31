@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "80df1e92": {
+        "file": "magenta/models/score2perf/modalities.py",
+        "range": "[36, 5, 36, 43]"
+    },
+    "b36c6546": {
+        "file": "magenta/models/score2perf/modalities.py",
+        "range": null
+    }
+}

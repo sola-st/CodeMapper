@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapf/yapflib/blank_line_calculator.py",
+        "commit": "7d623455",
+        "range": "[88, 35, 88, 64]",
+        "source_info_study": "# pylint: disable=invalid-name",
+        "source_info_extracted": "# pylint: disable=invalid-name",
+        "mapped_oracle_idx": 139
+    },
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapf/pytree/blank_line_calculator.py",
+        "commit": "2d5b4d87",
+        "range": "[91, 35, 91, 64]",
+        "source_info_study": "# pylint: disable=invalid-name",
+        "source_info_extracted": "# pylint: disable=invalid-name",
+        "mapped_oracle_idx": 139
+    }
+]

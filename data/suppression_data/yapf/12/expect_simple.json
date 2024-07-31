@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "b5bb4023": {
+        "file": "yapf/yapflib/subtype_assigner.py",
+        "range": "[92, 35, 92, 64]"
+    },
+    "843e48c6": {
+        "file": "yapf/yapflib/subtype_assigner.py",
+        "range": null
+    }
+}

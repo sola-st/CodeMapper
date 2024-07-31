@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "3d5fbe93": {
+        "file": "thumbor/context.py",
+        "range": "[89, 23, 89, 84]"
+    },
+    "a12fb1bd": {
+        "file": "thumbor/context.py",
+        "range": "[94, 22, 94, 83]"
+    }
+}

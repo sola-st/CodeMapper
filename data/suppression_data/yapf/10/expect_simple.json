@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "71a66592": {
+        "file": "yapf/yapflib/py3compat.py",
+        "range": "[46, 76, 46, 109]"
+    },
+    "4677c5d6": {
+        "file": "yapf/yapflib/py3compat.py",
+        "range": null
+    }
+}

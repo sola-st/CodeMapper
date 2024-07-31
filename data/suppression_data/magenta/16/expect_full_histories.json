@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/magenta/magenta.git",
+        "file_path": "magenta/models/score2perf/modalities.py",
+        "commit": "80df1e92",
+        "range": "[36, 5, 36, 43]",
+        "source_info_study": "# pylint: disable=super-init-not-called",
+        "source_info_extracted": "# pylint: disable=super-init-not-called",
+        "mapped_oracle_idx": 87
+    },
+    {
+        "url": "https://github.com/magenta/magenta.git",
+        "file_path": "magenta/models/score2perf/modalities.py",
+        "commit": "b36c6546",
+        "range": null,
+        "source_info_study": "# pylint: disable=super-init-not-called",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 87
+    }
+]

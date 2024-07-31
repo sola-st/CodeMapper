@@ -1,0 +1,1602 @@
+[
+    {
+        "url": "https://github.com/elastic/elasticsearch",
+        "mapping": {
+            "source_file": "x-pack/plugin/security/src/main/java/org/elasticsearch/xpack/security/authc/saml/SamlRealm.java",
+            "target_file": "x-pack/plugin/security/src/main/java/org/elasticsearch/xpack/security/authc/saml/SamlRealm.java",
+            "source_commit": "4f070200",
+            "target_commit": "414eda7b",
+            "source_range": "[265,9,272,59]",
+            "target_range": "[263,9,266,59]",
+            "change_operation": "changed",
+            "kind": "distance: 4",
+            "category": "multiple line",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/ocornut/imgui",
+        "mapping": {
+            "source_file": "imgui.cpp",
+            "target_file": "imgui.cpp",
+            "source_commit": "9ece0bdc",
+            "target_commit": "2f431a94",
+            "source_range": "[4223,1,4232,1]",
+            "target_range": "[4224,1,4232,1]",
+            "change_operation": "changed",
+            "kind": "distance: 2",
+            "category": "structural unit",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/cookiecutter/cookiecutter",
+        "mapping": {
+            "source_file": "README.md",
+            "target_file": "README.md",
+            "source_commit": "8fbc5e44",
+            "target_commit": "afaeb96e",
+            "source_range": "[141,168,141,225]",
+            "target_range": "[141,107,141,164]",
+            "change_operation": "non changed",
+            "kind": "neighboring",
+            "category": "single expression/partial of sentence",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/danielmiessler/SecLists",
+        "mapping": {
+            "source_file": ".bin/file-exts-downloader.py",
+            "target_file": ".bin/file-exts-downloader.py",
+            "source_commit": "2a855795",
+            "target_commit": "275d4639",
+            "source_range": "[119,6,119,31]",
+            "target_range": "[119,6,119,42]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "single identifier/word",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/mmistakes/minimal-mistakes",
+        "mapping": {
+            "source_file": ".github/FUNDING.yml",
+            "target_file": ".github/FUNDING.yml",
+            "source_commit": "1d2a1c51",
+            "target_commit": "e7687a8e",
+            "source_range": "[1,1,1,17]",
+            "target_range": null,
+            "change_operation": "deleted",
+            "kind": "neighboring",
+            "category": "single line",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/laravel/laravel",
+        "mapping": {
+            "source_file": "composer.json",
+            "target_file": "composer.json",
+            "source_commit": "99b1d973",
+            "target_commit": "acd0f29a",
+            "source_range": "[66,5,67,25]",
+            "target_range": "[66,5,67,25]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "multiple line",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/minio/minio",
+        "mapping": {
+            "source_file": "docs/orchestration/docker-compose/docker-compose.yaml",
+            "target_file": "docs/orchestration/docker-compose/docker-compose.yaml",
+            "source_commit": "4598827d",
+            "target_commit": "343dd2f4",
+            "source_range": "[5,30,5,57]",
+            "target_range": "[5,30,5,57]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "single expression/partial of sentence",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/microsoft/PowerToys",
+        "mapping": {
+            "source_file": "NOTICE.md",
+            "target_file": "NOTICE.md",
+            "source_commit": "6cd8753f",
+            "target_commit": "c9cd4a08",
+            "source_range": "[1299,3,1299,18]",
+            "target_range": "[1299,3,1299,18]",
+            "change_operation": "non changed",
+            "kind": "distance: 2",
+            "category": "single identifier/word",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/vuejs/vue",
+        "mapping": {
+            "source_file": "types/test/v3/setup-test.ts",
+            "target_file": "types/test/v3/setup-test.ts",
+            "source_commit": "65531f58",
+            "target_commit": "ffaf81ba",
+            "source_range": "[99,3,99,12]",
+            "target_range": null,
+            "change_operation": "deleted",
+            "kind": "neighboring",
+            "category": "single expression/partial of sentence",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/elastic/elasticsearch",
+        "mapping": {
+            "source_file": "x-pack/plugin/ent-search/src/test/java/org/elasticsearch/xpack/application/connector/syncjob/action/UpdateConnectorSyncJobErrorActionTests.java",
+            "target_file": "x-pack/plugin/ent-search/src/test/java/org/elasticsearch/xpack/application/connector/syncjob/action/UpdateConnectorSyncJobErrorActionTests.java",
+            "source_commit": "b552b43a",
+            "target_commit": "8e332b65",
+            "source_range": "[50,5,56,5]",
+            "target_range": "[39,5,45,5]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "structural unit",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/laravel/laravel",
+        "mapping": {
+            "source_file": "package.json",
+            "target_file": "package.json",
+            "source_commit": "f346b9a2",
+            "target_commit": "91f49543",
+            "source_range": "[2,5,3,16]",
+            "target_range": "[2,5,3,16]",
+            "change_operation": "non changed",
+            "kind": "distance: 2",
+            "category": "multiple line",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/tailwindlabs/tailwindcss",
+        "mapping": {
+            "source_file": "src/processTailwindFeatures.js",
+            "target_file": "src/processTailwindFeatures.js",
+            "source_commit": "722232cb",
+            "target_commit": "5b9cbb3a",
+            "source_range": "[13,1,49,1]",
+            "target_range": "[14,1,59,1]",
+            "change_operation": "changed",
+            "kind": "distance: 4",
+            "category": "structural unit",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/thanos-io/thanos",
+        "mapping": {
+            "source_file": "docs/components/query.md",
+            "target_file": "docs/components/query.md",
+            "source_commit": "63ea2e2b",
+            "target_commit": "bccf54c6",
+            "source_range": "[185,1,185,136]",
+            "target_range": "[185,1,185,143]",
+            "change_operation": "changed",
+            "kind": "distance: 2",
+            "category": "single line",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/minio/minio",
+        "mapping": {
+            "source_file": "cmd/metrics-v2.go",
+            "target_file": "cmd/metrics-v2.go",
+            "source_commit": "c1a78224",
+            "target_commit": "53ceb079",
+            "source_range": "[2098,5,2098,16]",
+            "target_range": "[2022,5,2022,16]",
+            "change_operation": "non changed",
+            "kind": "neighboring",
+            "category": "single identifier/word",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/cookiecutter/cookiecutter",
+        "mapping": {
+            "source_file": "tests/test_custom_extensions_in_hooks.py",
+            "target_file": "tests/test_custom_extensions_in_hooks.py",
+            "source_commit": "17c07bf9",
+            "target_commit": "9ffbe89b",
+            "source_range": "[24,1,27,72]",
+            "target_range": "[36,1,41,5]",
+            "change_operation": "non changed",
+            "kind": "distance: 4",
+            "category": "structural unit",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/pure-css/pure",
+        "mapping": {
+            "source_file": "site/package-lock.json",
+            "target_file": "site/package-lock.json",
+            "source_commit": "4983d7cd",
+            "target_commit": "89bcf34e",
+            "source_range": "[1169,18,1169,21]",
+            "target_range": "[1169,18,1169,21]",
+            "change_operation": "non changed",
+            "kind": "distance: 4",
+            "category": "single identifier/word",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/sqlitebrowser/sqlitebrowser",
+        "mapping": {
+            "source_file": "CMakeLists.txt",
+            "target_file": "CMakeLists.txt",
+            "source_commit": "9a717bcd",
+            "target_commit": "5d6ce7fb",
+            "source_range": "[27,1,33,52]",
+            "target_range": "[9,1,15,52]",
+            "change_operation": "non changed",
+            "kind": "distance: 3",
+            "category": "multiple line",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/apache/superset",
+        "mapping": {
+            "source_file": ".github/workflows/dependency-review.yml",
+            "target_file": ".github/workflows/dependency-review.yml",
+            "source_commit": "33da642d",
+            "target_commit": "4539a5d2",
+            "source_range": "[22,29,22,32]",
+            "target_range": "[22,29,22,36]",
+            "change_operation": "changed",
+            "kind": "distance: 2",
+            "category": "single identifier/word",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/AvaloniaUI/Avalonia",
+        "mapping": {
+            "source_file": "src/Windows/Avalonia.Win32/DComposition/NativeStructs.cs",
+            "target_file": "src/Windows/Avalonia.Win32/DComposition/NativeStructs.cs",
+            "source_commit": "9cd8dda5",
+            "target_commit": "da523ffc",
+            "source_range": "[6,1,6,15]",
+            "target_range": "[7,1,7,13]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "single expression/partial of sentence",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/apache/superset",
+        "mapping": {
+            "source_file": "superset-frontend/packages/superset-ui-chart-controls/src/shared-controls/sharedControls.tsx",
+            "target_file": "superset-frontend/packages/superset-ui-chart-controls/src/shared-controls/sharedControls.tsx",
+            "source_commit": "e2fe9677",
+            "target_commit": "3ed70d8f",
+            "source_range": "[246,3,246,38]",
+            "target_range": "[246,3,250,4]",
+            "change_operation": "changed",
+            "kind": "distance: 3",
+            "category": "multiple line",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/netty/netty",
+        "mapping": {
+            "source_file": "transport/src/main/java/io/netty/channel/ChannelOutboundBuffer.java",
+            "target_file": "transport/src/main/java/io/netty/channel/ChannelOutboundBuffer.java",
+            "source_commit": "83016629",
+            "target_commit": "9fe796e1",
+            "source_range": "[751,22,751,90]",
+            "target_range": "[751,22,751,86]",
+            "change_operation": "changed",
+            "kind": "distance: 2",
+            "category": "single expression/partial of sentence",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/facebook/react",
+        "mapping": {
+            "source_file": "packages/react-dom/src/__tests__/ReactDOMSelection-test.internal.js",
+            "target_file": "packages/react-dom/src/__tests__/ReactDOMSelection-test.internal.js",
+            "source_commit": "3e94bce7",
+            "target_commit": "7f8798a3",
+            "source_range": "[77,3,124,3]",
+            "target_range": "[79,3,130,3]",
+            "change_operation": "changed",
+            "kind": "distance: 3",
+            "category": "structural unit",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/laravel/laravel",
+        "mapping": {
+            "source_file": "lang/en/validation.php",
+            "target_file": "lang/en/validation.php",
+            "source_commit": "1bec4f82",
+            "target_commit": "d18332bd",
+            "source_range": "[123,5,123,90]",
+            "target_range": null,
+            "change_operation": "deleted",
+            "kind": "neighboring",
+            "category": "single line",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/deepinsight/insightface",
+        "mapping": {
+            "source_file": "recognition/arcface_torch/README.md",
+            "target_file": "recognition/arcface_torch/README.md",
+            "source_commit": "83b4782e",
+            "target_commit": "e78eee59",
+            "source_range": "[38,1,38,174]",
+            "target_range": "[38,1,38,174]",
+            "change_operation": "non changed",
+            "kind": "distance: 2",
+            "category": "single line",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/rails/rails",
+        "mapping": {
+            "source_file": "railties/lib/rails/generators/rails/app/templates/docker-entrypoint.tt",
+            "target_file": "railties/lib/rails/generators/rails/app/templates/docker-entrypoint.tt",
+            "source_commit": "6eb882e6",
+            "target_commit": "8e98b614",
+            "source_range": "[5,3,6,2]",
+            "target_range": "[11,3,12,2]",
+            "change_operation": "non changed",
+            "kind": "distance: 3",
+            "category": "multiple line",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/facebook/react",
+        "mapping": {
+            "source_file": "packages/react-devtools-shared/src/__tests__/treeContext-test.js",
+            "target_file": "packages/react-devtools-shared/src/__tests__/treeContext-test.js",
+            "source_commit": "9cdf8a99",
+            "target_commit": "09de4b2c",
+            "source_range": "[1160,25,1160,53]",
+            "target_range": null,
+            "change_operation": "deleted",
+            "kind": "distance: 2",
+            "category": "single expression/partial of sentence",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/vuejs/vue",
+        "mapping": {
+            "source_file": "types/test/v3/define-component-test.tsx",
+            "target_file": "types/test/v3/define-component-test.tsx",
+            "source_commit": "9ed68478",
+            "target_commit": "d3add06e",
+            "source_range": "[1142,11,1148,2]",
+            "target_range": null,
+            "change_operation": "deleted",
+            "kind": "distance: 4",
+            "category": "single expression/partial of sentence",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/facebook/react",
+        "mapping": {
+            "source_file": "packages/react-dom/src/__tests__/ReactDOMServerIntegrationBasic-test.js",
+            "target_file": "packages/react-dom/src/__tests__/ReactDOMServerIntegrationBasic-test.js",
+            "source_commit": "278199b3",
+            "target_commit": "59409349",
+            "source_range": "[18,5,18,18]",
+            "target_range": "[18,5,18,12]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "single identifier/word",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/rails/rails",
+        "mapping": {
+            "source_file": "activerecord/lib/active_record.rb",
+            "target_file": "activerecord/lib/active_record.rb",
+            "source_commit": "06b7e345",
+            "target_commit": "2854e378",
+            "source_range": "[38,13,38,14]",
+            "target_range": "[38,13,38,24]",
+            "change_operation": "changed",
+            "kind": "distance: 3",
+            "category": "single identifier/word",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/netty/netty",
+        "mapping": {
+            "source_file": "codec-http2/src/main/java/io/netty/handler/codec/http2/AbstractHttp2ConnectionHandlerBuilder.java",
+            "target_file": "codec-http2/src/main/java/io/netty/handler/codec/http2/AbstractHttp2ConnectionHandlerBuilder.java",
+            "source_commit": "e5951d46",
+            "target_commit": "58f75f66",
+            "source_range": "[413,49,413,57]",
+            "target_range": "[415,49,415,55]",
+            "change_operation": "changed",
+            "kind": "distance: 3",
+            "category": "single identifier/word",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/sqlitebrowser/sqlitebrowser",
+        "mapping": {
+            "source_file": "installer/macos/build_sqlitebrowser_nightly.sh",
+            "target_file": "installer/macos/build_sqlitebrowser_nightly.sh",
+            "source_commit": "4db139bc",
+            "target_commit": "958d3971",
+            "source_range": "[208,1,210,86]",
+            "target_range": "[216,1,218,92]",
+            "change_operation": "changed",
+            "kind": "distance: 2",
+            "category": "multiple line",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/ocornut/imgui",
+        "mapping": {
+            "source_file": "docs/CHANGELOG.txt",
+            "target_file": "docs/CHANGELOG.txt",
+            "source_commit": "e5ca5351",
+            "target_commit": "456aa3bc",
+            "source_range": "[45,1,54,124]",
+            "target_range": "[47,1,56,124]",
+            "change_operation": "non changed",
+            "kind": "distance: 4",
+            "category": "multiple line",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/cookiecutter/cookiecutter",
+        "mapping": {
+            "source_file": "docs/conf.py",
+            "target_file": "docs/conf.py",
+            "source_commit": "ac047dc4",
+            "target_commit": "6008c712",
+            "source_range": "[356,23,356,57]",
+            "target_range": "[356,23,360,1]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "single expression/partial of sentence",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/apache/superset",
+        "mapping": {
+            "source_file": "tests/unit_tests/sql_parse_tests.py",
+            "target_file": "tests/unit_tests/sql_parse_tests.py",
+            "source_commit": "2bd61191",
+            "target_commit": "c0b57bd1",
+            "source_range": "[658,1,682,5]",
+            "target_range": "[677,1,703,5]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "structural unit",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/thanos-io/thanos",
+        "mapping": {
+            "source_file": "pkg/block/fetcher.go",
+            "target_file": "pkg/block/fetcher.go",
+            "source_commit": "fe6fdb2d",
+            "target_commit": "179843a6",
+            "source_range": "[51,2,51,32]",
+            "target_range": "[51,2,51,32]",
+            "change_operation": "non changed",
+            "kind": "neighboring",
+            "category": "single line",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/elastic/elasticsearch",
+        "mapping": {
+            "source_file": "plugins/examples/gradle/wrapper/gradle-wrapper.properties",
+            "target_file": "plugins/examples/gradle/wrapper/gradle-wrapper.properties",
+            "source_commit": "b23e000c",
+            "target_commit": "b984b447",
+            "source_range": "[3,23,3,86]",
+            "target_range": "[3,23,3,86]",
+            "change_operation": "changed",
+            "kind": "distance: 3",
+            "category": "single identifier/word",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/tailwindlabs/tailwindcss",
+        "mapping": {
+            "source_file": "package.json",
+            "target_file": "package.json",
+            "source_commit": "261a8b42",
+            "target_commit": "bfdf3a7d",
+            "source_range": "[57,5,57,25]",
+            "target_range": "[57,5,57,25]",
+            "change_operation": "non changed",
+            "kind": "distance: 3",
+            "category": "single line",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/AvaloniaUI/Avalonia",
+        "mapping": {
+            "source_file": "tests/Avalonia.Controls.UnitTests/ScrollViewerTests_ILogicalScrollable.cs",
+            "target_file": "tests/Avalonia.Controls.UnitTests/ScrollViewerTests_ILogicalScrollable.cs",
+            "source_commit": "059c775b",
+            "target_commit": "bf1be0cd",
+            "source_range": "[14,1,161,1]",
+            "target_range": "[14,1,161,1]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "structural unit",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/deepinsight/insightface",
+        "mapping": {
+            "source_file": "body/human_pose/ambiguity_aware/lib/dataloader/mpiinf.py",
+            "target_file": "body/human_pose/ambiguity_aware/lib/dataloader/mpiinf.py",
+            "source_commit": "4b3c8211",
+            "target_commit": "c281ceb5",
+            "source_range": "[78,13,80,21]",
+            "target_range": "[78,13,79,50]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "multiple line",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/facebook/react",
+        "mapping": {
+            "source_file": "packages/react/src/ReactElementValidator.js",
+            "target_file": "packages/react/src/ReactElementValidator.js",
+            "source_commit": "0ac3ea47",
+            "target_commit": "d3def479",
+            "source_range": "[29,3,31,15]",
+            "target_range": "[28,9,28,51]",
+            "change_operation": "non changed",
+            "kind": "distance: 4",
+            "category": "single expression/partial of sentence",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/laravel/laravel",
+        "mapping": {
+            "source_file": "resources/js/bootstrap.js",
+            "target_file": "resources/js/bootstrap.js",
+            "source_commit": "2e3563d9",
+            "target_commit": "2f8e55a9",
+            "source_range": "[23,1,23,34]",
+            "target_range": null,
+            "change_operation": "deleted",
+            "kind": "neighboring",
+            "category": "single line",
+            "time_order": "new_to_old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/microsoft/PowerToys",
+        "mapping": {
+            "source_file": "packages.config",
+            "target_file": "packages.config",
+            "source_commit": "f2c7ca36",
+            "target_commit": "5d1ce089",
+            "source_range": "[4,1,4,73]",
+            "target_range": "[4,1,4,73]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "single line",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/rails/rails",
+        "mapping": {
+            "source_file": "actioncable/rollup.config.js",
+            "target_file": "actioncable/rollup.config.js",
+            "source_commit": "33e5ce5f",
+            "target_commit": "4a23cb34",
+            "source_range": "[34,3,45,3]",
+            "target_range": "[34,3,46,3]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "structural unit",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/vuejs/vue",
+        "mapping": {
+            "source_file": "types/v3-manual-apis.d.ts",
+            "target_file": "types/v3-manual-apis.d.ts",
+            "source_commit": "206f8a7f",
+            "target_commit": "ce6fc149",
+            "source_range": "[8,1,8,49]",
+            "target_range": "[9,1,9,49]",
+            "change_operation": "moved",
+            "kind": "distance: 2",
+            "category": "single line",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/deepinsight/insightface",
+        "mapping": {
+            "source_file": "challenges/cvpr23-fas-wild/README.md",
+            "target_file": "challenges/cvpr23-fas-wild/README.md",
+            "source_commit": "cff32e09",
+            "target_commit": "270fe586",
+            "source_range": "[1,19,1,40]",
+            "target_range": "[1,12,1,33]",
+            "change_operation": "non changed",
+            "kind": "distance: 4",
+            "category": "single expression/partial of sentence",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/vuejs/vue",
+        "mapping": {
+            "source_file": "packages/compiler-sfc/src/stylePlugins/scoped.ts",
+            "target_file": "packages/compiler-sfc/src/stylePlugins/scoped.ts",
+            "source_commit": "06594f68",
+            "target_commit": "769c053c",
+            "source_range": "[145,7,146,17]",
+            "target_range": null,
+            "change_operation": "deleted",
+            "kind": "neighboring",
+            "category": "multiple line",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/AvaloniaUI/Avalonia",
+        "mapping": {
+            "source_file": "tests/Avalonia.Controls.UnitTests/ItemsControlTests.cs",
+            "target_file": "tests/Avalonia.Controls.UnitTests/ItemsControlTests.cs",
+            "source_commit": "f845c685",
+            "target_commit": "f347eaf7",
+            "source_range": "[531,9,549,9]",
+            "target_range": null,
+            "change_operation": "deleted",
+            "kind": "distance: 2",
+            "category": "structural unit",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/mmistakes/minimal-mistakes",
+        "mapping": {
+            "source_file": "docs/_docs/18-history.md",
+            "target_file": "docs/_docs/18-history.md",
+            "source_commit": "9cf80336",
+            "target_commit": "20cd63c0",
+            "source_range": "[23,44,23,98]",
+            "target_range": "[25,44,25,98]",
+            "change_operation": "non changed",
+            "kind": "distance: 2",
+            "category": "single expression/partial of sentence",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/tailwindlabs/tailwindcss",
+        "mapping": {
+            "source_file": "src/oxide/cli/build/plugin.ts",
+            "target_file": "src/oxide/cli/build/plugin.ts",
+            "source_commit": "8c3f80a2",
+            "target_commit": "72bc3186",
+            "source_range": "[277,3,299,3]",
+            "target_range": "[277,3,299,3]",
+            "change_operation": "changed",
+            "kind": "distance: 2",
+            "category": "structural unit",
+            "time_order": "new to old",
+            "detail": "changes in the middle"
+        }
+    },
+    {
+        "url": "https://github.com/rails/rails",
+        "mapping": {
+            "source_file": "activerecord/lib/active_record/connection_adapters/schema_cache.rb",
+            "target_file": "activerecord/lib/active_record/connection_adapters/schema_cache.rb",
+            "source_commit": "56e1ecdb",
+            "target_commit": "67e4376a",
+            "source_range": "[199,7,201,9]",
+            "target_range": null,
+            "change_operation": "deleted",
+            "kind": "distance: 2",
+            "category": "structural unit",
+            "time_order": "old to new",
+            "detail": "delete the entire function"
+        }
+    },
+    {
+        "url": "https://github.com/pure-css/pure",
+        "mapping": {
+            "source_file": "package-lock.json",
+            "target_file": "package-lock.json",
+            "source_commit": "bef21b7b",
+            "target_commit": "421f1e21",
+            "source_range": "[5128,7,5128,18]",
+            "target_range": "[5130,7,5130,18]",
+            "change_operation": "non changed",
+            "kind": "distance: 4",
+            "category": "single line",
+            "time_order": "old to new",
+            "detail": "Wrapped by additions and deletions of other lines"
+        }
+    },
+    {
+        "url": "https://github.com/laravel/laravel",
+        "mapping": {
+            "source_file": "package.json",
+            "target_file": "package.json",
+            "source_commit": "d3b2eada",
+            "target_commit": "36047268",
+            "source_range": "[10,32,10,39]",
+            "target_range": "[10,32,10,39]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "single identifier/word",
+            "time_order": "old to new",
+            "detail": "version of dependency changed"
+        }
+    },
+    {
+        "url": "https://github.com/cookiecutter/cookiecutter",
+        "mapping": {
+            "source_file": "HISTORY.md",
+            "target_file": "HISTORY.md",
+            "source_commit": "5d2b1e37",
+            "target_commit": "da0df9d3",
+            "source_range": "[9,1,10,65]",
+            "target_range": "[40,1,41,65]",
+            "change_operation": "non changed",
+            "kind": "neighboring",
+            "category": "multiple line",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/elastic/elasticsearch",
+        "mapping": {
+            "source_file": "server/src/test/java/org/elasticsearch/search/SearchServiceTests.java",
+            "target_file": "server/src/test/java/org/elasticsearch/search/SearchServiceTests.java",
+            "source_commit": "5b0aec53",
+            "target_commit": "b8dc5c30",
+            "source_range": "[326,21,330,21]",
+            "target_range": "[328,17,332,17]",
+            "change_operation": "moved",
+            "kind": "distance: 4",
+            "category": "structural unit",
+            "time_order": "old to new",
+            "detail": "moved into a function"
+        }
+    },
+    {
+        "url": "https://github.com/pure-css/pure",
+        "mapping": {
+            "source_file": "package-lock.json",
+            "target_file": "package-lock.json",
+            "source_commit": "a8610c08",
+            "target_commit": "a02538a6",
+            "source_range": "[1424,9,1426,47]",
+            "target_range": "[1413,9,1414,47]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "multiple line",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/thanos-io/thanos",
+        "mapping": {
+            "source_file": "pkg/receive/multitsdb_test.go",
+            "target_file": "pkg/receive/multitsdb_test.go",
+            "source_commit": "3da5c1c2",
+            "target_commit": "7b8eb86c",
+            "source_range": "[778,22,778,41]",
+            "target_range": "[787,22,787,24]",
+            "change_operation": "changed",
+            "kind": "distance: 2",
+            "category": "single identifier/word",
+            "time_order": "new to old",
+            "detail": "variable changes"
+        }
+    },
+    {
+        "url": "https://github.com/apache/superset",
+        "mapping": {
+            "source_file": "superset/sqllab/api.py",
+            "target_file": "superset/sqllab/api.py",
+            "source_commit": "8dc6cbe2",
+            "target_commit": "07bcfa9b",
+            "source_range": "[347,17,347,48]",
+            "target_range": "[346,25,346,56]",
+            "change_operation": "moved",
+            "kind": "neighboring",
+            "category": "single line",
+            "time_order": "new to old",
+            "detail": "moved or non changed? single line or partial?"
+        }
+    },
+    {
+        "url": "https://github.com/netty/netty",
+        "mapping": {
+            "source_file": "handler/src/main/java/io/netty/handler/ssl/SslUtils.java",
+            "target_file": "handler/src/main/java/io/netty/handler/ssl/SslUtils.java",
+            "source_commit": "06db4dc2",
+            "target_commit": "32a025b4",
+            "source_range": "[296,17,296,90]",
+            "target_range": "[297,17,297,70]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "single expression/partial of sentence",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/facebook/react",
+        "mapping": {
+            "source_file": "packages/shared/forks/ReactFeatureFlags.www-dynamic.js",
+            "target_file": "packages/shared/forks/ReactFeatureFlags.www-dynamic.js",
+            "source_commit": "aaf85f3a",
+            "target_commit": "ef72271c",
+            "source_range": "[32,14,32,28]",
+            "target_range": null,
+            "change_operation": "deleted",
+            "kind": "neighboring",
+            "category": "single identifier/word",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/vuejs/vue",
+        "mapping": {
+            "source_file": "src/core/vdom/create-component.ts",
+            "target_file": "src/core/vdom/create-component.ts",
+            "source_commit": "450767f3",
+            "target_commit": "26322499",
+            "source_range": "[98,32,98,37]",
+            "target_range": "[104,39,104,54]",
+            "change_operation": "changed",
+            "kind": "distance: 4",
+            "category": "single identifier/word",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/minio/minio",
+        "mapping": {
+            "source_file": "cmd/apierrorcode_string.go",
+            "target_file": "cmd/apierrorcode_string.go",
+            "source_commit": "cb089dcb",
+            "target_commit": "4d94609c",
+            "source_range": "[329,2,329,25]",
+            "target_range": "[332,2,332,25]",
+            "change_operation": "changed",
+            "kind": "distance: 4",
+            "category": "single line",
+            "time_order": "old to new",
+            "detail": "delete and add?"
+        }
+    },
+    {
+        "url": "https://github.com/mmistakes/minimal-mistakes",
+        "mapping": {
+            "source_file": ".github/ISSUE_TEMPLATE/bug_report.md",
+            "target_file": ".github/ISSUE_TEMPLATE/bug_report.md",
+            "source_commit": "85dca86d",
+            "target_commit": "25e871c0",
+            "source_range": "[28,57,28,82]",
+            "target_range": "[28,57,28,82]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "single expression/partial of sentence",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/minio/minio",
+        "mapping": {
+            "source_file": "docs/debugging/xl-meta/main.go",
+            "target_file": "docs/debugging/xl-meta/main.go",
+            "source_commit": "ca258c04",
+            "target_commit": "dc92bb46",
+            "source_range": "[210,7,221,7]",
+            "target_range": "[177,6,188,6]",
+            "change_operation": "moved",
+            "kind": "distance: 3",
+            "category": "structural unit",
+            "time_order": "new to old",
+            "detail": "moved out from a if-statement"
+        }
+    },
+    {
+        "url": "https://github.com/cookiecutter/cookiecutter",
+        "mapping": {
+            "source_file": "cookiecutter/main.py",
+            "target_file": "cookiecutter/main.py",
+            "source_commit": "40068d94",
+            "target_commit": "bfdedeef",
+            "source_range": "[141,26,141,64]",
+            "target_range": "[141,26,141,64]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "single expression/partial of sentence",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/elastic/elasticsearch",
+        "mapping": {
+            "source_file": "modules/aggregations/src/main/java/org/elasticsearch/aggregations/metric/InternalMatrixStats.java",
+            "target_file": "modules/aggregations/src/main/java/org/elasticsearch/aggregations/metric/InternalMatrixStats.java",
+            "source_commit": "e21a4874",
+            "target_commit": "fd17e0c8",
+            "source_range": "[251,13,256,17]",
+            "target_range": "[263,13,265,61]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "multiple line",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/tailwindlabs/tailwindcss",
+        "mapping": {
+            "source_file": "CHANGELOG.md",
+            "target_file": "CHANGELOG.md",
+            "source_commit": "7eab762a",
+            "target_commit": "e40b73a1",
+            "source_range": "[22,79,22,132]",
+            "target_range": null,
+            "change_operation": "deleted",
+            "kind": "neighboring",
+            "category": "single expression/partial of sentence",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/minio/minio",
+        "mapping": {
+            "source_file": "cmd/peer-rest-server.go",
+            "target_file": "cmd/peer-rest-server.go",
+            "source_commit": "961f7dea",
+            "target_commit": "f9b4a8d6",
+            "source_range": "[861,2,861,83]",
+            "target_range": "[853,2,853,87]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "single line",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/microsoft/PowerToys",
+        "mapping": {
+            "source_file": "src/common/logger/logger_settings.h",
+            "target_file": "src/common/logger/logger_settings.h",
+            "source_commit": "46f53168",
+            "target_commit": "0990724e",
+            "source_range": "[70,5,71,76]",
+            "target_range": null,
+            "change_operation": "deleted",
+            "kind": "neighboring",
+            "category": "multiple line",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/microsoft/PowerToys",
+        "mapping": {
+            "source_file": "src/modules/keyboardmanager/KeyboardManagerEngineLibrary/KeyboardManager.cpp",
+            "target_file": "src/modules/keyboardmanager/KeyboardManagerEngineLibrary/KeyboardManager.cpp",
+            "source_commit": "2a544583",
+            "target_commit": "617b7adb",
+            "source_range": "[90,1,111,1]",
+            "target_range": "[69,1,88,1]",
+            "change_operation": "changed",
+            "kind": "distance: 3",
+            "category": "structural unit",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/AvaloniaUI/Avalonia",
+        "mapping": {
+            "source_file": "src/Avalonia.Themes.Fluent/Controls/Expander.xaml",
+            "target_file": "src/Avalonia.Themes.Fluent/Controls/Expander.xaml",
+            "source_commit": "572ad561",
+            "target_commit": "208e5403",
+            "source_range": "[3,21,3,44]",
+            "target_range": null,
+            "change_operation": "deleted",
+            "kind": "distance: 4",
+            "category": "single expression/partial of sentence",
+            "time_order": "old to new",
+            "detail": "change or delete?"
+        }
+    },
+    {
+        "url": "https://github.com/elastic/elasticsearch",
+        "mapping": {
+            "source_file": "modules/aggregations/src/main/java/org/elasticsearch/aggregations/bucket/histogram/InternalAutoDateHistogram.java",
+            "target_file": "modules/aggregations/src/main/java/org/elasticsearch/aggregations/bucket/histogram/InternalAutoDateHistogram.java",
+            "source_commit": "f396321d",
+            "target_commit": "4d541691",
+            "source_range": "[437,5,443,7]",
+            "target_range": "[288,5,294,7]",
+            "change_operation": "moved",
+            "kind": "distance: 3",
+            "category": "multiple line",
+            "time_order": "new to old",
+            "detail": "moved?"
+        }
+    },
+    {
+        "url": "https://github.com/vuejs/vue",
+        "mapping": {
+            "source_file": "packages/compiler-sfc/src/parseComponent.ts",
+            "target_file": "packages/compiler-sfc/src/parseComponent.ts",
+            "source_commit": "8ce585d7",
+            "target_commit": "12943853",
+            "source_range": "[175,11,175,26]",
+            "target_range": "[182,9,182,24]",
+            "change_operation": "non changed",
+            "kind": "distance: 4",
+            "category": "single expression/partial of sentence",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/pure-css/pure",
+        "mapping": {
+            "source_file": "src/base/css/base.css",
+            "target_file": "src/base/css/base.css",
+            "source_commit": "95f08788",
+            "target_commit": "cf34ac3e",
+            "source_range": "[12,5,12,28]",
+            "target_range": null,
+            "change_operation": "deleted",
+            "kind": "distance: 4",
+            "category": "single line",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/danielmiessler/SecLists",
+        "mapping": {
+            "source_file": "README.md",
+            "target_file": "README.md",
+            "source_commit": "37dac39d",
+            "target_commit": "d9c7c017",
+            "source_range": "[52,27,56,3]",
+            "target_range": null,
+            "change_operation": "deleted",
+            "kind": "distance: 4",
+            "category": "multiple line",
+            "time_order": "new to old",
+            "detail": "re-annotate"
+        }
+    },
+    {
+        "url": "https://github.com/apache/superset",
+        "mapping": {
+            "source_file": ".github/workflows/ephemeral-env.yml",
+            "target_file": ".github/workflows/ephemeral-env.yml",
+            "source_commit": "81301ee5",
+            "target_commit": "16e49cb2",
+            "source_range": "[147,26,147,50]",
+            "target_range": "[147,42,147,66]",
+            "change_operation": "non changed",
+            "kind": "distance: 4",
+            "category": "single expression/partial of sentence",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/facebook/react",
+        "mapping": {
+            "source_file": "packages/react-server-dom-webpack/src/ReactFlightWebpackReferences.js",
+            "target_file": "packages/react-server-dom-webpack/src/ReactFlightWebpackReferences.js",
+            "source_commit": "07cc4a00",
+            "target_commit": "92686722",
+            "source_range": "[80,14,80,31]",
+            "target_range": "[80,14,80,14]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "single identifier/word",
+            "time_order": "old to new",
+            "detail": "start and end charactar are the same"
+        }
+    },
+    {
+        "url": "https://github.com/thanos-io/thanos",
+        "mapping": {
+            "source_file": "Makefile",
+            "target_file": "Makefile",
+            "source_commit": "fe179ac3",
+            "target_commit": "30418b6c",
+            "source_range": "[136,1,136,18]",
+            "target_range": "[136,1,136,18]",
+            "change_operation": "non changed",
+            "kind": "distance: 2",
+            "category": "single identifier/word",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/deepinsight/insightface",
+        "mapping": {
+            "source_file": "web-demos/swapping_discord/README.md",
+            "target_file": "web-demos/swapping_discord/README.md",
+            "source_commit": "561bc3e8",
+            "target_commit": "a17f2c04",
+            "source_range": "[5,1,6,85]",
+            "target_range": null,
+            "change_operation": "deleted",
+            "kind": "neighboring",
+            "category": "multiple line",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/deepinsight/insightface",
+        "mapping": {
+            "source_file": "examples/mxnet_to_onnx.py",
+            "target_file": "examples/mxnet_to_onnx.py",
+            "source_commit": "1f73c50a",
+            "target_commit": "ce3600a7",
+            "source_range": "[147,5,147,67]",
+            "target_range": "[145,1,145,63]",
+            "change_operation": "moved",
+            "kind": "neighboring",
+            "category": "single line",
+            "time_order": "new to old",
+            "detail": "moved out from a if statement"
+        }
+    },
+    {
+        "url": "https://github.com/netty/netty",
+        "mapping": {
+            "source_file": "handler/src/main/java/io/netty/handler/timeout/IdleStateHandler.java",
+            "target_file": "handler/src/main/java/io/netty/handler/timeout/IdleStateHandler.java",
+            "source_commit": "3634f6a2",
+            "target_commit": "e5951d46",
+            "source_range": "[456,21,456,34]",
+            "target_range": "[452,21,454,21]",
+            "change_operation": "changed",
+            "kind": "distance: 4",
+            "category": "single line",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/apache/superset",
+        "mapping": {
+            "source_file": "superset-frontend/plugins/plugin-chart-period-over-period-kpi/src/plugin/buildQuery.ts",
+            "target_file": "superset-frontend/plugins/plugin-chart-period-over-period-kpi/src/plugin/buildQuery.ts",
+            "source_commit": "a09e5557",
+            "target_commit": "127df24c",
+            "source_range": "[288,3,293,5]",
+            "target_range": "[61,3,76,4]",
+            "change_operation": "changed",
+            "kind": "distance: 4",
+            "category": "multiple line",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/cookiecutter/cookiecutter",
+        "mapping": {
+            "source_file": "cookiecutter/generate.py",
+            "target_file": "cookiecutter/generate.py",
+            "source_commit": "0c94173d",
+            "target_commit": "2125335a",
+            "source_range": "[175,9,183,46]",
+            "target_range": "[177,5,185,42]",
+            "change_operation": "moved",
+            "kind": "distance: 3",
+            "category": "multiple line",
+            "time_order": "old to new",
+            "detail": "moved out from an else statement"
+        }
+    },
+    {
+        "url": "https://github.com/cookiecutter/cookiecutter",
+        "mapping": {
+            "source_file": "cookiecutter/main.py",
+            "target_file": "cookiecutter/main.py",
+            "source_commit": "082955e2",
+            "target_commit": "0fa6a86b",
+            "source_range": "[189,5,190,33]",
+            "target_range": "[199,5,200,82]",
+            "change_operation": "changed",
+            "kind": "distance: 3",
+            "category": "multiple line",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/elastic/elasticsearch",
+        "mapping": {
+            "source_file": "test/framework/src/main/java/org/elasticsearch/common/bytes/AbstractBytesReferenceTestCase.java",
+            "target_file": "test/framework/src/main/java/org/elasticsearch/common/bytes/AbstractBytesReferenceTestCase.java",
+            "source_commit": "ac574acc",
+            "target_commit": "cf27a501",
+            "source_range": "[653,5,674,5]",
+            "target_range": "[653,5,670,5]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "structural unit",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/deepinsight/insightface",
+        "mapping": {
+            "source_file": "web-demos/swapping_discord/README.md",
+            "target_file": "web-demos/swapping_discord/README.md",
+            "source_commit": "53d4a233",
+            "target_commit": "d39f9c04",
+            "source_range": "[45,11,45,112]",
+            "target_range": null,
+            "change_operation": "deleted",
+            "kind": "distance: 3",
+            "category": "single expression/partial of sentence",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/apache/superset",
+        "mapping": {
+            "source_file": "superset-frontend/packages/superset-ui-core/src/utils/featureFlags.ts",
+            "target_file": "superset-frontend/packages/superset-ui-core/src/utils/featureFlags.ts",
+            "source_commit": "19f8405b",
+            "target_commit": "db79c377",
+            "source_range": "[29,31,29,54]",
+            "target_range": "[29,31,29,56]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "single identifier/word",
+            "time_order": "old to new",
+            "detail": "change to upper case and connect with underscore"
+        }
+    },
+    {
+        "url": "https://github.com/cookiecutter/cookiecutter",
+        "mapping": {
+            "source_file": "cookiecutter/utils.py",
+            "target_file": "cookiecutter/utils.py",
+            "source_commit": "b0a9ebb6",
+            "target_commit": "f4996f24",
+            "source_range": "[10,1,10,32]",
+            "target_range": "[11,1,11,32]",
+            "change_operation": "moved",
+            "kind": "distance: 3",
+            "category": "single line",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/minio/minio",
+        "mapping": {
+            "source_file": "internal/event/name_test.go",
+            "target_file": "internal/event/name_test.go",
+            "source_commit": "9b8ba97f",
+            "target_commit": "ac8e9ce0",
+            "source_range": "[39,50,39,81]",
+            "target_range": "[39,50,39,81]",
+            "change_operation": "non changed",
+            "kind": "neighboring",
+            "category": "single identifier/word",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/netty/netty",
+        "mapping": {
+            "source_file": "handler/src/test/java/io/netty/handler/ssl/OpenSslEngineTest.java",
+            "target_file": "handler/src/test/java/io/netty/handler/ssl/OpenSslEngineTest.java",
+            "source_commit": "5d452bc8",
+            "target_commit": "68b09894",
+            "source_range": "[1636,9,1647,9]",
+            "target_range": "[1637,9,1654,9]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "structural unit",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/danielmiessler/SecLists",
+        "mapping": {
+            "source_file": ".bin/get-and-patch-readme-repository-details.py",
+            "target_file": ".bin/get-and-patch-readme-repository-details.py",
+            "source_commit": "2143fe4b",
+            "target_commit": "bae9fec8",
+            "source_range": "[49,1,49,60]",
+            "target_range": "[41,1,41,72]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "single line",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/microsoft/PowerToys",
+        "mapping": {
+            "source_file": "src/modules/launcher/Plugins/Microsoft.Plugin.Program/Programs/Win32Program.cs",
+            "target_file": "src/modules/launcher/Plugins/Microsoft.Plugin.Program/Programs/Win32Program.cs",
+            "source_commit": "7ca476d6",
+            "target_commit": "af099737",
+            "source_range": "[810,24,810,27]",
+            "target_range": "[810,24,810,34]",
+            "change_operation": "changed",
+            "kind": "distance: 2",
+            "category": "single identifier/word",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/ocornut/imgui",
+        "mapping": {
+            "source_file": "imgui.cpp",
+            "target_file": "imgui.cpp",
+            "source_commit": "d3f1a716",
+            "target_commit": "014e0ac8",
+            "source_range": "[6763,9,6763,35]",
+            "target_range": "[6760,9,6760,35]",
+            "change_operation": "non changed",
+            "kind": "distance: 2",
+            "category": "single identifier/word",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/facebook/react",
+        "mapping": {
+            "source_file": "packages/react-server/src/ReactFlightServer.js",
+            "target_file": "packages/react-server/src/ReactFlightServer.js",
+            "source_commit": "2e470a78",
+            "target_commit": "2e84e162",
+            "source_range": "[1551,5,1563,5]",
+            "target_range": "[1551,5,1580,5]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "structural unit",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/elastic/elasticsearch",
+        "mapping": {
+            "source_file": "modules/transport-netty4/src/main/java/org/elasticsearch/http/netty4/Netty4HttpPipeliningHandler.java",
+            "target_file": "modules/transport-netty4/src/main/java/org/elasticsearch/http/netty4/Netty4HttpPipeliningHandler.java",
+            "source_commit": "e489951d",
+            "target_commit": "adde7e22",
+            "source_range": "[340,9,343,9]",
+            "target_range": null,
+            "change_operation": "deleted",
+            "kind": "neighboring",
+            "category": "structural unit",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/thanos-io/thanos",
+        "mapping": {
+            "source_file": "pkg/compact/compact.go",
+            "target_file": "pkg/compact/compact.go",
+            "source_commit": "723dfd08",
+            "target_commit": "b7a7522f",
+            "source_range": "[1132,2,1141,2]",
+            "target_range": "[1075,2,1080,2]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "structural unit",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/danielmiessler/SecLists",
+        "mapping": {
+            "source_file": "README.md",
+            "target_file": "README.md",
+            "source_commit": "37dac39d",
+            "target_commit": "d9c7c017",
+            "source_range": "[52,27,56,3]",
+            "target_range": null,
+            "change_operation": "deleted",
+            "kind": "distance: 4",
+            "category": "multiple line",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/ocornut/imgui",
+        "mapping": {
+            "source_file": "docs/CHANGELOG.txt",
+            "target_file": "docs/CHANGELOG.txt",
+            "source_commit": "db66e33e",
+            "target_commit": "3dc3aef8",
+            "source_range": "[110,3,111,86]",
+            "target_range": "[136,3,137,86]",
+            "change_operation": "moved",
+            "kind": "distance: 4",
+            "category": "multiple line",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/tailwindlabs/tailwindcss",
+        "mapping": {
+            "source_file": "stubs/defaultConfig.stub.js",
+            "target_file": "stubs/defaultConfig.stub.js",
+            "source_commit": "1ca51b66",
+            "target_commit": "27aee8fc",
+            "source_range": "[297,5,297,21]",
+            "target_range": "[287,5,287,21]",
+            "change_operation": "non changed",
+            "kind": "distance: 3",
+            "category": "single expression/partial of sentence",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/mmistakes/minimal-mistakes",
+        "mapping": {
+            "source_file": "_includes/toc.html",
+            "target_file": "_includes/toc.html",
+            "source_commit": "99a77e4d",
+            "target_commit": "8e2d290c",
+            "source_range": "[92,9,95,19]",
+            "target_range": "[50,9,53,19]",
+            "change_operation": "moved",
+            "kind": "neighboring",
+            "category": "structural unit",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/netty/netty",
+        "mapping": {
+            "source_file": "handler/src/main/java/io/netty/handler/ssl/BouncyCastleAlpnSslUtils.java",
+            "target_file": "handler/src/main/java/io/netty/handler/ssl/BouncyCastleAlpnSslUtils.java",
+            "source_commit": "56ef3716",
+            "target_commit": "8fac718b",
+            "source_range": "[51,9,51,30]",
+            "target_range": null,
+            "change_operation": "deleted",
+            "kind": "distance: 2",
+            "category": "single identifier/word",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    }
+]

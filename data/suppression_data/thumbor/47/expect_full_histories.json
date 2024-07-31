@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "tests/handlers/test_base_handler.py",
+        "commit": "3d5fbe93",
+        "range": "[50, 1, 50, 32]",
+        "source_info_study": "# pylint: disable=too-many-lines",
+        "source_info_extracted": "# pylint: disable=too-many-lines",
+        "mapped_oracle_idx": 83
+    },
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "tests/handlers/test_base_handler.py",
+        "commit": "06306410",
+        "range": null,
+        "source_info_study": "# pylint: disable=too-many-lines",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 83
+    }
+]

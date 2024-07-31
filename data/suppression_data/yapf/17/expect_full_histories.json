@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapftests/yapf_test.py",
+        "commit": "e3b159be",
+        "range": "[583, 64, 583, 81]",
+        "source_info_study": "# pylint: disable=g-assert-in-except",
+        "source_info_extracted": "g-assert-in-except",
+        "mapped_oracle_idx": 89
+    },
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapftests/yapf_test.py",
+        "commit": "2d5b4d87",
+        "range": "[603, 64, 603, 81]",
+        "source_info_study": "# pylint: disable=g-assert-in-except",
+        "source_info_extracted": "g-assert-in-except",
+        "mapped_oracle_idx": 89
+    }
+]

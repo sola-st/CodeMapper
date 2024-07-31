@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "2138f367": {
+        "file": "kedro/framework/project/__init__.py",
+        "range": "[30, 40, 30, 54]"
+    },
+    "4bd0bee4": {
+        "file": "kedro/framework/project/__init__.py",
+        "range": "[3, 40, 3, 54]"
+    }
+}

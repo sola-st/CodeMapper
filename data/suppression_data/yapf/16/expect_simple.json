@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "46fe382a": {
+        "file": "yapf/yapflib/comment_splicer.py",
+        "range": "[122, 81, 122, 92]"
+    },
+    "2d5b4d87": {
+        "file": "yapf/pytree/comment_splicer.py",
+        "range": "[123, 81, 123, 92]"
+    }
+}

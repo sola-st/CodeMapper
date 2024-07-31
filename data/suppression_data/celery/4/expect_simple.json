@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "0e93ee0c": {
+        "file": "celery/utils/dispatch/signal.py",
+        "range": "[171, 39, 171, 68]"
+    },
+    "2f5549f3": {
+        "file": "celery/utils/dispatch/signal.py",
+        "range": "[289, 39, 289, 68]"
+    }
+}

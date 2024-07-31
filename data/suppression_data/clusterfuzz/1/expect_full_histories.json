@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/google/clusterfuzz.git",
+        "file_path": "src/python/platforms/fuchsia/device.py",
+        "commit": "88570c94",
+        "range": "[17, 1, 17, 33]",
+        "source_info_study": "# pylint: disable=unused-argument",
+        "source_info_extracted": "# pylint: disable=unused-argument",
+        "mapped_oracle_idx": 188
+    },
+    {
+        "url": "https://github.com/google/clusterfuzz.git",
+        "file_path": "src/python/platforms/fuchsia/device.py",
+        "commit": "7131f609",
+        "range": "[17, 1, 17, 33]",
+        "source_info_study": "# pylint: disable=unused-argument",
+        "source_info_extracted": "# pylint: disable=unused-argument",
+        "mapped_oracle_idx": 188
+    }
+]

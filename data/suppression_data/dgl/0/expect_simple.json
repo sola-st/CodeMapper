@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "4bd4d6e3": {
+        "file": "python/dgl/runtime/spmv.py",
+        "range": "[57, 38, 57, 70]"
+    },
+    "653428bd": {
+        "file": "python/dgl/runtime/spmv.py",
+        "range": null
+    }
+}

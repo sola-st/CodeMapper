@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "9192cd80": {
+        "file": "paddlenlp/datasets/squad.py",
+        "range": "[206, 49, 206, 78]"
+    },
+    "d4376d1f": {
+        "file": "paddlenlp/datasets/squad.py",
+        "range": null
+    }
+}

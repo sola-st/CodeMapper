@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/google/clusterfuzz.git",
+        "file_path": "src/appengine/handlers/fuzzer_stats.py",
+        "commit": "88570c94",
+        "range": "[517, 25, 517, 40]",
+        "source_info_study": "# pylint: disable=protected-access",
+        "source_info_extracted": "protected-access",
+        "mapped_oracle_idx": 78
+    },
+    {
+        "url": "https://github.com/google/clusterfuzz.git",
+        "file_path": "src/appengine/handlers/fuzzer_stats.py",
+        "commit": "7131f609",
+        "range": "[552, 25, 552, 40]",
+        "source_info_study": "# pylint: disable=protected-access",
+        "source_info_extracted": "protected-access",
+        "mapped_oracle_idx": 78
+    }
+]

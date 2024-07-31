@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/celery/celery.git",
+        "file_path": "celery/utils/dispatch/signal.py",
+        "commit": "0e93ee0c",
+        "range": "[171, 39, 171, 68]",
+        "source_info_study": "# pylint: disable=broad-except",
+        "source_info_extracted": "# pylint: disable=broad-except",
+        "mapped_oracle_idx": 53
+    },
+    {
+        "url": "https://github.com/celery/celery.git",
+        "file_path": "celery/utils/dispatch/signal.py",
+        "commit": "2f5549f3",
+        "range": "[289, 39, 289, 68]",
+        "source_info_study": "# pylint: disable=broad-except",
+        "source_info_extracted": "# pylint: disable=broad-except",
+        "mapped_oracle_idx": 53
+    }
+]

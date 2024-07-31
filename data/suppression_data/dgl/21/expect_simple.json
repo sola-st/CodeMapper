@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "9b4d6079": {
+        "file": "python/dgl/heterograph.py",
+        "range": "[2800, 25, 2800, 54]"
+    },
+    "c801a164": {
+        "file": "python/dgl/heterograph.py",
+        "range": "[4423, 38, 4423, 67]"
+    }
+}

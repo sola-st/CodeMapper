@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "kedro/framework/session/session.py",
+        "commit": "22e2351d",
+        "range": "[144, 9, 144, 42]",
+        "source_info_study": "# pylint: disable=protected-access",
+        "source_info_extracted": "# pylint: disable=protected-access",
+        "mapped_oracle_idx": 538
+    },
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "kedro/framework/session/session.py",
+        "commit": "0889863a",
+        "range": null,
+        "source_info_study": "# pylint: disable=protected-access",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 538
+    }
+]

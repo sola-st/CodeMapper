@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "tests/framework/cli/hooks/test_manager.py",
+        "commit": "c5ccb630",
+        "range": "[58, 49, 58, 75]",
+        "source_info_study": "# pylint: disable=no-member",
+        "source_info_extracted": "# pylint: disable=no-member",
+        "mapped_oracle_idx": 57
+    },
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "tests/framework/cli/hooks/test_manager.py",
+        "commit": "45a79d0f",
+        "range": null,
+        "source_info_study": "# pylint: disable=no-member",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 57
+    }
+]

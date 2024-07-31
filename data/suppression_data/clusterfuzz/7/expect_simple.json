@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "48ecd2f1": {
+        "file": "src/appengine/handlers/reproduce_tool/testcase_info.py",
+        "range": "[26, 40, 26, 73]"
+    },
+    "7131f609": {
+        "file": "src/appengine/handlers/reproduce_tool/testcase_info.py",
+        "range": "[27, 3, 27, 36]"
+    }
+}

@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/celery/celery.git",
+        "file_path": "celery/utils/functional.py",
+        "commit": "0e93ee0c",
+        "range": "[257, 5, 257, 33]",
+        "source_info_study": "# pylint: disable=use-of-exec",
+        "source_info_extracted": "# pylint: disable=use-of-exec",
+        "mapped_oracle_idx": 65
+    },
+    {
+        "url": "https://github.com/celery/celery.git",
+        "file_path": "celery/utils/functional.py",
+        "commit": "0b4c8ad4",
+        "range": null,
+        "source_info_study": "# pylint: disable=use-of-exec",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 65
+    }
+]

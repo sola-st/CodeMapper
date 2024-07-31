@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/magenta/magenta.git",
+        "file_path": "magenta/music/__init__.py",
+        "commit": "b0b500c5",
+        "range": "[17, 26, 17, 58]",
+        "source_info_study": "# pylint: disable=wildcard-import",
+        "source_info_extracted": "# pylint: disable=wildcard-import",
+        "mapped_oracle_idx": 56
+    },
+    {
+        "url": "https://github.com/magenta/magenta.git",
+        "file_path": "magenta/music/__init__.py",
+        "commit": "22af57fd",
+        "range": "[39, 40, 39, 72]",
+        "source_info_study": "# pylint: disable=wildcard-import",
+        "source_info_extracted": "# pylint: disable=wildcard-import",
+        "mapped_oracle_idx": 56
+    }
+]

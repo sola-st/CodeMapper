@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "88570c94": {
+        "file": "src/python/datastore/ndb.py",
+        "range": "[22, 58, 22, 72]"
+    },
+    "7131f609": {
+        "file": "src/python/datastore/ndb.py",
+        "range": "[33, 58, 33, 72]"
+    }
+}

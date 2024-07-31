@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "tests/config/test_omegaconf_config.py",
+        "commit": "3b3e92b2",
+        "range": "[1, 19, 1, 41]",
+        "source_info_study": "# pylint: disable=expression-not-assigned",
+        "source_info_extracted": "expression-not-assigned",
+        "mapped_oracle_idx": 316
+    },
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "tests/config/test_omegaconf_config.py",
+        "commit": "4bd0bee4",
+        "range": "[1, 19, 1, 41]",
+        "source_info_study": "# pylint: disable=expression-not-assigned",
+        "source_info_extracted": "expression-not-assigned",
+        "mapped_oracle_idx": 316
+    }
+]

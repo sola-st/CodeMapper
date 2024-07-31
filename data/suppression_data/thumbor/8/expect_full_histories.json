@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "tests/compatibility/legacy_file_result_storage.py",
+        "commit": "4c0d9117",
+        "range": "[13, 97, 13, 126]",
+        "source_info_study": "# pylint: disable=inconsistent-return-statements",
+        "source_info_extracted": "inconsistent-return-statements",
+        "mapped_oracle_idx": 271
+    },
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "tests/compatibility/legacy_file_result_storage.py",
+        "commit": "06306410",
+        "range": null,
+        "source_info_study": "# pylint: disable=inconsistent-return-statements",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 271
+    }
+]

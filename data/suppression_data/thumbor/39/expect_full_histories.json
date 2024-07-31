@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "tests/handlers/test_base_handler.py",
+        "commit": "3d5fbe93",
+        "range": "[49, 32, 49, 46]",
+        "source_info_study": "# pylint: disable=abstract-method",
+        "source_info_extracted": "abstract-method",
+        "mapped_oracle_idx": 82
+    },
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "tests/handlers/test_base_handler.py",
+        "commit": "06306410",
+        "range": null,
+        "source_info_study": "# pylint: disable=abstract-method",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 82
+    }
+]

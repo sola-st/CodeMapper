@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "46fe382a": {
+        "file": "yapf/yapflib/yapf_api.py",
+        "range": "[155, 66, 155, 91]"
+    },
+    "2d5b4d87": {
+        "file": "yapf/yapflib/yapf_api.py",
+        "range": "[211, 66, 211, 91]"
+    }
+}

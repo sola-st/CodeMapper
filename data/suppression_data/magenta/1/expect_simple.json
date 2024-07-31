@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "039cd8bc": {
+        "file": "magenta/models/melody_rnn/melody_rnn_model.py",
+        "range": "[22, 30, 22, 64]"
+    },
+    "14813e67": {
+        "file": "magenta/models/melody_rnn/melody_rnn_model.py",
+        "range": null
+    }
+}

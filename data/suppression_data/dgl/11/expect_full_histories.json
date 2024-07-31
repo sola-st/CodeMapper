@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/dmlc/dgl.git",
+        "file_path": "python/dgl/base.py",
+        "commit": "4bd4d6e3",
+        "range": "[6, 34, 6, 64]",
+        "source_info_study": "# pylint: disable=unused-import",
+        "source_info_extracted": "# pylint: disable=unused-import",
+        "mapped_oracle_idx": 330
+    },
+    {
+        "url": "https://github.com/dmlc/dgl.git",
+        "file_path": "python/dgl/base.py",
+        "commit": "c801a164",
+        "range": "[6, 34, 6, 64]",
+        "source_info_study": "# pylint: disable=unused-import",
+        "source_info_extracted": "# pylint: disable=unused-import",
+        "mapped_oracle_idx": 330
+    }
+]

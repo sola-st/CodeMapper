@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "kedro/framework/cli/hooks/specs.py",
+        "commit": "c5ccb630",
+        "range": "[33, 1, 33, 36]",
+        "source_info_study": "# pylint: disable=too-many-arguments",
+        "source_info_extracted": "# pylint: disable=too-many-arguments",
+        "mapped_oracle_idx": 58
+    },
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "kedro/framework/cli/hooks/specs.py",
+        "commit": "0889863a",
+        "range": null,
+        "source_info_study": "# pylint: disable=too-many-arguments",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 58
+    }
+]

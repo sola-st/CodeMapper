@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "b996706d": {
+        "file": "magenta/models/nsynth/wavenet/nsynth_save_embeddings.py",
+        "range": "[22, 31, 22, 65]"
+    },
+    "22af57fd": {
+        "file": "magenta/models/nsynth/wavenet/nsynth_save_embeddings.py",
+        "range": "[23, 31, 23, 65]"
+    }
+}

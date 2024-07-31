@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "22e2351d": {
+        "file": "kedro/framework/session/session.py",
+        "range": "[144, 9, 144, 42]"
+    },
+    "0889863a": {
+        "file": "kedro/framework/session/session.py",
+        "range": null
+    }
+}

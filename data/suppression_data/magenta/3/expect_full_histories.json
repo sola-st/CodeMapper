@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/magenta/magenta.git",
+        "file_path": "magenta/interfaces/midi/magenta_midi.py",
+        "commit": "93f7c720",
+        "range": "[29, 30, 29, 64]",
+        "source_info_study": "# pylint: disable=redefined-builtin",
+        "source_info_extracted": "# pylint: disable=redefined-builtin",
+        "mapped_oracle_idx": 45
+    },
+    {
+        "url": "https://github.com/magenta/magenta.git",
+        "file_path": "magenta/interfaces/midi/magenta_midi.py",
+        "commit": "1a5774e4",
+        "range": null,
+        "source_info_study": "# pylint: disable=redefined-builtin",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 45
+    }
+]

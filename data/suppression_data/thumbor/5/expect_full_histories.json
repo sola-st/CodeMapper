@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "tests/handlers/test_base_handler_with_result_storage.py",
+        "commit": "032d45c0",
+        "range": "[28, 19, 28, 30]",
+        "source_info_study": "# pylint: disable=broad-except",
+        "source_info_extracted": "broad-except",
+        "mapped_oracle_idx": 190
+    },
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "tests/handlers/test_base_handler_with_result_storage.py",
+        "commit": "06306410",
+        "range": null,
+        "source_info_study": "# pylint: disable=broad-except",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 190
+    }
+]

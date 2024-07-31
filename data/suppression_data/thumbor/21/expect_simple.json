@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "06306410": {
+        "file": "tests/error_handlers/test_file.py",
+        "range": "[58, 50, 58, 86]"
+    },
+    "a12fb1bd": {
+        "file": "tests/error_handlers/test_file.py",
+        "range": "[65, 43, 65, 79]"
+    }
+}

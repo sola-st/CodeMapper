@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "thumbor/engines/__init__.py",
+        "commit": "71528f2a",
+        "range": "[35, 72, 35, 118]",
+        "source_info_study": "# pylint: disable=anomalous-backslash-in-string",
+        "source_info_extracted": "# pylint: disable=anomalous-backslash-in-string",
+        "mapped_oracle_idx": 216
+    },
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "thumbor/engines/__init__.py",
+        "commit": "a12fb1bd",
+        "range": "[32, 50, 32, 96]",
+        "source_info_study": "# pylint: disable=anomalous-backslash-in-string",
+        "source_info_extracted": "# pylint: disable=anomalous-backslash-in-string",
+        "mapped_oracle_idx": 216
+    }
+]

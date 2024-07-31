@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "tests/framework/session/test_store.py",
+        "commit": "22e2351d",
+        "range": "[40, 18, 40, 57]",
+        "source_info_study": "# pylint: disable=too-few-public-methods",
+        "source_info_extracted": "# pylint: disable=too-few-public-methods",
+        "mapped_oracle_idx": 537
+    },
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "tests/framework/session/test_store.py",
+        "commit": "1bb5f4be",
+        "range": null,
+        "source_info_study": "# pylint: disable=too-few-public-methods",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 537
+    }
+]

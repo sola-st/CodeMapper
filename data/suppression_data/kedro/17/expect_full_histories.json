@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "features/steps/test_plugin/plugin.py",
+        "commit": "49834dd8",
+        "range": "[38, 27, 38, 41]",
+        "source_info_study": "# pylint: disable=unused-argument",
+        "source_info_extracted": "unused-argument",
+        "mapped_oracle_idx": 11
+    },
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "features/steps/test_plugin/plugin.py",
+        "commit": "4bd0bee4",
+        "range": "[16, 27, 16, 41]",
+        "source_info_study": "# pylint: disable=unused-argument",
+        "source_info_extracted": "unused-argument",
+        "mapped_oracle_idx": 11
+    }
+]

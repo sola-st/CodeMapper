@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "71528f2a": {
+        "file": "thumbor/detectors/local_detector.py",
+        "range": "[61, 32, 61, 61]"
+    },
+    "a12fb1bd": {
+        "file": "thumbor/detectors/local_detector.py",
+        "range": "[82, 32, 82, 61]"
+    }
+}

@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "9fb475bb": {
+        "file": "yapftests/reformatter_buganizer_test.py",
+        "range": "[60, 57, 60, 89]"
+    },
+    "2d5b4d87": {
+        "file": "yapftests/reformatter_buganizer_test.py",
+        "range": "[1152, 57, 1152, 100]"
+    }
+}

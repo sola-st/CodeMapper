@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/google/clusterfuzz.git",
+        "file_path": "src/appengine/handlers/reproduce_tool/testcase_info.py",
+        "commit": "48ecd2f1",
+        "range": "[26, 40, 26, 73]",
+        "source_info_study": "# pylint: disable=protected-access",
+        "source_info_extracted": "# pylint: disable=protected-access",
+        "mapped_oracle_idx": 19
+    },
+    {
+        "url": "https://github.com/google/clusterfuzz.git",
+        "file_path": "src/appengine/handlers/reproduce_tool/testcase_info.py",
+        "commit": "7131f609",
+        "range": "[27, 3, 27, 36]",
+        "source_info_study": "# pylint: disable=protected-access",
+        "source_info_extracted": "# pylint: disable=protected-access",
+        "mapped_oracle_idx": 19
+    }
+]

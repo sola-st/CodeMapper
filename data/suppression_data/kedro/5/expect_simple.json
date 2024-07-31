@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "7710c7d8": {
+        "file": "kedro/framework/cli/pipeline.py",
+        "range": "[28, 1, 28, 32]"
+    },
+    "e6cfb423": {
+        "file": "kedro/framework/cli/pipeline.py",
+        "range": null
+    }
+}

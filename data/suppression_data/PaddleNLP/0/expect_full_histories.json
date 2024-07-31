@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/PaddlePaddle/PaddleNLP.git",
+        "file_path": "paddlenlp/datasets/squad.py",
+        "commit": "9192cd80",
+        "range": "[206, 49, 206, 78]",
+        "source_info_study": "# pylint: disable=invalid-name",
+        "source_info_extracted": "# pylint: disable=invalid-name",
+        "mapped_oracle_idx": 2
+    },
+    {
+        "url": "https://github.com/PaddlePaddle/PaddleNLP.git",
+        "file_path": "paddlenlp/datasets/squad.py",
+        "commit": "d4376d1f",
+        "range": null,
+        "source_info_study": "# pylint: disable=invalid-name",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 2
+    }
+]

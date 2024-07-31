@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "tests/compatibility/legacy_file_result_storage.py",
+        "commit": "4c0d9117",
+        "range": "[13, 19, 13, 43]",
+        "source_info_study": "# pylint: disable=invalid-overridden-method",
+        "source_info_extracted": "invalid-overridden-method",
+        "mapped_oracle_idx": 267
+    },
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "tests/compatibility/legacy_file_result_storage.py",
+        "commit": "06306410",
+        "range": null,
+        "source_info_study": "# pylint: disable=invalid-overridden-method",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 267
+    }
+]

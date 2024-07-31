@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "thumbor/doctor.py",
+        "commit": "71528f2a",
+        "range": "[11, 19, 11, 27]",
+        "source_info_study": "# pylint: disable=no-member",
+        "source_info_extracted": "no-member",
+        "mapped_oracle_idx": 214
+    },
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "thumbor/doctor.py",
+        "commit": "a12fb1bd",
+        "range": "[11, 19, 11, 27]",
+        "source_info_study": "# pylint: disable=no-member",
+        "source_info_extracted": "no-member",
+        "mapped_oracle_idx": 214
+    }
+]

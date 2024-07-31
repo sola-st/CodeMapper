@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "c47f4041": {
+        "file": "magenta/models/music_vae/lstm_models.py",
+        "range": "[74, 57, 74, 89]"
+    },
+    "8190b87f": {
+        "file": "magenta/models/music_vae/lstm_models.py",
+        "range": null
+    }
+}

@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "bcd59a5d": {
+        "file": "tests/framework/project/test_logging.py",
+        "range": "[5, 47, 5, 76]"
+    },
+    "5ae97cfb": {
+        "file": "tests/framework/project/test_logging.py",
+        "range": null
+    }
+}

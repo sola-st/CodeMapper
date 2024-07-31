@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "d8efb2a1": {
+        "file": "magenta/models/rl_tuner/rl_tuner_train.py",
+        "range": "[29, 19, 29, 37]"
+    },
+    "22af57fd": {
+        "file": "magenta/models/rl_tuner/rl_tuner_train.py",
+        "range": "[32, 19, 32, 37]"
+    }
+}

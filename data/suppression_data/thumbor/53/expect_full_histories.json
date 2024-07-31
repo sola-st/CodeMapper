@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "thumbor/handlers/__init__.py",
+        "commit": "3d5fbe93",
+        "range": "[36, 93, 36, 111]",
+        "source_info_study": "# pylint: disable=too-many-statements",
+        "source_info_extracted": "too-many-statements",
+        "mapped_oracle_idx": 79
+    },
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "thumbor/handlers/__init__.py",
+        "commit": "a12fb1bd",
+        "range": "[36, 93, 36, 111]",
+        "source_info_study": "# pylint: disable=too-many-statements",
+        "source_info_extracted": "too-many-statements",
+        "mapped_oracle_idx": 79
+    }
+]

@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "tests/compatibility/legacy_file_result_storage.py",
+        "commit": "4c0d9117",
+        "range": "[13, 141, 13, 157]",
+        "source_info_study": "# pylint: disable=deprecated-method",
+        "source_info_extracted": "deprecated-method",
+        "mapped_oracle_idx": 268
+    },
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "tests/compatibility/legacy_file_result_storage.py",
+        "commit": "06306410",
+        "range": null,
+        "source_info_study": "# pylint: disable=deprecated-method",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 268
+    }
+]

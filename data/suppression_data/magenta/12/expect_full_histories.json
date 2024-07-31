@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/magenta/magenta.git",
+        "file_path": "magenta/models/music_vae/lstm_models.py",
+        "commit": "c47f4041",
+        "range": "[74, 57, 74, 89]",
+        "source_info_study": "# pylint: disable=protected-access",
+        "source_info_extracted": "# pylint:disable=protected-access",
+        "mapped_oracle_idx": 115
+    },
+    {
+        "url": "https://github.com/magenta/magenta.git",
+        "file_path": "magenta/models/music_vae/lstm_models.py",
+        "commit": "8190b87f",
+        "range": null,
+        "source_info_study": "# pylint:disable=protected-access",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 115
+    }
+]

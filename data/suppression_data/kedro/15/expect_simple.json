@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "22e2351d": {
+        "file": "tests/framework/session/test_store.py",
+        "range": "[40, 18, 40, 57]"
+    },
+    "1bb5f4be": {
+        "file": "tests/framework/session/test_store.py",
+        "range": null
+    }
+}

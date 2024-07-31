@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "thumbor/loaders/http_loader.py",
+        "commit": "71528f2a",
+        "range": "[61, 43, 61, 101]",
+        "source_info_study": "# pylint: disable=isinstance-second-argument-not-valid-type",
+        "source_info_extracted": "# pylint: disable=isinstance-second-argument-not-valid-type",
+        "mapped_oracle_idx": 217
+    },
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "thumbor/loaders/http_loader.py",
+        "commit": "a12fb1bd",
+        "range": "[61, 25, 61, 83]",
+        "source_info_study": "# pylint: disable=isinstance-second-argument-not-valid-type",
+        "source_info_extracted": "# pylint: disable=isinstance-second-argument-not-valid-type",
+        "mapped_oracle_idx": 217
+    }
+]

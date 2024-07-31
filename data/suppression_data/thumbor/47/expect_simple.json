@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "3d5fbe93": {
+        "file": "tests/handlers/test_base_handler.py",
+        "range": "[50, 1, 50, 32]"
+    },
+    "06306410": {
+        "file": "tests/handlers/test_base_handler.py",
+        "range": null
+    }
+}

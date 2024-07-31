@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "c5ccb630": {
+        "file": "tests/framework/cli/hooks/test_manager.py",
+        "range": "[58, 49, 58, 75]"
+    },
+    "45a79d0f": {
+        "file": "tests/framework/cli/hooks/test_manager.py",
+        "range": null
+    }
+}

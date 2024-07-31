@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "kedro/framework/project/__init__.py",
+        "commit": "2138f367",
+        "range": "[30, 19, 30, 38]",
+        "source_info_study": "# pylint: disable=redefined-outer-name",
+        "source_info_extracted": "redefined-outer-name",
+        "mapped_oracle_idx": 171
+    },
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "kedro/framework/project/__init__.py",
+        "commit": "4bd0bee4",
+        "range": "[3, 19, 3, 38]",
+        "source_info_study": "# pylint: disable=redefined-outer-name",
+        "source_info_extracted": "redefined-outer-name",
+        "mapped_oracle_idx": 171
+    }
+]

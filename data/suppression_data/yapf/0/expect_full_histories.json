@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapftests/reformatter_buganizer_test.py",
+        "commit": "9fb475bb",
+        "range": "[69, 57, 69, 89]",
+        "source_info_study": "# pylint: disable=unused-argument",
+        "source_info_extracted": "# pylint: disable=unused-argument",
+        "mapped_oracle_idx": 47
+    },
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapftests/reformatter_buganizer_test.py",
+        "commit": "2d5b4d87",
+        "range": "[1161, 57, 1161, 100]",
+        "source_info_study": "# pylint: disable=unused-argument",
+        "source_info_extracted": "# TODO(who): pylint: disable=unused-argument",
+        "mapped_oracle_idx": 47
+    }
+]

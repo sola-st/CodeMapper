@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "kedro/framework/hooks/specs.py",
+        "commit": "15df0f33",
+        "range": "[138, 5, 138, 39]",
+        "source_info_study": "# pylint: disable=missing-param-doc",
+        "source_info_extracted": "# pylint: disable=missing-param-doc",
+        "mapped_oracle_idx": 25
+    },
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "kedro/framework/hooks/specs.py",
+        "commit": "2ffbcf8f",
+        "range": null,
+        "source_info_study": "# pylint: disable=missing-param-doc",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 25
+    }
+]

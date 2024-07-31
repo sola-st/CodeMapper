@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "5484b9b4": {
+        "file": "tests/framework/context/test_context.py",
+        "range": "[28, 1, 28, 27]"
+    },
+    "1bb5f4be": {
+        "file": "tests/framework/context/test_context.py",
+        "range": null
+    }
+}

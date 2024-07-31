@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/dmlc/dgl.git",
+        "file_path": "python/dgl/nn/pytorch/conv/sageconv.py",
+        "commit": "ddb5d804",
+        "range": "[2, 20, 2, 28]",
+        "source_info_study": "# pylint: disable=no-member",
+        "source_info_extracted": "no-member",
+        "mapped_oracle_idx": 110
+    },
+    {
+        "url": "https://github.com/dmlc/dgl.git",
+        "file_path": "python/dgl/nn/pytorch/conv/sageconv.py",
+        "commit": "c801a164",
+        "range": "[2, 20, 2, 28]",
+        "source_info_study": "# pylint: disable=no-member",
+        "source_info_extracted": "no-member",
+        "mapped_oracle_idx": 110
+    }
+]

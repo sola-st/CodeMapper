@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapftests/file_resources_test.py",
+        "commit": "ffcbff14",
+        "range": "[81, 81, 81, 114]",
+        "source_info_study": "# pylint: disable=anomalous-unicode-escape-in-string",
+        "source_info_extracted": "anomalous-unicode-escape-in-string",
+        "mapped_oracle_idx": 13
+    },
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapftests/file_resources_test.py",
+        "commit": "2d5b4d87",
+        "range": "[513, 81, 513, 114]",
+        "source_info_study": "# pylint: disable=anomalous-unicode-escape-in-string",
+        "source_info_extracted": "anomalous-unicode-escape-in-string",
+        "mapped_oracle_idx": 13
+    }
+]

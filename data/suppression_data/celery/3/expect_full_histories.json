@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/celery/celery.git",
+        "file_path": "celery/worker/consumer/consumer.py",
+        "commit": "0e93ee0c",
+        "range": "[559, 43, 559, 72]",
+        "source_info_study": "# pylint: disable=broad-except",
+        "source_info_extracted": "# pylint: disable=broad-except",
+        "mapped_oracle_idx": 66
+    },
+    {
+        "url": "https://github.com/celery/celery.git",
+        "file_path": "celery/worker/consumer/consumer.py",
+        "commit": "40ef2978",
+        "range": null,
+        "source_info_study": "# pylint: disable=broad-except",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 66
+    }
+]

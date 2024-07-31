@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "tests/framework/cli/test_pipeline.py",
+        "commit": "9f05c18c",
+        "range": "[28, 1, 28, 32]",
+        "source_info_study": "# pylint: disable=too-many-lines",
+        "source_info_extracted": "# pylint: disable=too-many-lines",
+        "mapped_oracle_idx": 187
+    },
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "tests/framework/cli/test_pipeline.py",
+        "commit": "a3032439",
+        "range": null,
+        "source_info_study": "# pylint: disable=too-many-lines",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 187
+    }
+]

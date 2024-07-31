@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "ffcbff14": {
+        "file": "yapftests/file_resources_test.py",
+        "range": "[81, 81, 81, 114]"
+    },
+    "2d5b4d87": {
+        "file": "yapftests/file_resources_test.py",
+        "range": "[513, 81, 513, 114]"
+    }
+}

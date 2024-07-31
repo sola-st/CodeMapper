@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "88570c94": {
+        "file": "src/python/tests/core/platforms/android/logger_test.py",
+        "range": "[35, 5, 35, 35]"
+    },
+    "2b66c6bc": {
+        "file": "src/python/tests/core/platforms/android/logger_test.py",
+        "range": null
+    }
+}

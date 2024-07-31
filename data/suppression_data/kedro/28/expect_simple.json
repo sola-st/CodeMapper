@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "9f05c18c": {
+        "file": "tests/framework/cli/test_pipeline.py",
+        "range": "[28, 1, 28, 32]"
+    },
+    "a3032439": {
+        "file": "tests/framework/cli/test_pipeline.py",
+        "range": null
+    }
+}

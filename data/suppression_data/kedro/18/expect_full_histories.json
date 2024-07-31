@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "tests/io/test_cached_dataset.py",
+        "commit": "bf45f72d",
+        "range": "[91, 9, 91, 35]",
+        "source_info_study": "# pylint: disable=no-member",
+        "source_info_extracted": "# pylint: disable=no-member",
+        "mapped_oracle_idx": 46
+    },
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "tests/io/test_cached_dataset.py",
+        "commit": "6d9ffaba",
+        "range": null,
+        "source_info_study": "# pylint: disable=no-member",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 46
+    }
+]

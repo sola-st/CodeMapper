@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "071cba1f": {
+        "file": "python/dgl/sparse.py",
+        "range": "[2, 1, 2, 31]"
+    },
+    "c801a164": {
+        "file": "python/dgl/sparse.py",
+        "range": "[2, 1, 2, 31]"
+    }
+}

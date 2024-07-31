@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/magenta/magenta.git",
+        "file_path": "magenta/models/piano_hero/gold.py",
+        "commit": "e47da648",
+        "range": "[20, 21, 20, 33]",
+        "source_info_study": "# pylint: disable=line-too-long",
+        "source_info_extracted": "line-too-long",
+        "mapped_oracle_idx": 82
+    },
+    {
+        "url": "https://github.com/magenta/magenta.git",
+        "file_path": "magenta/models/piano_genie/gold.py",
+        "commit": "22af57fd",
+        "range": "[21, 20, 21, 32]",
+        "source_info_study": "# pylint:disable=line-too-long",
+        "source_info_extracted": "line-too-long",
+        "mapped_oracle_idx": 82
+    }
+]

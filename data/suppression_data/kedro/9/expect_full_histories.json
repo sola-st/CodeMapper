@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "tests/framework/project/test_logging.py",
+        "commit": "0a44c5aa",
+        "range": "[1, 57, 1, 66]",
+        "source_info_study": "# pylint: disable=reimported",
+        "source_info_extracted": "reimported",
+        "mapped_oracle_idx": 6
+    },
+    {
+        "url": "https://github.com/kedro-org/kedro.git",
+        "file_path": "tests/framework/project/test_logging.py",
+        "commit": "4a4bd739",
+        "range": null,
+        "source_info_study": "# pylint: disable=reimported",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 6
+    }
+]

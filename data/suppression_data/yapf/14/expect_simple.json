@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "7d623455": {
+        "file": "yapf/yapflib/blank_line_calculator.py",
+        "range": "[88, 35, 88, 64]"
+    },
+    "2d5b4d87": {
+        "file": "yapf/pytree/blank_line_calculator.py",
+        "range": "[91, 35, 91, 64]"
+    }
+}

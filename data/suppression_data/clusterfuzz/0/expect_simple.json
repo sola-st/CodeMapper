@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "88570c94": {
+        "file": "src/python/bot/fuzzers/afl/launcher.py",
+        "range": "[16, 1, 16, 44]"
+    },
+    "7131f609": {
+        "file": "src/python/bot/fuzzers/afl/launcher.py",
+        "range": "[17, 1, 17, 44]"
+    }
+}

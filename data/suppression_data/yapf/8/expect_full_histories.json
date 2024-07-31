@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapf/__init__.py",
+        "commit": "21946cb5",
+        "range": "[223, 32, 223, 68]",
+        "source_info_study": "# pylint: disable=g-import-not-at-top",
+        "source_info_extracted": "# pylint: disable=g-import-not-at-top",
+        "mapped_oracle_idx": 57
+    },
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapf/__init__.py",
+        "commit": "2d5b4d87",
+        "range": "[204, 32, 204, 68]",
+        "source_info_study": "# pylint: disable=g-import-not-at-top",
+        "source_info_extracted": "# pylint: disable=g-import-not-at-top",
+        "mapped_oracle_idx": 57
+    }
+]

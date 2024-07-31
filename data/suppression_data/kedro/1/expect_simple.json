@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "6d9ffaba": {
+        "file": "kedro/framework/cli/starters.py",
+        "range": "[94, 5, 94, 37]"
+    },
+    "bcd59a5d": {
+        "file": "kedro/framework/cli/starters.py",
+        "range": null
+    }
+}

@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapftests/reformatter_buganizer_test.py",
+        "commit": "00af74e6",
+        "range": "[38, 88, 38, 118]",
+        "source_info_study": "# pylint: disable=line-too-long",
+        "source_info_extracted": "# pylint: disable=line-too-long",
+        "mapped_oracle_idx": 58
+    },
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapftests/reformatter_buganizer_test.py",
+        "commit": "2d5b4d87",
+        "range": "[169, 95, 169, 125]",
+        "source_info_study": "# pylint: disable=line-too-long",
+        "source_info_extracted": "# pylint: disable=line-too-long",
+        "mapped_oracle_idx": 58
+    }
+]

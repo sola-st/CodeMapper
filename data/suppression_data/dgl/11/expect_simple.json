@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "4bd4d6e3": {
+        "file": "python/dgl/base.py",
+        "range": "[6, 34, 6, 64]"
+    },
+    "c801a164": {
+        "file": "python/dgl/base.py",
+        "range": "[6, 34, 6, 64]"
+    }
+}

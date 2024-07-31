@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "c5ccb630": {
+        "file": "kedro/framework/cli/hooks/specs.py",
+        "range": "[33, 1, 33, 36]"
+    },
+    "0889863a": {
+        "file": "kedro/framework/cli/hooks/specs.py",
+        "range": null
+    }
+}

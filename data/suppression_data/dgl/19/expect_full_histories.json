@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/dmlc/dgl.git",
+        "file_path": "python/dgl/heterograph.py",
+        "commit": "401f22ca",
+        "range": "[3, 1, 3, 34]",
+        "source_info_study": "# pylint: disable=unnecessary-pass",
+        "source_info_extracted": "# pylint: disable=unnecessary-pass",
+        "mapped_oracle_idx": 48
+    },
+    {
+        "url": "https://github.com/dmlc/dgl.git",
+        "file_path": "python/dgl/heterograph.py",
+        "commit": "9b4d6079",
+        "range": null,
+        "source_info_study": "# pylint: disable=unnecessary-pass",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 48
+    }
+]

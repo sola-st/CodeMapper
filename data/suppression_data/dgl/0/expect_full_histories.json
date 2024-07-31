@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/dmlc/dgl.git",
+        "file_path": "python/dgl/runtime/spmv.py",
+        "commit": "4bd4d6e3",
+        "range": "[57, 38, 57, 70]",
+        "source_info_study": "# pylint: disable=unused-argument",
+        "source_info_extracted": "# pylint: disable=unused-argument",
+        "mapped_oracle_idx": 345
+    },
+    {
+        "url": "https://github.com/dmlc/dgl.git",
+        "file_path": "python/dgl/runtime/spmv.py",
+        "commit": "653428bd",
+        "range": null,
+        "source_info_study": "# pylint: disable=unused-argument",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 345
+    }
+]

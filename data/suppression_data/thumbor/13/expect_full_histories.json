@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "thumbor/optimizers/__init__.py",
+        "commit": "06306410",
+        "range": "[29, 51, 29, 87]",
+        "source_info_study": "# pylint: disable=consider-using-with",
+        "source_info_extracted": "# pylint: disable=consider-using-with",
+        "mapped_oracle_idx": 244
+    },
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "thumbor/optimizers/__init__.py",
+        "commit": "a12fb1bd",
+        "range": "[32, 38, 32, 74]",
+        "source_info_study": "# pylint: disable=consider-using-with",
+        "source_info_extracted": "# pylint: disable=consider-using-with",
+        "mapped_oracle_idx": 244
+    }
+]

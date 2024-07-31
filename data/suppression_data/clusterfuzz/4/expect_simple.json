@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "88570c94": {
+        "file": "src/appengine/handlers/fuzzer_stats.py",
+        "range": "[517, 25, 517, 40]"
+    },
+    "7131f609": {
+        "file": "src/appengine/handlers/fuzzer_stats.py",
+        "range": "[552, 25, 552, 40]"
+    }
+}

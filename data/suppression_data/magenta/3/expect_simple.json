@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "93f7c720": {
+        "file": "magenta/interfaces/midi/magenta_midi.py",
+        "range": "[29, 30, 29, 64]"
+    },
+    "1a5774e4": {
+        "file": "magenta/interfaces/midi/magenta_midi.py",
+        "range": null
+    }
+}

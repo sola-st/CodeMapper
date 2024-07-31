@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "thumbor/testing.py",
+        "commit": "3d5fbe93",
+        "range": "[88, 38, 88, 88]",
+        "source_info_study": "# pylint: disable=no-self-use",
+        "source_info_extracted": "# Meant to be overriden pylint: disable=no-self-use",
+        "mapped_oracle_idx": 13
+    },
+    {
+        "url": "https://github.com/thumbor/thumbor.git",
+        "file_path": "thumbor/testing.py",
+        "commit": "a12fb1bd",
+        "range": "[109, 9, 109, 59]",
+        "source_info_study": "# pylint: disable=no-self-use",
+        "source_info_extracted": "# Meant to be overriden pylint: disable=no-self-use",
+        "mapped_oracle_idx": 13
+    }
+]

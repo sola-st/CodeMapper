@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapftests/reformatter_basic_test.py",
+        "commit": "e3b159be",
+        "range": "[29, 25, 29, 62]",
+        "source_info_study": "# pylint: disable=g-missing-super-call",
+        "source_info_extracted": "# pylint: disable=g-missing-super-call",
+        "mapped_oracle_idx": 91
+    },
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapftests/reformatter_basic_test.py",
+        "commit": "22ef70f3",
+        "range": null,
+        "source_info_study": "# pylint: disable=g-missing-super-call",
+        "source_info_extracted": null,
+        "mapped_oracle_idx": 91
+    }
+]

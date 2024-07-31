@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "8a84f7da": {
+        "file": "magenta/models/pianoroll_rnn_nade/pianoroll_rnn_nade_graph.py",
+        "range": "[32, 29, 32, 61]"
+    },
+    "8a205943": {
+        "file": "magenta/models/pianoroll_rnn_nade/pianoroll_rnn_nade_graph.py",
+        "range": null
+    }
+}

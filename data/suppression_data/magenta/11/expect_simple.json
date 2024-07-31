@@ -1,0 +1,11 @@
+{
+    "url": "https://github.com/google/yapf.git",
+    "e47da648": {
+        "file": "magenta/models/piano_hero/gold.py",
+        "range": "[20, 19, 20, 33]"
+    },
+    "22af57fd": {
+        "file": "magenta/models/piano_genie/gold.py",
+        "range": "[21, 18, 21, 32]"
+    }
+}

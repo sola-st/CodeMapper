@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapftests/reformatter_buganizer_test.py",
+        "commit": "a293e924",
+        "range": "[33, 46, 33, 65]",
+        "source_info_study": "# pylint: disable=singleton-comparison",
+        "source_info_extracted": "singleton-comparison",
+        "mapped_oracle_idx": 32
+    },
+    {
+        "url": "https://github.com/google/yapf.git",
+        "file_path": "yapftests/reformatter_buganizer_test.py",
+        "commit": "2d5b4d87",
+        "range": "[105, 54, 105, 73]",
+        "source_info_study": "# pylint: disable=singleton-comparison",
+        "source_info_extracted": "singleton-comparison",
+        "mapped_oracle_idx": 32
+    }
+]

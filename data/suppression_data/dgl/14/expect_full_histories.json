@@ -1,0 +1,20 @@
+[
+    {
+        "url": "https://github.com/dmlc/dgl.git",
+        "file_path": "python/dgl/nn/mxnet/softmax.py",
+        "commit": "74e13eea",
+        "range": "[2, 20, 2, 28]",
+        "source_info_study": "# pylint: disable=no-member",
+        "source_info_extracted": "no-member",
+        "mapped_oracle_idx": 177
+    },
+    {
+        "url": "https://github.com/dmlc/dgl.git",
+        "file_path": "python/dgl/nn/mxnet/softmax.py",
+        "commit": "c801a164",
+        "range": "[2, 20, 2, 28]",
+        "source_info_study": "# pylint: disable=no-member",
+        "source_info_extracted": "no-member",
+        "mapped_oracle_idx": 177
+    }
+]
