@@ -4,7 +4,6 @@ data/results
 data/pretrained_model
 data/test_oracle
 data/annotated_data
-data/oracle
 data/oracle_code_tracker
 data/converted_data
 data/suppression_data_with_unchanges
