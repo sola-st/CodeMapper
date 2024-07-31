@@ -1,7 +1,7 @@
 import json
 import os
 from os.path import join
-from anything_tracker.multiple.track_histories.TrackHistoryPairs import get_category_subfolder_info
+from anything_tracker.experiments.TrackHistoryPairs import get_category_subfolder_info
 
 
 class HistoryPairCount():

@@ -7,7 +7,7 @@ from anything_tracker.collect.data_preprocessor.utils.CommitRangePiece import ge
 from anything_tracker.collect.suppression.GetSuppressionRange import GetSuppressionRange
 from anything_tracker.collect.suppression.SuppressionTypeNumericMaps import read_to_get_type_numeric_maps
 from anything_tracker.experiments.SourceRepos import SourceRepos
-from anything_tracker.multiple.GetTargetFilePath import get_target_file_path
+from anything_tracker.GetTargetFilePath import get_target_file_path
 
 
 def write_extracted_json_strings(json_file, to_write):
