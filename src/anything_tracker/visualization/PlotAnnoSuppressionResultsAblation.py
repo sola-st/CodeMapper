@@ -13,9 +13,9 @@ def get_data(file_list):
         with open(file, "r") as f:
             csv_reader = csv.reader(f)
             line_list = list(csv_reader)
-            summary_line = line_list[-1]
+            summary_line = line_list[-1][7:]
         # summary should be [YMW, pre character distance, post, all, recall, precision, f1, note]
-        summary = [s for s in summary_line if s and "MOVE" not in s] 
+        summary = [s for s in summary_line if s] 
         # recall, precision, f1 = summary[2: 5] 
         recall_set = summary[2: 5] 
         to_numbers = [float(n) for n in recall_set] # the float() will truncate the tailing zeros
@@ -33,6 +33,7 @@ def plot_recall_sets(data, xticklabels, plot_pdf):
     ind = np.arange(n_sets)[::-1]  # Y locations for the groups
     width = 0.2  # Width of the bars
 
+    plt.rcParams.update({'font.size': 11})
     fig, ax = plt.subplots()
 
     rects1 = ax.barh(ind + width, recall, width, label='Recall', color='skyblue')
@@ -42,10 +43,10 @@ def plot_recall_sets(data, xticklabels, plot_pdf):
     autolabel(ax, rects2)
     autolabel(ax, rects3)
 
-    rc('axes', titlesize=12)
+    rc('axes')
     ax.set_yticks(ind)
     ax.set_yticklabels(xticklabels)
-    ax.legend(loc='upper right', bbox_to_anchor=(1, 1))
+    ax.legend(loc='upper right', bbox_to_anchor=(1, 1), prop={'size': 9})
 
     plt.tight_layout()
     plt.savefig(plot_pdf)
@@ -105,7 +106,7 @@ if __name__=="__main__":
     xticklabels = ["Disable diff-based\ncandidate extraction", 
                    "Disable candidate\nrefinement", 
                    "Disable movement\ndetection", 
-                   "Disable character\nsearching", 
+                   "Disable text search", 
                    "Disable context-aware\nsimilarity",
                    "AnythingTracker"]
     output_dir = join("data", "results","table_plots")
