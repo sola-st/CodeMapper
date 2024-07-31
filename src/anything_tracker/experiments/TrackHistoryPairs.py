@@ -1,7 +1,7 @@
 import json
 import os
 from anything_tracker.ELementCategory import ELementCategory
-from anything_tracker.multiple.track_histories.AnythingTrackerOnHistoryPairs import main as AnythingTrackerOnHistoryPairs
+from anything_tracker.AnythingTrackerOnHistoryPairs import main as AnythingTrackerOnHistoryPairs
 from anything_tracker.SpecifyToTurnOffTechniques import SpecifyToTurnOffTechniques
 from anything_tracker.experiments.SourceRepos import SourceRepos
 from os.path import join

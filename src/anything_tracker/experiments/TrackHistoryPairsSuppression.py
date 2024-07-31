@@ -1,6 +1,6 @@
 import json
 import os
-from anything_tracker.multiple.track_histories.AnythingTrackerOnHistoryPairs import main_suppression as AnythingTrackerOnHistoryPairs
+from anything_tracker.AnythingTrackerOnHistoryPairs import main_suppression as AnythingTrackerOnHistoryPairs
 from anything_tracker.SpecifyToTurnOffTechniques import SpecifyToTurnOffTechniques
 from anything_tracker.experiments.SourceRepos import SourceRepos
 from os.path import join
@@ -81,7 +81,7 @@ class TrackHistoryPairsSuppression():
         repo_folder_suppression = join("data", "repos_suppression")
         source_repo_init = SourceRepos(repo_urls_file, repo_folder_suppression)
         repo_dirs = source_repo_init.get_repo_dirs()
-        source_repo_init.checkout_latest_commits()
+        # source_repo_init.checkout_latest_commits()
         print(f"Found {len(repo_dirs)} repositories.")
 
         args_for_all_maps = self.get_meta_inputs(repo_dirs)
@@ -151,8 +151,8 @@ if __name__ == "__main__":
     '''
 
     oracle_history_parent_folder = join("data", "suppression_data")
-    result_dir_parent = join("data", "results", "tracked_maps", "suppression")
-    time_file_folder = join("data", "results", "execution_time", "suppression") 
+    result_dir_parent = join("data", "results", "tracked_maps", "suppression_test")
+    time_file_folder = join("data", "results", "execution_time", "suppression_test") 
     os.makedirs(time_file_folder, exist_ok=True)
     context_line_num = 5 
     turn_off_techniques = [False, False, False, False] 
@@ -160,4 +160,4 @@ if __name__ == "__main__":
     # Run AnythingTracker
     main_anythingtracker(oracle_history_parent_folder, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques)
     # Run ablation study
-    main_ablation_study(oracle_history_parent_folder, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques)      
+    # main_ablation_study(oracle_history_parent_folder, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques)      

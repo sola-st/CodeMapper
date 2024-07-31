@@ -1,5 +1,5 @@
 import json
-from anything_tracker.multiple.track_histories.AnythingTrackerOnHistoryPairs import main_suppression as AnythingTracker
+from anything_tracker.AnythingTrackerOnHistoryPairs import main_suppression as AnythingTracker
 from anything_tracker.SpecifyToTurnOffTechniques import SpecifyToTurnOffTechniques
 from anything_tracker.experiments.SourceRepos import SourceRepos
 from os.path import join

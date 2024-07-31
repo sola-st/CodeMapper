@@ -11,8 +11,8 @@ from anything_tracker.CandidateRegion import CandidateRegion, get_candidate_regi
 from anything_tracker.CharacterRange import CharacterRange
 from anything_tracker.baselines.CombineToCandidateRegion import CombineToCandidateRegion
 from anything_tracker.baselines.LineCharacterGitDiffToCandidateRegion import LineCharacterGitDiffToCandidateRegion
-from anything_tracker.multiple.GetTargetFilePath import get_target_file_path
-from anything_tracker.multiple.track_histories.RecordExecutionTimes import RecordExecutionTimes
+from anything_tracker.GetTargetFilePath import get_target_file_path
+from anything_tracker.RecordExecutionTimes import RecordExecutionTimes
 from anything_tracker.utils.ReadFile import checkout_to_read_file
 
 
