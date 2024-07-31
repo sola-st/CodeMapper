@@ -17,24 +17,27 @@ def get_execution_time(time_file, individual_times=False):
         return overall_time
 
 def plot_comparison(xticklabels, overall_data, result_pdf): # [line_data, word_data, anythingtracker_data]
+    plt.rcParams.update({'font.size': 14})
     fig, ax = plt.subplots()
     # Create box plots for each group
     ax.boxplot(overall_data, patch_artist=True)
 
     # Set labels and title
-    ax.set_xticklabels(xticklabels, fontsize=12)
-    ax.set_ylabel('Execution time (seconds)', fontsize=12)
+    ax.set_xticklabels(xticklabels)
+    ax.set_ylabel('Execution time (seconds)')
 
     line_data, word_data, at_data = overall_data
     medians = [np.median(line_data), np.median(word_data), np.median(at_data)]
     means = [np.mean(line_data), np.mean(word_data), np.mean(at_data)]
-    # Add text annotations for median values
+
+    # Add text annotations for median and mean values
     for i, (median, mean) in enumerate(zip(medians, means)):
         ax.text(i + 1, median, f'Median: {median:.3f}', ha='center', va='center')
-                # bbox=dict(facecolor='white', edgecolor='black'))
-        ax.text(i + 1, mean*2, f'Avg: {mean:.3f}', ha='center', va='center') 
-            # bbox=dict(facecolor='yellow', edgecolor='black'))
-        
+                 # bbox=dict(facecolor='white', edgecolor='black'))
+        ax.text(i + 1, mean * 2, f'Avg: {mean:.3f}', ha='center', va='center')
+                # bbox=dict(facecolor='yellow', edgecolor='black'))
+    
+    plt.tight_layout()
     plt.savefig(result_pdf)
 
 def plot_comparison_violin(xticklabels, overall_data, result_pdf):
