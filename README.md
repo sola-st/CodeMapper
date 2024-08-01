@@ -28,7 +28,7 @@ Both datasets are available in the *data* directory.
   * BaselineOnSuppression.py &emsp; Tracking the suppression study data.
 
 ### Evaluation
-* Evaluation metrics: Overlapping, Exact matches, Partial overlaps, Character distance, * Recall, Precision, and  F1-score.  
+* Evaluation metrics: Overlapping, Exact matches, Partial overlaps, Character distance, Recall, Precision, and  F1-score.  
 * The evaluation files are located in the *src/anything_tracker/measurement* directory.  
   * MeasureAnnotatedData.py &emsp; Check the results of the manually annotated data. 
   * MeasureSuppression.py &emsp; Check the results of the suppression study data.
@@ -73,13 +73,14 @@ Specify to run/evaluate only AnythingTracker in the entry point.
 Specify to **run/evaluate**: (in the entry point of the files)
 * starts with *main_anytingtracker* and *context_line_num = 0*. **->** Disable context-aware similarity
 * starts with *main_ablation_study* **->** Disable diff-based candidate extraction, movement detection, text search, and refinement of candidate regions, respectively, in one big experiment.
+* Specifically: 
   * Tracking
     * Run ComputeCandidatesForAnnoData.py 
     * Run TrackHistoryPairsSuppression.py
   * Evaluation
     * Run MeasureAnnotatedData.py 
     * Run MeasureSuppression.py 
-* Run PlotAnnoSuppressionResultsAblation.py -> Figures 9 and 10.
+  * Run PlotAnnoSuppressionResultsAblation.py -> Figures 9 and 10.
 
 #### RQ3: Efficiency of AnythingTracker.
 * The execution time files are already there (*data/results/execution_time*) as the experiments in RQ1 are done. 
