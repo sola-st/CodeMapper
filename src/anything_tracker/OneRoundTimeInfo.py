@@ -50,3 +50,12 @@ def get_time_relevant_names():
             "overlapping_search",
             "overalpping_round"]
     return names
+
+def get_refined_names():
+    # to be used as the key for calculated rates.
+    names = ["identify_target_file",
+            "read_files",
+            "diff_computation",
+            "iterate_hunks_extract_candidate",
+            "overlapping_search"]
+    return names
