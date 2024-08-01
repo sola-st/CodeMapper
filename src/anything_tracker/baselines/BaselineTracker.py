@@ -9,6 +9,7 @@ from anything_tracker.AnythingTrackerUtils import (
 )
 from anything_tracker.CandidateRegion import CandidateRegion, get_candidate_region_range
 from anything_tracker.CharacterRange import CharacterRange
+from anything_tracker.OneRoundTimeInfo import OneRoundTimeInfo
 from anything_tracker.baselines.CombineToCandidateRegion import CombineToCandidateRegion
 from anything_tracker.baselines.LineCharacterGitDiffToCandidateRegion import LineCharacterGitDiffToCandidateRegion
 from anything_tracker.GetTargetFilePath import get_target_file_path
@@ -48,8 +49,7 @@ class BaselineTracker():
         self.target_json_str_list = []
 
         # record execution time
-        # "candidate_numbers", "compute_candidates_executing_time", "select_target_executing_time"
-        self.one_round_time_info = [None]*3
+        self.one_round_time_info = OneRoundTimeInfo()
         
     def write_regions_to_files(self):
         json_file = join(self.results_dir, self.iteration_index, "source.json")
@@ -90,21 +90,24 @@ class BaselineTracker():
         os.makedirs(join(self.results_dir, self.iteration_index), exist_ok=True)
 
         # Read source region characters, and expected regions
+        start = time.time()
         self.base_file_lines = checkout_to_read_file(self.repo_dir, self.base_commit, self.source_file_path)
         self.source_region_characters = get_source_and_expected_region_characters(self.base_file_lines, self.interest_character_range)
 
         self.target_file_lines = checkout_to_read_file(self.repo_dir, self.target_commit, self.target_file_path)
+        read_file_time = f"{(time.time() - start):.5f}"    
+        self.one_round_time_info.read_source_target_file_time = read_file_time 
 
         # phase 1: compute candidate regions
         candidate_regions = self.compute_candidate_regions()
         print(f"Iteration #{self.iteration_index}")
         first_phrase_end_time = time.time()
         first_phrase_executing_time = f"{(first_phrase_end_time - first_phrase_start_time):.5f}"
-        self.one_round_time_info[1] = first_phrase_executing_time
+        self.one_round_time_info.compute_candidates_time = first_phrase_executing_time
         print(f"Executing time: {first_phrase_executing_time} seconds")
         if candidate_regions == [] and self.target_file_lines:
             print(f"--No candidate regions.\n  {self.repo_dir}\n  {self.source_file_path}\n  {self.interest_character_range.four_element_list}\n")
-            self.one_round_time_info[2] = 0
+            # self.one_round_time_info.select_target_time = 0 # default
             # create an "null" candidate region
             candidate_region_character_range = CharacterRange([0, 0, 0, 0])
             target_characters = None
@@ -118,7 +121,7 @@ class BaselineTracker():
         # accumulate target, write to json file later.
         self.compute_get_target_region_info(candidate_regions)
 
-        self.one_round_time_info[0] = len(candidate_regions)
+        self.one_round_time_info.candidate_numbers = len(candidate_regions)
         return self.target_json_str_list, self.one_round_time_info
     
     def record_candiates(self, candidate_regions):
@@ -144,7 +147,6 @@ class BaselineTracker():
             json.dump(output_maps, ds, indent=4, ensure_ascii=False)
 
     def compute_get_target_region_info(self, candidate_regions):
-        self.one_round_time_info[2] = 0
         assert len(candidate_regions) == 1
         # only 1 candidate and it's the target
         target_region = candidate_regions[0]
@@ -173,16 +175,16 @@ def main(*args): # for java elements
     level, repo_dir, source_commit, source_file_path, target_commit, source_range, \
             results_dir, time_file_to_write = args
     dist_based = []
-    candidate_numbers = 0
-    times_1st = 0
-    times_2nd = 0
     tmp = results_dir.split("/")
     ground_truth_index = tmp[-2] # eg., method/test/15 # the number 16(abs) data in method/test
     current_history_pair_idx = tmp[-1] # eg., method/test/15/0, the 1st history pair in 15.
     ground_truth_results_dir = results_dir.rsplit("/", 1)[0]
 
     # get target file path
+    get_target_path_start = time.time()
     target_file_path = get_target_file_path(repo_dir, source_commit, target_commit, source_file_path)
+    get_target_path_time = f"{(time.time() - get_target_path_start):.5f}" 
+    
     if isinstance(target_file_path, bool):
         # the file was deleted
         target_json = {
@@ -198,12 +200,12 @@ def main(*args): # for java elements
             "all_candidates_num": 1
         }
         dist_based.append(target_json)
-        candidate_numbers = 1
         print("No target file.")
     else:
         dist_based, one_round_time_info = BaselineTracker(level, repo_dir, source_commit, source_file_path,\
                 target_commit, target_file_path, source_range, ground_truth_results_dir, current_history_pair_idx).run()
-        candidate_numbers, times_1st, times_2nd = one_round_time_info
+
+    one_round_time_info.get_target_file_path_time = get_target_path_time
 
     # write exection times
     write_mode = "a"
@@ -211,7 +213,7 @@ def main(*args): # for java elements
         write_mode = "w"
     # current_history_pair_idx is used to control where to add an empty line
     RecordExecutionTimes(write_mode, time_file_to_write, ground_truth_index, \
-            candidate_numbers, times_1st, times_2nd, current_history_pair_idx).run()
+            current_history_pair_idx, one_round_time_info).run()
     
     return dist_based
 
@@ -219,11 +221,11 @@ def main_suppression_annodata(*args): # can be used to start tracking annotation
     level, repo_dir, source_commit, source_file_path, target_commit, source_range, results_dir, \
             time_file_to_write, ground_truth_index, write_mode = args
     dist_based = []
-    candidate_numbers = 0
-    times_1st = 0
-    times_2nd = 0
     # get target file path
+    get_target_path_start = time.time()
     target_file_path = get_target_file_path(repo_dir, source_commit, target_commit, source_file_path)
+    get_target_path_time = f"{(time.time() - get_target_path_start):.5f}" 
+    
     if isinstance(target_file_path, bool):
         # the file was deleted
         target_json = {
@@ -239,14 +241,14 @@ def main_suppression_annodata(*args): # can be used to start tracking annotation
             "all_candidates_num": 1
         }
         dist_based.append(target_json)
-        candidate_numbers = 1
         print("No target file.")
     else:
         dist_based, one_round_time_info = BaselineTracker(level, repo_dir, source_commit, source_file_path,\
                 target_commit, target_file_path, source_range, results_dir, ground_truth_index).run()
-        candidate_numbers, times_1st, times_2nd = one_round_time_info
+
+    one_round_time_info.get_target_file_path_time = get_target_path_time
 
     # write exection times
-    RecordExecutionTimes(write_mode, time_file_to_write, ground_truth_index, candidate_numbers, times_1st, times_2nd).run()
+    RecordExecutionTimes(write_mode, time_file_to_write, ground_truth_index, one_round_time_info).run()
     
     return dist_based

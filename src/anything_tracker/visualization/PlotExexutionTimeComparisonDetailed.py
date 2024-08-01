@@ -1,4 +1,6 @@
 import csv
+import math
+from matplotlib import patches
 import matplotlib.pyplot as plt
 import numpy as np
 from os.path import join
@@ -29,19 +31,22 @@ def get_detailed_execution_time(time_file):
 
 def plot_detailed_times(groups, xticklabels, result_pdf):
     # Colors for each segment and the remaining part
-    colors = ["#ADD8E6", "#90EE90", "#F08080", "#FAFAD2", "#E6E6FA"] # ['blue', 'green', 'orange', 'purple']
-    remaining_color = "#FFB6C1" #'red'
+    colors = ["#ADD8E6", "#90EE90", "#F08080", "#FAC45A", "#7A70B5"]
+    remaining_color = "#276C9E" 
 
-    segment_labels = ['Identify target file', 'Checkout to read files', 'diff computation', \
+    segment_labels = ['Identify target file', 'Checkout and read files', 'diff computation', \
             'Extract revelant hunks', 'Process overlapping (+ search)']
     remaining_label = 'Others'
 
     # Create the figure and axes
+    plt.rcParams.update({'font.size': 14})
     fig, ax = plt.subplots()
 
     # Position of the bars on the x-axis
     bar_width = 0.4 
     group_positions = range(len(groups))
+    # Create a handle for the remaining segment
+    remaining_patch = patches.Patch(color=remaining_color, label=remaining_label)
 
     # Loop over each group to plot
     for i, group in enumerate(groups):
@@ -62,10 +67,25 @@ def plot_detailed_times(groups, xticklabels, result_pdf):
     # Customize the plot
     ax.set_xticks(group_positions)
     ax.set_xticklabels(xticklabels)
-    ax.set_ylim(0, max(group['overall'] for group in groups))  # adjust y-axis limit
-    ax.set_title('Composition of Numbers in Multiple Groups')
-    plt.ylabel('Value')
-    ax.legend()
+    # ax.set_ylim(0, max(group['overall'] for group in groups) + 0.05)  # adjust y-axis limit
+    max_overall = max(group['overall'] for group in groups)
+
+    # Determine the number of decimal places in the max_overall to round to
+    precision = -int(math.floor(math.log10(max_overall))) + 1
+    increment = 10**-precision
+
+    # Determine the new y-axis upper limit by rounding up
+    new_ylim = math.ceil(max_overall / increment) * increment + 3 * increment
+
+    # Set the y-axis limit on the actual plot
+    ax.set_ylim(0, new_ylim)
+
+    plt.ylabel('Execution time (seconds)')
+    handles, labels = ax.get_legend_handles_labels()
+    # Ensure the remaining label is in the legend even if not plotted
+    handles.append(remaining_patch)
+    labels.append(remaining_label)
+    ax.legend(handles=handles, labels=labels)
 
     plt.tight_layout()
     plt.savefig(result_pdf)

@@ -1,4 +1,5 @@
 import subprocess
+import time
 from anything_tracker.CandidateRegion import CandidateRegion
 from anything_tracker.CharacterRange import CharacterRange
 from anything_tracker.DiffHunk import DiffHunk
@@ -19,6 +20,7 @@ class LineCharacterGitDiffToCandidateRegion():
         self.interest_character_range = meta.interest_character_range # object
         self.interest_line_numbers = meta.interest_line_numbers # list
         self.target_file_lines = meta.target_file_lines
+        self.one_round_time_info = meta.one_round_time_info # object
 
         # for fine-grain character start and end
         self.interest_first_number = self.interest_line_numbers[0]
@@ -44,6 +46,7 @@ class LineCharacterGitDiffToCandidateRegion():
         regions = []
         diff_hunk_lists = []
         
+        iteration_start_time = time.time()
         sub_candidate_regions, sub_top_diff_hunks, sub_middle_diff_hunks, sub_bottom_diff_hunks = \
                 self.diff_result_to_target_changed_hunk(algorithm, diff_result)
         # empty the hunks for current round
@@ -62,10 +65,16 @@ class LineCharacterGitDiffToCandidateRegion():
         # make sure the sub_middle_diff_hunks are in order (incresed)
         sorted_sub_middle_diff_hunks = sorted(list(sub_middle_diff_hunks), key=lambda obj: obj.base_start_line_number)
         diff_hunk_lists.append([algorithm, list(sub_top_diff_hunks), sorted_sub_middle_diff_hunks, list(sub_bottom_diff_hunks)])
+        
+        iteration_end_time = time.time()
+        extract_hunks_time = f"{(iteration_end_time - iteration_start_time):.5f}"
+        self.one_round_time_info.extract_hunks_time = extract_hunks_time
+
         return candidate_regions, diff_hunk_lists
 
     def get_changed_hunks(self): 
         # run only the default algorithm
+        diff_command_start_time = time.time()
         encodings_to_try = ['utf-8', 'latin-1', 'cp1252']
         suffix = f"{self.base_commit}:{self.source_file_path} {self.target_commit}:{self.target_file_path}"
         prefix = f"git diff --ignore-space-at-eol --color --unified=0"
@@ -81,6 +90,10 @@ class LineCharacterGitDiffToCandidateRegion():
                 break
             except UnicodeDecodeError:
                 print(f"Failed to decode using, {encoding}. Subprocess")
+
+        diff_command_end_time = time.time()
+        diff_command_time = f"{(diff_command_end_time - diff_command_start_time):.5f}"
+        self.one_round_time_info.diff_computation = diff_command_time
 
         return diff_result
 

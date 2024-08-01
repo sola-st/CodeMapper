@@ -334,7 +334,6 @@ def main(*args):
     repo_dir, source_commit, source_file_path, target_commit, source_range, \
             results_dir, context_line_num, time_file_to_write, turn_off_techniques = args
     dist_based = []
-    candidate_numbers = 0
     tmp = results_dir.split("/")
     ground_truth_index = tmp[-2] # eg., method/test/15 # the number 16(abs) data in method/test
     current_history_pair_idx = tmp[-1] # eg., method/test/15/0, the 1st history pair in 15.
@@ -362,7 +361,6 @@ def main(*args):
             "region_weight": None
         }
         dist_based.append(target_json)
-        candidate_numbers = 1
         print("No target file.")
     else:
         dist_based, one_round_time_info = AnythingTrackerOnHistoryPairs(repo_dir, source_commit, source_file_path,\
@@ -370,8 +368,6 @@ def main(*args):
                 context_line_num, turn_off_techniques).run()
 
     one_round_time_info.get_target_file_path_time = get_target_path_time
-    if one_round_time_info.candidate_numbers == None:
-        one_round_time_info.candidate_numbers = candidate_numbers
 
     # write exection times
     write_mode = "a"
@@ -379,7 +375,7 @@ def main(*args):
         write_mode = "w"
     # current_history_pair_idx is used to control where to add an empty line
     RecordExecutionTimes(write_mode, time_file_to_write, ground_truth_index, \
-            current_history_pair_idx, one_round_time_info).run()
+            one_round_time_info, current_history_pair_idx).run()
     
     return dist_based
 
