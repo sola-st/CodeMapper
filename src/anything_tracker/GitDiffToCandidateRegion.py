@@ -1,4 +1,5 @@
 import subprocess
+import time
 from anything_tracker.CandidateRegion import CandidateRegion
 from anything_tracker.CharacterRange import CharacterRange
 from anything_tracker.DetectMovement import DetectMovement
@@ -21,6 +22,7 @@ class GitDiffToCandidateRegion():
         self.interest_line_numbers = meta.interest_line_numbers # list
         self.target_file_lines = meta.target_file_lines
         self.turn_off_techniques = meta.turn_off_techniques # object
+        self.one_round_time_info = meta.one_round_time_info # object
 
         # for fine-grain character start and end
         self.interest_first_number = self.interest_line_numbers[0]
@@ -49,6 +51,7 @@ class GitDiffToCandidateRegion():
         changed_line_numbers_version_maps_target_for_hunklists = []
         regions = []
         diff_hunk_lists = []
+        iteration_start_time = time.time()
         for d in diff_results:
             algorithm = d["algorithm"]
             level = d["level"]
@@ -78,6 +81,9 @@ class GitDiffToCandidateRegion():
                 changed_line_numbers_version_maps_target_for_hunklists.append(changed_line_numbers_target)
         changed_line_numbers_version_maps_source.extend(changed_line_numbers_version_maps_source_for_hunklists)
         changed_line_numbers_version_maps_target.extend(changed_line_numbers_version_maps_target_for_hunklists)
+        iteration_end_time = time.time()
+        extract_hunks_time = f"{(iteration_end_time - iteration_start_time):.5f}"
+        self.one_round_time_info.extract_hunks_time = extract_hunks_time
         return candidate_regions, diff_hunk_lists, changed_line_numbers_version_maps_source, changed_line_numbers_version_maps_target
 
     def get_changed_hunks_from_different_algorithms(self):
@@ -91,6 +97,7 @@ class GitDiffToCandidateRegion():
         histogram: This algorithm extends the patience algorithm to "support low-occurrence common elements".
 
         '''
+        diff_command_start_time = time.time()
         diff_results = [] # to store all the 8 versions of git diff results
         dicts = []
         diff_algorithms = ["default", "minimal", "patience", "histogram"]
@@ -122,6 +129,10 @@ class GitDiffToCandidateRegion():
                         "level": level,
                         "diff_result" : diff_result
                     })
+        diff_command_end_time = time.time()
+        diff_command_time = f"{(diff_command_end_time - diff_command_start_time):.5f}"
+        self.one_round_time_info.diff_computation = diff_command_time
+        self.one_round_time_info.diff_report_num = len(diff_results) 
         return diff_results
 
     def diff_result_to_target_changed_hunk(self, algorithm, level, diff_result):
