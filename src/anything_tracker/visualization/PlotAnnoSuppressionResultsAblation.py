@@ -109,7 +109,7 @@ if __name__=="__main__":
                    "Disable text search", 
                    "Disable context-aware\nsimilarity",
                    "AnythingTracker"]
-    output_dir = join("data", "results","table_plots")
+    output_dir = join("data", "results", "table_plots")
     makedirs(output_dir, exist_ok=True)
     init = PlotAnnoSuppressionResultsAblation(file_suffies, common_file_folder, xticklabels, output_dir)
     init.annotated_data_main()

@@ -37,10 +37,10 @@ def get_data(file_list):
             # include the outliers, like file path not match
             all_match_results = [line[6] for line in line_list if line]
             all = len(all_match_results) -2 # 1 head, 1 summary
-            summary_line = line_list[-1]
+            summary_line = line_list[-1][7:]
 
         # summary should be [YMW, pre character distance, post, all, recall, precision, f1, note]
-        summary = [s for s in summary_line if s and "line_no_change" not in s] 
+        summary = [s for s in summary_line if s] 
         match_results = json.loads(summary[0])
         e_matches = match_results["Y"]
         partial_overlaps = match_results["M"]
