@@ -12,6 +12,11 @@ Both datasets are available in the *data* directory.
 * File source_repo.txt &emsp; The collected 20 repositories (across 10 popular programming languages).
 * Subfolder *suppression_data* &emsp; The suppression study dataset.
 * File python repos.txt &emsp; The 8 Python repositories.
+* Subfolder *results* &emsp; All the result files.
+  * tracked_maps &emsp; Meta files of tracking results. 
+  * execution_time &emsp; Meta files of execution times.
+  * measurement_results &emsp; Files containing evaluation results.
+  * table_plots &emsp; Result tables and figures.
 
 ## Experiments
 ### Tracking 
@@ -24,26 +29,30 @@ Both datasets are available in the *data* directory.
 
 ### Evaluation
 * Evaluation metrics: Overlapping, Exact matches, Partial overlaps, Character distance, * Recall, Precision, and  F1-score.  
-* The evaluation files are located in the *src/anything_tracker/measurement* directory.   
-These files work for AnythingTracker and baselines.
+* The evaluation files are located in the *src/anything_tracker/measurement* directory.  
   * MeasureAnnotatedData.py &emsp; Check the results of the manually annotated data. 
   * MeasureSuppression.py &emsp; Check the results of the suppression study data.
+ 
+* These files work for AnythingTracker and baselines and have 2 modes, the modes can be altered at the entry point of these files:
+  * one for evaluating a specified approach, 
+  * and another one for evaluating the approaches in the ablation study.
 
 ### Visualization
 All the result tables and plots are extracted from the files in the *src/anything_tracker/visualization* directory.
 
 * **[Tables for RQ1]** TableAnnoSuppressionResults.py &emsp; Show the comparison with baselines. 
-* **[Tables for RQ2]** TableAnnoSuppressionResultsAblation.py &emsp; Show the results of the ablation study.
+* **[Plots for RQ2]** PlotAnnoSuppressionResultsAblation.py &emsp; Show the results of the ablation study.
 * **[Plot for RQ3]** PlotExexutionTimeComparison.py &emsp; Show the comparison of execution time with baselines.
 
 ## Reproducing the results in the paper
 Choose between **SLOW MODE**, which runs AnythingTracker and baselines to track the datasets, runs the ablation study, and may take more than 30 minutes, including cloning the repositories, depending on the hardware, and **FAST MODE**, which generates the tables and plots (the ones in the RQ answering section) from pre-computed results and should take less than 5 minutes. 
 
-**Note**: By default, the result files are stored in *data/result* and all verifications can be completed normally without modifying any path.
+**Note**: By default, the result files are stored in *data/result* and all verifications can be completed normally without modifying any path. 
 
 ### SLOW MODE
-#### RQ1: Effectivenes of AnythingTracker. 
-* **AnythingTracker**
+#### RQ1: Effectiveness of AnythingTracker. 
+* **AnythingTracker**  
+Specify to run/evaluate only AnythingTracker in the entry point.
   * Tracking
     * Run ComputeCandidatesForAnnoData.py 
     * Run TrackHistoryPairsSuppression.py
@@ -54,19 +63,36 @@ Choose between **SLOW MODE**, which runs AnythingTracker and baselines to track 
   * Tracking
     * BaselineOnAnnoData.py
     * BaselineOnSuppression.py
-  * Evaluation
-    * Run MeasureAnnotatedData.py 
+  * Evaluation  
+  Entry point - specify to start with *main_anytingtracker* and modify the folder name in *def main_anytingtracker* by adding a word *line* or *word* to the *results_dir* and *results_csv_file*.
+    * Run MeasureAnnotatedData.py
     * Run MeasureSuppression.py 
 * Run TableAnnoSuppressionResults.py -> Tables II and III.
 
 #### RQ2: Ablation study: impact of different components on AnythingTracker.
-* Run 
+Specify to **run/evaluate**: (in the entry point of the files)
+* starts with *main_anytingtracker* and *context_line_num = 0*. **->** Disable context-aware similarity
+* starts with *main_ablation_study* **->** Disable diff-based candidate extraction, movement detection, text search, and refinement of candidate regions, respectively, in one big experiment.
+  * Tracking
+    * Run ComputeCandidatesForAnnoData.py 
+    * Run TrackHistoryPairsSuppression.py
+  * Evaluation
+    * Run MeasureAnnotatedData.py 
+    * Run MeasureSuppression.py 
+* Run PlotAnnoSuppressionResultsAblation.py -> Figures 9 and 10.
 
 #### RQ3: Efficiency of AnythingTracker.
-* Run 
+* The execution time files are already there (*data/results/execution_time*) as the experiments in RQ1 are done. 
+* Run PlotExexutionTimeComparison.py -> Figure 11.
 
 
 ### FAST MODE
-All tables in results: Tables ...  
-All figures in results: Figures ...
+By default, all the results tables and figures are in *data/results/table/plots*.  
+All tables in results: Tables II and III.  
+All figures in results (exclude the example figures): Figures 7-9.  
+
+* Run TableAnnoSuppressionResults.py -> Tables II and III.
+* Run PlotAnnoSuppressionResultsAblation.py -> Figures 9 and 10.
+* Run PlotExexutionTimeComparison.py -> Figure 11.
+* Additionally, get the reported rates in RQ3 by running GetExexutionTimeRatio.py
 
