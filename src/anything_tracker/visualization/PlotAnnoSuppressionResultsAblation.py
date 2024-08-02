@@ -30,11 +30,11 @@ def plot_recall_sets(data, xticklabels, plot_pdf):
     f1_score = [d[2] for d in data]
 
     n_sets = len(data)
-    ind = np.arange(n_sets)[::-1]  # Y locations for the groups
-    width = 0.2  # Width of the bars
+    ind = np.arange(n_sets)[::-1]*0.4  # Y locations for the groups
+    width = 0.1  # Width of the bars
 
     plt.rcParams.update({'font.size': 11})
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(6, 4))
 
     rects1 = ax.barh(ind + width, recall, width, label='Recall', color='skyblue')
     rects2 = ax.barh(ind, precision, width, label='Precision', color='darkseagreen')

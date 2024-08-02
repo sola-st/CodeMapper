@@ -17,8 +17,8 @@ def get_execution_time(time_file, individual_times=False):
         return overall_time
 
 def plot_comparison(xticklabels, overall_data, result_pdf): # [line_data, word_data, anythingtracker_data]
-    plt.rcParams.update({'font.size': 14})
-    fig, ax = plt.subplots()
+    plt.rcParams.update({'font.size': 12})
+    fig, ax = plt.subplots(figsize=(6, 3))
     # Create box plots for each group
     ax.boxplot(overall_data, patch_artist=True)
 
