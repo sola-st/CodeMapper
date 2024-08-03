@@ -34,7 +34,7 @@ def plot_recall_sets(data, xticklabels, plot_pdf):
     width = 0.1  # Width of the bars
 
     plt.rcParams.update({'font.size': 11})
-    fig, ax = plt.subplots(figsize=(6, 4))
+    fig, ax = plt.subplots(figsize=(6, 3.7))
 
     rects1 = ax.barh(ind + width, recall, width, label='Recall', color='skyblue')
     rects2 = ax.barh(ind, precision, width, label='Precision', color='darkseagreen')
@@ -46,9 +46,10 @@ def plot_recall_sets(data, xticklabels, plot_pdf):
     rc('axes')
     ax.set_yticks(ind)
     ax.set_yticklabels(xticklabels)
+    # ax.legend(loc='lower left', bbox_to_anchor=(0, 0), prop={'size': 9})
     ax.legend(loc='upper right', bbox_to_anchor=(1, 1), prop={'size': 9})
 
-    plt.tight_layout()
+    plt.tight_layout(pad=0)
     plt.savefig(plot_pdf)
 
 

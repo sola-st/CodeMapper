@@ -37,7 +37,7 @@ def plot_comparison(xticklabels, overall_data, result_pdf): # [line_data, word_d
         ax.text(i + 1, mean * 2, f'Avg: {mean:.3f}', ha='center', va='center')
                 # bbox=dict(facecolor='yellow', edgecolor='black'))
     
-    plt.tight_layout()
+    plt.tight_layout(pad=0)
     plt.savefig(result_pdf)
 
 def plot_comparison_violin(xticklabels, overall_data, result_pdf):
