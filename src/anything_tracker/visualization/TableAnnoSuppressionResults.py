@@ -54,7 +54,11 @@ def get_data(file_list):
             # include the outliers, like file path not match
             all_match_results = [line[6] for line in line_list if line]
             all = len(all_match_results) -2 # 1 head, 1 summary
-            summary_line = line_list[-1][7:]
+            summary_line = line_list[-1]
+            if "default" not in str(summary_line):
+                summary_line = summary_line[7:]
+            else:
+                summary_line = line_list[-2][7:]
 
         # summary should be [YMW, pre character distance, post, all, recall, precision, f1, note]
         summary = [s for s in summary_line if s] 

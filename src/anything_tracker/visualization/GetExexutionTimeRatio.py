@@ -74,7 +74,7 @@ if __name__=="__main__":
         ratios = {"approach": approach}
         for key, avg in zip(names, detailed_avgs):
             rate = f"{(avg/overall_avg):.4f}"
-            ratios.update({key: rate})
+            ratios.update({key: f"{avg} ({rate})"})
 
         all_rates.append(ratios)
 

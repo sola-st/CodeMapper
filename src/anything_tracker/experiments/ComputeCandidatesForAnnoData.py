@@ -81,22 +81,28 @@ class ComputeCandidatesForAnnoData():
             json.dump(target_regions_for_1_data, ds, indent=4, ensure_ascii=False)
 
 
-def main_ablation_study(oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques):
+# The following are two function that can be commonly used for both datasets.
+# oracle_file is a file for annatated dataset , and it is a folder for the suppression study dataset.
+def main_ablation_study(dataset, oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques):
     ablation_settings = ["off_diff", "off_move", "off_search", "off_fine"]
     for i, setting in enumerate(ablation_settings):
-        result_dir = join(result_dir_parent, f"mapped_regions_annodata_{setting}")
-        time_file_to_write = join(time_file_folder, f"execution_time_annodata_{setting}.csv")
+        result_dir = join(result_dir_parent, f"mapped_regions_{dataset}_{setting}")
+        time_file_to_write = join(time_file_folder, f"execution_time_{dataset}_{setting}.csv")
         turn_off_techniques[i] = True
         turn_off_techniques_obj = SpecifyToTurnOffTechniques(turn_off_techniques)
         ComputeCandidatesForAnnoData(oracle_file, result_dir, context_line_num, time_file_to_write, turn_off_techniques_obj).run()
         turn_off_techniques = [False, False, False, False] # to start the next iteration
 
-def main_anythingtracker(oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques):
-    result_dir = join(result_dir_parent, "mapped_regions_annodata")
-    time_file_to_write = join(time_file_folder, "execution_time_annodata.csv")
-    if context_line_num == 0: # off_context
-        result_dir = f"{result_dir}_off_context"
-        time_file_to_write = time_file_to_write.replace(".csv", "_off_context.csv")
+def main_anythingtracker(dataset, oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques, context_ablation):
+    result_dir = join(result_dir_parent, f"mapped_regions_{dataset}")
+    time_file_to_write = join(time_file_folder, f"execution_time_{dataset}.csv")
+    if context_ablation == True: # add the context_line_num to recognize different versions.
+        result_dir = f"result_dir_{context_line_num}"
+        time_file_to_write = time_file_to_write.replace(".csv", f"_{context_line_num}.csv")
+    else:
+        if context_line_num == 0: # ablation study of techniques
+            result_dir = f"{result_dir}_off_context"
+            time_file_to_write = time_file_to_write.replace(".csv", "_off_context.csv")
     turn_off_techniques_obj = SpecifyToTurnOffTechniques(turn_off_techniques)
     ComputeCandidatesForAnnoData(oracle_file, result_dir, context_line_num, time_file_to_write, turn_off_techniques_obj).run()
 
@@ -112,14 +118,23 @@ if __name__ == "__main__":
         > change the boolean to True to turn off the corresponding technique.
     '''
 
+    dataset = "annodata"
     oracle_file = join("data", "annotation", "annotations_100.json")
-    result_dir_parent = join("data", "results", "tracked_maps", "annodata")
-    time_file_folder = join("data", "results", "execution_time", "annodata")
+    result_dir_parent = join("data", "results", "tracked_maps", dataset)
+    time_file_folder = join("data", "results", "execution_time", dataset)
     makedirs(time_file_folder, exist_ok=True)
-    context_line_num = 5 
+    context_line_num = 15 
     turn_off_techniques = [False, False, False, False] 
+    
+    # Three options to start experiments:
+    # 1. Run AnythingTracker
+    main_anythingtracker(dataset, oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques)
 
-    # Run AnythingTracker
-    main_anythingtracker(oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques)
-    # Run ablation study
-    main_ablation_study(oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques)
+    # 2. Run ablation study (about techniques)
+    main_ablation_study(dataset, oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques)
+
+    # 3. Run ablation study (about context sizes) 
+    context_line_num_list = [0, 1, 2, 3, 5, 10, 15, 20, 25, 30]  
+    for context_line_num in context_line_num_list:
+        # context_line_num = 0 --> disable context-aware similarity
+        main_anythingtracker(dataset, oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques, True)

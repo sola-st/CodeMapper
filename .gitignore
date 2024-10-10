@@ -10,6 +10,7 @@ data/suppression_data_with_unchanges
 data/repos_suppression
 data/oracle_suppression
 data/results_before_01Aug
+data/resultsOct08
 tests/
 *__pycache_*
 .vscode/settings.json

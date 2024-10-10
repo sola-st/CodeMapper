@@ -1,7 +1,7 @@
 import json
 import os
 from anything_tracker.AnythingTrackerOnHistoryPairs import main_suppression as AnythingTrackerOnHistoryPairs
-from anything_tracker.SpecifyToTurnOffTechniques import SpecifyToTurnOffTechniques
+from anything_tracker.experiments.ComputeCandidatesForAnnoData import main_ablation_study, main_anythingtracker
 from anything_tracker.experiments.SourceRepos import SourceRepos
 from os.path import join
 
@@ -117,27 +117,6 @@ class TrackHistoryPairsSuppression():
             json.dump(target_regions_for_1_data, ds, indent=4, ensure_ascii=False)
 
 
-def main_ablation_study(oracle_history_parent_folder, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques):
-    ablation_settings = ["off_diff", "off_move", "off_search", "off_fine"]
-    for i, setting in enumerate(ablation_settings):
-        result_dir = join(result_dir_parent, f"mapped_regions_suppression_{setting}")
-        time_file_to_write = join(time_file_folder, f"execution_time_suppression_{setting}.csv")
-        turn_off_techniques[i] = True
-        turn_off_techniques_obj = SpecifyToTurnOffTechniques(turn_off_techniques)
-        TrackHistoryPairsSuppression(oracle_history_parent_folder, result_dir, 
-                context_line_num, time_file_to_write, turn_off_techniques_obj).run()
-        turn_off_techniques = [False, False, False, False] # to start the next iteration
-
-def main_anythingtracker(oracle_history_parent_folder, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques):
-    result_dir = join(result_dir_parent, "mapped_regions_suppression")
-    time_file_to_write = join(time_file_folder, "execution_time_suppression.csv")
-    if context_line_num == 0: # off_context
-        result_dir = f"{result_dir}_off_context"
-        time_file_to_write = time_file_to_write.replace(".csv", "_off_context.csv")
-    turn_off_techniques_obj = SpecifyToTurnOffTechniques(turn_off_techniques)
-    TrackHistoryPairsSuppression(oracle_history_parent_folder, result_dir, 
-            context_line_num, time_file_to_write, turn_off_techniques_obj).run()    
-
 if __name__ == "__main__":
     '''
     * context_line_num should be a num >=0.
@@ -150,14 +129,23 @@ if __name__ == "__main__":
         > change the boolean to True to turn off the corresponding technique.
     '''
 
+    dataset = "suppression"
     oracle_history_parent_folder = join("data", "suppression_data")
-    result_dir_parent = join("data", "results", "tracked_maps", "suppression_test")
-    time_file_folder = join("data", "results", "execution_time", "suppression_test") 
+    result_dir_parent = join("data", "results", "tracked_maps", dataset)
+    time_file_folder = join("data", "results", "execution_time", dataset) 
     os.makedirs(time_file_folder, exist_ok=True)
-    context_line_num = 5 
+    context_line_num = 15 
     turn_off_techniques = [False, False, False, False] 
 
-    # Run AnythingTracker
-    main_anythingtracker(oracle_history_parent_folder, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques)
-    # Run ablation study
-    main_ablation_study(oracle_history_parent_folder, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques)      
+    # Three options to start experiments:
+    # 1.Run AnythingTracker
+    main_anythingtracker(dataset, oracle_history_parent_folder, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques)
+
+    # 2. Run ablation study (about techniques)
+    main_ablation_study(dataset, oracle_history_parent_folder, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques) 
+    
+    # 3. Run ablation study (about context sizes)
+    context_line_num_list = [0, 1, 2, 3, 5, 10, 15, 20, 25, 30] 
+    for context_line_num in context_line_num_list:
+        # context_line_num = 0 --> disable context-aware similarity
+        main_anythingtracker(dataset, oracle_history_parent_folder, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques, True)     

@@ -3,9 +3,9 @@ from itertools import zip_longest
 import json
 import os
 from os.path import join
-
 from anything_tracker.SearchLinesToCandidateRegion import get_character_length_of_lines
 from anything_tracker.measurement.CharacterDistanceAndOverlapScore import calculate_overlap
+from anything_tracker.measurement.CountUtils import count_algorithms, count_exact_matches
 from anything_tracker.utils.ReadFile import checkout_to_read_file
 
 
@@ -48,19 +48,6 @@ class MeasureAnnotatedData():
         self.is_matched_set.append(compare_results)
         self.notes.append(note)
 
-    def count_exact_matches(self):
-        y_num = self.is_matched_set.count("Y")
-        m_num = self.is_matched_set.count("M")
-        w_num = self.is_matched_set.count("W")
-        match_dict = {
-            "Y": y_num, 
-            "M": m_num, 
-            "W": w_num
-        }
-        # self.is_matched_set.append(f"{match_dict}")
-        match_str = json.dumps(match_dict)
-        self.is_matched_set.append(match_str)
-
     def character_distance_computation(self):
         # compute the average, min, and max of character distance, only for overlapped ranges
         overlapped_pre = [pre for pre in self.pre_dist[1:] if pre != None]
@@ -83,7 +70,8 @@ class MeasureAnnotatedData():
         self.dists.append(char_dist_str)
 
     def compute_to_write_measurement(self):
-        self.count_exact_matches() # 1
+        self.is_matched_set = count_exact_matches(self.is_matched_set) # 1
+        self.change = count_algorithms(self.change)
         self.character_distance_computation() # 2
         
         # 3
@@ -214,27 +202,42 @@ class MeasureAnnotatedData():
                 self.predicted.append(predicted_range)
 
         self.compute_to_write_measurement()
-        
-def main_ablation_study(oracle_file, results_dir_parent, results_csv_file_folder):
+
+# The following are three function that can be commonly used for both datasets.       
+def main_ablation_study(dataset, oracle_file, results_dir_parent, results_csv_file_folder):
     ablation_settings = ["off_diff", "off_move", "off_search", "off_fine", "off_context"]
     for setting in ablation_settings:
-        results_dir = join(results_dir_parent, f"mapped_regions_annodata_{setting}")
-        results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_annodata_{setting}.csv")
+        results_dir = join(results_dir_parent, f"mapped_regions_{dataset}_{setting}")
+        results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_{dataset}_{setting}.csv")
         MeasureAnnotatedData(oracle_file, results_dir, results_csv_file).run()
         print(f"Measurement: {setting} done.")
 
-def main_anytingtracker(oracle_file, results_dir_parent, results_csv_file_folder):
-    results_dir = join(results_dir_parent, "mapped_regions_annodata")
-    results_csv_file = join(results_csv_file_folder, "measurement_results_metrics_annodata.csv")
+def main_ablation_study_context_size(dataset, oracle_file, results_dir_parent, results_csv_file_folder):
+    context_line_num_list = [0, 1, 2, 3, 5, 10, 20, 25, 30] # without the default context size
+    for num in context_line_num_list:
+        results_dir = join(results_dir_parent, f"mapped_regions_{dataset}_{num}")
+        results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_{dataset}_{num}.csv")
+        MeasureAnnotatedData(oracle_file, results_dir, results_csv_file).run()
+        print(f"Measurement: context size {num} done.")
+
+def main_anytingtracker(dataset, oracle_file, results_dir_parent, results_csv_file_folder):
+    results_dir = join(results_dir_parent, f"mapped_regions_{dataset}")
+    results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_{dataset}.csv")
     MeasureAnnotatedData(oracle_file, results_dir, results_csv_file).run()
 
+
 if __name__=="__main__":
+    dataset = "annodata"
     oracle_file = join("data", "annotation", "annotations_100.json") # to get the ground truth
-    results_dir_parent = join("data", "results", "tracked_maps", "annodata") # where the target regions are
-    results_csv_file_folder = join("data", "results", "measurement_results", "annodata") # to write the measurement results
+    results_dir_parent = join("data", "results", "tracked_maps", dataset) # where the target regions are
+    results_csv_file_folder = join("data", "results", "measurement_results", dataset) # to write the measurement results
     os.makedirs(results_csv_file_folder, exist_ok=True)
 
     # Run measurement for AnythingTracker
-    main_anytingtracker(oracle_file, results_dir_parent, results_csv_file_folder)
-    # Run measurement for ablation study
-    main_ablation_study(oracle_file, results_dir_parent, results_csv_file_folder)
+    main_anytingtracker(dataset, oracle_file, results_dir_parent, results_csv_file_folder)
+
+    # Run measurement for ablation study (techniques)
+    main_ablation_study(dataset, oracle_file, results_dir_parent, results_csv_file_folder)
+
+    # Run measurement for ablation study (context sizes)
+    main_ablation_study_context_size(dataset, oracle_file, results_dir_parent, results_csv_file_folder)

@@ -6,7 +6,8 @@ from os.path import join
 
 from anything_tracker.SearchLinesToCandidateRegion import get_character_length_of_lines
 from anything_tracker.measurement.CharacterDistanceAndOverlapScore import calculate_overlap
-from anything_tracker.measurement.MeasureAnnotatedData import calculation_helper
+from anything_tracker.measurement.CountUtils import count_algorithms, count_exact_matches
+from anything_tracker.measurement.MeasureAnnotatedData import calculation_helper, main_ablation_study, main_ablation_study_context_size, main_anytingtracker
 from anything_tracker.utils.ReadFile import checkout_to_read_file
 
 
@@ -65,19 +66,6 @@ class MeasureSuppression():
 
         self.change.append(json.dumps(operation_dict))
 
-    def count_exact_matches(self):
-        y_num = self.is_matched_set.count("Y")
-        m_num = self.is_matched_set.count("M")
-        w_num = self.is_matched_set.count("W")
-        match_dict = {
-            "Y": y_num, 
-            "M": m_num, 
-            "W": w_num
-        }
-        # self.is_matched_set.append(f"{match_dict}")
-        match_str = json.dumps(match_dict)
-        self.is_matched_set.append(match_str)
-
     def character_distance_computation(self):
         # compute the average, min, and max of character distance, only for overlapped ranges
         overlapped_pre = [pre for pre in self.pre_dist[1:] if pre != None]
@@ -101,7 +89,8 @@ class MeasureSuppression():
 
     def compute_to_write_measurement(self):
         self.count_operations() # 0
-        self.count_exact_matches() # 1
+        self.change = count_algorithms(self.change)
+        self.is_matched_set = count_exact_matches(self.is_matched_set) # 1
         self.character_distance_computation() # 2
         
         # 3
@@ -235,26 +224,18 @@ class MeasureSuppression():
         self.compute_to_write_measurement()
         
 
-def main_ablation_study(oracle_file_folder, results_dir_parent, results_csv_file_folder):
-    ablation_settings = ["off_diff", "off_move", "off_search", "off_fine", "off_context"]
-    for setting in ablation_settings:
-        results_dir = join(results_dir_parent, f"mapped_regions_suppression_{setting}")
-        results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_suppression_{setting}.csv")
-        MeasureSuppression(oracle_file_folder, results_dir, results_csv_file).run()
-        print(f"Measurement: {setting} done.")
-
-def main_anytingtracker(oracle_file_folder, results_dir_parent, results_csv_file_folder):
-    results_dir = join(results_dir_parent, "mapped_regions_suppression")
-    results_csv_file = join(results_csv_file_folder, "measurement_results_metrics_suppression.csv")
-    MeasureSuppression(oracle_file_folder, results_dir, results_csv_file).run()
-
 if __name__=="__main__":
+    dataset = "suppression"
     oracle_file_folder = join("data", "suppression_data") # to get the ground truth
-    results_dir_parent = join("data", "results", "tracked_maps", "suppression") # where the target regions are
-    results_csv_file_folder = join("data", "results", "measurement_results", "suppression") # to write the measurement results
+    results_dir_parent = join("data", "results", "tracked_maps", dataset) # where the target regions are
+    results_csv_file_folder = join("data", "results", "measurement_results", dataset) # to write the measurement results
     os.makedirs(results_csv_file_folder, exist_ok=True)
 
     # Run measurement for AnythingTracker
-    main_anytingtracker(oracle_file_folder, results_dir_parent, results_csv_file_folder)
+    main_anytingtracker(dataset, oracle_file_folder, results_dir_parent, results_csv_file_folder)
+
     # Run measurement for ablation study
-    main_ablation_study(oracle_file_folder, results_dir_parent, results_csv_file_folder)
+    main_ablation_study(dataset, oracle_file_folder, results_dir_parent, results_csv_file_folder)
+
+    # Run measurement for ablation study (context sizes)
+    main_ablation_study_context_size(dataset, oracle_file_folder, results_dir_parent, results_csv_file_folder)

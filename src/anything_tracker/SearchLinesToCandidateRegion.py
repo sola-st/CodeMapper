@@ -183,7 +183,7 @@ class SearchLinesToCandidateRegion():
         candidate_region_bottom_with_changed_lines = []
 
         # Expected candidate region: searched no changed ranges + bottom_diff_hunk
-        marker = "<BOTTOM_OVERLAP>"
+        marker = f"<{self.algorithm}><BOTTOM_OVERLAP>"
         end_line = self.bottom_diff_hunk.target_end_line_number - 1
         characters_end_idx = self.bottom_diff_hunk.target_end_character
         start_char = self.interest_character_range.characters_start_idx
@@ -224,7 +224,7 @@ class SearchLinesToCandidateRegion():
         first_unchanged_line, last_unchanged_line = self.get_first_and_last_unchanged_line_numbers(self.middle_diff_hunks)
 
         # character level
-        marker = "<COVER_IN_BETWEEN>"
+        marker = f"<{self.algorithm}><COVER_IN_BETWEEN>"
         region_range = [first_unchanged_line, self.interest_character_range.characters_start_idx,
                         last_unchanged_line, self.interest_character_range.characters_end_idx]
         candidate_region_range = CharacterRange(region_range)

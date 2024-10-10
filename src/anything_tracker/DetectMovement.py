@@ -35,8 +35,9 @@ def find_pair(start_line_char_list, end_line_char_list, delta):
 
 
 class DetectMovement():
-    def __init__(self, interest_character_range, source_region_characters:list, \
+    def __init__(self, algorithm, interest_character_range, source_region_characters:list, \
                 fully_covered_diff_line, diffs, target_file_lines):
+        self.algorithm = algorithm
         self.interest_character_range = interest_character_range
         self.source_region_characters = source_region_characters
         self.fully_covered_diff_line = fully_covered_diff_line
@@ -150,7 +151,7 @@ class DetectMovement():
             # all the source region lines was moved to another and the same location
             locations = self.get_region_indices()
             if locations:
-                marker = "<MOVE>"
+                marker = f"<{self.algorithm}><MOVE>"
                 for loc in locations:
                     candidate_start_line, candidate_character_start_idx, candidate_end_line, candidate_character_end_idx = loc
                     character_range = CharacterRange([candidate_start_line, candidate_character_start_idx, candidate_end_line, candidate_character_end_idx])

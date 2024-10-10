@@ -269,11 +269,11 @@ class GitDiffToCandidateRegion():
                                     character_range = CharacterRange([0, 0, target_hunk_range.stop -1, 0]) # set the delete line as an anchor to get contexts for this candidate
                                 else:
                                     character_range = CharacterRange([0, 0, target_hunk_range.stop, 0])
-                                candidate_region = CandidateRegion(self.interest_character_range, character_range, None, "<LOCATION_HELPER:DIFF_DELETE>")
+                                candidate_region = CandidateRegion(self.interest_character_range, character_range, None, f"{marker}<LOCATION_HELPER:DIFF_DELETE>")
                                 candidate_regions.add(candidate_region)
 
                                 if self.turn_off_techniques.turn_off_move_detection == False:
-                                    movement_candidate_region = DetectMovement(self.interest_character_range, self.source_region_characters, \
+                                    movement_candidate_region = DetectMovement(algorithm, self.interest_character_range, self.source_region_characters, \
                                             current_hunk_range_line, diffs, self.target_file_lines).run()
                                     if movement_candidate_region != []:
                                         candidate_regions.update(set(movement_candidate_region))
@@ -321,7 +321,7 @@ class GitDiffToCandidateRegion():
 
                             # fully covered by changed hunk, detect possible movement
                             if self.turn_off_techniques.turn_off_move_detection == False:
-                                movement_candidate_region = DetectMovement(self.interest_character_range, self.source_region_characters, \
+                                movement_candidate_region = DetectMovement(algorithm, self.interest_character_range, self.source_region_characters, \
                                         current_hunk_range_line, diffs, self.target_file_lines).run()
                                 if movement_candidate_region != []:
                                     candidate_regions.update(set(movement_candidate_region))
