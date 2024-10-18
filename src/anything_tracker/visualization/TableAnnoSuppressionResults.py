@@ -55,20 +55,22 @@ def get_data(file_list):
             all_match_results = [line[6] for line in line_list if line]
             all = len(all_match_results) -2 # 1 head, 1 summary
             summary_line = line_list[-1]
-            if "default" not in str(summary_line):
-                summary_line = summary_line[7:]
-            else:
+            tmp = [s for s in summary_line if s]
+            if len(tmp) < 2:
                 summary_line = line_list[-2][7:]
 
+        start_idx = 0 # the index to start the summary split
         # summary should be [YMW, pre character distance, post, all, recall, precision, f1, note]
         summary = [s for s in summary_line if s] 
-        match_results = json.loads(summary[0])
+        if "histogram" in str(summary):
+            start_idx = 1
+        match_results = json.loads(summary[start_idx])
         e_matches = match_results["Y"]
         partial_overlaps = match_results["M"]
         overlappings = e_matches + partial_overlaps
         overlapping_rate = format((overlappings / all) * 100, digit)
         e_matches_rate = format((e_matches / all) * 100, digit)
-        dist_results = json.loads(summary[1])
+        dist_results = json.loads(summary[start_idx+1])
         dist = float(dist_results["dist"]["avg"])
         dists.append(dist)
 
@@ -77,7 +79,7 @@ def get_data(file_list):
         exact_match.append(e_matches)
         exact_match_num_rate.append(f"{e_matches} ({e_matches_rate}\%)")
 
-        recall, precision, f1 = summary[2: 5] 
+        recall, precision, f1 = summary[start_idx+2: start_idx+5] 
         # the float() will truncate the tailing zeros, but we need to compare the numbers
         recalls.append(float(recall))
         precisions.append(float(precision))
