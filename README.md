@@ -33,15 +33,17 @@ Both datasets are available in the *data* directory.
   * MeasureAnnotatedData.py &emsp; Check the results of the manually annotated data. 
   * MeasureSuppression.py &emsp; Check the results of the suppression study data.
  
-* These files work for AnythingTracker and baselines and have 2 modes, the modes can be altered at the entry point of these files:
-  * one for evaluating a specified approach, 
-  * and another one for evaluating the approaches in the ablation study.
+* These files work for AnythingTracker and baselines and have 3 modes, the modes can be altered at the entry point of these files:
+  * evaluating a specified approach, 
+  * evaluating the approaches in the ablation study (turn off techniques or test context sizes).
 
 ### Visualization
 All the result tables and plots are extracted from the files in the *src/anything_tracker/visualization* directory.
 
 * **[Tables for RQ1]** TableAnnoSuppressionResults.py &emsp; Show the comparison with baselines. 
-* **[Plots for RQ2]** PlotAnnoSuppressionResultsAblation.py &emsp; Show the results of the ablation study.
+* **[Tables and Plots for RQ2]** 
+  * PlotAnnoSuppressionResultsAblation.py &emsp; Show the results of the ablation study for turning off different components.
+  * TableContextSizeResults.py &emsp; Show the results of the ablation study for testing different context sizes.
 * **[Plot for RQ3]** PlotExexutionTimeComparison.py &emsp; Show the comparison of execution time with baselines.
 
 ## Reproducing the results in the paper
@@ -64,14 +66,15 @@ Specify to run/evaluate only AnythingTracker in the entry point.
     * BaselineOnAnnoData.py
     * BaselineOnSuppression.py
   * Evaluation  
-  Entry point - specify to start with *main_anytingtracker* and modify the folder name in *def main_anytingtracker* by adding a word *line* or *word* to the *results_dir* and *results_csv_file*.
+  Entry point - specify to start with *main_anythingtracker* and modify the folder name in *def main_anythingtracker* by adding a word *line* or *word* to the *results_dir* and *results_csv_file*.
     * Run MeasureAnnotatedData.py
     * Run MeasureSuppression.py 
-* Run TableAnnoSuppressionResults.py -> Tables II and III.
+* Run TableAnnoSuppressionResults.py -> Tables 2 and 3.
 
 #### RQ2: Ablation study: impact of different components on AnythingTracker.
 Specify to **run/evaluate**: (in the entry point of the files)
-* starts with *main_anytingtracker* and *context_line_num = 0*. **->** Disable context-aware similarity
+* starts with *main_anythingtracker* with option 3 **->** Test different context sizes.
+* starts with *main_anythingtracker* and *context_line_num = 0*. **->** Disable context-aware similarity
 * starts with *main_ablation_study* **->** Disable diff-based candidate extraction, movement detection, text search, and refinement of candidate regions, respectively, in one big experiment.
 * Specifically: 
   * Tracking
@@ -80,6 +83,7 @@ Specify to **run/evaluate**: (in the entry point of the files)
   * Evaluation
     * Run MeasureAnnotatedData.py 
     * Run MeasureSuppression.py 
+  * Run TableContextSizeResults.py -> Tables 4 and 5.
   * Run PlotAnnoSuppressionResultsAblation.py -> Figures 9 and 10.
 
 #### RQ3: Efficiency of AnythingTracker.
@@ -89,10 +93,11 @@ Specify to **run/evaluate**: (in the entry point of the files)
 
 ### FAST MODE
 By default, all the results tables and figures are in *data/results/table/plots*.  
-All tables in results: Tables II and III.  
+All tables in results: Tables 2 and 3.  
 All figures in results (exclude the example figures): Figures 7-9.  
 
-* Run TableAnnoSuppressionResults.py -> Tables II and III.
+* Run TableAnnoSuppressionResults.py -> Tables 2 and 3.
+* Run TableContextSizeResults.py -> Tables 4 and 5.
 * Run PlotAnnoSuppressionResultsAblation.py -> Figures 9 and 10.
 * Run PlotExexutionTimeComparison.py -> Figure 11.
 * Additionally, get the reported rates in RQ3 by running GetExexutionTimeRatio.py

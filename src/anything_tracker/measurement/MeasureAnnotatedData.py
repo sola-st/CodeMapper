@@ -227,9 +227,9 @@ def main_ablation_study_context_size(dataset, oracle_file, results_dir_parent, r
         MeasureAnnotatedData(oracle_file, results_dir, results_csv_file).run()
         print(f"Measurement: context size {num} done.")
 
-def main_anytingtracker(dataset, oracle_file, results_dir_parent, results_csv_file_folder):
+def main_anythingtracker(dataset, oracle_file, results_dir_parent, results_csv_file_folder):
     results_dir = join(results_dir_parent, f"mapped_regions_{dataset}_15")
-    results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_{dataset}_15.csv")
+    results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_{dataset}_15_b.csv")
     MeasureAnnotatedData(oracle_file, results_dir, results_csv_file).run()
 
 
@@ -241,7 +241,7 @@ if __name__=="__main__":
     os.makedirs(results_csv_file_folder, exist_ok=True)
 
     # Run measurement for AnythingTracker
-    main_anytingtracker(dataset, oracle_file, results_dir_parent, results_csv_file_folder)
+    main_anythingtracker(dataset, oracle_file, results_dir_parent, results_csv_file_folder)
 
     # Run measurement for ablation study (techniques)
     main_ablation_study(dataset, oracle_file, results_dir_parent, results_csv_file_folder)

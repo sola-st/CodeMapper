@@ -239,7 +239,7 @@ def main_ablation_study(oracle_file_folder, results_dir_parent, results_csv_file
         MeasureSuppression(oracle_file_folder, results_dir, results_csv_file).run()
         print(f"Measurement: {setting} done.")
 
-def main_anytingtracker(oracle_file_folder, results_dir_parent, results_csv_file_folder):
+def main_anythingtracker(oracle_file_folder, results_dir_parent, results_csv_file_folder):
     results_dir = join(results_dir_parent, "mapped_regions_suppression_15")
     results_csv_file = join(results_csv_file_folder, "measurement_results_candidates_suppression.csv")
     MeasureSuppression(oracle_file_folder, results_dir, results_csv_file).run()
@@ -251,6 +251,6 @@ if __name__=="__main__":
     os.makedirs(results_csv_file_folder, exist_ok=True)
 
     # Run measurement for AnythingTracker
-    main_anytingtracker(oracle_file_folder, results_dir_parent, results_csv_file_folder)
+    main_anythingtracker(oracle_file_folder, results_dir_parent, results_csv_file_folder)
     # Run measurement for ablation study
     # main_ablation_study(oracle_file_folder, results_dir_parent, results_csv_file_folder)
