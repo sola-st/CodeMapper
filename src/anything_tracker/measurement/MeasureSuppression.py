@@ -2,12 +2,12 @@ import csv
 from itertools import zip_longest
 import json
 import os
-from os.path import join
+from os.path import join, exists
 
 from anything_tracker.SearchLinesToCandidateRegion import get_character_length_of_lines
 from anything_tracker.measurement.CharacterDistanceAndOverlapScore import calculate_overlap
 from anything_tracker.measurement.CountUtils import count_algorithms, count_exact_matches
-from anything_tracker.measurement.MeasureAnnotatedData import calculation_helper, main_ablation_study, main_ablation_study_context_size, main_anytingtracker
+from anything_tracker.measurement.MeasureAnnotatedData import calculation_helper
 from anything_tracker.utils.ReadFile import checkout_to_read_file
 
 
@@ -140,7 +140,7 @@ class MeasureSuppression():
             repo_dir = join("data", "repos_suppression", repo)
             # predicted
             json_results_file = join(self.results_dir, f"{repo}/target.json")
-            if os.path.exists(json_results_file) == True:
+            if exists(json_results_file) == True:
                 self.indices.append(repo)
             else:
                 continue
@@ -222,7 +222,35 @@ class MeasureSuppression():
             self.empty_line_mark.append(len(self.candidate_nums)) # +1 is abs number, note that the csv file has title row.
 
         self.compute_to_write_measurement()
+
+
+def main_ablation_study(dataset, oracle_file, results_dir_parent, results_csv_file_folder):
+    ablation_settings = ["off_diff", "off_move", "off_search", "off_fine"]
+    for setting in ablation_settings:
+        results_dir = join(results_dir_parent, f"mapped_regions_{dataset}_{setting}")
+        results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_{dataset}_{setting}.csv")
+        MeasureSuppression(oracle_file, results_dir, results_csv_file).run()
+        print(f"Measurement: {setting} done.")
         
+    results_dir = join(results_dir_parent, f"mapped_regions_{dataset}_off_context")
+    results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_{dataset}_off_context.csv")
+    if not exists(results_dir):
+        results_dir = join(results_dir_parent, f"mapped_regions_{dataset}_0")
+    MeasureSuppression(oracle_file, results_dir, results_csv_file).run()
+    print(f"Measurement: off_context done.")
+
+def main_ablation_study_context_size(dataset, oracle_file, results_dir_parent, results_csv_file_folder):
+    context_line_num_list = [0, 1, 2, 3, 5, 10, 20, 25, 30] # without the default context size
+    for num in context_line_num_list:
+        results_dir = join(results_dir_parent, f"mapped_regions_{dataset}_{num}")
+        results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_{dataset}_{num}.csv")
+        MeasureSuppression(oracle_file, results_dir, results_csv_file).run()
+        print(f"Measurement: context size {num} done.")
+
+def main_anytingtracker(dataset, oracle_file, results_dir_parent, results_csv_file_folder):
+    results_dir = join(results_dir_parent, f"mapped_regions_{dataset}_15")
+    results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_{dataset}_15.csv")
+    MeasureSuppression(oracle_file, results_dir, results_csv_file).run()       
 
 if __name__=="__main__":
     dataset = "suppression"

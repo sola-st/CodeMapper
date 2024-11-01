@@ -32,9 +32,9 @@ def plot_comparison(xticklabels, overall_data, result_pdf): # [line_data, word_d
 
     # Add text annotations for median and mean values
     for i, (median, mean) in enumerate(zip(medians, means)):
-        ax.text(i + 1, median, f'Median: {median:.3f}', ha='center', va='center')
+        ax.text(i + 1, 4, f'Median: {median:.3f}', ha='center', va='center')
                  # bbox=dict(facecolor='white', edgecolor='black'))
-        ax.text(i + 1, mean * 2, f'Avg: {mean:.3f}', ha='center', va='center')
+        ax.text(i + 1, 5, f'Avg: {mean:.3f}', ha='center', va='center')
                 # bbox=dict(facecolor='yellow', edgecolor='black'))
     
     plt.tight_layout(pad=0)

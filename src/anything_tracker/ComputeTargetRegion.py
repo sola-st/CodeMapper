@@ -2,16 +2,16 @@ from fast_edit_distance import edit_distance
 import numpy as np
 
 class ComputeTargetRegion():
-    def __init__(self, source_region_characters, candidate_string_list, source_context=None, cnadidate_context_list=None):
+    def __init__(self, source_region_characters, candidate_string_list,  source_context=None, candidate_context_list=None):
         self.source_region_characters = source_region_characters
         self.candidate_string_list = candidate_string_list
         self.source_context = source_context
-        self.cnadidate_context_list = cnadidate_context_list
+        self.candidate_context_list = candidate_context_list
 
     def compute_context_aware_similary(self):
         # Compute the necessary values
         A = np.array([1 - edit_distance(self.source_region_characters, targ) for targ in self.candidate_string_list])
-        B = np.array([edit_distance(self.source_context, targ_context) for targ_context in self.cnadidate_context_list])
+        B = np.array([edit_distance(self.source_context, targ_context) for targ_context in self.candidate_context_list])
 
         best_w = 0
         best_score = -np.inf

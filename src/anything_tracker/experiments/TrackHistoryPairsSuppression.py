@@ -1,7 +1,7 @@
 import json
 import os
 from anything_tracker.AnythingTrackerOnHistoryPairs import main_suppression as AnythingTrackerOnHistoryPairs
-from anything_tracker.experiments.ComputeCandidatesForAnnoData import main_ablation_study, main_anythingtracker
+from anything_tracker.SpecifyToTurnOffTechniques import SpecifyToTurnOffTechniques
 from anything_tracker.experiments.SourceRepos import SourceRepos
 from os.path import join
 
@@ -116,6 +116,28 @@ class TrackHistoryPairsSuppression():
         with open(target_json_file, "w") as ds:
             json.dump(target_regions_for_1_data, ds, indent=4, ensure_ascii=False)
 
+def main_ablation_study(dataset, oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques):
+    ablation_settings = ["off_diff", "off_move", "off_search", "off_fine"]
+    for i, setting in enumerate(ablation_settings):
+        result_dir = join(result_dir_parent, f"mapped_regions_{dataset}_{setting}")
+        time_file_to_write = join(time_file_folder, f"execution_time_{dataset}_{setting}.csv")
+        turn_off_techniques[i] = True
+        turn_off_techniques_obj = SpecifyToTurnOffTechniques(turn_off_techniques)
+        TrackHistoryPairsSuppression(oracle_file, result_dir, context_line_num, time_file_to_write, turn_off_techniques_obj).run()
+        turn_off_techniques = [False, False, False, False] # to start the next iteration
+
+def main_anythingtracker(dataset, oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques, context_ablation=False):
+    result_dir = join(result_dir_parent, f"mapped_regions_{dataset}_{context_line_num}")
+    time_file_to_write = join(time_file_folder, f"execution_time_{dataset}_{context_line_num}_not_in_figure.csv")
+    if context_ablation == True: # add the context_line_num to recognize different versions.
+        result_dir = f"result_dir_{context_line_num}"
+        time_file_to_write = time_file_to_write.replace(".csv", f"_{context_line_num}.csv")
+    else:
+        if context_line_num == 0: # ablation study of techniques
+            result_dir = f"{result_dir}_off_context"
+            time_file_to_write = time_file_to_write.replace(".csv", "_off_context.csv")
+    turn_off_techniques_obj = SpecifyToTurnOffTechniques(turn_off_techniques)
+    TrackHistoryPairsSuppression(oracle_file, result_dir, context_line_num, time_file_to_write, turn_off_techniques_obj).run()
 
 if __name__ == "__main__":
     '''

@@ -13,7 +13,12 @@ def get_data(file_list):
         with open(file, "r") as f:
             csv_reader = csv.reader(f)
             line_list = list(csv_reader)
-            summary_line = line_list[-1][7:]
+            # summary_line = line_list[-2][7:]
+            summary_line = line_list[-1]
+            tmp = [s for s in summary_line if s]
+            if len(tmp) < 2:
+                summary_line = line_list[-2]
+            summary_line = summary_line[7:]
         # summary should be [YMW, pre character distance, post, all, recall, precision, f1, note]
         summary = [s for s in summary_line if s] 
         # recall, precision, f1 = summary[2: 5] 
@@ -33,8 +38,8 @@ def plot_recall_sets(data, xticklabels, plot_pdf):
     ind = np.arange(n_sets)[::-1]*0.4  # Y locations for the groups
     width = 0.1  # Width of the bars
 
-    plt.rcParams.update({'font.size': 11})
-    fig, ax = plt.subplots(figsize=(6, 3.7))
+    plt.rcParams.update({'font.size': 12})
+    fig, ax = plt.subplots(figsize=(5, 5))
 
     rects1 = ax.barh(ind + width, recall, width, label='Recall', color='skyblue')
     rects2 = ax.barh(ind, precision, width, label='Precision', color='darkseagreen')
@@ -47,7 +52,7 @@ def plot_recall_sets(data, xticklabels, plot_pdf):
     ax.set_yticks(ind)
     ax.set_yticklabels(xticklabels)
     # ax.legend(loc='lower left', bbox_to_anchor=(0, 0), prop={'size': 9})
-    ax.legend(loc='upper right', bbox_to_anchor=(1, 1), prop={'size': 9})
+    ax.legend(loc='upper right', bbox_to_anchor=(1, 1), prop={'size': 12})
 
     plt.tight_layout(pad=0)
     plt.savefig(plot_pdf)
@@ -64,7 +69,7 @@ def autolabel(ax, rects):
             ha='right',                       # Horizontal alignment: right
             va='center',                      # Vertical alignment: center
             color='white',                    # Text color
-            fontsize=10                       # Font size
+            fontsize=12                       # Font size
         )
 
 class PlotAnnoSuppressionResultsAblation():
@@ -81,7 +86,7 @@ class PlotAnnoSuppressionResultsAblation():
         file_list = []
         for suffix in self.file_suffies:
             file_list.append(join(common_specific_folder, f"{file_name_base}_{suffix}.csv"))
-        file_list.append(join(common_specific_folder, f"{file_name_base}.csv")) # the one for AnythingTracker
+        file_list.append(join(common_specific_folder, f"{file_name_base}_15.csv")) # the one for AnythingTracker
 
         data = get_data(file_list)
         plot_pdf = join(output_dir, "annodata_ablation_plot.pdf")
@@ -94,7 +99,7 @@ class PlotAnnoSuppressionResultsAblation():
         file_list = []
         for suffix in self.file_suffies:
             file_list.append(join(common_specific_folder, f"{file_name_base}_{suffix}.csv"))
-        file_list.append(join(common_specific_folder, f"{file_name_base}.csv"))
+        file_list.append(join(common_specific_folder, f"{file_name_base}_15.csv"))
 
         data = get_data(file_list)
         plot_pdf = join(output_dir, "suppression_ablation_plot.pdf")

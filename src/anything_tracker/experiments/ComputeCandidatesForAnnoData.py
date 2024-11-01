@@ -81,8 +81,6 @@ class ComputeCandidatesForAnnoData():
             json.dump(target_regions_for_1_data, ds, indent=4, ensure_ascii=False)
 
 
-# The following are two function that can be commonly used for both datasets.
-# oracle_file is a file for annatated dataset , and it is a folder for the suppression study dataset.
 def main_ablation_study(dataset, oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques):
     ablation_settings = ["off_diff", "off_move", "off_search", "off_fine"]
     for i, setting in enumerate(ablation_settings):
@@ -93,9 +91,9 @@ def main_ablation_study(dataset, oracle_file, result_dir_parent, time_file_folde
         ComputeCandidatesForAnnoData(oracle_file, result_dir, context_line_num, time_file_to_write, turn_off_techniques_obj).run()
         turn_off_techniques = [False, False, False, False] # to start the next iteration
 
-def main_anythingtracker(dataset, oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques, context_ablation):
-    result_dir = join(result_dir_parent, f"mapped_regions_{dataset}")
-    time_file_to_write = join(time_file_folder, f"execution_time_{dataset}.csv")
+def main_anythingtracker(dataset, oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques, context_ablation=False):
+    result_dir = join(result_dir_parent, f"mapped_regions_{dataset}_{context_line_num}")
+    time_file_to_write = join(time_file_folder, f"execution_time_{dataset}_{context_line_num}.csv")
     if context_ablation == True: # add the context_line_num to recognize different versions.
         result_dir = f"result_dir_{context_line_num}"
         time_file_to_write = time_file_to_write.replace(".csv", f"_{context_line_num}.csv")

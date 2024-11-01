@@ -240,8 +240,8 @@ def main_ablation_study(oracle_file_folder, results_dir_parent, results_csv_file
         print(f"Measurement: {setting} done.")
 
 def main_anytingtracker(oracle_file_folder, results_dir_parent, results_csv_file_folder):
-    results_dir = join(results_dir_parent, "mapped_regions_suppression_5_v2")
-    results_csv_file = join(results_csv_file_folder, "measurement_results_candidates_suppression_2.csv")
+    results_dir = join(results_dir_parent, "mapped_regions_suppression_15")
+    results_csv_file = join(results_csv_file_folder, "measurement_results_candidates_suppression.csv")
     MeasureSuppression(oracle_file_folder, results_dir, results_csv_file).run()
 
 if __name__=="__main__":

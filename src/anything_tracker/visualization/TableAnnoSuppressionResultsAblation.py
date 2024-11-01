@@ -37,7 +37,12 @@ def get_data(file_list):
             # include the outliers, like file path not match
             all_match_results = [line[6] for line in line_list if line]
             all = len(all_match_results) -2 # 1 head, 1 summary
-            summary_line = line_list[-1][7:]
+            tmp = [s for s in summary_line if s]
+            if len(tmp) < 2:
+                summary_line = line_list[-2][7:]
+                all -= 1
+            else:
+                summary_line = summary_line[7:]
 
         # summary should be [YMW, pre character distance, post, all, recall, precision, f1, note]
         summary = [s for s in summary_line if s] 
@@ -97,10 +102,10 @@ def generate_table(data, caption, label, tex_file):
     latex_table += "\\hline\n"
     latex_table += "\\end{tabular}\n"
     # start to add notes for tables
-    latex_table += "\\begin{tablenotes}[flushleft]\n\\footnotesize\n"
-    latex_table += "\\item Note: ``-'' means disabling the mentioned technique and Char. dist. indicates the average character distance of partial overlaps.\n"
-    latex_table += "\\end{tablenotes}\n"
-    latex_table += "\\end{threeparttable}\n"
+    # latex_table += "\\begin{tablenotes}[flushleft]\n\\footnotesize\n"
+    # latex_table += "\\item Note: ``-'' means disabling the mentioned technique and Char. dist. indicates the average character distance of partial overlaps.\n"
+    # latex_table += "\\end{tablenotes}\n"
+    # latex_table += "\\end{threeparttable}\n"
     latex_table += "\\end{table}"
 
     with open(tex_file, "w") as f:

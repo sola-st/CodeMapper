@@ -35,10 +35,10 @@ def main(dataset, common_folder, output_dir, default_context_line, context_lines
     file_base = join(common, f"measurement_results_metrics_{dataset}")
     file_list = []
     for context_line in context_lines:
-        if context_line == default_context_line:
-            file_list.append(f"{file_base}.csv")
-        else:
-            file_list.append(f"{file_base}_{context_line}.csv")
+        # if context_line == default_context_line:
+        #     file_list.append(f"{file_base}.csv")
+        # else:
+        file_list.append(f"{file_base}_{context_line}.csv")
     data = get_data(file_list)
 
     caption = None
