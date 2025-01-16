@@ -1,7 +1,10 @@
+import ast
 import json
+import os
 import random
 import re
 import subprocess
+from anything_tracker.collect.automated.GetMeaningfulRangesWithAst import GetMeaningfulRangesWithAst
 from anything_tracker.experiments.SourceRepos import SourceRepos
 from anything_tracker.utils.RepoUtils import get_parent_commit
 from git.repo import Repo
@@ -42,18 +45,13 @@ def get_changed_line_hints(repo_dir, base_commit, target_commit, file_path):
     return hint_changed_line_number_ranges
 
 
-class RandomlyGenerateData():
+class AutoMarkSourceRegions():
     def __init__(self):
-        random.seed(25) # Set the seed for reproducibility
+        random.seed(40) # Set the seed for reproducibility
         # customize how many commits/files/source region to select and generate
-        self.basic_commit_num = 100 # get latest 100 commit and start random selection
-        self.select_commit_num = 3
+        self.basic_commit_num = 200 # get latest 200 commit and start random selection
+        self.select_commit_num = 4
         self.select_file_num = 2
-        self.max_line_step = 20 # source range step
-        # to make sure the generated source range have a probability that involves in changed lines
-        self.close_to_range_factor = 5 # a factor that close to change hunk line numbers
-        self.change_or_not_selection_rate = 0.9  # percentage of selected start line numbers is changed or not
-        # self.overlap_or_not_selection_rate = 0.9  # percentage of selected start line numbers close or is changed line numbers
 
     def select_random_files(self, repo_dir, base_commit, target_commit):
         # get modified files list
@@ -68,47 +66,9 @@ class RandomlyGenerateData():
             selected_files = random.sample(modified_files, self.select_file_num)
         return selected_files
 
-    def select_random_source_range(self, file_contents, hint_ranges):
-        # step 3.1: randomly get a source region start and end line.
-        kind = None
-        # start line
-        start_line_num = None
-        file_contents_len = len(file_contents)
-        selected_range = random.choice(hint_ranges)
-        if random.random() < self.change_or_not_selection_rate:
-            start_line_num = random.randint(selected_range.start, selected_range.stop-1)
-            kind = "changed"
-        else: # get a line closer to changed lines
-            close_line_numbers = []
-            pre_nums = list(range(selected_range.start - self.close_to_range_factor, selected_range.start))
-            post_nums = list(range(selected_range.stop, selected_range.stop + self.close_to_range_factor))
-            close_line_numbers.extend(pre_nums)
-            close_line_numbers.extend(post_nums)
-            start_line_num = random.choice(close_line_numbers)
-            kind = "may no change"
-        
-        # end line
-        end_line_num = 0 
-        max_end = start_line_num + self.max_line_step
-        if max_end + 1 < file_contents_len: # 1 is used to avoid index out of range
-            end_line_num = random.randint(start_line_num, max_end)
-            
-        # step 3.2: randomly get a source region start and end character.
-        start_line_len = len(file_contents[start_line_num-1])
-        start_character_idx = random.randint(1, start_line_len) # [1, len]
-
-        if end_line_num == 0: # single line source region
-            end_character_idx = random.randint(start_character_idx, start_line_len)
-            return [start_line_num, start_character_idx, start_line_num, end_character_idx], kind
-        else: # multi-line source region
-            end_line_len = len(file_contents[end_line_num-1])
-            end_character_idx = random.randint(1, end_line_len)
-            return [start_line_num, start_character_idx, end_line_num, end_character_idx], kind
-
     def run(self):
         '''
-        Randomly select several source ranges for checking.
-        For each specified repository:
+        Randomly select meaningful source ranges, for each specified repository:
         * randomly select commits
         * randomly select changed files
         * randomly select start and end lines
@@ -116,44 +76,45 @@ class RandomlyGenerateData():
         Return a list of generate source region data -> write into a JSON file.
         '''
         random_data = []
-        results_json_file = join("data", "oracle", "change_maps_random.json")
+        result_folder = join("data", "automated")
+        os.makedirs(result_folder, exist_ok=True)
+        results_json_file = join(result_folder, "auto_100.json")
 
         # prepare repositories
         source_repo_init = SourceRepos()
         repo_dirs, repo_git_urls = source_repo_init.get_repo_dirs(True)
         source_repo_init.checkout_latest_commits()
 
-        # generate data start.
+        # automatically mark source region start.
         for repo_dir, repo_url in zip(repo_dirs, repo_git_urls):
             repo = Repo(repo_dir)
             print(f"Data generation starts for: {repo_dir}")
-            # step 1: randomly select several commits from the latest 100 commits.
+            # step 1: randomly select several commits from the latest xx commits.
             selected_commits = select_random_commits(repo, self.basic_commit_num, self.select_commit_num)
             for child_commit in selected_commits:
                 # assume that parent_commit is base commit, and child_commit is target commit.
-                parent_commit = get_parent_commit(repo_dir, child_commit) 
+                parent_commit = get_parent_commit(repo_dir, child_commit) #TODO not only neighboring commits
                 # step 2: randomly select changed files
                 selected_files = self.select_random_files(repo_dir, parent_commit, child_commit)
                 # step 3: randomly get source regions
                 repo.git.checkout(parent_commit, force=True)
                 for file in selected_files:
                     selected_file_path = join(repo_dir, file)
-                    with open(selected_file_path, "r") as f: # base file
-                        file_contents = f.readlines()
                     hint_changed_line_number_ranges = get_changed_line_hints(repo_dir, parent_commit, child_commit, file)
-                    source_range_location, kind = self.select_random_source_range(file_contents, hint_changed_line_number_ranges)
+                    source_range_location, change_operation = GetMeaningfulRangesWithAst(selected_file_path, hint_changed_line_number_ranges).run()
                     # step 4: form a source region Json string
-                    url = repo_url + "/commit/" + child_commit
-                    # all the Nones are unknown at this point. may will updated by manual check.
                     source_dict = {
-                        "url" : url,
+                        "url" : repo_url + "/commit/" + child_commit,
                         "mapping": {
                             "source_file": file,
-                            "target_file": None,
+                            "target_file": file, #TODO check rename
                             "source_range": f"{source_range_location}",
-                            "target_range": None,
-                            "change_operation": None,
-                            "kind": kind
+                            "target_range": None, 
+                            "change_operation": change_operation,
+                            "kind": "distance",
+                            "category": "",
+                            "time_order": "",
+                            "detail": ""
                         }
                     }
                     random_data.append(source_dict)
@@ -162,4 +123,4 @@ class RandomlyGenerateData():
     
 
 if __name__=="__main__":
-    RandomlyGenerateData().run()
+    AutoMarkSourceRegions().run()

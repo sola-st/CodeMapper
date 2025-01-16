@@ -1,17 +1,10 @@
-data/repos
-data/repos_java
-data/results
-data/pretrained_model
-data/test_oracle
-data/annotated_data
-data/oracle_code_tracker
-data/converted_data
-data/suppression_data_with_unchanges
-data/repos_suppression
-data/oracle_suppression
-data/results_before_01Aug
-data/resultsOct08
-tests/
+data/* 
+!data/source_repos.txt
+!data/annotation
+# !data/automated
+!data/python_repo.txt
+!data/suppressionb_data
+local/
 *__pycache_*
 .vscode/settings.json
 pyproject.toml
