@@ -1,4 +1,3 @@
-import ast
 import json
 import os
 import random
@@ -58,7 +57,7 @@ class AutoMarkSourceRegions():
         git_command = f"git diff --name-only --diff-filter=M {base_commit} {target_commit}"
         result = subprocess.run(git_command, cwd=repo_dir, shell=True,
             stdout = subprocess.PIPE, universal_newlines=True)
-        modified_files = [file for file in result.stdout.split("\n") if file.strip() != ""]
+        modified_files = [file for file in result.stdout.split("\n") if file.strip().endswith(".py")] # TODO consider other languages
 
         selected_files = modified_files
         modified_files_num = len(modified_files)
@@ -100,21 +99,25 @@ class AutoMarkSourceRegions():
                 repo.git.checkout(parent_commit, force=True)
                 for file in selected_files:
                     selected_file_path = join(repo_dir, file)
+                    print(selected_file_path)
                     hint_changed_line_number_ranges = get_changed_line_hints(repo_dir, parent_commit, child_commit, file)
-                    source_range_location, change_operation = GetMeaningfulRangesWithAst(selected_file_path, hint_changed_line_number_ranges).run()
+                    source_range_location, random_mark = GetMeaningfulRangesWithAst(selected_file_path, hint_changed_line_number_ranges).run()
                     # step 4: form a source region Json string
+                    # TODO distance
                     source_dict = {
-                        "url" : repo_url + "/commit/" + child_commit,
+                        "url" : repo_url.replace(".git", ""),
                         "mapping": {
                             "source_file": file,
                             "target_file": file, #TODO check rename
+                            "source_commit": parent_commit,
+                            "target_commit": child_commit,
                             "source_range": f"{source_range_location}",
                             "target_range": None, 
-                            "change_operation": change_operation,
-                            "kind": "distance",
+                            "change_operation": "",
+                            "kind": "",
                             "category": "",
                             "time_order": "",
-                            "detail": ""
+                            "detail": random_mark
                         }
                     }
                     random_data.append(source_dict)
