@@ -1,0 +1,135 @@
+import random
+import tree_sitter_python as tspython
+import tree_sitter_java as tsjava
+import tree_sitter_javascript as tsjs
+import tree_sitter_c_sharp as tscsharp
+import tree_sitter_cpp as tscpp
+import tree_sitter_go as tsgo
+import tree_sitter_ruby as tsruby
+import tree_sitter_typescript as tsts
+import tree_sitter_php as tsphp
+import tree_sitter_html as tshtml
+from tree_sitter import Language, Parser
+
+
+class NodeRangeCollector:
+    def __init__(self):
+        self.nodes_with_position = []
+
+    def collect_positions(self, node, source_code):
+        # Recursively traverse tree-sitter nodes and collect nodes with position info.
+        if node.start_point and node.end_point:
+            # TODO does the line and col always both exist
+            self.nodes_with_position.append(node)
+
+        for child in node.children:
+            self.collect_positions(child, source_code)
+
+class GetMeaningfulRangesWithTreeSitter():
+    def __init__(self, source_file, hint_ranges):
+        random.seed(20)
+        self.source_file = source_file
+        self.hint_ranges = hint_ranges 
+        self.max_line_step = 20
+
+        tmp = []
+        for line_range in hint_ranges:
+            tmp.extend(list(line_range))
+        self.all_changed_lineno = sorted(set(tmp))
+        
+        # to return 
+        self.selected_source_range = None 
+        self.random_mark = None
+
+    def get_language_matched_parser(self):
+        # add supported languages
+        # TODO Check if using the entire set of predefined languages will save more time and resources.
+        CUR_LANGUAGE = None
+        if self.source_file.endswith(".py"):
+            CUR_LANGUAGE = Language(tspython.language())
+        elif self.source_file.endswith(".java"):
+            CUR_LANGUAGE = Language(tsjava.language())
+        elif self.source_file.endswith(".js"):
+            CUR_LANGUAGE = Language(tsjs.language())
+        elif self.source_file.endswith(".cs"):
+            CUR_LANGUAGE = Language(tscsharp.language())
+        elif self.source_file.endswith(".cpp"):
+            CUR_LANGUAGE = Language(tscpp.language())
+        elif self.source_file.endswith(".go"):
+            CUR_LANGUAGE = Language(tsgo.language())
+        elif self.source_file.endswith(".ruby"):
+            CUR_LANGUAGE = Language(tsruby.language())
+        elif self.source_file.endswith(".ts"):
+            CUR_LANGUAGE = Language(tsts.language())
+        elif self.source_file.endswith(".php"):
+            # TODO Check module 'tree_sitter_php' has no attribute 'language'
+            CUR_LANGUAGE = Language(tsphp.language())
+        elif self.source_file.endswith(".html"):
+            CUR_LANGUAGE = Language(tshtml.language())
+        
+        return Parser(CUR_LANGUAGE)
+
+    def run(self):
+        option = random.randint(0, 3)
+        if option == 0: # 25%, randomly select several consective lines
+            self.select_random_source_range()
+            self.random_mark = "consective lines"
+        else: 
+            # 75%, because this option could also get entire line(s)
+            with open(self.source_file, "r") as f: 
+                code_for_parser = f.read()
+
+            parser = self.get_language_matched_parser()
+            tree = parser.parse(bytes(code_for_parser, 'utf8'))
+            root_node = tree.root_node
+            collector = NodeRangeCollector()
+            collector.collect_positions(root_node, code_for_parser)
+            tree.walk()
+
+            if not collector.nodes_with_position:
+                return "No valid nodes found in the file.", None
+        
+            # randomly select a valid node
+            # even only select the nodes on changed lines, the node could also be non-change.
+            self.change_operation = "involves in changed lines"
+            nodes_involves_in_change = [node for node in collector.nodes_with_position 
+                    if any(line in self.all_changed_lineno 
+                           for line in list(range(node.start_point[0]+1, node.end_point[0] + 2)))]
+            random_node = random.choice(nodes_involves_in_change)
+            # all absolute linenos and col_offsets
+            start_lineno, start_column = random_node.start_point
+            end_lineno, end_column = random_node.end_point
+            self.selected_source_range = [start_lineno + 1, start_column + 1, end_lineno + 1, end_column + 1]
+            self.random_mark = "random node"
+        
+        return self.selected_source_range, self.random_mark
+
+    def select_random_source_range(self):
+        with open(self.source_file, "r") as f: 
+            code_content = f.readlines()
+
+        # start line
+        start_lineno = None
+        code_content_len = len(code_content)
+        selected_range = random.choice(self.hint_ranges)
+        range_size = len(list(selected_range))
+        random_pre_line = random.randint(0, range_size) # x lines to add before the changed lines
+        random_post_line = random.randint(0, range_size) # x lines to add after the changed lines
+        range_end = min([(selected_range.stop + random_post_line), code_content_len])
+        expend_for_selection = [selected_range.start - random_pre_line, range_end]
+        start_lineno = random.choice(expend_for_selection)
+        
+        # end line
+        end_lineno = None 
+        max_end = start_lineno + self.max_line_step
+        if max_end < code_content_len: 
+            end_lineno = random.randint(start_lineno, max_end)
+        
+        # start and end col indices
+        start_line = code_content[start_lineno - 1]
+        start_idx = len(start_line) - len(start_line.lstrip()) + 1 # remove preceding whitespaces
+        end_line = code_content[end_lineno - 1]
+        end_idx = len(end_line.rstrip())
+        # all absolute linenos and col_offsets
+        self.selected_source_range = [start_lineno, start_idx, end_lineno, end_idx] 
+        

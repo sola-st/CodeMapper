@@ -3,7 +3,8 @@ import os
 import random
 import re
 import subprocess
-from anything_tracker.collect.automated.GetMeaningfulRangesWithAst import GetMeaningfulRangesWithAst
+# from anything_tracker.collect.automated.GetMeaningfulRangesWithAst import GetMeaningfulRangesWithAst
+from anything_tracker.collect.automated.GetMeaningfulRangesWithTreeSitter import GetMeaningfulRangesWithTreeSitter
 from anything_tracker.experiments.SourceRepos import SourceRepos
 from anything_tracker.utils.RepoUtils import get_parent_commit
 from git.repo import Repo
@@ -51,13 +52,14 @@ class AutoMarkSourceRegions():
         self.basic_commit_num = 200 # get latest 200 commit and start random selection
         self.select_commit_num = 4
         self.select_file_num = 2
+        self.suffixes = ["py", "java", "js", "cs", "cpp", "go", "ruby", "ts", "php", "html"]
 
     def select_random_files(self, repo_dir, base_commit, target_commit):
         # get modified files list
         git_command = f"git diff --name-only --diff-filter=M {base_commit} {target_commit}"
         result = subprocess.run(git_command, cwd=repo_dir, shell=True,
             stdout = subprocess.PIPE, universal_newlines=True)
-        modified_files = [file for file in result.stdout.split("\n") if file.strip().endswith(".py")] # TODO consider other languages
+        modified_files = [file for file in result.stdout.split("\n") if file.strip().endswith(tuple(self.suffixes))]
 
         selected_files = modified_files
         modified_files_num = len(modified_files)
@@ -77,7 +79,8 @@ class AutoMarkSourceRegions():
         random_data = []
         result_folder = join("data", "automated")
         os.makedirs(result_folder, exist_ok=True)
-        results_json_file = join(result_folder, "auto_100.json")
+        # results_json_file = join(result_folder, "auto_100_tree_sitter.json")
+        results_json_file = join(result_folder, "auto_100_laravel.json")
 
         # prepare repositories
         source_repo_init = SourceRepos()
@@ -101,7 +104,9 @@ class AutoMarkSourceRegions():
                     selected_file_path = join(repo_dir, file)
                     print(selected_file_path)
                     hint_changed_line_number_ranges = get_changed_line_hints(repo_dir, parent_commit, child_commit, file)
-                    source_range_location, random_mark = GetMeaningfulRangesWithAst(selected_file_path, hint_changed_line_number_ranges).run()
+                    source_range_location, random_mark = GetMeaningfulRangesWithTreeSitter(selected_file_path, hint_changed_line_number_ranges).run()
+                    if not random_mark:
+                        continue
                     # step 4: form a source region Json string
                     # TODO distance
                     source_dict = {

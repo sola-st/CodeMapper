@@ -1,0 +1,11 @@
+tree-sitter
+tree-sitter-python
+tree-sitter-java
+tree-sitter-javascript
+tree-sitter-c-sharp
+tree-sitter-cpp
+tree-sitter-go
+tree-sitter-ruby
+tree-sitter-typescript
+tree-sitter-php
+tree-sitter-html

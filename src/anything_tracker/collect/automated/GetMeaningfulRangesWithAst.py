@@ -17,6 +17,7 @@ class NodeRangeCollector(ast.NodeVisitor):
 
 class GetMeaningfulRangesWithAst():
     def __init__(self, source_file, hint_ranges):
+        random.seed(40)
         self.source_file = source_file
         self.hint_ranges = hint_ranges 
         self.max_line_step = 20
@@ -31,21 +32,21 @@ class GetMeaningfulRangesWithAst():
         self.random_mark = None
 
     def run(self):
-        with open(self.source_file, "r") as f: 
-            code_for_parser = f.read()
-        tree = ast.parse(code_for_parser)    
-        # Collect all nodes with line ranges
-        collector = NodeRangeCollector()
-        collector.visit(tree)
-        if not collector.nodes_with_position:
-            return "No valid nodes found in the file."
-        
         option = random.randint(0, 3)
         if option == 0: # 25%, randomly select several consective lines
             self.select_random_source_range()
             self.random_mark = "consective lines"
         else: 
             # 75%, because this option could also get entire line(s)
+            with open(self.source_file, "r") as f: 
+                code_for_parser = f.read()
+            tree = ast.parse(code_for_parser)    
+            # Collect all nodes with line ranges
+            collector = NodeRangeCollector()
+            collector.visit(tree)
+            if not collector.nodes_with_position:
+                return "No valid nodes found in the file.", None
+        
             # randomly select a valid node, even only select the nodes on changed lines, the node could also be non-change.
             self.change_operation = "involves in changed lines"
             nodes_involves_in_change = [node for node in collector.nodes_with_position 
