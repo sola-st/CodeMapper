@@ -47,7 +47,7 @@ def get_changed_line_hints(repo_dir, base_commit, target_commit, file_path):
 
 class AutoMarkSourceRegions():
     def __init__(self):
-        random.seed(40) # Set the seed for reproducibility
+        random.seed(20) # Set the seed for reproducibility
         # customize how many commits/files/source region to select and generate
         self.basic_commit_num = 200 # get latest 200 commit and start random selection
         self.select_commit_num = 4
@@ -79,8 +79,7 @@ class AutoMarkSourceRegions():
         random_data = []
         result_folder = join("data", "automated")
         os.makedirs(result_folder, exist_ok=True)
-        # results_json_file = join(result_folder, "auto_100_tree_sitter.json")
-        results_json_file = join(result_folder, "auto_100_laravel.json")
+        results_json_file = join(result_folder, "auto_100_tree_sitter.json")
 
         # prepare repositories
         source_repo_init = SourceRepos()

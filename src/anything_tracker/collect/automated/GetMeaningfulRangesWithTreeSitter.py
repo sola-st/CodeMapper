@@ -27,10 +27,12 @@ class NodeRangeCollector:
 
 class GetMeaningfulRangesWithTreeSitter():
     def __init__(self, source_file, hint_ranges):
-        random.seed(20)
         self.source_file = source_file
         self.hint_ranges = hint_ranges 
         self.max_line_step = 20
+        self.max_node_step = 60
+
+        self.colloctor = None
 
         tmp = []
         for line_range in hint_ranges:
@@ -43,7 +45,6 @@ class GetMeaningfulRangesWithTreeSitter():
 
     def get_language_matched_parser(self):
         # add supported languages
-        # TODO Check if using the entire set of predefined languages will save more time and resources.
         CUR_LANGUAGE = None
         if self.source_file.endswith(".py"):
             CUR_LANGUAGE = Language(tspython.language())
@@ -59,50 +60,75 @@ class GetMeaningfulRangesWithTreeSitter():
             CUR_LANGUAGE = Language(tsgo.language())
         elif self.source_file.endswith(".ruby"):
             CUR_LANGUAGE = Language(tsruby.language())
-        elif self.source_file.endswith(".ts"):
-            CUR_LANGUAGE = Language(tsts.language())
-        elif self.source_file.endswith(".php"):
-            # TODO Check module 'tree_sitter_php' has no attribute 'language'
-            CUR_LANGUAGE = Language(tsphp.language())
+        # elif self.source_file.endswith(".ts"):
+        #     # no binding repos for typescript and php, use another way to get language. 
+        #     CUR_LANGUAGE = Language(tsts.language())
+        # elif self.source_file.endswith(".php"):
+        #     CUR_LANGUAGE = Language(tsphp.language())
         elif self.source_file.endswith(".html"):
             CUR_LANGUAGE = Language(tshtml.language())
         
         return Parser(CUR_LANGUAGE)
 
     def run(self):
-        option = random.randint(0, 3)
-        if option == 0: # 25%, randomly select several consective lines
+        option = random.randint(0, 4)
+        if option == 0: # 20%, randomly select several consective lines
             self.select_random_source_range()
             self.random_mark = "consective lines"
         else: 
-            # 75%, because this option could also get entire line(s)
+            # 80%, because this option could also get entire line(s)
             with open(self.source_file, "r") as f: 
                 code_for_parser = f.read()
 
             parser = self.get_language_matched_parser()
             tree = parser.parse(bytes(code_for_parser, 'utf8'))
             root_node = tree.root_node
-            collector = NodeRangeCollector()
-            collector.collect_positions(root_node, code_for_parser)
+            self.collector = NodeRangeCollector()
+            self.collector.collect_positions(root_node, code_for_parser)
             tree.walk()
 
-            if not collector.nodes_with_position:
+            if not self.collector.nodes_with_position:
                 return "No valid nodes found in the file.", None
-        
-            # randomly select a valid node
-            # even only select the nodes on changed lines, the node could also be non-change.
-            self.change_operation = "involves in changed lines"
-            nodes_involves_in_change = [node for node in collector.nodes_with_position 
-                    if any(line in self.all_changed_lineno 
-                           for line in list(range(node.start_point[0]+1, node.end_point[0] + 2)))]
-            random_node = random.choice(nodes_involves_in_change)
-            # all absolute linenos and col_offsets
-            start_lineno, start_column = random_node.start_point
-            end_lineno, end_column = random_node.end_point
-            self.selected_source_range = [start_lineno + 1, start_column + 1, end_lineno + 1, end_column + 1]
-            self.random_mark = "random node"
-        
+            
+            if option in [1, 2]: # 40 %
+                self.select_random_single_node()
+                self.random_mark = "random node"
+            else: # 40 %
+                self.select_random_consective_nodes()
+
         return self.selected_source_range, self.random_mark
+    
+    def select_random_single_node(self):
+        # randomly select a valid node
+        # even only select the nodes on changed lines, the node could also be non-change.
+        self.change_operation = "involves in changed lines"
+        nodes_involves_in_change = [node for node in self.collector.nodes_with_position 
+                if any(line in self.all_changed_lineno 
+                        for line in list(range(node.start_point[0]+1, node.end_point[0] + 2)))]
+        random_node = random.choice(nodes_involves_in_change)
+        # all absolute linenos and col_offsets
+        start_lineno, start_column = random_node.start_point
+        end_lineno, end_column = random_node.end_point
+        self.selected_source_range = [start_lineno + 1, start_column + 1, end_lineno + 1, end_column + 1]
+
+    def select_random_consective_nodes(self):
+        # Sort line_col ranges, + 1 to get abosulte numbers
+        nodes_positions = sorted({(node.start_point[0] + 1, node.start_point[1] + 1, node.end_point[0] + 1, 
+                node.end_point[1] + 1) for node in self.collector.nodes_with_position})
+
+        # Select a random node range and define a multi-line slice
+        random_start = random.randint(0, len(nodes_positions) - 1)
+        random_step = random.randint(2, self.max_node_step) # set 2 to avoid only a single node.
+        # can set to 1 to cover the cases in select_random_single_node.
+        selected_nodes_position = nodes_positions[random_start:random_start + random_step]
+        if not selected_nodes_position:
+            return "No sufficient nodes found for a multi-line range.", None
+
+        # Extract the start and end positions
+        start_lineno, start_idx, _, _ = selected_nodes_position[0]
+        _, _, end_lineno, end_idx = selected_nodes_position[-1]
+        self.selected_source_range = [start_lineno, start_idx, end_lineno, end_idx] 
+        self.random_mark = "random consective nodes"
 
     def select_random_source_range(self):
         with open(self.source_file, "r") as f: 
