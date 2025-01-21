@@ -6,7 +6,7 @@ import subprocess
 # from anything_tracker.collect.automated.GetMeaningfulRangesWithAst import GetMeaningfulRangesWithAst
 from anything_tracker.collect.automated.GetMeaningfulRangesWithTreeSitter import GetMeaningfulRangesWithTreeSitter
 from anything_tracker.experiments.SourceRepos import SourceRepos
-from anything_tracker.utils.RepoUtils import get_parent_commit
+from anything_tracker.utils.RepoUtils import get_x_distance_commits
 from git.repo import Repo
 from os.path import join
 
@@ -50,21 +50,21 @@ class AutoMarkSourceRegions():
         random.seed(20) # Set the seed for reproducibility
         # customize how many commits/files/source region to select and generate
         self.basic_commit_num = 200 # get latest 200 commit and start random selection
-        self.select_commit_num = 4
+        self.select_commit_num = 6
         self.select_file_num = 2
-        self.suffixes = ["py", "java", "js", "cs", "cpp", "go", "ruby", "ts", "php", "html"]
+        self.suffixes = ["py", "java", "js", "cs", "cpp", "go", "ruby", "html"] # "ts", "php",
 
     def select_random_files(self, repo_dir, base_commit, target_commit):
+        selected_files = []
         # get modified files list
         git_command = f"git diff --name-only --diff-filter=M {base_commit} {target_commit}"
         result = subprocess.run(git_command, cwd=repo_dir, shell=True,
             stdout = subprocess.PIPE, universal_newlines=True)
-        modified_files = [file for file in result.stdout.split("\n") if file.strip().endswith(tuple(self.suffixes))]
-
-        selected_files = modified_files
-        modified_files_num = len(modified_files)
-        if self.select_file_num <= modified_files_num:
-            selected_files = random.sample(modified_files, self.select_file_num)
+        if result.stdout:
+            modified_files = [file for file in result.stdout.split("\n") if file.strip().endswith(tuple(self.suffixes))]
+            selected_files = modified_files
+            if self.select_file_num < len(modified_files):
+                selected_files = random.sample(modified_files, self.select_file_num)
         return selected_files
 
     def run(self):
@@ -93,35 +93,51 @@ class AutoMarkSourceRegions():
             # step 1: randomly select several commits from the latest xx commits.
             selected_commits = select_random_commits(repo, self.basic_commit_num, self.select_commit_num)
             for child_commit in selected_commits:
-                # assume that parent_commit is base commit, and child_commit is target commit.
-                parent_commit = get_parent_commit(repo_dir, child_commit) #TODO not only neighboring commits
+                distance_commits = get_x_distance_commits(repo_dir, child_commit)
+                if not distance_commits:
+                    continue
+                distance = random.randint(0, len(distance_commits) - 1)
+                parent_commit = distance_commits[distance]
                 # step 2: randomly select changed files
                 selected_files = self.select_random_files(repo_dir, parent_commit, child_commit)
+                if not selected_files:
+                    continue
+                if distance == 0:
+                    distance = "neighboring"
+                else:
+                    distance = f"distance: {distance}"
                 # step 3: randomly get source regions
-                repo.git.checkout(parent_commit, force=True)
+                to_checkout_commit = parent_commit
+                target_commit = child_commit
+                time_order = "old to new"
+                to_checkout = random.randint(0, 1)
+                if to_checkout == 1: 
+                    to_checkout_commit = child_commit
+                    target_commit = parent_commit
+                    time_order = "new to old"
+                repo.git.checkout(to_checkout_commit, force=True)
                 for file in selected_files:
                     selected_file_path = join(repo_dir, file)
-                    print(selected_file_path)
+                    # print(selected_file_path)
                     hint_changed_line_number_ranges = get_changed_line_hints(repo_dir, parent_commit, child_commit, file)
                     source_range_location, random_mark = GetMeaningfulRangesWithTreeSitter(selected_file_path, hint_changed_line_number_ranges).run()
                     if not random_mark:
                         continue
                     # step 4: form a source region Json string
-                    # TODO distance
                     source_dict = {
                         "url" : repo_url.replace(".git", ""),
                         "mapping": {
                             "source_file": file,
-                            "target_file": file, #TODO check rename
-                            "source_commit": parent_commit,
-                            "target_commit": child_commit,
+                            "target_file": file, # diff -M , so far, no file rename.
+                            "source_commit": to_checkout_commit,
+                            "target_commit": target_commit,
                             "source_range": f"{source_range_location}",
                             "target_range": None, 
                             "change_operation": "",
-                            "kind": "",
-                            "category": "",
-                            "time_order": "",
-                            "detail": random_mark
+                            "kind": distance,
+                            "category": random_mark,
+                            "time_order": time_order,
+                            "detail": ""
                         }
                     }
                     random_data.append(source_dict)

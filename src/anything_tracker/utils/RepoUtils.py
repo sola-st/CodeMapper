@@ -21,19 +21,19 @@ def repo_dir_to_name(repo_dir):
     return normpath(repo_dir).split(sep)[-1]
 
 
-def get_parent_commit(repository_path, commit_sha):
+def get_parent_commit(repo_dir, commit_sha):
     """
     Get the parent commit of a specified commit.
 
     Args:
-        repository_path (str): Path to the Git repository.
+        repo_dir (str): Path to the Git repository.
         commit_sha (str): SHA of the commit for which to get the parent.
 
     Returns:
         str: SHA of the parent commit, or None if no parent is found.
     """
     try:
-        repo = Repo(repository_path)
+        repo = Repo(repo_dir)
         commit = repo.commit(commit_sha)
 
         # If the commit has parents, return the SHA of the first parent
@@ -44,8 +44,23 @@ def get_parent_commit(repository_path, commit_sha):
             return None
 
     except git.exc.InvalidGitRepositoryError as e:
-        print(f"Invalid Git repository at {repository_path}.")
+        print(f"Invalid Git repository at {repo_dir}.")
         return None
     except git.exc.GitCommandError as e:
         print(f"Error executing Git command: {e}")
         return None
+
+
+def get_x_distance_commits(repo_dir, commit_sha, max_distance=5):
+    distance_commits = []
+    child_commit = commit_sha
+    while max_distance > 0:
+        distance_i_commit = get_parent_commit(repo_dir, child_commit)
+        if distance_i_commit:
+            distance_commits.append(distance_i_commit)
+            child_commit = distance_i_commit
+            max_distance -= 1
+        else:
+            max_distance = 0
+        
+    return distance_commits

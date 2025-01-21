@@ -134,27 +134,40 @@ class GetMeaningfulRangesWithTreeSitter():
         with open(self.source_file, "r") as f: 
             code_content = f.readlines()
 
-        # start line
-        start_lineno = None
         code_content_len = len(code_content)
         selected_range = random.choice(self.hint_ranges)
         range_size = len(list(selected_range))
         random_pre_line = random.randint(0, range_size) # x lines to add before the changed lines
         random_post_line = random.randint(0, range_size) # x lines to add after the changed lines
         range_end = min([(selected_range.stop + random_post_line), code_content_len])
-        expend_for_selection = [selected_range.start - random_pre_line, range_end]
-        start_lineno = random.choice(expend_for_selection)
+        # range_end + 1 to include the final line
+        expand_range_for_start_selection = list(range((selected_range.start - random_pre_line), (range_end+1)))
+
+        # start line
+        start_lineno = random.choice(expand_range_for_start_selection)
+        start_line = code_content[start_lineno - 1]
+        while not start_line.strip():
+            expand_range_for_start_selection.remove(start_lineno)
+            start_lineno = random.choice(expand_range_for_start_selection)
+            start_line = code_content[start_lineno - 1]
         
         # end line
         end_lineno = None 
         max_end = start_lineno + self.max_line_step
-        if max_end < code_content_len: 
-            end_lineno = random.randint(start_lineno, max_end)
+        end = min([max_end, code_content_len])
+        expand_range_for_end_selection = list(range(start_lineno, end+1))
+        end_lineno = random.choice(expand_range_for_end_selection)
+
+        end_line = code_content[end_lineno - 1]
+        while not end_line.strip():
+            expand_range_for_end_selection.remove(end_lineno)
+            end_lineno = random.choice(expand_range_for_end_selection)
+            end_line = code_content[end_lineno - 1]
+
+
         
         # start and end col indices
-        start_line = code_content[start_lineno - 1]
         start_idx = len(start_line) - len(start_line.lstrip()) + 1 # remove preceding whitespaces
-        end_line = code_content[end_lineno - 1]
         end_idx = len(end_line.rstrip())
         # all absolute linenos and col_offsets
         self.selected_source_range = [start_lineno, start_idx, end_lineno, end_idx] 
