@@ -92,9 +92,3 @@ function highlightSourceRange(fileContent, range) {
   var highlightedText = lines.join('\n');
   document.getElementById('codeTextarea').innerHTML = highlightedText;
 }
-
-// // usage example
-// https://github.com/Hhyemin/suppression-test-python-mypy
-// 19b9ff4
-// bb01e91
-// src/compare/find_max.py

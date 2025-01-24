@@ -50,8 +50,8 @@ class AutoMarkSourceRegions():
         random.seed(20) # Set the seed for reproducibility
         # customize how many commits/files/source region to select and generate
         self.basic_commit_num = 200 # get latest 200 commit and start random selection
-        self.select_commit_num = 6
-        self.select_file_num = 2
+        self.select_commit_num = 10
+        self.select_file_num = 3
         self.suffixes = ["py", "java", "js", "cs", "cpp", "go", "ruby", "html"] # "ts", "php",
 
     def select_random_files(self, repo_dir, base_commit, target_commit):

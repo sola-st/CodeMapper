@@ -6,8 +6,8 @@ import tree_sitter_c_sharp as tscsharp
 import tree_sitter_cpp as tscpp
 import tree_sitter_go as tsgo
 import tree_sitter_ruby as tsruby
-import tree_sitter_typescript as tsts
-import tree_sitter_php as tsphp
+# import tree_sitter_typescript as tsts
+# import tree_sitter_php as tsphp
 import tree_sitter_html as tshtml
 from tree_sitter import Language, Parser
 
@@ -73,8 +73,7 @@ class GetMeaningfulRangesWithTreeSitter():
     def run(self):
         option = random.randint(0, 4)
         if option == 0: # 20%, randomly select several consective lines
-            self.select_random_source_range()
-            self.random_mark = "consective lines"
+            self.select_random_consective_lines()
         else: 
             # 80%, because this option could also get entire line(s)
             with open(self.source_file, "r") as f: 
@@ -90,6 +89,7 @@ class GetMeaningfulRangesWithTreeSitter():
             if not self.collector.nodes_with_position:
                 return "No valid nodes found in the file.", None
             
+            
             if option in [1, 2]: # 40 %
                 self.select_random_single_node()
                 self.random_mark = "random node"
@@ -100,21 +100,27 @@ class GetMeaningfulRangesWithTreeSitter():
     
     def select_random_single_node(self):
         # randomly select a valid node
-        # even only select the nodes on changed lines, the node could also be non-change.
-        self.change_operation = "involves in changed lines"
-        nodes_involves_in_change = [node for node in self.collector.nodes_with_position 
+        # even only select the nodes on changed lines, the node could also be non-change. 
+        # TODO Avoid selecting meaningless nodes by checking their type, e.g., ')', ';', and '{'.
+        # So far, just manual skip it.
+        nodes_involves_in_changed_lines = [node for node in self.collector.nodes_with_position 
                 if any(line in self.all_changed_lineno 
                         for line in list(range(node.start_point[0]+1, node.end_point[0] + 2)))]
-        random_node = random.choice(nodes_involves_in_change)
+        random_node = random.choice(nodes_involves_in_changed_lines)
         # all absolute linenos and col_offsets
         start_lineno, start_column = random_node.start_point
-        end_lineno, end_column = random_node.end_point
-        self.selected_source_range = [start_lineno + 1, start_column + 1, end_lineno + 1, end_column + 1]
+        end_lineno, end_column = random_node.end_point 
+        # random_node.end_point is an open end, the end bype is not included in "small" tree-sitter nodes
+        # TODO For larger nodes like function and class, it includes the end byte. 
+        # So far, not using large nodes, since it is in another dataset.
+        # if end_column == 0:
+        #     end_column = 1
+        self.selected_source_range = [start_lineno + 1, start_column + 1, end_lineno + 1, end_column]
 
     def select_random_consective_nodes(self):
         # Sort line_col ranges, + 1 to get abosulte numbers
         nodes_positions = sorted({(node.start_point[0] + 1, node.start_point[1] + 1, node.end_point[0] + 1, 
-                node.end_point[1] + 1) for node in self.collector.nodes_with_position})
+                node.end_point[1]) for node in self.collector.nodes_with_position})
 
         # Select a random node range and define a multi-line slice
         random_start = random.randint(0, len(nodes_positions) - 1)
@@ -130,7 +136,7 @@ class GetMeaningfulRangesWithTreeSitter():
         self.selected_source_range = [start_lineno, start_idx, end_lineno, end_idx] 
         self.random_mark = "random consective nodes"
 
-    def select_random_source_range(self):
+    def select_random_consective_lines(self):
         with open(self.source_file, "r") as f: 
             code_content = f.readlines()
 
@@ -139,15 +145,17 @@ class GetMeaningfulRangesWithTreeSitter():
         range_size = len(list(selected_range))
         random_pre_line = random.randint(0, range_size) # x lines to add before the changed lines
         random_post_line = random.randint(0, range_size) # x lines to add after the changed lines
-        range_end = min([(selected_range.stop + random_post_line), code_content_len])
-        # range_end + 1 to include the final line
-        expand_range_for_start_selection = list(range((selected_range.start - random_pre_line), (range_end+1)))
+        expand_range_start = max([1, (selected_range.start - random_pre_line)])
+        expand_range_end = min([(selected_range.stop + random_post_line), code_content_len])
+        expand_range_for_start_selection = list(range(expand_range_start, expand_range_end))
 
         # start line
         start_lineno = random.choice(expand_range_for_start_selection)
         start_line = code_content[start_lineno - 1]
         while not start_line.strip():
             expand_range_for_start_selection.remove(start_lineno)
+            if not expand_range_for_start_selection:
+                return
             start_lineno = random.choice(expand_range_for_start_selection)
             start_line = code_content[start_lineno - 1]
         
@@ -155,20 +163,21 @@ class GetMeaningfulRangesWithTreeSitter():
         end_lineno = None 
         max_end = start_lineno + self.max_line_step
         end = min([max_end, code_content_len])
-        expand_range_for_end_selection = list(range(start_lineno, end+1))
+        expand_range_for_end_selection = list(range(start_lineno, end))
         end_lineno = random.choice(expand_range_for_end_selection)
 
         end_line = code_content[end_lineno - 1]
         while not end_line.strip():
             expand_range_for_end_selection.remove(end_lineno)
+            if not expand_range_for_end_selection:
+                return
             end_lineno = random.choice(expand_range_for_end_selection)
             end_line = code_content[end_lineno - 1]
 
-
-        
         # start and end col indices
         start_idx = len(start_line) - len(start_line.lstrip()) + 1 # remove preceding whitespaces
         end_idx = len(end_line.rstrip())
         # all absolute linenos and col_offsets
         self.selected_source_range = [start_lineno, start_idx, end_lineno, end_idx] 
+        self.random_mark = "consective lines"
         
