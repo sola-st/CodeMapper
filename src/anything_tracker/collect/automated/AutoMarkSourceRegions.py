@@ -22,26 +22,28 @@ def write_generated_data_to_file(json_file, to_write):
 
 def get_changed_line_hints(repo_dir, base_commit, target_commit, file_path):
     hint_changed_line_number_ranges = []
-
-    # make sure some of the randomly generated source regions are involves in changes.
-    diff_command = f"git diff --unified=0 {base_commit} {target_commit} -- {file_path}"
-    result = subprocess.run(diff_command, cwd=repo_dir, shell=True,
-            stdout = subprocess.PIPE, universal_newlines=True)
-    diff_result = result.stdout.split("\n")
-    for diff_line in diff_result:
-        if diff_line.strip().startswith("@@"):
-            # @@ -168,14 +168,13 @@ | @@ -233 +236 @@ | @@ -235,2 +238 @@
-            base_line_relate = diff_line.split(" ")[1] # eg,. -168,14
-            # extract all the numbers in input_string
-            pattern = r'\b\d+\b'
-            numbers = re.findall(pattern, base_line_relate)
-            numbers = [int(num) for num in numbers]
-            # transfer to real changed number range
-            hint_line_range = range(numbers[0], numbers[0]+1)
-            num = len(numbers) # can be 1 or 2
-            if num == 2 and numbers[1] != 0:
-                hint_line_range = range(numbers[0], numbers[0] + numbers[1])
-            hint_changed_line_number_ranges.append(hint_line_range)
+    try:
+        # make sure some of the randomly generated source regions are involves in changes.
+        diff_command = f"git diff --unified=0 {base_commit} {target_commit} -- {file_path}"
+        result = subprocess.run(diff_command, cwd=repo_dir, shell=True,
+                stdout = subprocess.PIPE, universal_newlines=True)
+        diff_result = result.stdout.split("\n")
+        for diff_line in diff_result:
+            if diff_line.strip().startswith("@@"):
+                # @@ -168,14 +168,13 @@ | @@ -233 +236 @@ | @@ -235,2 +238 @@
+                base_line_relate = diff_line.split(" ")[1] # eg,. -168,14
+                # extract all the numbers in input_string
+                pattern = r'\b\d+\b'
+                numbers = re.findall(pattern, base_line_relate)
+                numbers = [int(num) for num in numbers]
+                # transfer to real changed number range
+                hint_line_range = range(numbers[0], numbers[0]+1)
+                num = len(numbers) # can be 1 or 2
+                if num == 2 and numbers[1] != 0:
+                    hint_line_range = range(numbers[0], numbers[0] + numbers[1])
+                hint_changed_line_number_ranges.append(hint_line_range)
+    except:
+        pass
     return hint_changed_line_number_ranges
 
 
@@ -119,7 +121,9 @@ class AutoMarkSourceRegions():
                 for file in selected_files:
                     selected_file_path = join(repo_dir, file)
                     # print(selected_file_path)
-                    hint_changed_line_number_ranges = get_changed_line_hints(repo_dir, parent_commit, child_commit, file)
+                    hint_changed_line_number_ranges = get_changed_line_hints(repo_dir, to_checkout_commit, target_commit, file)
+                    if not hint_changed_line_number_ranges:
+                        continue # decoding issue
                     source_range_location, random_mark = GetMeaningfulRangesWithTreeSitter(selected_file_path, hint_changed_line_number_ranges).run()
                     if not random_mark:
                         continue
