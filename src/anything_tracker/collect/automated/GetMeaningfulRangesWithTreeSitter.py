@@ -14,10 +14,10 @@ from tree_sitter import Language, Parser
 
 def check_whether_keep_node(node, single_node=True):
     to_keep = True
-    excluded_types = ['{', '}', '[', ']', '(', ')', '"', '\'', ':', ";"]
+    excluded_types = ['{', '}', '[', ']', '(', ')', '"', '\'', ':', ";", ".", ","]
     if single_node == False:
-        # for consective nodes selection, check start node
-        excluded_types = ['}', ']', ')', ':', ";"]
+        # for consective nodes selection
+        excluded_types = ['{', '}', '[', ']', '(', ')']
     if node.type in excluded_types:
         to_keep = False
     return to_keep
@@ -39,7 +39,6 @@ class GetMeaningfulRangesWithTreeSitter():
         self.source_file = source_file
         self.hint_ranges = hint_ranges 
         self.max_line_step = 20
-        self.max_node_step = 60
         self.colloctor = None
         
         # to return 
@@ -82,11 +81,12 @@ class GetMeaningfulRangesWithTreeSitter():
             if not tmp:
                 return None, None
         self.all_changed_lineno = sorted(set(tmp))
-        option = random.randint(0, 4)
-        if option == 0: # 20%, randomly select several consective lines
+        option = random.randint(0, 2)
+        # option = 2
+        if option == 0: # 33.3%, randomly select several consective lines
             self.select_random_consective_lines()
         else: 
-            # 80%, because this option could also get entire line(s)
+            # 66.7%, this option could also get entire line(s)
             with open(self.source_file, "r") as f: 
                 code_for_parser = f.read()
 
@@ -107,9 +107,9 @@ class GetMeaningfulRangesWithTreeSitter():
             random_node = random.choice(self.nodes_involves_in_changed_lines)
             self.nodes_involves_in_changed_lines_backup = self.nodes_involves_in_changed_lines[:]
                 
-            if option in [1, 2]: # 40 %
+            if option == 1: # 33.3 %
                 self.select_random_single_node(random_node)
-            else: # 40 %
+            else: # 33.3 %
                 self.select_random_consective_nodes(random_node)
 
         return self.selected_source_range, self.random_mark
@@ -129,22 +129,39 @@ class GetMeaningfulRangesWithTreeSitter():
             end_column = 1
         self.selected_source_range = [start_lineno + 1, start_column + 1, end_lineno + 1, end_column]
         self.random_mark = "random node"
+        # print(f"**random node: {random_node.text.decode('utf-8')}")
 
-    def select_random_consective_nodes(self, selected_start_node):
-        while check_whether_keep_node(selected_start_node, False) == False:
-            self.nodes_involves_in_changed_lines_backup.remove(selected_start_node)
-            selected_start_node = random.choice(self.nodes_involves_in_changed_lines_backup)
+    def select_random_consective_nodes(self, tmp_node):
+        # tmp_node indicates an initial fuzzy location
+        parent_node = tmp_node.parent  # a valid and meaningful bigger node.
+        may_meaningful_child_nodes = []
+        while not parent_node or len(may_meaningful_child_nodes) < 2:
+            self.nodes_involves_in_changed_lines_backup.remove(tmp_node)
+            tmp_node = random.choice(self.nodes_involves_in_changed_lines_backup)
+            parent_node = tmp_node.parent
+            may_meaningful_child_nodes = []
+            for child in parent_node.children:
+                if any(char.isalpha() or char.isdigit() for char in child.text.decode('utf-8')):
+                    may_meaningful_child_nodes.append(child)
 
-        random_step = random.randint(2, self.max_node_step) # set 2 to avoid only a single node.
-        selected_node_idx = self.collector.nodes_with_position.index(selected_start_node)
-        target_node_idx = min([(selected_node_idx + random_step), len(self.collector.nodes_with_position)-1])
-        selected_end_node = self.collector.nodes_with_position[target_node_idx]
-        start_lineno, start_column = selected_start_node.start_point
-        end_lineno, end_column = selected_end_node.end_point 
+        backup = may_meaningful_child_nodes[:]
+        random_start_node = random.choice(backup[:-1])
+        # start_idx = parent_node.children.index(random_start_node)
+        # if start_idx == 0:
+        #     end_node = parent_node.children[-1]
+        # else:
+        idx = backup.index(random_start_node)
+        end_node = random.choice(backup[idx+1:])
+        
+        start_lineno, start_column = random_start_node.start_point
+        end_lineno, end_column = end_node.end_point 
         if end_column == 0:
             end_column = 1
         self.selected_source_range = [start_lineno + 1, start_column + 1, end_lineno + 1, end_column]
         self.random_mark = "random consective nodes"
+
+        # end_idx = parent_node.children.index(end_node)
+        # print(f"**random consective nodes: {''.join([node.text.decode('utf-8') for node in parent_node.children[start_idx: end_idx+1]])}")
 
     def select_random_consective_lines(self):
         with open(self.source_file, "r") as f: 
@@ -156,6 +173,8 @@ class GetMeaningfulRangesWithTreeSitter():
         random_pre_line = random.randint(0, range_size) # x lines to add before the changed lines
         expand_range_start = max([1, (selected_range.start - random_pre_line)])
         expand_range_for_start_selection = list(range(expand_range_start, selected_range.stop))
+        if not expand_range_for_start_selection:
+            return
 
         # start line
         start_lineno = random.choice(expand_range_for_start_selection)
