@@ -54,7 +54,7 @@ class AutoMarkSourceRegions():
         self.basic_commit_num = 200 # get latest 200 commit and start random selection
         self.select_commit_num = 10
         self.select_file_num = 4
-        self.suffixes = ["py", "java", "js", "cs", "cpp", "go", "ruby", "html"] # "ts", "php",
+        self.suffixes = ["py", "java", "js", "cs", "cpp", "go", "ruby", "ts", "php", "html"]
 
     def select_random_files(self, repo_dir, base_commit, target_commit):
         selected_files = []
@@ -146,6 +146,7 @@ class AutoMarkSourceRegions():
                     }
                     random_data.append(source_dict)
 
+        random.shuffle(random_data)
         write_generated_data_to_file(results_json_file, random_data)
     
 
