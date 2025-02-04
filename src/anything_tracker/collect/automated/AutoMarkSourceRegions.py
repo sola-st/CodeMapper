@@ -9,6 +9,7 @@ from anything_tracker.experiments.SourceRepos import SourceRepos
 from anything_tracker.utils.RepoUtils import get_x_distance_commits
 from git.repo import Repo
 from os.path import join
+from anything_tracker.utils.TransferRanges import get_diff_reported_range
 
 
 def select_random_commits(repo, num_commits, select_commit_num):
@@ -32,16 +33,9 @@ def get_changed_line_hints(repo_dir, base_commit, target_commit, file_path):
             if diff_line.strip().startswith("@@"):
                 # @@ -168,14 +168,13 @@ | @@ -233 +236 @@ | @@ -235,2 +238 @@
                 base_line_relate = diff_line.split(" ")[1] # eg,. -168,14
-                # extract all the numbers in input_string
-                pattern = r'\b\d+\b'
-                numbers = re.findall(pattern, base_line_relate)
-                numbers = [int(num) for num in numbers]
-                # transfer to real changed number range
-                hint_line_range = range(numbers[0], numbers[0]+1)
-                num = len(numbers) # can be 1 or 2
-                if num == 2 and numbers[1] != 0:
-                    hint_line_range = range(numbers[0], numbers[0] + numbers[1])
-                hint_changed_line_number_ranges.append(hint_line_range)
+                hint_line_range, step, _ = get_diff_reported_range(base_line_relate)
+                if step != 0:
+                    hint_changed_line_number_ranges.append(hint_line_range)
     except:
         pass
     return hint_changed_line_number_ranges
@@ -52,8 +46,8 @@ class AutoMarkSourceRegions():
         random.seed(20) # Set the seed for reproducibility
         # customize how many commits/files/source region to select and generate
         self.basic_commit_num = 200 # get latest 200 commit and start random selection
-        self.select_commit_num = 6
-        self.select_file_num = 3
+        self.select_commit_num = 10
+        self.select_file_num = 2
         self.suffixes = ["py", "java", "js", "cs", "cpp", "go", "ruby", "ts", "php", "html"]
 
     def select_random_files(self, repo_dir, base_commit, target_commit):
