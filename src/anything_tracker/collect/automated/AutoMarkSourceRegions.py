@@ -52,8 +52,8 @@ class AutoMarkSourceRegions():
         random.seed(20) # Set the seed for reproducibility
         # customize how many commits/files/source region to select and generate
         self.basic_commit_num = 200 # get latest 200 commit and start random selection
-        self.select_commit_num = 10
-        self.select_file_num = 4
+        self.select_commit_num = 6
+        self.select_file_num = 3
         self.suffixes = ["py", "java", "js", "cs", "cpp", "go", "ruby", "ts", "php", "html"]
 
     def select_random_files(self, repo_dir, base_commit, target_commit):
@@ -89,6 +89,7 @@ class AutoMarkSourceRegions():
         source_repo_init.checkout_latest_commits()
 
         # automatically mark source region start.
+        avg_change_hunk_sizes = []
         for repo_dir, repo_url in zip(repo_dirs, repo_git_urls):
             repo = Repo(repo_dir)
             print(f"Data generation starts for: {repo_dir}")
@@ -98,7 +99,10 @@ class AutoMarkSourceRegions():
                 distance_commits = get_x_distance_commits(repo_dir, child_commit)
                 if not distance_commits:
                     continue
-                distance = random.randint(0, len(distance_commits) - 1)
+                distance = 0
+                neighboring_or_distance = random.randint(0, 1) # 50% vs. 50%
+                if neighboring_or_distance == 1:
+                    distance = random.randint(1, len(distance_commits) - 1)
                 parent_commit = distance_commits[distance]
                 # step 2: randomly select changed files
                 selected_files = self.select_random_files(repo_dir, parent_commit, child_commit)
@@ -124,10 +128,14 @@ class AutoMarkSourceRegions():
                     hint_changed_line_number_ranges = get_changed_line_hints(repo_dir, to_checkout_commit, target_commit, file)
                     if not hint_changed_line_number_ranges:
                         continue # decoding issue
-                    source_range_location, random_mark = GetMeaningfulRangesWithTreeSitter(selected_file_path, hint_changed_line_number_ranges).run()
+                    source_range_location, random_mark, change_operation, avg_ine_level_size = GetMeaningfulRangesWithTreeSitter(
+                            selected_file_path, hint_changed_line_number_ranges).run()
                     if not random_mark:
+                        print(source_range_location)
                         continue
+                    avg_change_hunk_sizes.append(avg_ine_level_size)
                     # step 4: form a source region Json string
+                    note = f"line-level max source region size: {avg_ine_level_size}"
                     source_dict = {
                         "url" : repo_url.replace(".git", ""),
                         "mapping": {
@@ -137,15 +145,17 @@ class AutoMarkSourceRegions():
                             "target_commit": target_commit,
                             "source_range": f"{source_range_location}",
                             "target_range": None, 
-                            "change_operation": "",
+                            "change_operation": change_operation, # line-level change operation
                             "kind": distance,
                             "category": random_mark,
                             "time_order": time_order,
-                            "detail": ""
+                            "detail": note
                         }
                     }
                     random_data.append(source_dict)
 
+        avg_size_for_all = round(sum(avg_change_hunk_sizes) / len(avg_change_hunk_sizes), 2)
+        print(f"Overall average (line-level) size of all these cases: {avg_size_for_all}.")
         random.shuffle(random_data)
         write_generated_data_to_file(results_json_file, random_data)
     

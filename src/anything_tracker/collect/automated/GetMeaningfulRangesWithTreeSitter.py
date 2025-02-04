@@ -12,18 +12,20 @@ import tree_sitter_html as tshtml
 from tree_sitter import Language, Parser
 
 
-def check_whether_keep_node(node, single_node=True):
-    to_keep = True
-    excluded_types = ['{', '}', '[', ']', '(', ')', '"', '\'', ':', ";", ".", ","]
-    if single_node == False:
-        # for consective nodes selection
-        excluded_types = ['{', '}', '[', ']', '(', ')']
-    if node.type in excluded_types:
-        to_keep = False
-    return to_keep
-
 def check_whether_num_alpha_in_node_text(node):
     return any(char.isalpha() or char.isdigit() for char in node.text.decode('utf-8'))
+
+def get_consective_unchanged_lines(line_list, start_num, max_line_num):
+    start_idx = line_list.index(start_num)
+    # at most with max_line_num unchanged lines
+    to_iterate_list = line_list[start_idx: start_idx + max_line_num]
+    end_num = start_num
+    for num in to_iterate_list:
+        if num == end_num + 1:
+            end_num = num
+        else:
+            break
+    return end_num
 
 class NodeRangeCollector:
     def __init__(self):
@@ -45,7 +47,9 @@ class GetMeaningfulRangesWithTreeSitter():
         
         # to return 
         self.selected_source_range = None 
-        self.random_mark = None
+        self.random_mark = None # node, consective sibling nodes, or consective lines
+        self.change_ratio = ["non changed", "changed", "changed", "changed"] # 25% non-change VS. 75% change
+        self.change_operation = random.choice(self.change_ratio)
 
     def get_language_matched_parser(self):
         # add supported languages
@@ -75,17 +79,27 @@ class GetMeaningfulRangesWithTreeSitter():
         
         return Parser(CUR_LANGUAGE)
 
-    def run(self):
+    def get_changed_unchanged_lines(self):
         tmp = []
         for line_range in self.hint_ranges:
             tmp.extend(list(line_range))
         if 0 in tmp:
             tmp.remove(0)
             if not tmp:
-                return None, None
-        self.all_changed_lineno = sorted(set(tmp))
+                return None, None, None, None
+        self.all_changed_lineno = sorted(set(tmp)) # absolute numbers
+        with open(self.source_file, "r") as f: 
+            self.code_content = f.readlines()
+        self.code_content_len = len(self.code_content)   
+        self.all_non_changed_lineno = [line for line in range(1, self.code_content_len + 1) 
+            if line not in self.all_changed_lineno] # absolute numbers
+        # set the consective line size by referring to the average changed hunk size
+        change_hunk_sizes = ([len(list(r)) for r in self.hint_ranges])
+        self.avg_change_hunk_size = round(sum(change_hunk_sizes) / len(change_hunk_sizes))
+
+    def run(self):
+        self.get_changed_unchanged_lines()
         option = random.randint(0, 2)
-        # option = 2
         if option == 0: # 33.3%, randomly select several consective lines
             self.select_random_consective_lines()
         else: 
@@ -101,54 +115,66 @@ class GetMeaningfulRangesWithTreeSitter():
             tree.walk()
 
             if not self.collector.nodes_with_position:
-                return "No valid nodes found in the file.", None
-            
-            self.nodes_involves_in_changed_lines = [node for node in self.collector.nodes_with_position 
-                    if any(line in self.all_changed_lineno 
-                            for line in list(range(node.start_point[0]+1, node.end_point[0] + 2)))]
-            # randomly select a valid node inloved in changed lines, the node could also be non-change. 
-            random_node = random.choice(self.nodes_involves_in_changed_lines)
-            self.nodes_involves_in_changed_lines_backup = self.nodes_involves_in_changed_lines[:]
+                return "No valid nodes found in the file.", None, None, None
+
+            # get nodes involvs in changed and non-changed lines, respectively
+            nodes_involves_in_unchanged_lines = []
+            nodes_involves_in_changed_lines = []
+            for node in self.collector.nodes_with_position:
+                if (node.end_point[0] - node.start_point[0]) < self.avg_change_hunk_size:
+                    if any(line in self.all_changed_lineno for line in range(node.start_point[0] + 1, node.end_point[0] + 2)):
+                        nodes_involves_in_changed_lines.append(node)
+                    else:
+                        nodes_involves_in_unchanged_lines.append(node)
+
+            # randomly select a valid node
+            # this could handle the change_operation selection for both the single node and consective sibling node cases
+            self.to_select_list = []
+            if self.change_operation == "non changed":
+                if not nodes_involves_in_unchanged_lines:
+                    return "No unchanged lines.", None, None, None 
+                self.to_select_list = nodes_involves_in_unchanged_lines
+            else:
+                if not nodes_involves_in_changed_lines:
+                    return "No expected changed lines.", None, None, None 
+                self.to_select_list = nodes_involves_in_changed_lines
+                self.test = nodes_involves_in_changed_lines[:]
+
+            random_node = random.choice(self.to_select_list)
                 
             if option == 1: # 33.3 %
                 self.select_random_single_node(random_node)
             else: # 33.3 %
                 self.select_random_consective_nodes(random_node)
 
-        return self.selected_source_range, self.random_mark
+        return self.selected_source_range, self.random_mark, self.change_operation, self.avg_change_hunk_size
     
     def select_random_single_node(self, random_node):
-        while check_whether_keep_node(random_node) == False:
-            # possible to get the same node
-            self.nodes_involves_in_changed_lines_backup.remove(random_node)
-            random_node = random.choice(self.nodes_involves_in_changed_lines_backup)
+        end_lineno, end_column = random_node.end_point
+        while check_whether_num_alpha_in_node_text(random_node) == False or end_column == False:
+            # avoid to get the same node
+            self.to_select_list.remove(random_node)
+            if not self.to_select_list:
+                return "No expected lines.", None, None, None 
+            random_node = random.choice(self.to_select_list)
+            end_lineno, end_column = random_node.end_point
+        
         # all absolute linenos and col_offsets
         start_lineno, start_column = random_node.start_point
-        end_lineno, end_column = random_node.end_point 
         # random_node.end_point is an open end, the end bype is not included in "small" tree-sitter nodes
-        # TODO To check: For larger nodes like function and class, it includes the end byte. 
-        # So far, we skip them when do manual checking, since they are in another dataset.
-        if end_column == 0:
-            end_column = 1
         self.selected_source_range = [start_lineno + 1, start_column + 1, end_lineno + 1, end_column]
         self.random_mark = "random node"
         # print(f"**random node: {random_node.text.decode('utf-8')}")
 
     def get_desired_parent_node(self, node, parent_node):
-        while not parent_node:
-            self.nodes_involves_in_changed_lines_backup.remove(node)
-            if not self.nodes_involves_in_changed_lines_backup:
+        while not parent_node or len(parent_node.children) < 2 \
+                or (parent_node.end_point[0] - parent_node.start_point[0]) > self.avg_change_hunk_size:
+            self.to_select_list.remove(node)
+            if not self.to_select_list:
                 return None, None
-            node = random.choice(self.nodes_involves_in_changed_lines_backup)
+            node = random.choice(self.to_select_list)
             parent_node = node.parent
         return node, parent_node
-    
-    def get_may_meaningul_childs(self, parent_node):
-        may_meaningful_child_nodes = []
-        for child in parent_node.children:
-            if check_whether_num_alpha_in_node_text(child):
-                may_meaningful_child_nodes.append(child)
-        return may_meaningful_child_nodes
 
     def select_random_consective_nodes(self, tmp_node):
         # tmp_node indicates an initial fuzzy location
@@ -157,21 +183,10 @@ class GetMeaningfulRangesWithTreeSitter():
         if not parent_node:
             return
 
-        may_meaningful_child_nodes = self.get_may_meaningul_childs(parent_node)
-        while len(may_meaningful_child_nodes) < 2:
-            tmp_node, parent_node = self.get_desired_parent_node(tmp_node, None)
-            if not parent_node:
-                return
-            may_meaningful_child_nodes = self.get_may_meaningul_childs(parent_node)
-
-        backup = may_meaningful_child_nodes[:]
-        random_start_node = random.choice(backup[:-1])
-        start_idx = parent_node.children.index(random_start_node)
-        if start_idx == 0:
-            end_node = parent_node.children[-1]
-        else:
-            idx = backup.index(random_start_node)
-            end_node = random.choice(backup[idx+1:])
+        backup = parent_node.children
+        random_start_node = random.choice(backup[:1]) # avoid select a single node
+        idx = backup.index(random_start_node)
+        end_node = random.choice(backup[idx+1:])
         
         start_lineno, start_column = random_start_node.start_point
         end_lineno, end_column = end_node.end_point 
@@ -184,51 +199,40 @@ class GetMeaningfulRangesWithTreeSitter():
         # print(f"**random consective nodes: {''.join([node.text.decode('utf-8') for node in parent_node.children[start_idx: end_idx+1]])}")
 
     def select_random_consective_lines(self):
-        with open(self.source_file, "r") as f: 
-            code_content = f.readlines()
-
-        code_content_len = len(code_content)
-        selected_range = random.choice(self.hint_ranges)
-        # here the range size affects the source range size, we can analysis these selected sizes if needed
-        range_size = len(list(selected_range))
-        random_pre_line = random.randint(0, range_size) # x lines to add before the changed lines
-        expand_range_start = max([1, (selected_range.start - random_pre_line)])
-        expand_range_for_start_selection = list(range(expand_range_start, selected_range.stop))
-        if not expand_range_for_start_selection:
-            return
-
-        # start line
-        start_lineno = random.choice(expand_range_for_start_selection)
-        start_line = code_content[start_lineno - 1]
-        while not start_line.strip():
-            expand_range_for_start_selection.remove(start_lineno)
-            if not expand_range_for_start_selection:
-                return
-            start_lineno = random.choice(expand_range_for_start_selection)
-            start_line = code_content[start_lineno - 1]
-        
-        # end line
-        end_lineno = None 
-        random_post_line = random.randint(0, range_size) # x lines to add after the changed lines
-        expand_range_end = min([(selected_range.stop + random_post_line), code_content_len])
-        expand_range_for_end_selection = list(range(start_lineno, expand_range_end))
-        if expand_range_for_end_selection: 
-            end_lineno = random.choice(expand_range_for_end_selection)
+        start_lineno = None
+        start_line = None
+        end_lineno = None
+        if self.change_operation == "non changed":
+            start_lineno = random.choice(self.all_non_changed_lineno)
+            start_line = self.code_content[start_lineno - 1]
+            while not start_line.strip():
+                self.all_non_changed_lineno.remove(start_lineno)
+                start_lineno = random.choice(self.all_non_changed_lineno)
+                start_line = self.code_content[start_lineno - 1]
+            end_lineno = get_consective_unchanged_lines(
+                    self.all_non_changed_lineno, start_lineno, self.avg_change_hunk_size)
         else:
-            end_lineno = start_lineno
+            start_lineno = random.choice(self.all_changed_lineno)
+            start_line = self.code_content[start_lineno - 1]
+            while not start_line.strip():
+                self.all_changed_lineno.remove(start_lineno)
+                if not self.all_changed_lineno:
+                    return
+                start_lineno = random.choice(self.all_changed_lineno)
+                start_line = self.code_content[start_lineno - 1]
+            end_lineno = min([start_lineno + self.avg_change_hunk_size - 1, self.code_content_len])
 
-        end_line = code_content[end_lineno - 1]
-        while not end_line.strip():
-            expand_range_for_end_selection.remove(end_lineno)
-            if not expand_range_for_end_selection:
-                return
-            end_lineno = random.choice(expand_range_for_end_selection)
-            end_line = code_content[end_lineno - 1]
-
+        end_line = self.code_content[end_lineno - 1]
+        end_idx = len(end_line.rstrip())
+        while end_idx == 0 and end_lineno > start_lineno:
+            end_lineno -= 1
+            end_line = self.code_content[end_lineno - 1]
+            end_idx = len(end_line.rstrip())
+        if end_idx == 0 :
+            return
+        
         # start and end col indices
         start_idx = len(start_line) - len(start_line.lstrip()) + 1 # remove preceding whitespaces
-        end_idx = len(end_line.rstrip())
         # all absolute linenos and col_offsets
         self.selected_source_range = [start_lineno, start_idx, end_lineno, end_idx] 
         self.random_mark = "consective lines"
-        

@@ -157,14 +157,7 @@ class ComputeRegionSize():
     # common functions end.
 
     def run(self):
-        if self.dataset == "annodata":
-            # prepare repositories
-            source_repo_init = SourceRepos()
-            repo_dirs = source_repo_init.get_repo_dirs()
-            source_repo_init.checkout_latest_commits()
-            print(f"Found {len(repo_dirs)} repositories.")
-            self.get_region_zises_annodata()
-        else:
+        if dataset == "suppression":
             repo_urls_file = join("data", "python_repos.txt") # python projects
             repo_folder_suppression = join("data", "repos_suppression")
             source_repo_init = SourceRepos(repo_urls_file, repo_folder_suppression)
@@ -172,15 +165,24 @@ class ComputeRegionSize():
             source_repo_init.checkout_latest_commits()
             print(f"Found {len(repo_dirs)} repositories.")
             self.get_region_zises_suppression(repo_dirs)
+        else: # self.dataset == "annodata", "automated"
+            # prepare repositories
+            source_repo_init = SourceRepos()
+            repo_dirs = source_repo_init.get_repo_dirs()
+            source_repo_init.checkout_latest_commits()
+            print(f"Found {len(repo_dirs)} repositories.")
+            self.get_region_zises_annodata()
 
 
 if __name__ == "__main__":
-    dataset = "suppression" # can be "annodata" and "suppression"
+    dataset = "automated" # can be "automated", "annodata", and "suppression"
     results_file_folder = join("data", "results", "table_plots")
     makedirs(results_file_folder, exist_ok=True)
     oracle_file = None
     if dataset == "annodata":
         oracle_file = join("data", "annotation", "annotations_100.json")
+    elif dataset == "automated":
+        oracle_file = join("data", "automated", "auto_100_tree_sitter.json")
     else:
         oracle_file = join("data", "suppression_data") # it is a folder
     ComputeRegionSize(oracle_file, results_file_folder, dataset).run()

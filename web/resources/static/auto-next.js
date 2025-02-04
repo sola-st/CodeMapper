@@ -35,8 +35,12 @@ function displayCurrentItem() {
       if ("mapping" in currentItem) {
         currentItem = currentItemInit.mapping;
         document.getElementById('fileInput').name = currentItem.source_range;
-        document.getElementById('operationSelect').value = "";
         document.getElementById('categorySelect').value = currentItem.category;
+        if (currentItem.change_operation) {
+          document.getElementById('operationSelect').value = currentItem.change_operation;
+        } else {
+          document.getElementById('operationSelect').value = "";
+        }
         // document.getElementById('mark').value = currentItem.detail;
       }
       document.getElementById('sourceCommit').value = currentItem.source_commit;
