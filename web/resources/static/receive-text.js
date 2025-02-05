@@ -27,7 +27,7 @@ function getFileContents(url, target = false) {
       return response.json();
     })
     .then(data => {
-      const fileContent = atob(data.content);
+      const fileContent = decodeURIComponent(escape(atob(data.content))); // atob(data.content);
       if (target == false) {
         HighlightedDiv.innerText = fileContent;
         updateLineNumbers();
