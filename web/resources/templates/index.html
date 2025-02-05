@@ -13,14 +13,20 @@
         .highlight {
           background-color: lightgreen;
         }
-        .highlightedDiv{
-            white-space: pre-wrap;
-            height: 100%;
-            flex-grow: 1;
+        .highlightedDiv {
+            white-space: pre;          /* Preserve whitespace, prevent line breaks unless newlines or spaces */
+            word-wrap: break-word;     /* Break long words if necessary to prevent overflow */
+            /* overflow-x: auto;          Horizontal scrolling */
+            /* overflow-y: auto;          Vertical scrolling */
+            height: 100%;              /* Full height */
+            width: 100%;               /* Full width */
+            flex-grow: 1;              /* Allows the div to grow */
             background-color: transparent;
             border: none;
             outline: none;
+            box-sizing: border-box;    /* Ensures padding/borders don't affect width */
         }
+        
         table {
             border-collapse: collapse;
             width: 40%;

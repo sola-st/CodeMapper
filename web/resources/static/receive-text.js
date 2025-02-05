@@ -51,20 +51,6 @@ function getFileContents(url, target = false) {
     });
 }
 
-function countOccurrences(mainStr) {
-  smaller_than_counts = mainStr.split(/</g).length - 1
-  greater_than_counts = mainStr.split(/>/g).length - 1
-  return smaller_than_counts + greater_than_counts;
-}
-
-function updateChars(ori_line, startChar, endChar){ // the startChar and endChar on the ori_line
-  var beforeStartCount = countOccurrences(ori_line.substring(0, startChar))
-  startChar += beforeStartCount * 2
-  var toHighlight = countOccurrences(ori_line.substring(startChar, endChar))
-  endChar += toHighlight * 2;
-  return startChar, endChar; // the position on the corresponding dispaly line
-}
-
 function replaceSpecialMarks(fileContent) {
   fileContent = fileContent.replace(/</g, "\&lt");
   fileContent = fileContent.replace(/>/g, "\&gt");
@@ -73,55 +59,26 @@ function replaceSpecialMarks(fileContent) {
 
 function highlightSourceRange(fileContent, range) {
   var startLine = range[0] - 1;
-  var startChar = range[1] - 1;
+  var startChar = range[1];
   var endLine = range[2] - 1;
   var endChar = range[3];
-  var fileContentOri = fileContent; // for checking highlight ranges
 
-  // for display 
-  fileContent = fileContent.replace(/</g, "\&lt");
-  fileContent = fileContent.replace(/>/g, "\&gt");
+  var lines = fileContent.split('\n');
+  var startOffset = lines.slice(0, startLine).join('\n').length + startChar;
+  var endOffset = lines.slice(0, endLine).join('\n').length + endChar;
 
-  var ori_lines = fileContentOri.split('\n');
-  var display_lines = fileContent.split('\n');
-  for (var k = 0; k < display_lines.length; k++) {
-    var ori_line = ori_lines[k]; // for position checking
-    var display_line = display_lines[k]; // for display
-    // startChar, endChar is the char position on original file contents
-    // startCharDisplay, endCharDisplay is the position on the displayed version file contents
-    var startCharDisplay = startChar;
-    var endCharDisplay = endChar;
-    if (ori_line.length < display_line.length){
-      startCharDisplay, endCharDisplay = updateChars(ori_line, startChar, endChar);
-    }
-    if (k === startLine && startLine === endLine) {
-      if (endChar === ori_line.length) {
-        display_line = display_line.substring(0, startCharDisplay) + '<span class="highlight">' + display_line.substring(startCharDisplay, endCharDisplay) + '</span>';
-      } else {
-        display_line = display_line.substring(0, startCharDisplay) + '<span class="highlight">' + display_line.substring(startCharDisplay, endCharDisplay) + '</span>' + display_line.substring(endCharDisplay);
-      }
-    }
-    else {
-      if (k === startLine) {
-        display_line = display_line.substring(0, startCharDisplay) + '<span class="highlight">' + display_line.substring(startCharDisplay);
-      }
-      if (k === endLine) {
-        if (endChar === ori_line.length) {
-          display_line = display_line.substring(0, endCharDisplay) + '</span>';
-        }else{
-          display_line = display_line.substring(0, endCharDisplay) + '</span>'+ display_line.substring(endCharDisplay);
-        }
-      }
-    }
+  var pre_text = fileContent.substring(0, startOffset);
+  var highlight_text = fileContent.substring(startOffset, endOffset+1);
+  var post_text = fileContent.substring(endOffset+1)
 
-    display_lines[k] = display_line;
-  }
+  var pre_to_display = replaceSpecialMarks(pre_text);
+  var highlight_to_display = replaceSpecialMarks(highlight_text);
+  var post_to_display = replaceSpecialMarks(post_text);
+  var highlightedText = pre_to_display + '<span class="highlight">' + highlight_to_display + '</span>' + post_to_display
 
-  var currentRange = document.getElementById('fileInput').name;
-  alert("Source region highlighted at: " + currentRange);
-  console.log("Annotated source region: " + currentRange);
+  alert("Source region highlighted at: [" + range + "]");
+  console.log("Annotated source region: [" + range + "]");
 
   // Reconstruct the paragraph with highlighted ranges
-  var highlightedText = display_lines.join('\n');
   document.getElementById('codeTextarea').innerHTML = highlightedText;
 }
