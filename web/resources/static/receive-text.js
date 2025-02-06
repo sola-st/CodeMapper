@@ -18,8 +18,12 @@ document.getElementById("loadData").onclick = function () {
   getFileContents(targetUrl, true);
 }
 
+const headers = {
+  Authorization: `token ${process.env.GITHUB_TOKEN}`,
+};
+
 function getFileContents(url, target = false) {
-  fetch(url)
+  fetch(url, { headers })
     .then(response => {
       if (!response.ok) {
         throw new Error(`Network response was not ok: ${response.statusText}`);
