@@ -5,14 +5,10 @@
 
 **[Important] GitHub token setting.**
 - Escapes the 60 requests per hour limit.
-- Now the token is read from the environment variables: (lines 21--23 of file _web/resources/static/receive-text.js_.)
-```
-const headers = {
-  Authorization: `token ${process.env.GITHUB_TOKEN}`,
-};
-```
-If this does not work on your machine, **check the environment variable name or hardcode it if needed.**
- 
+- **Have to hard code the token to make the page works for our annotation**
+(Lines 21-23 of file _web/resources/static/receive-text.js_.)
+    - So far, the way in lines 21--23 only works in node.js environment. 
+- **A safer way comes later...** Instead of exposing the token in the frontend, create a backend that makes GitHub API requests on behalf of the client.
 
 ### The main page (index.html) includes 4 big areas:  
 - Title area
