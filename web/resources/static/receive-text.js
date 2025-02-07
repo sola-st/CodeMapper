@@ -71,6 +71,9 @@ function highlightSourceRange(fileContent, range) {
   var startOffset = lines.slice(0, startLine).join('\n').length + startChar;
   var endOffset = lines.slice(0, endLine).join('\n').length + endChar;
 
+  if (startOffset == 1) {
+    startOffset = 0;
+  }
   var pre_text = fileContent.substring(0, startOffset);
   var highlight_text = fileContent.substring(startOffset, endOffset+1);
   var post_text = fileContent.substring(endOffset+1)
