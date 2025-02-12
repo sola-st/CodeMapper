@@ -28,7 +28,7 @@ def get_data(file_list):
         recall_set_keep.append(recall_set)
     return recall_set_to_numbers #, recall_set_keep
 
-def plot_recall_sets(data, xticklabels, plot_pdf):
+def plot_recall_sets_single_plot(data, xticklabels, plot_pdf):
     # Extract recall, precision, and f1-scores
     recall = [d[0] for d in data]
     precision = [d[1] for d in data]
@@ -38,8 +38,9 @@ def plot_recall_sets(data, xticklabels, plot_pdf):
     ind = np.arange(n_sets)[::-1]*0.4  # Y locations for the groups
     width = 0.1  # Width of the bars
 
-    plt.rcParams.update({'font.size': 12})
-    fig, ax = plt.subplots(figsize=(5, 5))
+    plt.rcParams["pdf.fonttype"] = 42
+    plt.rcParams.update({'font.size': 10})
+    fig, ax = plt.subplots(figsize=(4, 3))
 
     rects1 = ax.barh(ind + width, recall, width, label='Recall', color='skyblue')
     rects2 = ax.barh(ind, precision, width, label='Precision', color='darkseagreen')
@@ -51,11 +52,49 @@ def plot_recall_sets(data, xticklabels, plot_pdf):
     rc('axes')
     ax.set_yticks(ind)
     ax.set_yticklabels(xticklabels)
-    # ax.legend(loc='lower left', bbox_to_anchor=(0, 0), prop={'size': 9})
-    ax.legend(loc='upper right', bbox_to_anchor=(1, 1), prop={'size': 12})
+    ax.legend(loc='upper right', bbox_to_anchor=(1, 1), prop={'size': 10})
 
     plt.tight_layout(pad=0)
     plt.savefig(plot_pdf)
+
+def plot_recall_sets_sub_plot(ax, data, xticklabels, title, show_yticks):
+    # Extract recall, precision, and f1-scores
+    recall = [d[0] for d in data]
+    precision = [d[1] for d in data]
+    f1_score = [d[2] for d in data]
+
+    n_sets = len(data)
+    ind = np.arange(n_sets)[::-1] * 0.4  # Y locations for the groups
+    width = 0.1  # Width of the bars
+
+    rects1 = ax.barh(ind + width, recall, width, label='Recall', color='skyblue')
+    rects2 = ax.barh(ind, precision, width, label='Precision', color='darkseagreen')
+    rects3 = ax.barh(ind - width, f1_score, width, label='F1-score', color='lightsalmon')
+    autolabel(ax, rects1)
+    autolabel(ax, rects2)
+    autolabel(ax, rects3)
+
+    # Only show y-tick labels for the first subplot
+    if show_yticks:
+        ax.set_yticks(ind)
+        ax.set_yticklabels(xticklabels)
+        ax.legend(loc='lower left', prop={'size': 10})
+    else:
+        ax.set_yticks(ind)
+        ax.set_yticklabels([])
+
+    ax.set_title(title)
+    
+
+def plot_all_recall_sets(datasets, xticklabels, titles, output_pdf):
+    plt.rcParams["pdf.fonttype"] = 42
+    fig, axes = plt.subplots(1, len(datasets), figsize=(12, 4), sharey=True)  # Share Y-axis labels
+
+    for i, (data, title) in enumerate(zip(datasets, titles)):
+        plot_recall_sets_sub_plot(axes[i], data, xticklabels, title, show_yticks=(i == 2))  # Show y-labels only once
+
+    plt.tight_layout()
+    plt.savefig(output_pdf)
 
 
 def autolabel(ax, rects):
@@ -69,7 +108,7 @@ def autolabel(ax, rects):
             ha='right',                       # Horizontal alignment: right
             va='center',                      # Vertical alignment: center
             color='white',                    # Text color
-            fontsize=12                       # Font size
+            fontsize=10                       # Font size
         )
 
 class PlotAnnoSuppressionResultsAblation():
@@ -79,34 +118,31 @@ class PlotAnnoSuppressionResultsAblation():
         self.xticklabels = xticklabels
         self.output_dir = output_dir
 
-    def annotated_data_main(self):
-        common_specific_folder = join(self.common_file_folder, "annodata")
-        file_name_base = "measurement_results_metrics_annodata"
+    def run(self, dataset, overall_plot=True):
+        common_specific_folder = join(self.common_file_folder, dataset)
+        file_name_base = f"measurement_results_metrics_{dataset}"
 
         file_list = []
         for suffix in self.file_suffies:
             file_list.append(join(common_specific_folder, f"{file_name_base}_{suffix}.csv"))
-        file_list.append(join(common_specific_folder, f"{file_name_base}_15.csv")) # the one for AnythingTracker
+        file_list.append(join(common_specific_folder, f"{file_name_base}.csv")) # the one for our approach
 
         data = get_data(file_list)
-        plot_pdf = join(output_dir, "annodata_ablation_plot.pdf")
-        plot_recall_sets(data, xticklabels, plot_pdf)
-
-    def suppression_main(self):
-        common_specific_folder = join(self.common_file_folder, "suppression")
-        file_name_base = "measurement_results_metrics_suppression"
-
-        file_list = []
-        for suffix in self.file_suffies:
-            file_list.append(join(common_specific_folder, f"{file_name_base}_{suffix}.csv"))
-        file_list.append(join(common_specific_folder, f"{file_name_base}_15.csv"))
-
-        data = get_data(file_list)
-        plot_pdf = join(output_dir, "suppression_ablation_plot.pdf")
-        plot_recall_sets(data, xticklabels, plot_pdf)
+        if overall_plot:
+            return data
+        else:
+            plot_pdf = join(output_dir, f"{dataset}_ablation_plot.pdf")
+            plot_recall_sets_single_plot(data, xticklabels, plot_pdf)
 
 
 if __name__=="__main__":
+    '''
+    Two options for visualizing ablation study results:
+     1. generate a single plot for each dataset
+     2. generate an overall plot for all datasets
+    '''
+    option = 2
+
     file_suffies = ["off_diff",  "off_fine", "off_move", "off_search", "off_context"]
     common_file_folder = join("data", "results", "measurement_results")
     xticklabels = ["Disable diff-based\ncandidate extraction", 
@@ -114,9 +150,23 @@ if __name__=="__main__":
                    "Disable movement\ndetection", 
                    "Disable text search", 
                    "Disable context-aware\nsimilarity",
-                   "AnythingTracker"]
+                   "RegionTracker"]
     output_dir = join("data", "results", "table_plots")
     makedirs(output_dir, exist_ok=True)
     init = PlotAnnoSuppressionResultsAblation(file_suffies, common_file_folder, xticklabels, output_dir)
-    init.annotated_data_main()
-    init.suppression_main()
+
+    if option == 1:
+        init.run("annotation_a", False)
+        init.run("annotation_b", False)
+        init.run("suppression", False)
+        print("Plot generation done.")
+    else:
+        annodata_a = init.run("annotation_a", False)
+        annodata_b = init.run("annotation_b", False)
+        suppression_data = init.run("suppression", False)
+        data = [annodata_a, annodata_b, suppression_data]
+        plot_pdf = join(output_dir, "overall_ablation_plot.pdf")
+        titles = ["Annotated data A", "Annotated data B", "Suppression study data"]
+        plot_all_recall_sets(data, xticklabels, titles, plot_pdf)
+
+

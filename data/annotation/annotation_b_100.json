@@ -1,0 +1,1602 @@
+[
+    {
+        "url": "https://github.com/tailwindlabs/tailwindcss",
+        "mapping": {
+            "source_file": "src/util/formatVariantSelector.js",
+            "target_file": "src/util/formatVariantSelector.js",
+            "source_commit": "005c1be2",
+            "target_commit": "1c9bb387",
+            "source_range": "[32,19,32,31]",
+            "target_range": "[32,19,32,36]",
+            "change_operation": "changed",
+            "kind": "distance: 1",
+            "category": "random node",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/ocornut/imgui",
+        "mapping": {
+            "source_file": "imgui.cpp",
+            "target_file": "imgui.cpp",
+            "source_commit": "014e0ac8",
+            "target_commit": "c16043c1",
+            "source_range": "[10800,13,10800,56]",
+            "target_range": "[10800,13,10800,57]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "consective lines",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/ocornut/imgui",
+        "mapping": {
+            "source_file": "imgui_widgets.cpp",
+            "target_file": "imgui_widgets.cpp",
+            "source_commit": "03417cc7",
+            "target_commit": "09566597",
+            "source_range": "[602,120,602,127]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "distance: 1",
+            "category": "random node",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/facebook/react",
+        "mapping": {
+            "source_file": "compiler/packages/babel-plugin-react-forget/src/ReactiveScopes/BuildReactiveFunction.ts",
+            "target_file": "compiler/packages/babel-plugin-react-forget/src/ReactiveScopes/BuildReactiveFunction.ts",
+            "source_commit": "06376b90",
+            "target_commit": "873a2860",
+            "source_range": "[317,11,317,62]",
+            "target_range": "[317,11,317,62]",
+            "change_operation": "non changed",
+            "kind": "distance: 2",
+            "category": "consective lines",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/facebook/react",
+        "mapping": {
+            "source_file": "compiler/packages/babel-plugin-react-forget/src/Inference/InferReferenceEffects.ts",
+            "target_file": "compiler/packages/babel-plugin-react-forget/src/Inference/InferReferenceEffects.ts",
+            "source_commit": "06376b90",
+            "target_commit": "873a2860",
+            "source_range": "[764,22,764,28]",
+            "target_range": "[870,26,870,31]",
+            "change_operation": "changed",
+            "kind": "distance: 2",
+            "category": "random consective nodes",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/mmistakes/minimal-mistakes",
+        "mapping": {
+            "source_file": "docs/_layouts/default.html",
+            "target_file": "docs/_layouts/default.html",
+            "source_commit": "084ddf8d",
+            "target_commit": "9269842e",
+            "source_range": "[48,6,48,10]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random node",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/vuejs/vue",
+        "mapping": {
+            "source_file": "examples/composition/todomvc.html",
+            "target_file": "examples/composition/todomvc.html",
+            "source_commit": "0f2cede3",
+            "target_commit": "a122bd25",
+            "source_range": "[1,1,1,41]",
+            "target_range": "[1,1,1,45]",
+            "change_operation": "changed",
+            "kind": "distance: 3",
+            "category": "consective lines",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/microsoft/PowerToys",
+        "mapping": {
+            "source_file": "src/modules/fancyzones/FancyZonesLib/FancyZonesWindowProcessing.cpp",
+            "target_file": "src/modules/fancyzones/FancyZonesLib/FancyZonesWindowProcessing.cpp",
+            "source_commit": "0fec6d08",
+            "target_commit": "c2d31435",
+            "source_range": "[37,23,37,72]",
+            "target_range": "[37,23,37,72]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random node",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/vuejs/vue",
+        "mapping": {
+            "source_file": "src/core/instance/init.ts",
+            "target_file": "src/core/instance/init.ts",
+            "source_commit": "13f4e7dc",
+            "target_commit": "3e1037e4",
+            "source_range": "[37,5,39,32]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "distance: 2",
+            "category": "consective lines",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/vuejs/vue",
+        "mapping": {
+            "source_file": "src/shared/util.ts",
+            "target_file": "src/shared/util.ts",
+            "source_commit": "15b9b9b1",
+            "target_commit": "ff5acb12",
+            "source_range": "[336,2,336,65]",
+            "target_range": "[336,2,336,65]",
+            "change_operation": "non changed",
+            "kind": "neighboring",
+            "category": "consective lines",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/mmistakes/minimal-mistakes",
+        "mapping": {
+            "source_file": "_layouts/single.html",
+            "target_file": "_layouts/single.html",
+            "source_commit": "18e89666",
+            "target_commit": "6f0ba5e3",
+            "source_range": "[63,7,63,40]",
+            "target_range": "[59,7,59,40]",
+            "change_operation": "non changed",
+            "kind": "distance: 4",
+            "category": "consective lines",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/minio/minio",
+        "mapping": {
+            "source_file": "internal/grid/connection.go",
+            "target_file": "internal/grid/connection.go",
+            "source_commit": "19387caf",
+            "target_commit": "83bf15a7",
+            "source_range": "[226,5,226,44]",
+            "target_range": "[226,5,226,44]",
+            "change_operation": "non changed",
+            "kind": "distance: 2",
+            "category": "random consective nodes",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/minio/minio",
+        "mapping": {
+            "source_file": "internal/grid/manager.go",
+            "target_file": "internal/grid/manager.go",
+            "source_commit": "19387caf",
+            "target_commit": "83bf15a7",
+            "source_range": "[171,62,171,64]",
+            "target_range": "[192,47,192,49]",
+            "change_operation": "changed",
+            "kind": "distance: 2",
+            "category": "random node",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/netty/netty",
+        "mapping": {
+            "source_file": "transport-classes-epoll/src/main/java/io/netty/channel/epoll/EpollEventLoopGroup.java",
+            "target_file": "transport-classes-epoll/src/main/java/io/netty/channel/epoll/EpollEventLoopGroup.java",
+            "source_commit": "1c7f0faa",
+            "target_commit": "dc16c581",
+            "source_range": "[39,5,40,70]",
+            "target_range": "[38,5,39,70]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "consective lines",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/thanos-io/thanos",
+        "mapping": {
+            "source_file": "pkg/api/query/grpc.go",
+            "target_file": "pkg/api/query/grpc.go",
+            "source_commit": "1cf333e2",
+            "target_commit": "6a0a4910",
+            "source_range": "[182,24,182,31]",
+            "target_range": "[181,24,181,30]",
+            "change_operation": "non changed",
+            "kind": "neighboring",
+            "category": "random consective nodes",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/thanos-io/thanos",
+        "mapping": {
+            "source_file": "pkg/dedup/iter.go",
+            "target_file": "pkg/dedup/iter.go",
+            "source_commit": "1cf333e2",
+            "target_commit": "6a0a4910",
+            "source_range": "[174,2,182,52]",
+            "target_range": "[144,2,150,26]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "consective lines",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/sqlitebrowser/sqlitebrowser",
+        "mapping": {
+            "source_file": "src/Application.cpp",
+            "target_file": "src/Application.cpp",
+            "source_commit": "1ecaf1ee",
+            "target_commit": "a102cea0",
+            "source_range": "[100,46,100,114]",
+            "target_range": "[100,46,100,114]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random node",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/ocornut/imgui",
+        "mapping": {
+            "source_file": "imgui.cpp",
+            "target_file": "imgui.cpp",
+            "source_commit": "1fade351",
+            "target_commit": "58ca5f64",
+            "source_range": "[9867,5,9868,57]",
+            "target_range": "[9867,5,9867,53]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "consective lines",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/apache/superset",
+        "mapping": {
+            "source_file": "tests/integration_tests/core_tests.py",
+            "target_file": "tests/integration_tests/core_tests.py",
+            "source_commit": "1ff4f79d",
+            "target_commit": "17764059",
+            "source_range": "[224,9,224,30]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "distance: 3",
+            "category": "random node",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/cookiecutter/cookiecutter",
+        "mapping": {
+            "source_file": "tests/test_custom_extensions_in_hooks.py",
+            "target_file": "tests/test_custom_extensions_in_hooks.py",
+            "source_commit": "24472a80",
+            "target_commit": "262af423",
+            "source_range": "[12,19,12,24]",
+            "target_range": "[12,19,12,24]",
+            "change_operation": "non changed",
+            "kind": "distance: 3",
+            "category": "random node",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/thanos-io/thanos",
+        "mapping": {
+            "source_file": "pkg/store/prometheus.go",
+            "target_file": "pkg/store/prometheus.go",
+            "source_commit": "28407d61",
+            "target_commit": "e578b1f7",
+            "source_range": "[707,3,707,55]",
+            "target_range": "[707,3,707,44]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "consective lines",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/microsoft/PowerToys",
+        "mapping": {
+            "source_file": "src/modules/launcher/Plugins/Community.PowerToys.Run.Plugin.ValueGenerator/Main.cs",
+            "target_file": "src/modules/launcher/Plugins/Community.PowerToys.Run.Plugin.ValueGenerator/Main.cs",
+            "source_commit": "2a544583",
+            "target_commit": "7c0f24df",
+            "source_range": "[96,17,96,55]",
+            "target_range": "[96,17,100,40]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "consective lines",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/tailwindlabs/tailwindcss",
+        "mapping": {
+            "source_file": "standalone-cli/standalone.js",
+            "target_file": "standalone-cli/standalone.js",
+            "source_commit": "2dcb1fcd",
+            "target_commit": "e26a1ba5",
+            "source_range": "[1,1,3,53]",
+            "target_range": "[1,1,1,53]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "consective lines",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/apache/superset",
+        "mapping": {
+            "source_file": "superset/advanced_data_type/plugins/internet_port.py",
+            "target_file": "superset/advanced_data_type/plugins/internet_port.py",
+            "source_commit": "3224ac18",
+            "target_commit": "152cd70b",
+            "source_range": "[52,5,52,20]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "distance: 3",
+            "category": "random consective nodes",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/ocornut/imgui",
+        "mapping": {
+            "source_file": "imgui.cpp",
+            "target_file": "imgui.cpp",
+            "source_commit": "33d42684",
+            "target_commit": "0000739c",
+            "source_range": "[10380,17,10380,68]",
+            "target_range": "[10380,17,10380,67]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "consective lines",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/elastic/elasticsearch",
+        "mapping": {
+            "source_file": "server/src/main/java/org/elasticsearch/action/fieldcaps/FieldCapabilitiesFetcher.java",
+            "target_file": "server/src/main/java/org/elasticsearch/action/fieldcaps/FieldCapabilitiesFetcher.java",
+            "source_commit": "35b2dbee",
+            "target_commit": "5f3e4aea",
+            "source_range": "[240,9,240,22]",
+            "target_range": "[240,9,240,22]",
+            "change_operation": "non changed",
+            "kind": "distance: 2",
+            "category": "random consective nodes",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/thanos-io/thanos",
+        "mapping": {
+            "source_file": "pkg/query/remote_engine.go",
+            "target_file": "pkg/query/remote_engine.go",
+            "source_commit": "36ce448d",
+            "target_commit": "e578b1f7",
+            "source_range": "[263,35,263,50]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "distance: 1",
+            "category": "random consective nodes",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/deepinsight/insightface",
+        "mapping": {
+            "source_file": "body/human_pose/ambiguity_aware/lib/core/function1.py",
+            "target_file": "body/human_pose/ambiguity_aware/lib/core/function1.py",
+            "source_commit": "39658117",
+            "target_commit": "c45ed946",
+            "source_range": "[322,17,322,38]",
+            "target_range": "[322,18,322,39]",
+            "change_operation": "changed",
+            "kind": "distance: 3",
+            "category": "random consective nodes",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/apache/superset",
+        "mapping": {
+            "source_file": "tests/unit_tests/fixtures/bash_mock.py",
+            "target_file": "tests/unit_tests/fixtures/bash_mock.py",
+            "source_commit": "39973cd3",
+            "target_commit": "d8f7e2ce",
+            "source_range": "[21,1,21,15]",
+            "target_range": "[21,1,21,15]",
+            "change_operation": "non changed",
+            "kind": "distance: 4",
+            "category": "consective lines",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/minio/minio",
+        "mapping": {
+            "source_file": "docs/debugging/pprofgoparser/main.go",
+            "target_file": "docs/debugging/pprofgoparser/main.go",
+            "source_commit": "467714f3",
+            "target_commit": "828d4df6",
+            "source_range": "[29,2,29,9]",
+            "target_range": "[29,2,29,9]",
+            "change_operation": "non changed",
+            "kind": "neighboring",
+            "category": "consective lines",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/facebook/react",
+        "mapping": {
+            "source_file": "compiler/packages/babel-plugin-react-forget/src/Entrypoint/index.ts",
+            "target_file": "compiler/packages/babel-plugin-react-forget/src/Entrypoint/index.ts",
+            "source_commit": "48024b76",
+            "target_commit": "24ed13e1",
+            "source_range": "[13,15,13,29]",
+            "target_range": "[8,15,8,35]",
+            "change_operation": "changed",
+            "kind": "distance: 1",
+            "category": "random consective nodes",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/facebook/react",
+        "mapping": {
+            "source_file": "compiler/packages/babel-plugin-react-forget/src/Entrypoint/Program.ts",
+            "target_file": "compiler/packages/babel-plugin-react-forget/src/Entrypoint/Program.ts",
+            "source_commit": "48024b76",
+            "target_commit": "24ed13e1",
+            "source_range": "[606,5,606,76]",
+            "target_range": "[603,5,603,76]",
+            "change_operation": "non changed",
+            "kind": "distance: 1",
+            "category": "consective lines",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/laravel/laravel",
+        "mapping": {
+            "source_file": "config/app.php",
+            "target_file": "config/app.php",
+            "source_commit": "4ca1a394",
+            "target_commit": "e121424f",
+            "source_range": "[59,24,59,34]",
+            "target_range": "[59,24,59,34]",
+            "change_operation": "changed",
+            "kind": "distance: 4",
+            "category": "random node",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/minio/minio",
+        "mapping": {
+            "source_file": "internal/dsync/lock-args.go",
+            "target_file": "internal/dsync/lock-args.go",
+            "source_commit": "4d2320ba",
+            "target_commit": "a4a74e98",
+            "source_range": "[35,2,35,70]",
+            "target_range": "[35,2,35,70]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random node",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/vuejs/vue",
+        "mapping": {
+            "source_file": "src/v3/apiSetup.ts",
+            "target_file": "src/v3/apiSetup.ts",
+            "source_commit": "52cf912d",
+            "target_commit": "2d676416",
+            "source_range": "[74,5,74,54]",
+            "target_range": "[74,5,74,54]",
+            "change_operation": "non changed",
+            "kind": "distance: 2",
+            "category": "consective lines",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/ocornut/imgui",
+        "mapping": {
+            "source_file": "imgui_widgets.cpp",
+            "target_file": "imgui_widgets.cpp",
+            "source_commit": "5366bd09",
+            "target_commit": "58ca5f64",
+            "source_range": "[8260,24,8260,93]",
+            "target_range": "[8260,24,8260,56]",
+            "change_operation": "changed",
+            "kind": "distance: 2",
+            "category": "random node",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/sqlitebrowser/sqlitebrowser",
+        "mapping": {
+            "source_file": "src/translations/sqlb_it.ts",
+            "target_file": "src/translations/sqlb_it.ts",
+            "source_commit": "5759c728",
+            "target_commit": "f08ec637",
+            "source_range": "[2630,28,2630,35]",
+            "target_range": "[2630,28,2630,35]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random consective nodes",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/elastic/elasticsearch",
+        "mapping": {
+            "source_file": "server/src/main/java/org/elasticsearch/index/mapper/flattened/FlattenedFieldMapper.java",
+            "target_file": "server/src/main/java/org/elasticsearch/index/mapper/flattened/FlattenedFieldMapper.java",
+            "source_commit": "5920c917",
+            "target_commit": "0d0b319b",
+            "source_range": "[208,17,208,120]",
+            "target_range": "[208,17,208,118]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "consective lines",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/elastic/elasticsearch",
+        "mapping": {
+            "source_file": "modules/mapper-extras/src/main/java/org/elasticsearch/index/mapper/extras/SearchAsYouTypeFieldMapper.java",
+            "target_file": "modules/mapper-extras/src/main/java/org/elasticsearch/index/mapper/extras/SearchAsYouTypeFieldMapper.java",
+            "source_commit": "5920c917",
+            "target_commit": "0d0b319b",
+            "source_range": "[231,56,231,62]",
+            "target_range": "[231,56,231,62]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random node",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/laravel/laravel",
+        "mapping": {
+            "source_file": "config/queue.php",
+            "target_file": "config/queue.php",
+            "source_commit": "64685e6f",
+            "target_commit": "9184b212",
+            "source_range": "[88,45,88,49]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "distance: 3",
+            "category": "random node",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/vuejs/vue",
+        "mapping": {
+            "source_file": "types/v3-setup-helpers.d.ts",
+            "target_file": "types/v3-setup-helpers.d.ts",
+            "source_commit": "67c1d26c",
+            "target_commit": "bb59751d",
+            "source_range": "[113,6,113,7]",
+            "target_range": "[113,6,113,7]",
+            "change_operation": "changed",
+            "kind": "distance: 1",
+            "category": "random node",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/vuejs/vue",
+        "mapping": {
+            "source_file": "packages/compiler-sfc/src/compileScript.ts",
+            "target_file": "packages/compiler-sfc/src/compileScript.ts",
+            "source_commit": "67c1d26c",
+            "target_commit": "bb59751d",
+            "source_range": "[49,1,49,18]",
+            "target_range": "[49,1,49,18]",
+            "change_operation": "non changed",
+            "kind": "distance: 1",
+            "category": "consective lines",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/minio/minio",
+        "mapping": {
+            "source_file": "cmd/api-router.go",
+            "target_file": "cmd/api-router.go",
+            "source_commit": "6ae97aed",
+            "target_commit": "8b68e0bf",
+            "source_range": "[513,3,513,8]",
+            "target_range": "[513,3,513,8]",
+            "change_operation": "non changed",
+            "kind": "neighboring",
+            "category": "random consective nodes",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/cookiecutter/cookiecutter",
+        "mapping": {
+            "source_file": "tests/test_read_user_choice.py",
+            "target_file": "tests/test_read_user_choice.py",
+            "source_commit": "6badb2e9",
+            "target_commit": "632eebdd",
+            "source_range": "[32,54,32,64]",
+            "target_range": "[28,76,28,86]",
+            "change_operation": "changed",
+            "kind": "distance: 1",
+            "category": "random node",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/minio/minio",
+        "mapping": {
+            "source_file": "cmd/xl-storage-disk-id-check.go",
+            "target_file": "cmd/xl-storage-disk-id-check.go",
+            "source_commit": "6c912ac9",
+            "target_commit": "4a6c9746",
+            "source_range": "[1041,22,1041,35]",
+            "target_range": "[1002,22,1002,35]",
+            "change_operation": "non changed",
+            "kind": "neighboring",
+            "category": "random node",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/minio/minio",
+        "mapping": {
+            "source_file": "internal/ioutil/ioutil.go",
+            "target_file": "internal/ioutil/ioutil.go",
+            "source_commit": "6c912ac9",
+            "target_commit": "4a6c9746",
+            "source_range": "[134,5,134,16]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random consective nodes",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/ocornut/imgui",
+        "mapping": {
+            "source_file": "imgui_demo.cpp",
+            "target_file": "imgui_demo.cpp",
+            "source_commit": "6cfe3ddf",
+            "target_commit": "f6836ff3",
+            "source_range": "[1482,42,1482,200]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "distance: 2",
+            "category": "random node",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/minio/minio",
+        "mapping": {
+            "source_file": "cmd/globals.go",
+            "target_file": "cmd/globals.go",
+            "source_commit": "6d381f7c",
+            "target_commit": "30a466aa",
+            "source_range": "[422,2,422,68]",
+            "target_range": "[422,2,422,74]",
+            "change_operation": "changed",
+            "kind": "distance: 4",
+            "category": "random node",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/netty/netty",
+        "mapping": {
+            "source_file": "codec-http2/src/test/java/io/netty/handler/codec/http2/DefaultHttp2HeadersEncoderTest.java",
+            "target_file": "codec-http2/src/test/java/io/netty/handler/codec/http2/DefaultHttp2HeadersEncoderTest.java",
+            "source_commit": "73dc1e67",
+            "target_commit": "b8cddab1",
+            "source_range": "[22,8,22,17]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random consective nodes",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/facebook/react",
+        "mapping": {
+            "source_file": "compiler/packages/babel-plugin-react-forget/src/HIR/MergeConsecutiveBlocks.ts",
+            "target_file": "compiler/packages/babel-plugin-react-forget/src/HIR/MergeConsecutiveBlocks.ts",
+            "source_commit": "742a6f09",
+            "target_commit": "a023a2da",
+            "source_range": "[53,7,53,20]",
+            "target_range": "[47,9,47,22]",
+            "change_operation": "changed",
+            "kind": "distance: 4",
+            "category": "random consective nodes",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/ocornut/imgui",
+        "mapping": {
+            "source_file": "imgui.cpp",
+            "target_file": "imgui.cpp",
+            "source_commit": "763100b3",
+            "target_commit": "c7edb446",
+            "source_range": "[12257,9,12257,119]",
+            "target_range": "[12258,9,12258,109]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random consective nodes",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/elastic/elasticsearch",
+        "mapping": {
+            "source_file": "server/src/test/java/org/elasticsearch/common/settings/SettingTests.java",
+            "target_file": "server/src/test/java/org/elasticsearch/common/settings/SettingTests.java",
+            "source_commit": "76cf9271",
+            "target_commit": "0dca71ef",
+            "source_range": "[708,17,708,54]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "distance: 1",
+            "category": "random consective nodes",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/tailwindlabs/tailwindcss",
+        "mapping": {
+            "source_file": "tests/dark-mode.test.js",
+            "target_file": "tests/dark-mode.test.js",
+            "source_commit": "78fedd5c",
+            "target_commit": "3fb57e55",
+            "source_range": "[18,14,18,19]",
+            "target_range": "[18,14,18,19]",
+            "change_operation": "non changed",
+            "kind": "neighboring",
+            "category": "random node",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/tailwindlabs/tailwindcss",
+        "mapping": {
+            "source_file": "tests/modify-selectors.test.js",
+            "target_file": "tests/modify-selectors.test.js",
+            "source_commit": "78fedd5c",
+            "target_commit": "3fb57e55",
+            "source_range": "[38,37,38,47]",
+            "target_range": "[38,37,38,47]",
+            "change_operation": "non changed",
+            "kind": "neighboring",
+            "category": "random consective nodes",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/microsoft/PowerToys",
+        "mapping": {
+            "source_file": "src/modules/launcher/Plugins/Microsoft.Plugin.WindowWalker/Components/ContextMenuHelper.cs",
+            "target_file": "src/modules/launcher/Plugins/Microsoft.Plugin.WindowWalker/Components/ContextMenuHelper.cs",
+            "source_commit": "7d9681ec",
+            "target_commit": "5e666556",
+            "source_range": "[34,21,34,53]",
+            "target_range": "[34,21,34,72]",
+            "change_operation": "changed",
+            "kind": "distance: 3",
+            "category": "consective lines",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/mmistakes/minimal-mistakes",
+        "mapping": {
+            "source_file": "assets/js/plugins/jquery.greedy-navigation.js",
+            "target_file": "assets/js/plugins/jquery.greedy-navigation.js",
+            "source_commit": "7e3a7c1b",
+            "target_commit": "f75d8e55",
+            "source_range": "[55,3,55,54]",
+            "target_range": "[25,3,25,54]",
+            "change_operation": "non changed",
+            "kind": "distance: 4",
+            "category": "random consective nodes",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/elastic/elasticsearch",
+        "mapping": {
+            "source_file": "server/src/test/java/org/elasticsearch/search/SearchServiceTests.java",
+            "target_file": "server/src/test/java/org/elasticsearch/search/SearchServiceTests.java",
+            "source_commit": "7fb4b74b",
+            "target_commit": "b6c3cef8",
+            "source_range": "[1772,77,1772,104]",
+            "target_range": "[1770,77,1770,103]",
+            "change_operation": "changed",
+            "kind": "distance: 3",
+            "category": "random consective nodes",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/thanos-io/thanos",
+        "mapping": {
+            "source_file": "pkg/compact/compact.go",
+            "target_file": "pkg/compact/compact.go",
+            "source_commit": "80a5ce6b",
+            "target_commit": "bee20b9d",
+            "source_range": "[982,9,982,27]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "distance: 1",
+            "category": "random consective nodes",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/vuejs/vue",
+        "mapping": {
+            "source_file": "types/options.d.ts",
+            "target_file": "types/options.d.ts",
+            "source_commit": "810f6d12",
+            "target_commit": "15618888",
+            "source_range": "[98,3,98,37]",
+            "target_range": "[98,3,98,7]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random consective nodes",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/pure-css/pure",
+        "mapping": {
+            "source_file": "Gruntfile.js",
+            "target_file": "Gruntfile.js",
+            "source_commit": "81efd538",
+            "target_commit": "f15c2625",
+            "source_range": "[158,25,158,141]",
+            "target_range": "[158,25,158,117]",
+            "change_operation": "changed",
+            "kind": "distance: 1",
+            "category": "random consective nodes",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/minio/minio",
+        "mapping": {
+            "source_file": "cmd/admin-handlers-users.go",
+            "target_file": "cmd/admin-handlers-users.go",
+            "source_commit": "85bcb587",
+            "target_commit": "2b5e4b85",
+            "source_range": "[1206,3,1206,33]",
+            "target_range": "[1206,3,1207,34]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "consective lines",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/ocornut/imgui",
+        "mapping": {
+            "source_file": "backends/imgui_impl_android.cpp",
+            "target_file": "backends/imgui_impl_android.cpp",
+            "source_commit": "888834c6",
+            "target_commit": "077e4db7",
+            "source_range": "[229,16,229,107]",
+            "target_range": "[229,16,229,110]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random consective nodes",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/tailwindlabs/tailwindcss",
+        "mapping": {
+            "source_file": "src/cli/build/watching.js",
+            "target_file": "src/cli/build/watching.js",
+            "source_commit": "8e4ed705",
+            "target_commit": "17c76094",
+            "source_range": "[167,17,167,24]",
+            "target_range": "[167,17,167,24]",
+            "change_operation": "changed",
+            "kind": "distance: 4",
+            "category": "random consective nodes",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/AvaloniaUI/Avalonia",
+        "mapping": {
+            "source_file": "tests/Avalonia.Base.UnitTests/VisualTests.cs",
+            "target_file": "tests/Avalonia.Base.UnitTests/VisualTests.cs",
+            "source_commit": "92e1c653",
+            "target_commit": "ac91b14c",
+            "source_range": "[376,17,376,39]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random consective nodes",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/tailwindlabs/tailwindcss",
+        "mapping": {
+            "source_file": "src/util/dataTypes.js",
+            "target_file": "src/util/dataTypes.js",
+            "source_commit": "9db2d682",
+            "target_commit": "817c466c",
+            "source_range": "[45,6,45,28]",
+            "target_range": "[45,6,45,28]",
+            "change_operation": "non changed",
+            "kind": "distance: 4",
+            "category": "random consective nodes",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/netty/netty",
+        "mapping": {
+            "source_file": "handler/src/main/java/io/netty/handler/ssl/SslContext.java",
+            "target_file": "handler/src/main/java/io/netty/handler/ssl/SslContext.java",
+            "source_commit": "a0264441",
+            "target_commit": "64c89830",
+            "source_range": "[1089,26,1089,35]",
+            "target_range": "[1084,26,1084,35]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random node",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/netty/netty",
+        "mapping": {
+            "source_file": "handler/src/test/java/io/netty/handler/ssl/SslContextTest.java",
+            "target_file": "handler/src/test/java/io/netty/handler/ssl/SslContextTest.java",
+            "source_commit": "a0264441",
+            "target_commit": "64c89830",
+            "source_range": "[180,9,180,27]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random consective nodes",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/elastic/elasticsearch",
+        "mapping": {
+            "source_file": "server/src/test/java/org/elasticsearch/common/bytes/BytesArrayTests.java",
+            "target_file": "server/src/test/java/org/elasticsearch/common/bytes/BytesArrayTests.java",
+            "source_commit": "ac574acc",
+            "target_commit": "3f8bc367",
+            "source_range": "[36,20,36,77]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random consective nodes",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/elastic/elasticsearch",
+        "mapping": {
+            "source_file": "test/framework/src/main/java/org/elasticsearch/common/bytes/AbstractBytesReferenceTestCase.java",
+            "target_file": "test/framework/src/main/java/org/elasticsearch/common/bytes/AbstractBytesReferenceTestCase.java",
+            "source_commit": "ac574acc",
+            "target_commit": "3f8bc367",
+            "source_range": "[667,13,668,61]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "consective lines",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/AvaloniaUI/Avalonia",
+        "mapping": {
+            "source_file": "src/Avalonia.OpenGL/Egl/EglContext.cs",
+            "target_file": "src/Avalonia.OpenGL/Egl/EglContext.cs",
+            "source_commit": "acc9f03e",
+            "target_commit": "72887ce2",
+            "source_range": "[157,9,157,113]",
+            "target_range": "[157,9,157,137]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "consective lines",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/elastic/elasticsearch",
+        "mapping": {
+            "source_file": "test/external-modules/esql-heap-attack/src/javaRestTest/java/org/elasticsearch/xpack/esql/heap_attack/HeapAttackIT.java",
+            "target_file": "test/external-modules/esql-heap-attack/src/javaRestTest/java/org/elasticsearch/xpack/esql/heap_attack/HeapAttackIT.java",
+            "source_commit": "acfb5004",
+            "target_commit": "d5070720",
+            "source_range": "[13,8,13,11]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random consective nodes",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/netty/netty",
+        "mapping": {
+            "source_file": "codec/src/main/java/io/netty/handler/codec/compression/ByteBufChecksum.java",
+            "target_file": "codec/src/main/java/io/netty/handler/codec/compression/ByteBufChecksum.java",
+            "source_commit": "b135e37e",
+            "target_commit": "6038b594",
+            "source_range": "[73,13,73,82]",
+            "target_range": "[79,13,79,102]",
+            "change_operation": "changed",
+            "kind": "distance: 4",
+            "category": "random consective nodes",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/laravel/laravel",
+        "mapping": {
+            "source_file": "public/index.php",
+            "target_file": "public/index.php",
+            "source_commit": "b1502f3c",
+            "target_commit": "1ad4708d",
+            "source_range": "[16,1,17,19]",
+            "target_range": "[31,1,33,19]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random consective nodes",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/facebook/react",
+        "mapping": {
+            "source_file": "compiler/packages/babel-plugin-react-forget/src/HIR/BuildHIR.ts",
+            "target_file": "compiler/packages/babel-plugin-react-forget/src/HIR/BuildHIR.ts",
+            "source_commit": "bc145f6f",
+            "target_commit": "69733c5a",
+            "source_range": "[378,49,378,56]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "distance: 4",
+            "category": "random consective nodes",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/vuejs/vue",
+        "mapping": {
+            "source_file": "packages/compiler-sfc/src/templateCompilerModules/utils.ts",
+            "target_file": "packages/compiler-sfc/src/templateCompilerModules/utils.ts",
+            "source_commit": "bf64c4da",
+            "target_commit": "0ea6c366",
+            "source_range": "[34,5,34,22]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "distance: 1",
+            "category": "random node",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/vuejs/vue",
+        "mapping": {
+            "source_file": "packages/compiler-sfc/test/compileTemplate.spec.ts",
+            "target_file": "packages/compiler-sfc/test/compileTemplate.spec.ts",
+            "source_commit": "bf64c4da",
+            "target_commit": "0ea6c366",
+            "source_range": "[12,5,12,17]",
+            "target_range": "[12,5,12,17]",
+            "change_operation": "non changed",
+            "kind": "distance: 1",
+            "category": "random consective nodes",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/tailwindlabs/tailwindcss",
+        "mapping": {
+            "source_file": "src/util/dataTypes.js",
+            "target_file": "src/util/dataTypes.js",
+            "source_commit": "bfd04205",
+            "target_commit": "f97759f8",
+            "source_range": "[104,12,104,13]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "distance: 3",
+            "category": "random node",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/AvaloniaUI/Avalonia",
+        "mapping": {
+            "source_file": "src/Avalonia.Controls/Presenters/TextPresenter.cs",
+            "target_file": "src/Avalonia.Controls/Presenters/TextPresenter.cs",
+            "source_commit": "c8bd858e",
+            "target_commit": "0e014f9c",
+            "source_range": "[27,13,27,81]",
+            "target_range": "[27,13,27,81]",
+            "change_operation": "non changed",
+            "kind": "neighboring",
+            "category": "consective lines",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/AvaloniaUI/Avalonia",
+        "mapping": {
+            "source_file": "src/Avalonia.Controls/Primitives/TextSelectionCanvas.cs",
+            "target_file": "src/Avalonia.Controls/Primitives/TextSelectionCanvas.cs",
+            "source_commit": "c8bd858e",
+            "target_commit": "0e014f9c",
+            "source_range": "[254,17,255,39]",
+            "target_range": "[253,13,253,39]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "consective lines",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/netty/netty",
+        "mapping": {
+            "source_file": "codec-http2/src/main/java/io/netty/handler/codec/http2/DefaultHttp2Connection.java",
+            "target_file": "codec-http2/src/main/java/io/netty/handler/codec/http2/DefaultHttp2Connection.java",
+            "source_commit": "ce0366bf",
+            "target_commit": "47e1f43c",
+            "source_range": "[395,23,395,25]",
+            "target_range": "[396,38,396,40]",
+            "change_operation": "changed",
+            "kind": "distance: 2",
+            "category": "random node",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/AvaloniaUI/Avalonia",
+        "mapping": {
+            "source_file": "src/Headless/Avalonia.Headless/HeadlessWindowExtensions.cs",
+            "target_file": "src/Headless/Avalonia.Headless/HeadlessWindowExtensions.cs",
+            "source_commit": "cec229f3",
+            "target_commit": "7b4bfcf7",
+            "source_range": "[95,5,95,17]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random node",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/microsoft/PowerToys",
+        "mapping": {
+            "source_file": "src/modules/launcher/Plugins/Microsoft.PowerToys.Run.Plugin.WindowsSettings/Properties/Resources.Designer.cs",
+            "target_file": "src/modules/launcher/Plugins/Microsoft.PowerToys.Run.Plugin.WindowsSettings/Properties/Resources.Designer.cs",
+            "source_commit": "cf23574c",
+            "target_commit": "ebc7860e",
+            "source_range": "[4523,17,4523,79]",
+            "target_range": "[4523,17,4523,79]",
+            "change_operation": "non changed",
+            "kind": "neighboring",
+            "category": "consective lines",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/AvaloniaUI/Avalonia",
+        "mapping": {
+            "source_file": "src/Windows/Avalonia.Win32/Input/WindowsInputPane.cs",
+            "target_file": "src/Windows/Avalonia.Win32/Input/WindowsInputPane.cs",
+            "source_commit": "d0c7cef4",
+            "target_commit": "beef4760",
+            "source_range": "[84,13,86,13]",
+            "target_range": "[77,9,79,9]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "consective lines",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/elastic/elasticsearch",
+        "mapping": {
+            "source_file": "server/src/main/java/org/elasticsearch/rest/RestRequest.java",
+            "target_file": "server/src/main/java/org/elasticsearch/rest/RestRequest.java",
+            "source_commit": "d26214f4",
+            "target_commit": "a9783c4f",
+            "source_range": "[646,9,646,52]",
+            "target_range": "[636,9,636,52]",
+            "change_operation": "non changed",
+            "kind": "distance: 1",
+            "category": "consective lines",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/sqlitebrowser/sqlitebrowser",
+        "mapping": {
+            "source_file": "src/translations/sqlb_zh_TW.ts",
+            "target_file": "src/translations/sqlb_zh_TW.ts",
+            "source_commit": "d2f484f0",
+            "target_commit": "f3b4b6db",
+            "source_range": "[4407,19,4407,58]",
+            "target_range": "[4404,19,4404,58]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random node",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/sqlitebrowser/sqlitebrowser",
+        "mapping": {
+            "source_file": "src/translations/sqlb_cs.ts",
+            "target_file": "src/translations/sqlb_cs.ts",
+            "source_commit": "d2f484f0",
+            "target_commit": "f3b4b6db",
+            "source_range": "[3882,9,3882,60]",
+            "target_range": "[3886,9,3886,60]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "consective lines",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/microsoft/PowerToys",
+        "mapping": {
+            "source_file": "src/settings-ui/Settings.UI/ViewModels/GeneralViewModel.cs",
+            "target_file": "src/settings-ui/Settings.UI/ViewModels/GeneralViewModel.cs",
+            "source_commit": "d37c1244",
+            "target_commit": "ddeb8563",
+            "source_range": "[308,24,309,67]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "distance: 3",
+            "category": "random consective nodes",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/AvaloniaUI/Avalonia",
+        "mapping": {
+            "source_file": "src/Avalonia.Diagnostics/Diagnostics/Views/MainView.xaml.cs",
+            "target_file": "src/Avalonia.Diagnostics/Diagnostics/Views/MainView.xaml.cs",
+            "source_commit": "d44bd39f",
+            "target_commit": "9c94e921",
+            "source_range": "[46,71,46,88]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "distance: 1",
+            "category": "random node",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/cookiecutter/cookiecutter",
+        "mapping": {
+            "source_file": "tests/test_prompt.py",
+            "target_file": "tests/test_prompt.py",
+            "source_commit": "d9570b27",
+            "target_commit": "982940ae",
+            "source_range": "[57,13,57,81]",
+            "target_range": "[57,13,57,81]",
+            "change_operation": "non changed",
+            "kind": "distance: 3",
+            "category": "consective lines",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/minio/minio",
+        "mapping": {
+            "source_file": "cmd/erasure-object.go",
+            "target_file": "cmd/erasure-object.go",
+            "source_commit": "e046eb1d",
+            "target_commit": "794a7993",
+            "source_range": "[1043,4,1043,23]",
+            "target_range": "[1043,4,1043,23]",
+            "change_operation": "non changed",
+            "kind": "distance: 2",
+            "category": "consective lines",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/vuejs/vue",
+        "mapping": {
+            "source_file": "src/core/instance/state.ts",
+            "target_file": "src/core/instance/state.ts",
+            "source_commit": "e1342df7",
+            "target_commit": "0d6d972b",
+            "source_range": "[66,27,66,39]",
+            "target_range": "[72,20,72,32]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random node",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/cookiecutter/cookiecutter",
+        "mapping": {
+            "source_file": "cookiecutter/find.py",
+            "target_file": "cookiecutter/find.py",
+            "source_commit": "e162629e",
+            "target_commit": "2e2691dd",
+            "source_range": "[23,13,24,17]",
+            "target_range": "[21,13,22,17]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random node",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/sqlitebrowser/sqlitebrowser",
+        "mapping": {
+            "source_file": "src/translations/sqlb_pl.ts",
+            "target_file": "src/translations/sqlb_pl.ts",
+            "source_commit": "e39ea5d0",
+            "target_commit": "641da2d7",
+            "source_range": "[1376,13,1376,39]",
+            "target_range": "[1382,13,1382,81]",
+            "change_operation": "changed",
+            "kind": "distance: 3",
+            "category": "consective lines",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/laravel/laravel",
+        "mapping": {
+            "source_file": "config/mail.php",
+            "target_file": "config/mail.php",
+            "source_commit": "e96d21dd",
+            "target_commit": "a5fddf7b",
+            "source_range": "[50,13,50,23]",
+            "target_range": "[50,13,50,23]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random node",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/thanos-io/thanos",
+        "mapping": {
+            "source_file": "pkg/store/acceptance_test.go",
+            "target_file": "pkg/store/acceptance_test.go",
+            "source_commit": "ee9288f0",
+            "target_commit": "8aa07f67",
+            "source_range": "[746,76,746,89]",
+            "target_range": "[752,70,752,83]",
+            "change_operation": "changed",
+            "kind": "distance: 3",
+            "category": "random node",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/thanos-io/thanos",
+        "mapping": {
+            "source_file": "internal/cortex/querier/queryrange/results_cache.go",
+            "target_file": "internal/cortex/querier/queryrange/results_cache.go",
+            "source_commit": "ee9288f0",
+            "target_commit": "8aa07f67",
+            "source_range": "[308,1,308,63]",
+            "target_range": "[314,2,314,64]",
+            "change_operation": "changed",
+            "kind": "distance: 3",
+            "category": "consective lines",
+            "time_order": "old to new",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/minio/minio",
+        "mapping": {
+            "source_file": "cmd/endpoint.go",
+            "target_file": "cmd/endpoint.go",
+            "source_commit": "f8696cc8",
+            "target_commit": "9a7c7ab2",
+            "source_range": "[322,16,322,20]",
+            "target_range": "[313,16,313,20]",
+            "change_operation": "non changed",
+            "kind": "neighboring",
+            "category": "random node",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/minio/minio",
+        "mapping": {
+            "source_file": "cmd/background-newdisks-heal-ops.go",
+            "target_file": "cmd/background-newdisks-heal-ops.go",
+            "source_commit": "f8696cc8",
+            "target_commit": "9a7c7ab2",
+            "source_range": "[390,14,390,19]",
+            "target_range": null,
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random node",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/microsoft/PowerToys",
+        "mapping": {
+            "source_file": "src/settings-ui/Settings.UI/SettingsXAML/MainWindow.xaml.cs",
+            "target_file": "src/settings-ui/Settings.UI/SettingsXAML/MainWindow.xaml.cs",
+            "source_commit": "faea17b6",
+            "target_commit": "5439f949",
+            "source_range": "[115,54,115,84]",
+            "target_range": "[121,54,121,84]",
+            "change_operation": "changed",
+            "kind": "neighboring",
+            "category": "random consective nodes",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    },
+    {
+        "url": "https://github.com/AvaloniaUI/Avalonia",
+        "mapping": {
+            "source_file": "src/Avalonia.Base/Input/PointerOverPreProcessor.cs",
+            "target_file": "src/Avalonia.Base/Input/PointerOverPreProcessor.cs",
+            "source_commit": "fb6763d5",
+            "target_commit": "fa7b4709",
+            "source_range": "[52,49,52,62]",
+            "target_range": "[51,45,51,58]",
+            "change_operation": "changed",
+            "kind": "distance: 1",
+            "category": "random node",
+            "time_order": "new to old",
+            "detail": ""
+        }
+    }
+]

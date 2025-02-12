@@ -79,12 +79,13 @@ class BaselineOnAnnoData():
 
 
 if __name__ == "__main__":
+    dataset = "annotation_b" # "a" or "b" for annotated data
     levels = ["line", "word"]
     for level in levels:
-        result_dir_parent = join("data", "results", "tracked_maps", "annodata", f"mapped_regions_annodata_{level}")
-        oracle_file = join("data", "annotation", "annotations_100.json")
-        time_file_folder = join("data", "results", "execution_time", "annodata")
+        result_dir_parent = join("data", "results", "tracked_maps", dataset, f"mapped_regions_{dataset}_{level}")
+        oracle_file = join("data", "annotation", f"{dataset}_100.json")
+        time_file_folder = join("data", "results", "execution_time", dataset)
         makedirs(time_file_folder, exist_ok=True)
-        time_file_to_write = join(time_file_folder, f"execution_time_annodata_{level}.csv")
+        time_file_to_write = join(time_file_folder, f"execution_time_{dataset}_{level}.csv")
         BaselineOnAnnoData(oracle_file, result_dir_parent, time_file_to_write, level).run()
         print(f"Baseline {level} level done.")

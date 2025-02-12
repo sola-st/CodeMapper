@@ -99,7 +99,7 @@ def generate_table(data, caption, label, tex_file):
     row_names = ["Overlapping", "Exact matches", "Char. dist. of partial overlaps", "Recall", "Precision", "F1-score"]
     col_names = ["", "diff\\textsubscript{line}", "diff\\textsubscript{word}", "\\name{}"]
 
-    latex_table = "\\begin{table}[t]\n\\centering\n\\footnotesize\n"
+    latex_table = "\\begin{table}[t]\n\\centering\n" # \\footnotesize\n
     latex_table += "\\caption{" + caption + "}\n"
     latex_table += "\\begin{tabular}{@{}" + "l" + "".join(["r"] * len(col_names)) + "@{}}\n"
     latex_table += "\\hline\n"
@@ -120,19 +120,18 @@ def generate_table(data, caption, label, tex_file):
     with open(tex_file, "w") as f:
         f.write(latex_table + "\n")
 
-def annotated_data_main(common_folder, output_dir):
-    # annotated data
-    common = join(common_folder, "annodata")
-    file_name_base = "measurement_results_metrics_annodata"
+def annotated_data_main(common_folder, version, output_dir):
+    common = join(common_folder, f"annotation_{version}")
+    file_name_base = f"measurement_results_metrics_annotation_{version}"
     file_list = [
             join(common, f"{file_name_base}_line.csv"),
             join(common, f"{file_name_base}_word.csv"),
             join(common, f"{file_name_base}.csv")]
     data = get_data(file_list)
-    caption = "Results on tracking manually annotated data"
-    label = "results_on_annotated_data"
+    caption = f"Results on tracking annotated data {version.upper()}"
+    label = f"results_on_annotated_data_{version}"
     makedirs(output_dir, exist_ok=True)
-    tex_file = join(output_dir, "annodata_comparison_table.tex")
+    tex_file = join(output_dir, f"annodata_{version}_comparison_table.tex")
 
     generate_table(data, caption, label, tex_file)
 
@@ -156,5 +155,6 @@ def suppression_main(common_folder, output_dir):
 if __name__=="__main__":
     common_folder = join("data", "results", "measurement_results")
     output_dir = join("data", "results", "table_plots")
-    annotated_data_main(common_folder, output_dir)
+    annotated_data_main(common_folder, "a", output_dir)
+    annotated_data_main(common_folder, "b", output_dir)
     suppression_main(common_folder, output_dir)

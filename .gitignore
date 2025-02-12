@@ -1,7 +1,6 @@
 data/* 
 !data/source_repos.txt
 !data/annotation
-# !data/automated
 !data/python_repo.txt
 !data/suppressionb_data
 local/

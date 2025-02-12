@@ -92,8 +92,11 @@ def main_ablation_study(dataset, oracle_file, result_dir_parent, time_file_folde
         turn_off_techniques = [False, False, False, False] # to start the next iteration
 
 def main_anythingtracker(dataset, oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques, context_ablation=False):
-    result_dir = join(result_dir_parent, f"mapped_regions_{dataset}_{context_line_num}")
-    time_file_to_write = join(time_file_folder, f"execution_time_{dataset}_{context_line_num}.csv")
+    result_dir = join(result_dir_parent, f"mapped_regions_{dataset}")
+    time_file_to_write = join(time_file_folder, f"execution_time_{dataset}.csv")
+    if context_line_num != 15:
+        result_dir = f"{result_dir}_{context_line_num}"
+        time_file_to_write = time_file_to_write.replace(".csv", f"_{context_line_num}.csv")
     if context_ablation == True: # add the context_line_num to recognize different versions.
         result_dir = f"result_dir_{context_line_num}"
         time_file_to_write = time_file_to_write.replace(".csv", f"_{context_line_num}.csv")
@@ -116,8 +119,8 @@ if __name__ == "__main__":
         > change the boolean to True to turn off the corresponding technique.
     '''
 
-    dataset = "annodata"
-    oracle_file = join("data", "annotation", "annotations_100.json")
+    dataset = "annotation_b" # 'a' for 'annotated data A and b for annotated data B
+    oracle_file = join("data", "annotation", f"{dataset}_100.json")
     result_dir_parent = join("data", "results", "tracked_maps", dataset)
     time_file_folder = join("data", "results", "execution_time", dataset)
     makedirs(time_file_folder, exist_ok=True)

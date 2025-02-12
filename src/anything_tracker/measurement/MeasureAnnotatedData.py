@@ -227,21 +227,27 @@ def main_ablation_study_context_size(dataset, oracle_file, results_dir_parent, r
         MeasureAnnotatedData(oracle_file, results_dir, results_csv_file).run()
         print(f"Measurement: context size {num} done.")
 
-def main_anythingtracker(dataset, oracle_file, results_dir_parent, results_csv_file_folder):
-    results_dir = join(results_dir_parent, f"mapped_regions_{dataset}_15")
-    results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_{dataset}_15_b.csv")
+def main_anythingtracker(dataset, oracle_file, results_dir_parent, results_csv_file_folder, approach):
+    results_dir = join(results_dir_parent, f"mapped_regions_{dataset}")
+    results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_{dataset}.csv")
+    if approach:
+        results_dir = f"{results_dir}_{approach}"
+        results_csv_file = results_csv_file.replace(".csv", f"_{approach}.csv")
     MeasureAnnotatedData(oracle_file, results_dir, results_csv_file).run()
 
 
 if __name__=="__main__":
-    dataset = "annodata"
-    oracle_file = join("data", "annotation", "annotations_100.json") # to get the ground truth
+    dataset = "annotation_b" # 'a' for 'annotated data A and b for annotated data B
+    oracle_file = join("data", "annotation", f"{dataset}_100.json") # to get the ground truth
     results_dir_parent = join("data", "results", "tracked_maps", dataset) # where the target regions are
     results_csv_file_folder = join("data", "results", "measurement_results", dataset) # to write the measurement results
     os.makedirs(results_csv_file_folder, exist_ok=True)
 
     # Run measurement for AnythingTracker
-    main_anythingtracker(dataset, oracle_file, results_dir_parent, results_csv_file_folder)
+    approaches = ["", "line", "word"] # our approach, line-level diff, word-level diff
+    for approach in approaches:
+        main_anythingtracker(dataset, oracle_file, results_dir_parent, results_csv_file_folder, approach)
+        print(f"Measurement for approach {approach} done.")
 
     # Run measurement for ablation study (techniques)
     main_ablation_study(dataset, oracle_file, results_dir_parent, results_csv_file_folder)
