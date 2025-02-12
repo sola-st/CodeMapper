@@ -9,7 +9,7 @@ from anything_tracker.AnythingTrackerUtils import (
 )
 from anything_tracker.CandidateRegion import CandidateRegion, get_candidate_region_range
 from anything_tracker.CharacterRange import CharacterRange
-from anything_tracker.OneRoundTimeInfo import OneRoundTimeInfo
+from anything_tracker.OneRoundTimeInfo import OneRoundTimeInfo, update_time_records
 from anything_tracker.baselines.CombineToCandidateRegion import CombineToCandidateRegion
 from anything_tracker.baselines.LineCharacterGitDiffToCandidateRegion import LineCharacterGitDiffToCandidateRegion
 from anything_tracker.GetTargetFilePath import get_target_file_path
@@ -95,16 +95,13 @@ class BaselineTracker():
         self.source_region_characters = get_source_and_expected_region_characters(self.base_file_lines, self.interest_character_range)
 
         self.target_file_lines = checkout_to_read_file(self.repo_dir, self.target_commit, self.target_file_path)
-        read_file_time = f"{(time.time() - start):.5f}"    
-        self.one_round_time_info.read_source_target_file_time = read_file_time 
+        self.one_round_time_info = update_time_records(self.one_round_time_info, time.time(), start, "read_source_target_file_time")
 
         # phase 1: compute candidate regions
         candidate_regions = self.compute_candidate_regions()
         print(f"Iteration #{self.iteration_index}")
-        first_phrase_end_time = time.time()
-        first_phrase_executing_time = f"{(first_phrase_end_time - first_phrase_start_time):.5f}"
-        self.one_round_time_info.compute_candidates_time = first_phrase_executing_time
-        print(f"Executing time: {first_phrase_executing_time} seconds")
+        self.one_round_time_info = update_time_records(self.one_round_time_info, time.time(), first_phrase_start_time, "compute_candidates_time")
+        print(f"Executing time: {self.one_round_time_info.compute_candidates_time} seconds")
         if candidate_regions == [] and self.target_file_lines:
             print(f"--No candidate regions.\n  {self.repo_dir}\n  {self.source_file_path}\n  {self.interest_character_range.four_element_list}\n")
             # self.one_round_time_info.select_target_time = 0 # default
@@ -183,7 +180,7 @@ def main(*args): # for java elements
     # get target file path
     get_target_path_start = time.time()
     target_file_path = get_target_file_path(repo_dir, source_commit, target_commit, source_file_path)
-    get_target_path_time = f"{(time.time() - get_target_path_start):.5f}" 
+    get_target_path_end = time.time()
     
     if isinstance(target_file_path, bool):
         # the file was deleted
@@ -205,7 +202,8 @@ def main(*args): # for java elements
         dist_based, one_round_time_info = BaselineTracker(level, repo_dir, source_commit, source_file_path,\
                 target_commit, target_file_path, source_range, ground_truth_results_dir, current_history_pair_idx).run()
 
-    one_round_time_info.get_target_file_path_time = get_target_path_time
+    one_round_time_info = update_time_records(one_round_time_info, get_target_path_end, get_target_path_start, "get_target_file_path_time")
+    one_round_time_info = update_time_records(one_round_time_info, get_target_path_end, get_target_path_start, "compute_candidates_time")
 
     # write exection times
     write_mode = "a"
@@ -224,7 +222,7 @@ def main_suppression_annodata(*args): # can be used to start tracking annotation
     # get target file path
     get_target_path_start = time.time()
     target_file_path = get_target_file_path(repo_dir, source_commit, target_commit, source_file_path)
-    get_target_path_time = f"{(time.time() - get_target_path_start):.5f}" 
+    get_target_path_end = time.time()
     
     if isinstance(target_file_path, bool):
         # the file was deleted
@@ -246,7 +244,8 @@ def main_suppression_annodata(*args): # can be used to start tracking annotation
         dist_based, one_round_time_info = BaselineTracker(level, repo_dir, source_commit, source_file_path,\
                 target_commit, target_file_path, source_range, results_dir, ground_truth_index).run()
 
-    one_round_time_info.get_target_file_path_time = get_target_path_time
+    one_round_time_info = update_time_records(one_round_time_info, get_target_path_end, get_target_path_start, "get_target_file_path_time")
+    one_round_time_info = update_time_records(one_round_time_info, get_target_path_end, get_target_path_start, "compute_candidates_time")
 
     # write exection times
     RecordExecutionTimes(write_mode, time_file_to_write, ground_truth_index, one_round_time_info).run()
