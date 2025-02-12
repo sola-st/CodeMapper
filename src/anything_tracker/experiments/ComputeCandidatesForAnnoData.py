@@ -127,7 +127,7 @@ if __name__ == "__main__":
     context_line_num = 15 
     turn_off_techniques = [False, False, False, False] 
     
-    # Three options to start experiments:
+    # Three options to start experiments (specify to run one or more of them as desired):
     # 1. Run AnythingTracker
     main_anythingtracker(dataset, oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques)
 

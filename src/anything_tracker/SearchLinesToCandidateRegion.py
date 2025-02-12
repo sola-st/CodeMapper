@@ -1,5 +1,7 @@
+import time
 from anything_tracker.CandidateRegion import CandidateRegion
 from anything_tracker.CharacterRange import CharacterRange
+from anything_tracker.OneRoundTimeInfo import update_time_records
 from anything_tracker.utils.ReadFile import get_region_characters
 
 
@@ -11,6 +13,7 @@ class SearchLinesToCandidateRegion():
         self.source_region_characters = meta.source_region_characters
         self.target_file_lines = meta.target_file_lines
         self.turn_off_techniques = meta.turn_off_techniques # object
+        self.one_round_time_info = meta.one_round_time_info # object
 
         self.top_diff_hunk = None
         if top_diff_hunks:
@@ -57,17 +60,23 @@ class SearchLinesToCandidateRegion():
         self.target_lines_len_list = get_character_length_of_lines(self.target_file_lines)
 
         # 1) locate candidates with the help of git diff
+        overalpping_combination_time_start = time.time()
         if self.top_diff_hunk:
             candidate_regions = self.combine_diff_and_search_ranges("top")
         elif self.bottom_diff_hunk: # Scenario 4
             candidate_regions = self.combine_diff_and_search_ranges("bottom")
         elif self.middle_diff_hunks: # Scenario 3
             candidate_regions = self.cover_changed_lines_in_between()
+        self.one_round_time_info = update_time_records(self.one_round_time_info, \
+                time.time(), overalpping_combination_time_start, "get_diff_based_candis_time")
 
         # 2) locate candidates by searching exactly mapped regions
         # Scenario 5: search exactly the same content
         if self.turn_off_techniques.turn_off_search_matches == False:
+            search_time_start = time.time()
             searched_candidate_regions = self.search_exactly_mapped_context()
+            self.one_round_time_info = update_time_records(self.one_round_time_info, \
+                time.time(), search_time_start, "get_searched_candis_time")
             if candidate_regions == [] or candidate_regions == None:
                 candidate_regions = searched_candidate_regions
             else:

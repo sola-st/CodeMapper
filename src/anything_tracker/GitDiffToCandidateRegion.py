@@ -5,6 +5,7 @@ from anything_tracker.CharacterRange import CharacterRange
 from anything_tracker.DetectMovement import DetectMovement
 from anything_tracker.DiffHunk import DiffHunk
 from anything_tracker.FineGrainLineCharacterIndices import FineGrainLineCharacterIndices
+from anything_tracker.OneRoundTimeInfo import update_time_records
 from anything_tracker.utils.GetUnchangedLineNumbers import get_changed_line_numbers_file_level
 from anything_tracker.utils.ReadFile import get_region_characters
 from anything_tracker.utils.TransferRanges import get_diff_reported_range
@@ -81,9 +82,8 @@ class GitDiffToCandidateRegion():
                 changed_line_numbers_version_maps_target_for_hunklists.append(changed_line_numbers_target)
         changed_line_numbers_version_maps_source.extend(changed_line_numbers_version_maps_source_for_hunklists)
         changed_line_numbers_version_maps_target.extend(changed_line_numbers_version_maps_target_for_hunklists)
-        iteration_end_time = time.time()
-        extract_hunks_time = f"{(iteration_end_time - iteration_start_time):.5f}"
-        self.one_round_time_info.extract_hunks_time = extract_hunks_time
+        # the time for checking overlapping location and return some easy-to-get diff-based candidates
+        self.one_round_time_info = update_time_records(self.one_round_time_info, time.time(), iteration_start_time, "extract_hunks_time")
         return candidate_regions, diff_hunk_lists, changed_line_numbers_version_maps_source, changed_line_numbers_version_maps_target
 
     def get_changed_hunks_from_different_algorithms(self):
@@ -129,9 +129,7 @@ class GitDiffToCandidateRegion():
                         "level": level,
                         "diff_result" : diff_result
                     })
-        diff_command_end_time = time.time()
-        diff_command_time = f"{(diff_command_end_time - diff_command_start_time):.5f}"
-        self.one_round_time_info.diff_computation = diff_command_time
+        self.one_round_time_info = update_time_records(self.one_round_time_info, time.time(), diff_command_start_time, "diff_computation")
         self.one_round_time_info.diff_report_num = len(diff_results) 
         return diff_results
 
@@ -208,7 +206,9 @@ class GitDiffToCandidateRegion():
                                                 self.target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
                                                 self.characters_start_idx, self.interest_first_number, interest_first_line_characters, True, check_if_region_deleted) 
                             if check_if_region_deleted == True:
-                                region_deleted = deletion_check.fine_grained_line_character_indices()
+                                region_deleted, refine_range_time_end, refine_range_time_start = deletion_check.fine_grained_line_character_indices()
+                                self.one_round_time_info = update_time_records(self.one_round_time_info, \
+                                        refine_range_time_end, refine_range_time_start, "refine_range_time")
 
                         if self.characters_start_idx == 1:
                             candidate_character_start_idx = 1
@@ -218,7 +218,9 @@ class GitDiffToCandidateRegion():
                                     fine_grain_start = FineGrainLineCharacterIndices(
                                             self.target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
                                             self.characters_start_idx, self.interest_first_number, interest_first_line_characters, True)
-                                    candidate_character_start_idx_tmp, fine_grained_start_line = fine_grain_start.fine_grained_line_character_indices()
+                                    candidate_character_start_idx_tmp, fine_grained_start_line, refine_range_time_end, refine_range_time_start = fine_grain_start.fine_grained_line_character_indices()
+                                    self.one_round_time_info = update_time_records(self.one_round_time_info, \
+                                        refine_range_time_end, refine_range_time_start, "refine_range_time")
                                     if fine_grained_start_line != None:
                                         # candidate_start_line += fine_grained_start_line
                                         candidate_start_line = fine_grained_start_line
@@ -234,7 +236,9 @@ class GitDiffToCandidateRegion():
                                 fine_grain_end = FineGrainLineCharacterIndices(
                                             self.target_file_lines, diffs, diff_line_num, base_hunk_range, target_hunk_range, 
                                             self.characters_end_idx, self.interest_last_number, interest_last_line_characters, False)
-                                candidate_character_end_idx_tmp, fine_grained_end_line = fine_grain_end.fine_grained_line_character_indices()
+                                candidate_character_end_idx_tmp, fine_grained_end_line, refine_range_time_end, refine_range_time_start = fine_grain_end.fine_grained_line_character_indices()
+                                self.one_round_time_info = update_time_records(self.one_round_time_info, \
+                                        refine_range_time_end, refine_range_time_start, "refine_range_time")
                                 if fine_grained_end_line != None:
                                     # candidate_end_line -= fine_grained_end_line
                                     candidate_end_line = fine_grained_end_line
@@ -273,8 +277,10 @@ class GitDiffToCandidateRegion():
                                 candidate_regions.add(candidate_region)
 
                                 if self.turn_off_techniques.turn_off_move_detection == False:
-                                    movement_candidate_region = DetectMovement(algorithm, self.interest_character_range, self.source_region_characters, \
+                                    movement_candidate_region, movement_candis_time_end, movement_candis_time_start = DetectMovement(algorithm, self.interest_character_range, self.source_region_characters, \
                                             current_hunk_range_line, diffs, self.target_file_lines).run()
+                                    self.one_round_time_info = update_time_records(self.one_round_time_info, \
+                                        movement_candis_time_end, movement_candis_time_start, "get_movement_candis_time")
                                     if movement_candidate_region != []:
                                         candidate_regions.update(set(movement_candidate_region))
                                 if region_deleted_helper == True:
@@ -321,8 +327,10 @@ class GitDiffToCandidateRegion():
 
                             # fully covered by changed hunk, detect possible movement
                             if self.turn_off_techniques.turn_off_move_detection == False:
-                                movement_candidate_region = DetectMovement(algorithm, self.interest_character_range, self.source_region_characters, \
+                                movement_candidate_region, movement_candis_time_end, movement_candis_time_start = DetectMovement(algorithm, self.interest_character_range, self.source_region_characters, \
                                         current_hunk_range_line, diffs, self.target_file_lines).run()
+                                self.one_round_time_info = update_time_records(self.one_round_time_info, \
+                                        movement_candis_time_end, movement_candis_time_start, "get_movement_candis_time")
                                 if movement_candidate_region != []:
                                     candidate_regions.update(set(movement_candidate_region))
                     else:

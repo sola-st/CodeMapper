@@ -1,4 +1,5 @@
 import re
+import time
 from anything_tracker.utils.ComputeOverlapBetween2Strings import compute_overlap
 
 
@@ -207,9 +208,11 @@ class FineGrainLineCharacterIndices():
             without this function, the candidate region will starts from character 1
             with this function, it will be closer to 12.
         '''
+        refine_range_time_start = time.time()
+        
         results = self.get_first_non_totally_added_line()
         if isinstance(results, bool):
-            return results # check the intra-line deletions
+            return results, time.time(), refine_range_time_start # check the intra-line deletions
         else:
             # step 1: fine grained line index, get the first non totally added line.
             splits, line_delta = results
@@ -264,7 +267,7 @@ class FineGrainLineCharacterIndices():
                                     s, s_len, candidate_pre_characters_len)
                         
                 if fine_grained_character_idx != None:
-                    return fine_grained_character_idx, line_delta
+                    return fine_grained_character_idx, line_delta, time.time(), refine_range_time_start
 
                 if "[31m" in s: # delete. eg,.[31m[-0.10.11-]
                     pre_1_s = s[6:-2]
@@ -304,7 +307,7 @@ class FineGrainLineCharacterIndices():
             if candidate_pre_characters_len < 1:
                 fine_grained_character_idx = self.character_idx
 
-            return fine_grained_character_idx, line_delta
+            return fine_grained_character_idx, line_delta, time.time(), refine_range_time_start
 
     def fine_grained_return_helper(self, s, s_len, candidate_pre_characters_len):
         fine_grained_character_idx = 0

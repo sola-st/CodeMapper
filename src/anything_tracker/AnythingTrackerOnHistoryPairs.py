@@ -3,7 +3,7 @@ import json
 import os
 from os.path import join
 import time
-from anything_tracker.OneRoundTimeInfo import OneRoundTimeInfo
+from anything_tracker.OneRoundTimeInfo import OneRoundTimeInfo, update_time_records
 from anything_tracker.AnythingTrackerUtils import (
     deduplicate_candidates,
     get_context_aware_unchanged_characters,
@@ -128,7 +128,7 @@ class AnythingTrackerOnHistoryPairs():
             diff_hunk_lists.append(["Search-specific", [], [], []])
             self.one_round_time_info.overalpping_round = -1 # as a marker for search-specific
         
-        overlapping_start_time = time.time()
+        overlapping_hunk_combination_search_start_time = time.time() # start feom overlapping location and the hunks to candidate + search.
         for iter in diff_hunk_lists:
             search_candidates = []
             algorithm, top_diff_hunks, middle_diff_hunks, bottom_diff_hunks = iter
@@ -146,8 +146,9 @@ class AnythingTrackerOnHistoryPairs():
                             self.changed_line_numbers_version_maps_target.pop(pop_idx)
             # else: no overlapped hunks
         
-        overlapping_time = f"{(time.time() - overlapping_start_time):.5f}"  
-        self.one_round_time_info.extract_candidate_with_overlapping_serach_time = overlapping_time
+        # overlapping hunk combination and search (includes diff-base time and search time)
+        self.one_round_time_info = update_time_records(self.one_round_time_info, time.time(), \
+                overlapping_hunk_combination_search_start_time, "extract_candidate_with_overlapping_serach_time")
 
         # add change line numbers for the searched candidates 
         len_delta = len(candidate_regions) - len(self.changed_line_numbers_version_maps_source)
@@ -176,16 +177,13 @@ class AnythingTrackerOnHistoryPairs():
         self.source_region_characters = get_source_and_expected_region_characters(self.base_file_lines, self.interest_character_range)
 
         self.target_file_lines = checkout_to_read_file(self.repo_dir, self.target_commit, self.target_file_path)
-        read_file_time = f"{(time.time() - start):.5f}"    
-        self.one_round_time_info.read_source_target_file_time = read_file_time 
+        self.one_round_time_info = update_time_records(self.one_round_time_info, time.time(), start, "read_source_target_file_time")
 
         # phase 1: compute candidate regions
         candidate_regions = self.compute_candidate_regions()
         print(f"Iteration #{self.iteration_index}")
-        first_phrase_end_time = time.time()
-        first_phrase_executing_time = f"{(first_phrase_end_time - first_phrase_start_time):.5f}"
-        self.one_round_time_info.compute_candidates_time = first_phrase_executing_time
-        print(f"Executing time (1st phase): {first_phrase_executing_time} seconds")
+        self.one_round_time_info = update_time_records(self.one_round_time_info, time.time(), first_phrase_start_time, "compute_candidates_time")
+        print(f"Executing time (1st phase): {self.one_round_time_info.compute_candidates_time} milliseconds")
         if candidate_regions == [] and self.target_file_lines:
             print(f"--No candidate regions.\n  {self.repo_dir}\n  {self.source_file_path}\n  {self.interest_character_range.four_element_list}\n")
             # self.one_round_time_info.select_target_time = 0 # default
@@ -297,11 +295,8 @@ class AnythingTrackerOnHistoryPairs():
             if source_str_list:
                 source_str = source_str_list
             results_set_dict = ComputeTargetRegion(source_str, candiate_str_list).run()
-            second_phrase_end_time = time.time()
-            second_phrase_executing_time = f"{(second_phrase_end_time - second_phrase_start_time):.5f}"
-            print(f"Executing time (2nd phase): {second_phrase_executing_time} seconds")
-
-        self.one_round_time_info.select_target_time = second_phrase_executing_time
+            self.one_round_time_info = update_time_records(self.one_round_time_info, time.time(), second_phrase_start_time, "select_target_time")
+            print(f"Executing time (2nd phase): {self.one_round_time_info.select_target_time} milliseconds")
 
         for key, target_dict in results_set_dict.items():
             target_candidate = candidate_regions[target_dict["target_candidate_index"]]
@@ -342,7 +337,7 @@ def main(*args):
     # get target file path
     get_target_path_start = time.time()
     target_file_path = get_target_file_path(repo_dir, source_commit, target_commit, source_file_path)
-    get_target_path_time = f"{(time.time() - get_target_path_start):.5f}" 
+    get_target_path_end = time.time()
 
     if isinstance(target_file_path, bool):
         # the file was deleted
@@ -367,7 +362,9 @@ def main(*args):
                 target_commit, target_file_path, source_range, ground_truth_results_dir, current_history_pair_idx, \
                 context_line_num, turn_off_techniques).run()
 
-    one_round_time_info.get_target_file_path_time = get_target_path_time
+    one_round_time_info = update_time_records(one_round_time_info, get_target_path_end, get_target_path_start, "get_target_file_path_time")
+    # Add get_target_file_path_time to phrase 1
+    one_round_time_info = update_time_records(one_round_time_info, get_target_path_end, get_target_path_start, 0, "compute_candidates_time")
 
     # write exection times
     write_mode = "a"
@@ -386,7 +383,7 @@ def main_suppression(*args): # can be used to start tracking annotation and supp
     # get target file path
     get_target_path_start = time.time()
     target_file_path = get_target_file_path(repo_dir, source_commit, target_commit, source_file_path)
-    get_target_path_time = f"{(time.time() - get_target_path_start):.5f}" 
+    get_target_path_end = time.time()
     if isinstance(target_file_path, bool):
         # the file was deleted
         target_json = {
@@ -410,9 +407,13 @@ def main_suppression(*args): # can be used to start tracking annotation and supp
                 target_commit, target_file_path, source_range, results_dir, ground_truth_index, \
                 context_line_num, turn_off_techniques).run()
         
-    one_round_time_info.get_target_file_path_time = get_target_path_time
+    one_round_time_info = update_time_records(one_round_time_info, get_target_path_end, get_target_path_start, "get_target_file_path_time")
+    # Add get_target_file_path_time to phrase 1
+    one_round_time_info = update_time_records(one_round_time_info, get_target_path_end, get_target_path_start, "compute_candidates_time")
 
     # write exection times
+    # The total time calculated from individual steps may be slightly larger ( within 1 millisecond) than the overall time for "phrase 1."  
+    # This happens because we round each step's time to two decimal places using ".2f", which results in a small loss of precision.
     RecordExecutionTimes(write_mode, time_file_to_write, ground_truth_index, one_round_time_info).run()
     
     return dist_based

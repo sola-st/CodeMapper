@@ -1,4 +1,5 @@
 import re
+import time
 from anything_tracker.CandidateRegion import CandidateRegion
 from anything_tracker.CharacterRange import CharacterRange
 from anything_tracker.utils.ReadFile import get_region_characters
@@ -91,6 +92,7 @@ class DetectMovement():
         return line_char_pairs
 
     def run(self):
+        get_movement_candis_time_start = time.time()
         moved_lines = 0
         moved_to_range_list = []
         candidate_region_list = []
@@ -164,5 +166,5 @@ class DetectMovement():
             # moved to different/multiple locations
             pass
         
-        return candidate_region_list
+        return candidate_region_list, time.time(), get_movement_candis_time_start
 
