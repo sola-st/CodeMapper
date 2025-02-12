@@ -101,7 +101,7 @@ class BaselineTracker():
         candidate_regions = self.compute_candidate_regions()
         print(f"Iteration #{self.iteration_index}")
         self.one_round_time_info = update_time_records(self.one_round_time_info, time.time(), first_phrase_start_time, "compute_candidates_time")
-        print(f"Executing time: {self.one_round_time_info.compute_candidates_time} seconds")
+        print(f"Executing time: {self.one_round_time_info.compute_candidates_time} milliseconds")
         if candidate_regions == [] and self.target_file_lines:
             print(f"--No candidate regions.\n  {self.repo_dir}\n  {self.source_file_path}\n  {self.interest_character_range.four_element_list}\n")
             # self.one_round_time_info.select_target_time = 0 # default
