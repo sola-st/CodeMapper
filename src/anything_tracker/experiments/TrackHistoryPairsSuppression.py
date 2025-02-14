@@ -126,16 +126,15 @@ def main_ablation_study(dataset, oracle_file, result_dir_parent, time_file_folde
         TrackHistoryPairsSuppression(oracle_file, result_dir, context_line_num, time_file_to_write, turn_off_techniques_obj).run()
         turn_off_techniques = [False, False, False, False] # to start the next iteration
 
-def main_anythingtracker(dataset, oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques, context_ablation=False):
-    result_dir = join(result_dir_parent, f"mapped_regions_{dataset}_{context_line_num}")
-    time_file_to_write = join(time_file_folder, f"execution_time_{dataset}_{context_line_num}_not_in_figure.csv")
-    if context_ablation == True: # add the context_line_num to recognize different versions.
-        result_dir = f"result_dir_{context_line_num}"
-        time_file_to_write = time_file_to_write.replace(".csv", f"_{context_line_num}.csv")
+def main_anythingtracker(dataset, oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques):
+    result_dir = join(result_dir_parent, f"mapped_regions_{dataset}")
+    time_file_to_write = join(time_file_folder, f"execution_time_{dataset}.csv")
+    if context_line_num == 0: # ablation study of techniques
+        result_dir = f"{result_dir}_off_context"
+        time_file_to_write = time_file_to_write.replace(".csv", "_off_context.csv")
     else:
-        if context_line_num == 0: # ablation study of techniques
-            result_dir = f"{result_dir}_off_context"
-            time_file_to_write = time_file_to_write.replace(".csv", "_off_context.csv")
+        result_dir = f"{result_dir}_{context_line_num}"
+        time_file_to_write = time_file_to_write.replace(".csv", f"_{context_line_num}.csv")
     turn_off_techniques_obj = SpecifyToTurnOffTechniques(turn_off_techniques)
     TrackHistoryPairsSuppression(oracle_file, result_dir, context_line_num, time_file_to_write, turn_off_techniques_obj).run()
 
@@ -167,7 +166,7 @@ if __name__ == "__main__":
     main_ablation_study(dataset, oracle_history_parent_folder, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques) 
     
     # 3. Run ablation study (about context sizes)
-    context_line_num_list = [0, 1, 2, 3, 5, 10, 15, 20, 25, 30] 
+    context_line_num_list = [0, 1, 2, 3, 5, 10, 20, 25, 30] # without the context_line_num
     for context_line_num in context_line_num_list:
         # context_line_num = 0 --> disable context-aware similarity
-        main_anythingtracker(dataset, oracle_history_parent_folder, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques, True)     
+        main_anythingtracker(dataset, oracle_history_parent_folder, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques)     

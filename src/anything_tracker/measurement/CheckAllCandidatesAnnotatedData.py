@@ -123,8 +123,9 @@ def write_results(results_set, file_name):
 
 
 if __name__=="__main__":
-    oracle_file = join("data", "annotation", "annotations_100.json")
-    candidates_dir = join("data", "results", "tracked_maps", "annodata", "mapped_regions_annodata")
-    results_csv_file_name = join("data", "results", "measurement_results", "annodata", "measurement_results_candidates_annodata.csv")
+    dataset = "annotaion_b" # "annotation_a" ot "annotation_b"
+    oracle_file = join("data", "annotation", f"{dataset}_100.json")
+    candidates_dir = join("data", "results", "tracked_maps", dataset, f"mapped_regions_{dataset}")
+    results_csv_file_name = join("data", "results", "measurement_results", dataset, f"measurement_results_candidates_{dataset}.csv")
     measurement = "candidates.json"
     RunMeasurement(oracle_file, candidates_dir, results_csv_file_name, measurement).run()

@@ -46,7 +46,7 @@ def plot_comparison_violin(xticklabels, overall_data, result_pdf):
 
     ax.set_xticks(np.arange(1, len(xticklabels) + 1))
     ax.set_xticklabels(xticklabels, fontsize=12)
-    ax.set_ylabel('Execution time (seconds)', fontsize=12)
+    ax.set_ylabel('Execution time (milliseconds)', fontsize=12)
 
     line_data, word_data, at_data = overall_data
     medians = [np.median(line_data), np.median(word_data), np.median(at_data)]
@@ -71,13 +71,13 @@ def plot_comparison_violin(xticklabels, overall_data, result_pdf):
 
 def main_baseline_comparison():
     execution_time_folder = join("data", "results", "execution_time")
-    xticklabels = [r'$\text{diff}_{\text{line}}$', r'$\text{diff}_{\text{word}}$', 'AnythingTracker']
+    xticklabels = [r'$\text{diff}_{\text{line}}$', r'$\text{diff}_{\text{word}}$', 'RegionTracker']
     result_pdf = join("data", "results", "table_plots", "execution_time_baseline_comparison.pdf")
-    data_type = ["annodata", "suppression"]
+    data_type = ["annotation_a", "annotation_b", "suppression"]
 
-    file_list_annodata = []
+    file_list_annodata_a = []
+    file_list_annodata_b = []
     file_list_suppression = []
-    approaches = len(xticklabels)
     overall_data = []
 
     # colloct all execution time files
@@ -86,18 +86,24 @@ def main_baseline_comparison():
         execution_time_file_word = join(execution_time_folder, t, f"execution_time_{t}_word.csv")
         execution_time_file_at = join(execution_time_folder, t, f"execution_time_{t}.csv")
         if i == 0:
-            file_list_annodata.append(execution_time_file_line)
-            file_list_annodata.append(execution_time_file_word)
-            file_list_annodata.append(execution_time_file_at)
+            file_list_annodata_a.append(execution_time_file_line)
+            file_list_annodata_a.append(execution_time_file_word)
+            file_list_annodata_a.append(execution_time_file_at)
+        elif i == 1:
+            file_list_annodata_b.append(execution_time_file_line)
+            file_list_annodata_b.append(execution_time_file_word)
+            file_list_annodata_b.append(execution_time_file_at)
         else:
             file_list_suppression.append(execution_time_file_line)
             file_list_suppression.append(execution_time_file_word)
             file_list_suppression.append(execution_time_file_at)
     
-    for i, anno_file, supp_file in zip(range(approaches), file_list_annodata, file_list_suppression):
+    for anno_file_a, anno_file_b, supp_file in zip(file_list_annodata_a, file_list_annodata_b, file_list_suppression):
         time = []
-        time = get_execution_time(anno_file)
+        time = get_execution_time(anno_file_a)
+        time_b = get_execution_time(anno_file_b)
         supp_time = get_execution_time(supp_file)
+        time.extend(time_b)
         time.extend(supp_time)
         overall_data.append(time)
 
@@ -109,13 +115,13 @@ def main_anythingtracker():
     result_pdf = join("data", "results", "table_plots", "execution_time_anythingtracker.pdf")
 
     # colloct all execution time files
-    anno_file = join(execution_time_folder, "annodata", "execution_time_annodata.csv")
+    anno_file_a = join(execution_time_folder, "annodata", "execution_time_annodata.csv")
     supp_file = join(execution_time_folder, "suppression", "execution_time_suppression.csv")
     all = []
     all_phase1 = []
     all_phase2 = []
-    anno_time = get_execution_time(anno_file)
-    anno_1, anno_2 = get_execution_time(anno_file, True)
+    anno_time = get_execution_time(anno_file_a)
+    anno_1, anno_2 = get_execution_time(anno_file_a, True)
     supp_time = get_execution_time(supp_file)
     supp_1, supp_2 = get_execution_time(supp_file, True)
 
@@ -139,4 +145,4 @@ if __name__=="__main__":
     main_baseline_comparison()
 
     # Option 2. exexcution time details for AnythingTracker
-    main_anythingtracker()
+    # main_anythingtracker()

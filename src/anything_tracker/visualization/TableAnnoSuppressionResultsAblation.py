@@ -37,6 +37,7 @@ def get_data(file_list):
             # include the outliers, like file path not match
             all_match_results = [line[6] for line in line_list if line]
             all = len(all_match_results) -2 # 1 head, 1 summary
+            summary_line = line_list[-1]
             tmp = [s for s in summary_line if s]
             if len(tmp) < 2:
                 summary_line = line_list[-2][7:]
@@ -111,10 +112,10 @@ def generate_table(data, caption, label, tex_file):
     with open(tex_file, "w") as f:
         f.write(latex_table + "\n")
 
-def annotated_data_main(file_suffies, common_file_folder, output_dir):
+def annotated_data_main(dataset, file_suffies, common_file_folder, output_dir):
     # annotated data
-    common_specific_folder = join(common_file_folder, "annodata")
-    file_name_base = "measurement_results_metrics_annodata"
+    common_specific_folder = join(common_file_folder, dataset)
+    file_name_base = f"measurement_results_metrics_{dataset}"
 
     file_list = []
     for suffix in file_suffies:
@@ -122,9 +123,9 @@ def annotated_data_main(file_suffies, common_file_folder, output_dir):
     file_list.append(join(common_specific_folder, f"{file_name_base}.csv")) # the one for AnythingTracker
 
     data = get_data(file_list)
-    caption = "Disable partial techniques (Annotated data)"
-    label = "ablation_on_annotated_data"
-    tex_file = join(output_dir, "annodata_ablation_table.tex")
+    caption = f"Disable partial techniques (Annotated data {dataset.split('_')[1].upper()})"
+    label = f"ablation_on_{dataset}"
+    tex_file = join(output_dir, f"{dataset}_ablation_table.tex")
     generate_table(data, caption, label, tex_file)
 
 def suppression_main(file_suffies, common_file_folder, output_dir):
@@ -149,6 +150,6 @@ if __name__=="__main__":
     common_file_folder = join("data", "results", "measurement_results")
     output_dir = join("data", "results", "table_plots")
     makedirs(output_dir, exist_ok=True)
-
-    annotated_data_main(file_suffies, common_file_folder, output_dir)
+    annotated_data_main("annotation_a", file_suffies, common_file_folder, output_dir)
+    annotated_data_main("annotation_b", file_suffies, common_file_folder, output_dir)
     suppression_main(file_suffies, common_file_folder, output_dir)

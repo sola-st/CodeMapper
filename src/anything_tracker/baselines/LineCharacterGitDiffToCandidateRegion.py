@@ -3,6 +3,7 @@ import time
 from anything_tracker.CandidateRegion import CandidateRegion
 from anything_tracker.CharacterRange import CharacterRange
 from anything_tracker.DiffHunk import DiffHunk
+from anything_tracker.OneRoundTimeInfo import update_time_records
 from anything_tracker.baselines.word_level_diff.FineGrainWordIndices import FineGrainWordIndices
 from anything_tracker.utils.ReadFile import get_region_characters
 from anything_tracker.utils.TransferRanges import get_diff_reported_range
@@ -65,10 +66,7 @@ class LineCharacterGitDiffToCandidateRegion():
         # make sure the sub_middle_diff_hunks are in order (incresed)
         sorted_sub_middle_diff_hunks = sorted(list(sub_middle_diff_hunks), key=lambda obj: obj.base_start_line_number)
         diff_hunk_lists.append([algorithm, list(sub_top_diff_hunks), sorted_sub_middle_diff_hunks, list(sub_bottom_diff_hunks)])
-        
-        iteration_end_time = time.time()
-        extract_hunks_time = f"{(iteration_end_time - iteration_start_time):.5f}"
-        self.one_round_time_info.extract_hunks_time = extract_hunks_time
+        self.one_round_time_info = update_time_records(self.one_round_time_info, time.time(), iteration_start_time, "extract_hunks_time")
 
         return candidate_regions, diff_hunk_lists
 
@@ -91,9 +89,7 @@ class LineCharacterGitDiffToCandidateRegion():
             except UnicodeDecodeError:
                 print(f"Failed to decode using, {encoding}. Subprocess")
 
-        diff_command_end_time = time.time()
-        diff_command_time = f"{(diff_command_end_time - diff_command_start_time):.5f}"
-        self.one_round_time_info.diff_computation = diff_command_time
+        self.one_round_time_info = update_time_records(self.one_round_time_info, time.time(), diff_command_start_time, "diff_computation")
 
         return diff_result
 

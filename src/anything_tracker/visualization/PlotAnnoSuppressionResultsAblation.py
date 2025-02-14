@@ -78,7 +78,7 @@ def plot_recall_sets_sub_plot(ax, data, xticklabels, title, show_yticks):
     if show_yticks:
         ax.set_yticks(ind)
         ax.set_yticklabels(xticklabels)
-        ax.legend(loc='lower left', prop={'size': 10})
+        ax.legend(loc='upper right', prop={'size': 10})
     else:
         ax.set_yticks(ind)
         ax.set_yticklabels([])
@@ -161,9 +161,9 @@ if __name__=="__main__":
         init.run("suppression", False)
         print("Plot generation done.")
     else:
-        annodata_a = init.run("annotation_a", False)
-        annodata_b = init.run("annotation_b", False)
-        suppression_data = init.run("suppression", False)
+        annodata_a = init.run("annotation_a", True)
+        annodata_b = init.run("annotation_b", True)
+        suppression_data = init.run("suppression", True)
         data = [annodata_a, annodata_b, suppression_data]
         plot_pdf = join(output_dir, "overall_ablation_plot.pdf")
         titles = ["Annotated data A", "Annotated data B", "Suppression study data"]

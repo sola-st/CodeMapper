@@ -412,7 +412,7 @@ def main_suppression(*args): # can be used to start tracking annotation and supp
     one_round_time_info = update_time_records(one_round_time_info, get_target_path_end, get_target_path_start, "compute_candidates_time")
 
     # write exection times
-    # The total time calculated from individual steps may be slightly larger ( within 1 millisecond) than the overall time for "phrase 1."  
+    # The total time calculated from individual steps may be slightly larger than the overall time for "phrase 1."  
     # This happens because we round each step's time to two decimal places using ".2f", which results in a small loss of precision.
     RecordExecutionTimes(write_mode, time_file_to_write, ground_truth_index, one_round_time_info).run()
     

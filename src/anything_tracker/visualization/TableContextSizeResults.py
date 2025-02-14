@@ -35,17 +35,21 @@ def main(dataset, common_folder, output_dir, default_context_line, context_lines
     file_base = join(common, f"measurement_results_metrics_{dataset}")
     file_list = []
     for context_line in context_lines:
-        # if context_line == default_context_line:
-        #     file_list.append(f"{file_base}.csv")
-        # else:
-        file_list.append(f"{file_base}_{context_line}.csv")
+        if context_line == default_context_line:
+            file_list.append(f"{file_base}.csv")
+        elif context_line == 0:
+            file_list.append(f"{file_base}_off_context.csv")
+        else:
+            file_list.append(f"{file_base}_{context_line}.csv")
     data = get_data(file_list)
 
     caption = None
     if dataset == "suppression":
-        caption = "AnythingTracker with different context sizes (Suppression study data)."
+        caption = "\\name{} with different context sizes (Suppression study data)."
+    elif dataset == "annotation_a":
+        caption = "\\name{} with different context sizes (Annotated data A)."
     else:
-        caption = "AnythingTracker with different context sizes (Annotated data)."
+        caption = "\\name{} with different context sizes (Annotated data B)."
     label = f"context_sizes_{dataset}"
     makedirs(output_dir, exist_ok=True)
     tex_file = join(output_dir, f"context_size_comparison_table_{dataset}.tex")
@@ -58,5 +62,6 @@ if __name__=="__main__":
     default_context_line = 15
     context_lines = [0, 1, 2, 3, 5, 10, 15, 20, 25, 30]
 
-    main("annodata", common_folder, output_dir, default_context_line, context_lines)
+    main("annotation_a", common_folder, output_dir, default_context_line, context_lines)
+    main("annotation_b", common_folder, output_dir, default_context_line, context_lines)
     main("suppression", common_folder, output_dir, default_context_line, context_lines)

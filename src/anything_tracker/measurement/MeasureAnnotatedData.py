@@ -223,6 +223,8 @@ def main_ablation_study_context_size(dataset, oracle_file, results_dir_parent, r
     context_line_num_list = [0, 1, 2, 3, 5, 10, 20, 25, 30] # without the default context size
     for num in context_line_num_list:
         results_dir = join(results_dir_parent, f"mapped_regions_{dataset}_{num}")
+        if num == 0: 
+            results_dir = join(results_dir_parent, f"mapped_regions_{dataset}_off_context")
         results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_{dataset}_{num}.csv")
         MeasureAnnotatedData(oracle_file, results_dir, results_csv_file).run()
         print(f"Measurement: context size {num} done.")

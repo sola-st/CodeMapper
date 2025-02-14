@@ -243,14 +243,19 @@ def main_ablation_study_context_size(dataset, oracle_file, results_dir_parent, r
     context_line_num_list = [0, 1, 2, 3, 5, 10, 20, 25, 30] # without the default context size
     for num in context_line_num_list:
         results_dir = join(results_dir_parent, f"mapped_regions_{dataset}_{num}")
+        if num == 0: 
+            results_dir = join(results_dir_parent, f"mapped_regions_{dataset}_off_context")
         results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_{dataset}_{num}.csv")
         MeasureSuppression(oracle_file, results_dir, results_csv_file).run()
         print(f"Measurement: context size {num} done.")
 
-def main_anythingtracker(dataset, oracle_file, results_dir_parent, results_csv_file_folder):
-    results_dir = join(results_dir_parent, f"mapped_regions_{dataset}_15")
-    results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_{dataset}_15.csv")
-    MeasureSuppression(oracle_file, results_dir, results_csv_file).run()       
+def main_anythingtracker(dataset, oracle_file, results_dir_parent, results_csv_file_folder, approach):
+    results_dir = join(results_dir_parent, f"mapped_regions_{dataset}")
+    results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_{dataset}.csv")
+    if approach:
+        results_dir = f"{results_dir}_{approach}"
+        results_csv_file = results_csv_file.replace(".csv", f"_{approach}.csv")
+    MeasureSuppression(oracle_file, results_dir, results_csv_file).run()      
 
 if __name__=="__main__":
     dataset = "suppression"
@@ -259,8 +264,11 @@ if __name__=="__main__":
     results_csv_file_folder = join("data", "results", "measurement_results", dataset) # to write the measurement results
     os.makedirs(results_csv_file_folder, exist_ok=True)
 
-    # Run measurement for AnythingTracker
-    main_anythingtracker(dataset, oracle_file_folder, results_dir_parent, results_csv_file_folder)
+    # Run measurement
+    approaches = ["", "line", "word"] # our approach, line-level diff, word-level diff
+    for approach in approaches:
+        main_anythingtracker(dataset, oracle_file_folder, results_dir_parent, results_csv_file_folder, approach)
+        print(f"Measurement for approach {approach} done.")
 
     # Run measurement for ablation study
     main_ablation_study(dataset, oracle_file_folder, results_dir_parent, results_csv_file_folder)
