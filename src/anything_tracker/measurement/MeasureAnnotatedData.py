@@ -203,31 +203,6 @@ class MeasureAnnotatedData():
 
         self.compute_to_write_measurement()
 
-   
-def main_ablation_study(dataset, oracle_file, results_dir_parent, results_csv_file_folder):
-    ablation_settings = ["off_diff", "off_move", "off_search", "off_fine"]
-    for setting in ablation_settings:
-        results_dir = join(results_dir_parent, f"mapped_regions_{dataset}_{setting}")
-        results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_{dataset}_{setting}.csv")
-        MeasureAnnotatedData(oracle_file, results_dir, results_csv_file).run()
-        print(f"Measurement: {setting} done.")
-    
-    results_dir = join(results_dir_parent, f"mapped_regions_{dataset}_off_context")
-    results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_{dataset}_off_context.csv")
-    if not exists(results_dir):
-        results_dir = join(results_dir_parent, f"mapped_regions_{dataset}_0")
-    MeasureAnnotatedData(oracle_file, results_dir, results_csv_file).run()
-    print(f"Measurement: off_context done.")
-
-def main_ablation_study_context_size(dataset, oracle_file, results_dir_parent, results_csv_file_folder):
-    context_line_num_list = [0, 1, 2, 3, 5, 10, 20, 25, 30] # without the default context size
-    for num in context_line_num_list:
-        results_dir = join(results_dir_parent, f"mapped_regions_{dataset}_{num}")
-        if num == 0: 
-            results_dir = join(results_dir_parent, f"mapped_regions_{dataset}_off_context")
-        results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_{dataset}_{num}.csv")
-        MeasureAnnotatedData(oracle_file, results_dir, results_csv_file).run()
-        print(f"Measurement: context size {num} done.")
 
 def main_anythingtracker(dataset, oracle_file, results_dir_parent, results_csv_file_folder, approach):
     results_dir = join(results_dir_parent, f"mapped_regions_{dataset}")
@@ -239,20 +214,15 @@ def main_anythingtracker(dataset, oracle_file, results_dir_parent, results_csv_f
 
 
 if __name__=="__main__":
-    dataset = "annotation_b" # 'a' for 'annotated data A and b for annotated data B
-    oracle_file = join("data", "annotation", f"{dataset}_100.json") # to get the ground truth
-    results_dir_parent = join("data", "results", "tracked_maps", dataset) # where the target regions are
-    results_csv_file_folder = join("data", "results", "measurement_results", dataset) # to write the measurement results
-    os.makedirs(results_csv_file_folder, exist_ok=True)
-
-    # Run measurement for AnythingTracker
+    # Run measurement for RegionTracker and Baselines on annotated data A and B
+    # change the 'datasets' and 'approaches' to specify the measurement if needed
+    datasets = ["annotation_a", "annotation_b"] 
     approaches = ["", "line", "word"] # our approach, line-level diff, word-level diff
-    for approach in approaches:
-        main_anythingtracker(dataset, oracle_file, results_dir_parent, results_csv_file_folder, approach)
-        print(f"Measurement for approach {approach} done.")
-
-    # Run measurement for ablation study (techniques)
-    main_ablation_study(dataset, oracle_file, results_dir_parent, results_csv_file_folder)
-
-    # Run measurement for ablation study (context sizes)
-    main_ablation_study_context_size(dataset, oracle_file, results_dir_parent, results_csv_file_folder)
+    for dataset in datasets:
+        oracle_file = join("data", "annotation", f"{dataset}_100.json") # to get the ground truth
+        results_dir_parent = join("data", "results", "tracked_maps", dataset) # where the target regions are
+        results_csv_file_folder = join("data", "results", "measurement_results", dataset) # to write the measurement results
+        os.makedirs(results_csv_file_folder, exist_ok=True)
+        for approach in approaches:
+            main_anythingtracker(dataset, oracle_file, results_dir_parent, results_csv_file_folder, approach)
+            print(f"Measurement for approach {approach} on dataset {dataset} done.")
