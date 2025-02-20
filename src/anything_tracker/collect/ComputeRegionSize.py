@@ -165,7 +165,7 @@ class ComputeRegionSize():
             source_repo_init.checkout_latest_commits()
             print(f"Found {len(repo_dirs)} repositories.")
             self.get_region_zises_suppression(repo_dirs)
-        else: # self.dataset == "annodata", "automated"
+        else: # self.dataset == "annotaion_a", "annotaion_b"
             # prepare repositories
             source_repo_init = SourceRepos()
             repo_dirs = source_repo_init.get_repo_dirs()
@@ -175,14 +175,13 @@ class ComputeRegionSize():
 
 
 if __name__ == "__main__":
-    dataset = "automated" # can be "automated", "annodata", and "suppression"
+    dataset = "annotation_a" # can be "annotation_a", "annotation_b", and "suppression"
     results_file_folder = join("data", "results", "table_plots")
     makedirs(results_file_folder, exist_ok=True)
     oracle_file = None
     if dataset == "annodata":
-        oracle_file = join("data", "annotation", "annotations_100.json")
-    elif dataset == "automated":
-        oracle_file = join("data", "automated", "auto_100_tree_sitter.json")
-    else:
         oracle_file = join("data", "suppression_data") # it is a folder
+    else:
+        oracle_file = join("data", "annotation", f"{dataset}_100.json")
+        
     ComputeRegionSize(oracle_file, results_file_folder, dataset).run()

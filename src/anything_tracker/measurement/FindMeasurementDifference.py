@@ -50,11 +50,11 @@ def tell_the_differences(common_meta_lines, ranges_and_matches, results_csv_file
             csv_writer.writerow(row)
 
 
-def annotated_data_main(common_folder):
+def annotated_data_main(dataset, common_folder):
     # annotated data
-    common = join(common_folder, "annodata")
+    common = join(common_folder, dataset)
     results_csv_file = join(common, "different_cases.csv")
-    file_name_base = "measurement_results_metrics_annodata"
+    file_name_base = f"measurement_results_metrics_{dataset}"
     file_list = [
             join(common, f"{file_name_base}_line.csv"),
             join(common, f"{file_name_base}_word.csv"),
@@ -77,5 +77,6 @@ def suppression_main(common_folder):
 
 if __name__=="__main__":
     common_folder = join("data", "results", "measurement_results")
-    annotated_data_main(common_folder)
-    suppression_main(common_folder)
+    annotated_data_main("annotation_a", common_folder)
+    # annotated_data_main("annotation_b", common_folder)
+    # suppression_main(common_folder)

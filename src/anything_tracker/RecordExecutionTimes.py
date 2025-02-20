@@ -14,7 +14,7 @@ class RecordExecutionTimes():
 
     def write_execution_time(self):
         # prepare the time data for writing
-        overall_time = float(self.one_round_time_info.compute_candidates_time) + float(self.one_round_time_info.select_target_time)
+        overall_time = f"{float(self.one_round_time_info.compute_candidates_time) + float(self.one_round_time_info.select_target_time):.2f}"
         self.one_round_time_info.overall_time = overall_time
 
         # ge t all time relevant numbers as a list

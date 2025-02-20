@@ -81,23 +81,13 @@ class ComputeCandidatesForAnnoData():
             json.dump(target_regions_for_1_data, ds, indent=4, ensure_ascii=False)
 
 
-def main_ablation_study(dataset, oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques):
-    ablation_settings = ["off_diff", "off_move", "off_search", "off_fine"]
-    for i, setting in enumerate(ablation_settings):
-        result_dir = join(result_dir_parent, f"mapped_regions_{dataset}_{setting}")
-        time_file_to_write = join(time_file_folder, f"execution_time_{dataset}_{setting}.csv")
-        turn_off_techniques[i] = True
-        turn_off_techniques_obj = SpecifyToTurnOffTechniques(turn_off_techniques)
-        ComputeCandidatesForAnnoData(oracle_file, result_dir, context_line_num, time_file_to_write, turn_off_techniques_obj).run()
-        turn_off_techniques = [False, False, False, False] # to start the next iteration
-
 def main_anythingtracker(dataset, oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques):
     result_dir = join(result_dir_parent, f"mapped_regions_{dataset}")
     time_file_to_write = join(time_file_folder, f"execution_time_{dataset}.csv")
     if context_line_num == 0: # ablation study of techniques
         result_dir = f"{result_dir}_off_context"
         time_file_to_write = time_file_to_write.replace(".csv", "_off_context.csv")
-    else:
+    elif context_line_num != 15:
         result_dir = f"{result_dir}_{context_line_num}"
         time_file_to_write = time_file_to_write.replace(".csv", f"_{context_line_num}.csv")
 
@@ -105,34 +95,18 @@ def main_anythingtracker(dataset, oracle_file, result_dir_parent, time_file_fold
     ComputeCandidatesForAnnoData(oracle_file, result_dir, context_line_num, time_file_to_write, turn_off_techniques_obj).run()
 
 if __name__ == "__main__":
+    # Run RegionTracker to track annotated data A and B.
+    datasets = ["annotation_a", "annotation_b"] # the desired one or two annotated dataset(s)
     '''
-    * context_line_num should be a num >=0.
-        0 means no contexts.
-        >0 means get the corresponding number of lines before and after respectively as contexts.
-
-    * turn_off_techniques
-    There are 4 techniques can be optionally turned off, support turn off one or multiple at a time.
-        0. diff-based candidate computation  1. move detection  2. search matches  3. fine-grain borders
-        > change the boolean to True to turn off the corresponding technique.
+    context_line_num should be a num >=0.
+     * 0 means no contexts.
+     * >0 means get the corresponding number of lines before and after respectively as contexts.
     '''
-
-    dataset = "annotation_b" # 'a' for 'annotated data A and b for annotated data B
-    oracle_file = join("data", "annotation", f"{dataset}_100.json")
-    result_dir_parent = join("data", "results", "tracked_maps", dataset)
-    time_file_folder = join("data", "results", "execution_time", dataset)
-    makedirs(time_file_folder, exist_ok=True)
-    context_line_num = 15 
+    context_line_num = 15
     turn_off_techniques = [False, False, False, False] 
-    
-    # Three options to start experiments (specify to run one or more of them as desired):
-    # 1. Run AnythingTracker
-    main_anythingtracker(dataset, oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques)
-
-    # 2. Run ablation study (about techniques)
-    main_ablation_study(dataset, oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques)
-
-    # 3. Run ablation study (about context sizes) 
-    context_line_num_list = [0, 1, 2, 3, 5, 10, 20, 25, 30] # without the context_line_num
-    for context_line_num in context_line_num_list:
-        # context_line_num = 0 --> disable context-aware similarity
+    for dataset in datasets:
+        oracle_file = join("data", "annotation", f"{dataset}_100.json")
+        result_dir_parent = join("data", "results", "tracked_maps", dataset)
+        time_file_folder = join("data", "results", "execution_time", dataset)
+        makedirs(time_file_folder, exist_ok=True)
         main_anythingtracker(dataset, oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques)

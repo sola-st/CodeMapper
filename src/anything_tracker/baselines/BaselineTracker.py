@@ -85,7 +85,7 @@ class BaselineTracker():
 
     def run(self):
         # Get all diff-based candidate candidates
-        first_phrase_start_time = time.time()
+        # first_phrase_start_time = time.time()
         # create output folder
         os.makedirs(join(self.results_dir, self.iteration_index), exist_ok=True)
 
@@ -100,7 +100,7 @@ class BaselineTracker():
         # phase 1: compute candidate regions
         candidate_regions = self.compute_candidate_regions()
         print(f"Iteration #{self.iteration_index}")
-        self.one_round_time_info = update_time_records(self.one_round_time_info, time.time(), first_phrase_start_time, "compute_candidates_time")
+        self.one_round_time_info = update_time_records(self.one_round_time_info, time.time(), start, "compute_candidates_time")
         print(f"Executing time: {self.one_round_time_info.compute_candidates_time} milliseconds")
         if candidate_regions == [] and self.target_file_lines:
             print(f"--No candidate regions.\n  {self.repo_dir}\n  {self.source_file_path}\n  {self.interest_character_range.four_element_list}\n")
@@ -182,7 +182,7 @@ def main(*args): # for java elements
     target_file_path = get_target_file_path(repo_dir, source_commit, target_commit, source_file_path)
     get_target_path_end = time.time()
     
-    if isinstance(target_file_path, bool):
+    if target_file_path == None:
         # the file was deleted
         target_json = {
             "iteration": current_history_pair_idx,
@@ -224,7 +224,7 @@ def main_suppression_annodata(*args): # can be used to start tracking annotation
     target_file_path = get_target_file_path(repo_dir, source_commit, target_commit, source_file_path)
     get_target_path_end = time.time()
     
-    if isinstance(target_file_path, bool):
+    if target_file_path == None:
         # the file was deleted
         target_json = {
             "iteration": ground_truth_index,

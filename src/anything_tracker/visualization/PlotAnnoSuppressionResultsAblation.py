@@ -78,7 +78,7 @@ def plot_recall_sets_sub_plot(ax, data, xticklabels, title, show_yticks):
     if show_yticks:
         ax.set_yticks(ind)
         ax.set_yticklabels(xticklabels)
-        ax.legend(loc='upper right', prop={'size': 10})
+        ax.legend(loc='upper right', prop={'size': 9})
     else:
         ax.set_yticks(ind)
         ax.set_yticklabels([])
