@@ -3,8 +3,10 @@
 Given a code region in one commit, RegionTracker finds the corresponding region in another commit. 
 
 **Dependencies:**
-  Python = ">=3.7", 
-  GitPython~=3.1.31
+  * Python = ">=3.7"
+  * GitPython~=3.1.31
+  * tree-sitter 
+    * Run ```pip install -r requirements.txt``` in the root directory of this project.
 
 ### Data availability
 All datasets are available in the *data* directory.
