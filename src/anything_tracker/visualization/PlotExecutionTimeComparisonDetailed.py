@@ -14,51 +14,81 @@ def plot_detailed_times_record_ratios(groups, xticklabels, result_pdf):
     colors = ["#780C28", "#B3D8A8", "#F08080", "#FAC45A", "#7A70B5", "#C8AAAA"]
     segment_labels = ['Identify target file', 'diff computation', 'Diff-Based Candidate Extraction',
                       'Movement Detection', 'Text Search', 'Target Region Selection']
+    context_size_info = ["5 lines", "10 lines", "15 lines (Our Approach)"] # map with a smaller y
+    # context_size_info = ["5 lines", "10 lines", "15 lines\n(Our Approach)"] # map with a larger y
 
     # Create the figure and axes
     plt.rcParams["pdf.fonttype"] = 42
     plt.rcParams.update({'font.size': 10})
-    fig, ax = plt.subplots(figsize=(4.5, 3))
-
-    # Position of the bars on the x-axis
-    bar_width = 0.4
-    group_positions = range(len(groups))
+    fig, ax = plt.subplots(figsize=(5, 3))
     
-    # Loop over each group to plot
+    num_groups = len(groups)
+    group_last_n = 3  # Last three bars will be grouped under one label
+    bar_width = 0.4  # Width of bars
+
+    # Define positions: normal spacing for first ones, closer spacing for the last three
+    group_positions_tmp = list(range(num_groups - group_last_n)) # Normal positions
+    group_positions = [i *0.6 for i in group_positions_tmp]
+    last_group_positions = np.linspace(num_groups - group_last_n, num_groups - group_last_n + 1, group_last_n)  # Closer spacing
+    group_positions.extend(last_group_positions)
+
+    # Set x-tick positions: Normal + Centered position for last three
+    xtick_positions = list(range(num_groups - group_last_n)) + [np.mean(last_group_positions)]
+    adjusted_xticklabels = xticklabels[:num_groups - group_last_n]
+    adjusted_xticklabels.append(xticklabels[-1])  # One label for last 3
+
+    # Plot bars
     for i, (group, approach) in enumerate(zip(groups, xticklabels)):
         ratios = {"Approach": approach}
         overall = group['overall']
         subnumbers = group['subnumbers']
         ratios.update({"Overall": f"{(overall):.4f}"})
         ratios.update({"Phase_1": f"{(overall - subnumbers[-1]):.4f}"})
-        bottom = 0  # Start position for the first segment in this group
-        for subnumber, color, substep in zip(subnumbers, colors, segment_labels):
-            ax.bar(i, subnumber, width=bar_width, bottom=bottom, color=color)
+
+        bottom = 0  
+        # Determine x position for bar
+        if i < num_groups - group_last_n:
+            x_pos = i  # Normal positioning
+        else:
+            x_pos = last_group_positions[i - (num_groups - group_last_n)]  # Keep them individually placed
+
+        # Plot each segment in the stacked bar
+        for subnumber, color, substep in zip(group['subnumbers'], colors, segment_labels):
+            ax.bar(x_pos, subnumber, width=bar_width, bottom=bottom, color=color)
+            if i > 1 and bottom == 0: # 0 for line diff, 1 for word diff
+                ax.text(x_pos, 10, f"{context_size_info[i-2]}", 
+                        ha='center', va='bottom', color='black', rotation=90) # mapped with a smaller y
+                # ax.text(x_pos, 10, f"{context_size_info[i-2]}", 
+                #         ha='center', va='bottom', fontsize=10, color='black', rotation=90) # mapper with a larger y
+
             bottom += subnumber
             # Compute ratio
             ratio = f"{(subnumber / overall * 100):.2f}%"  
             ratios.update({substep: f"{subnumber:.4f} ({ratio})"})
         all_ratios.append(ratios)
 
-    # Customize the plot
-    ax.set_xticks(group_positions)
-    ax.set_xticklabels(xticklabels)
-    
+    # Set x-ticks (single label for last three bars)
+    ax.set_xticks(xtick_positions)
+    ax.set_xticklabels(adjusted_xticklabels)
     max_overall = max(group['overall'] for group in groups)
-
     # Determine the number of float places in the max_overall to round to
     precision = -int(math.floor(math.log10(max_overall))) + 1
     increment = 10**-precision
 
     # Determine the new y-axis upper limit by rounding up
-    new_ylim = math.ceil(max_overall / increment) * increment + 3 * increment
+    new_ylim = math.ceil(max_overall / increment) * increment + 3 * increment # a smaller y
+    # new_ylim = math.ceil(max_overall*2 / increment) * increment # a much bigger y
     ax.set_ylim(0, new_ylim)
 
+
+    # Labels and legend
     plt.ylabel('Execution time (milliseconds)')
-    ax.legend(loc="upper left", prop={'size': 10}, \
-            handles=[patches.Patch(color=color, label=label) for color, label in zip(colors, segment_labels)])
+    ax.legend(loc="upper left", 
+              handles=[patches.Patch(color=color, label=label) for color, label in zip(colors, segment_labels)])
+
     plt.tight_layout()
     plt.savefig(result_pdf)
+
 
     ratio_record_file = result_pdf.replace(".pdf", "_ratios.json")
     with open(ratio_record_file, "w") as ds:
@@ -127,19 +157,27 @@ class PlotExecutionTimeComparisonDetailed():
         for t in data_type:
             execution_time_file_line = join(execution_time_folder, t, f"execution_time_{t}_line.csv")
             execution_time_file_word = join(execution_time_folder, t, f"execution_time_{t}_word.csv")
+            execution_time_file_at_5 = join(execution_time_folder, t, f"execution_time_{t}_5.csv")
+            execution_time_file_at_10 = join(execution_time_folder, t, f"execution_time_{t}_10.csv")
             execution_time_file_at = join(execution_time_folder, t, f"execution_time_{t}.csv")
                 
             if t == "annotation_a":
                 file_list_annodata_a.append(execution_time_file_line)
                 file_list_annodata_a.append(execution_time_file_word)
+                file_list_annodata_a.append(execution_time_file_at_5)
+                file_list_annodata_a.append(execution_time_file_at_10)
                 file_list_annodata_a.append(execution_time_file_at)
             elif t == "annotation_b":
                 file_list_annodata_b.append(execution_time_file_line)
                 file_list_annodata_b.append(execution_time_file_word)
+                file_list_annodata_b.append(execution_time_file_at_5)
+                file_list_annodata_b.append(execution_time_file_at_10)
                 file_list_annodata_b.append(execution_time_file_at)
             else:
                 file_list_suppression.append(execution_time_file_line)
                 file_list_suppression.append(execution_time_file_word)
+                file_list_suppression.append(execution_time_file_at_5)
+                file_list_suppression.append(execution_time_file_at_10)
                 file_list_suppression.append(execution_time_file_at)
         
         groups = []
@@ -164,7 +202,7 @@ class PlotExecutionTimeComparisonDetailed():
 if __name__=="__main__":
     # Get execution time comparation plot based on a single round time records
     execution_time_folder = join("data", "results", "execution_time")
-    xticklabels = [r'$\text{diff}_{\text{line}}$', r'$\text{diff}_{\text{word}}$', 'RegionTracker']
+    xticklabels = [r'$\text{diff}_{\text{line}}$', r'$\text{diff}_{\text{word}}$', 'CodeMapper-5', 'CodeMapper-10', 'CodeMapper']
     result_pdf = join("data", "results", "table_plots", "execution_time_baseline_comparison_detailed.pdf")
     data_type = ["annotation_a", "annotation_b", "suppression"] 
     PlotExecutionTimeComparisonDetailed(execution_time_folder, xticklabels, result_pdf, data_type).run()

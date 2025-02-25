@@ -20,23 +20,33 @@ class PlotExecutionTimeComparisonDetailedMultiRound(PlotExecutionTimeComparisonD
                 if round == 1: # the first (original) round --> the one we do the measurement
                     execution_time_file_line = join(execution_time_folder, t, f"execution_time_{t}_line.csv")
                     execution_time_file_word = join(execution_time_folder, t, f"execution_time_{t}_word.csv")
+                    execution_time_file_at_5 = join(execution_time_folder, t, f"execution_time_{t}_5.csv")
+                    execution_time_file_at_10 = join(execution_time_folder, t, f"execution_time_{t}_10.csv")
                     execution_time_file_at = join(execution_time_folder, t, f"execution_time_{t}.csv")
                 else:
                     execution_time_file_line = join(execution_time_folder, f"round_{round}", t, f"execution_time_{t}_line.csv")
                     execution_time_file_word = join(execution_time_folder, f"round_{round}", t, f"execution_time_{t}_word.csv")
+                    execution_time_file_at_5 = join(execution_time_folder, f"round_{round}", t, f"execution_time_{t}_5.csv")
+                    execution_time_file_at_10 = join(execution_time_folder, f"round_{round}", t, f"execution_time_{t}_10.csv")
                     execution_time_file_at = join(execution_time_folder, f"round_{round}", t, f"execution_time_{t}.csv")
                     
                 if t == "annotation_a":
                     file_list_annodata_a.append(execution_time_file_line)
                     file_list_annodata_a.append(execution_time_file_word)
+                    file_list_annodata_a.append(execution_time_file_at_5)
+                    file_list_annodata_a.append(execution_time_file_at_10)
                     file_list_annodata_a.append(execution_time_file_at)
                 elif t == "annotation_b":
                     file_list_annodata_b.append(execution_time_file_line)
                     file_list_annodata_b.append(execution_time_file_word)
+                    file_list_annodata_b.append(execution_time_file_at_5)
+                    file_list_annodata_b.append(execution_time_file_at_10)
                     file_list_annodata_b.append(execution_time_file_at)
                 else:
                     file_list_suppression.append(execution_time_file_line)
                     file_list_suppression.append(execution_time_file_word)
+                    file_list_suppression.append(execution_time_file_at_5)
+                    file_list_suppression.append(execution_time_file_at_10)
                     file_list_suppression.append(execution_time_file_at)
         
             groups = []
@@ -78,7 +88,7 @@ class PlotExecutionTimeComparisonDetailedMultiRound(PlotExecutionTimeComparisonD
 if __name__=="__main__":
     # Get execution time comparation plot based on a single round time records
     execution_time_folder = join("data", "results", "execution_time")
-    xticklabels = [r'$\text{diff}_{\text{line}}$', r'$\text{diff}_{\text{word}}$', 'RegionTracker']
+    xticklabels = [r'$\text{diff}_{\text{line}}$', r'$\text{diff}_{\text{word}}$', 'CodeMapper-5', 'CodeMapper-10', 'CodeMapper']
     result_pdf = join("data", "results", "table_plots", "execution_time_baseline_comparison_detailed_multiRound.pdf")
     data_type = ["annotation_a", "annotation_b", "suppression"] 
     PlotExecutionTimeComparisonDetailedMultiRound(execution_time_folder, xticklabels, result_pdf, data_type).run()
