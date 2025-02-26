@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/magenta/magenta.git",
     "586d65f7": {
         "file": "magenta/models/latent_transfer/model_dataspace.py",
         "range": "[44, 22, 44, 36]"

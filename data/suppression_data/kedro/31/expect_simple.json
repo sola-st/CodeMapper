@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/kedro-org/kedro.git",
     "c5ccb630": {
         "file": "tests/framework/cli/hooks/test_manager.py",
         "range": "[58, 49, 58, 75]"

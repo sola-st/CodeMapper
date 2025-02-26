@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/thumbor/thumbor.git",
     "71528f2a": {
         "file": "thumbor/engines/__init__.py",
         "range": "[35, 72, 35, 118]"

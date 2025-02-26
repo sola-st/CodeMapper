@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/thumbor/thumbor.git",
     "3d5fbe93": {
         "file": "tests/handlers/test_base_handler.py",
         "range": "[49, 48, 49, 77]"

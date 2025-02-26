@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/dmlc/dgl.git",
     "74e13eea": {
         "file": "python/dgl/nn/mxnet/softmax.py",
         "range": "[2, 20, 2, 28]"

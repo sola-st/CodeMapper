@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/dmlc/dgl.git",
     "9b4d6079": {
         "file": "python/dgl/heterograph.py",
         "range": "[2800, 25, 2800, 54]"

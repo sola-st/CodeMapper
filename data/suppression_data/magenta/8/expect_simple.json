@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/magenta/magenta.git",
     "e711cfad": {
         "file": "magenta/music/notebook_utils.py",
         "range": "[55, 72, 55, 90]"

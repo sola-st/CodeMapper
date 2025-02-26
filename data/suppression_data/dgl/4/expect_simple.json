@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/dmlc/dgl.git",
     "5d3f470b": {
         "file": "python/dgl/nn/mxnet/glob.py",
         "range": "[2, 20, 2, 28]"

@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/kedro-org/kedro.git",
     "4b218b8a": {
         "file": "kedro/extras/extensions/ipython.py",
         "range": "[1, 73, 1, 87]"

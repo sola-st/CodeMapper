@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/thumbor/thumbor.git",
     "71528f2a": {
         "file": "thumbor/loaders/http_loader.py",
         "range": "[61, 43, 61, 101]"

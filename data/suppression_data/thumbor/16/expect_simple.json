@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/thumbor/thumbor.git",
     "71528f2a": {
         "file": "thumbor/detectors/local_detector.py",
         "range": "[61, 32, 61, 61]"

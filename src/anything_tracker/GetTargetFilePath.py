@@ -23,21 +23,22 @@ def get_target_file_path(repo_dir, source_commit, target_commit, source_file_pat
     to_check_item = run_command(get_target_files_command, repo_dir)
     # Examples: M    src/traverse.py src/common/traverse.py
     #           D    src/traverse.py src/common/traverse.py
-    tmp = to_check_item.split("\t")
-    change_type = tmp[0]
+    if to_check_item:
+        tmp = to_check_item.split("\t")
+        change_type = tmp[0]
 
-    if change_type != "D":
-        target_file_path = tmp[1].strip() 
-    else:
-        get_renamed_files_command = f"git diff --name-status --diff-filter=R {source_commit} {target_commit}" 
-        renames = run_command(get_renamed_files_command, repo_dir)
-        if renames:
-            to_check_list = renames.strip().split("\n")
-            for to_check in to_check_list:
-                # R094    src/traverse.py src/common/traverse.py
-                tmp = to_check.split("\t")
-                if tmp[1] == source_file_path:
-                    target_file_path = tmp[2]
-                    break
+        if change_type != "D":
+            target_file_path = tmp[1].strip() 
+        else:
+            get_renamed_files_command = f"git diff --name-status --diff-filter=R {source_commit} {target_commit}" 
+            renames = run_command(get_renamed_files_command, repo_dir)
+            if renames:
+                to_check_list = renames.strip().split("\n")
+                for to_check in to_check_list:
+                    # R094    src/traverse.py src/common/traverse.py
+                    tmp = to_check.split("\t")
+                    if tmp[1] == source_file_path:
+                        target_file_path = tmp[2]
+                        break
 
     return target_file_path

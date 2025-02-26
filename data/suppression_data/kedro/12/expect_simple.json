@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/kedro-org/kedro.git",
     "15df0f33": {
         "file": "kedro/framework/hooks/specs.py",
         "range": "[138, 5, 138, 39]"

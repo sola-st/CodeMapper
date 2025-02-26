@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/dmlc/dgl.git",
     "4bd4d6e3": {
         "file": "python/dgl/base.py",
         "range": "[6, 34, 6, 64]"

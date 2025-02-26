@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/magenta/magenta.git",
     "80df1e92": {
         "file": "magenta/models/score2perf/modalities.py",
         "range": "[36, 5, 36, 43]"

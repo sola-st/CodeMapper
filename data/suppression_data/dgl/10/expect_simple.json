@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/dmlc/dgl.git",
     "071cba1f": {
         "file": "python/dgl/sparse.py",
         "range": "[2, 1, 2, 31]"

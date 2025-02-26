@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/magenta/magenta.git",
     "b996706d": {
         "file": "magenta/models/nsynth/wavenet/nsynth_save_embeddings.py",
         "range": "[22, 31, 22, 65]"

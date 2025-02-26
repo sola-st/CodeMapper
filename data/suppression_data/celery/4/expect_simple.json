@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/celery/celery.git",
     "0e93ee0c": {
         "file": "celery/utils/dispatch/signal.py",
         "range": "[171, 39, 171, 68]"

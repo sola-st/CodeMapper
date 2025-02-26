@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/celery/celery.git",
     "2da41c93": {
         "file": "celery/events/__init__.py",
         "range": "[33, 1, 33, 38]"

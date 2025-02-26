@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/magenta/magenta.git",
     "a91c7dfc": {
         "file": "magenta/models/music_vae/data.py",
         "range": "[50, 39, 50, 60]"

@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/thumbor/thumbor.git",
     "4c0d9117": {
         "file": "tests/compatibility/legacy_file_result_storage.py",
         "range": "[13, 128, 13, 139]"

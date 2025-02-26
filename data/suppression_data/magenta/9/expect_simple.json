@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/magenta/magenta.git",
     "b0b500c5": {
         "file": "magenta/music/__init__.py",
         "range": "[17, 26, 17, 58]"

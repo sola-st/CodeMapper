@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/celery/celery.git",
     "0e93ee0c": {
         "file": "celery/worker/consumer/consumer.py",
         "range": "[559, 43, 559, 72]"

@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/magenta/magenta.git",
     "fbc059db": {
         "file": "magenta/models/onsets_frames_transcription/model.py",
         "range": "[32, 25, 32, 60]"

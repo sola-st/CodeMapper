@@ -54,7 +54,7 @@ class SuppressionDataConversion():
 
         # to check if a file is deleted or not changed
         target_file_to_check = get_target_file_path(self.repo_dir, source_commit, target_commit, source_file)
-        if (not isinstance(target_file_to_check, bool)) and target_file_to_check == target_file: # includes renamed
+        if (target_file_to_check != None) and target_file_to_check == target_file: # includes renamed
             encodings_to_try = ['utf-8', 'latin-1', 'cp1252']
             git_command = f"git diff --ignore-space-at-eol --unified=0 {source_commit}:{source_file} {target_commit}:{target_file}"
             for encoding in encodings_to_try:
@@ -77,7 +77,7 @@ class SuppressionDataConversion():
         after_filter_idx = 0 # make indices consecutive 
         for meta_idx, history in enumerate(data):
             converted_history = [] # full version
-            extracted_commit_range_pieces = {"url":  url} # simplified version
+            extracted_commit_range_pieces = {"url":  self.url} # simplified version
             
             key = f"# S{meta_idx}"
             history_list = history[key] # 0:add, 1:delete or remaining

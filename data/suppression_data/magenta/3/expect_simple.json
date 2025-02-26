@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/magenta/magenta.git",
     "93f7c720": {
         "file": "magenta/interfaces/midi/magenta_midi.py",
         "range": "[29, 30, 29, 64]"

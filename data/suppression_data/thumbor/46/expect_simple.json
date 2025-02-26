@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/thumbor/thumbor.git",
     "032d45c0": {
         "file": "tests/handlers/test_base_handler_with_stored_keys.py",
         "range": "[22, 79, 22, 91]"

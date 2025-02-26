@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/dmlc/dgl.git",
     "ddb5d804": {
         "file": "python/dgl/nn/pytorch/conv/sageconv.py",
         "range": "[2, 49, 2, 60]"

@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/magenta/magenta.git",
     "039cd8bc": {
         "file": "magenta/models/melody_rnn/melody_rnn_model.py",
         "range": "[22, 30, 22, 64]"

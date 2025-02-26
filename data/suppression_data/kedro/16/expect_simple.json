@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/kedro-org/kedro.git",
     "bcd59a5d": {
         "file": "tests/framework/project/test_logging.py",
         "range": "[5, 47, 5, 76]"

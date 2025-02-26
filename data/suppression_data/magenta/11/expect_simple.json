@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/google/yapf.git",
+    "url": "https://github.com/magenta/magenta.git",
     "e47da648": {
         "file": "magenta/models/piano_hero/gold.py",
         "range": "[20, 19, 20, 33]"
