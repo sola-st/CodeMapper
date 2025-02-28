@@ -14,8 +14,8 @@ def plot_detailed_times_record_ratios(groups, xticklabels, result_pdf):
     colors = ["#780C28", "#B3D8A8", "#F08080", "#FAC45A", "#7A70B5", "#C8AAAA"]
     segment_labels = ['Identify target file', 'diff computation', 'Diff-Based Candidate Extraction',
                       'Movement Detection', 'Text Search', 'Target Region Selection']
-    context_size_info = ["5 lines", "10 lines", "15 lines (Our Approach)"] # map with a smaller y
-    # context_size_info = ["5 lines", "10 lines", "15 lines\n(Our Approach)"] # map with a larger y
+    context_size_info = ["5 lines", "10 lines", "15 lines (Default)"] # map with a smaller y
+    # context_size_info = ["5 lines", "10 lines", "15 lines (Default)"] # map with a larger y
 
     # Create the figure and axes
     plt.rcParams["pdf.fonttype"] = 42
