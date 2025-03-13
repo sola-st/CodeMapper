@@ -1,6 +1,6 @@
-# RegionTracker: A Language-Agnostic Approach to Code Region Tracking
+# CodeMapper: A Language-Agnostic Approach to Code Region Tracking
 
-Given a code region in one commit, RegionTracker finds the corresponding region in another commit. 
+Given a code region in one commit, CodeMapper finds the corresponding region in another commit. 
 
 **Dependencies:**
   * Python = ">=3.7"
@@ -21,8 +21,9 @@ All datasets are available in the *data* directory.
   * table_plots &emsp; Result tables and figures.
 
 ## Experiments
+_* Note: Some folders are named 'anything_tracker' instead of 'CodeMapper' because the name was changed during development, but the older name is still used in some parts of the code._
 ### Tracking 
-* **[RegionTracker]** Directory: *src/anything_tracker/experiments*
+* **[CodeMapper]** Directory: *src/anything_tracker/experiments*
   * ComputeCandidatesForAnnoData.py &emsp; Tracking the annotated data A and B. 
   * TrackHistoryPairsSuppression.py &emsp; Tracking the suppression study data.
 * **[Baselines]** The entry point is located in the *src/anything_tracker/baselines* directory.
@@ -39,7 +40,7 @@ All datasets are available in the *data* directory.
 
 ### Evaluation
 * **[Evaluation metrics]** Overlapping, Exact matches, Partial overlaps, Character distance, Recall, Precision, and  F1-score.  
-* **[Measurement]** Directory: *src/anything_tracker/measurement*. These two files work for RegionTracker and baselines.
+* **[Measurement]** Directory: *src/anything_tracker/measurement*. These two files work for CodeMapper and baselines.
   * MeasureAnnotatedData.py &emsp; Check the results of the annotated data A and B. 
   * MeasureSuppression.py &emsp; Check the results of the suppression study data.
 
@@ -55,13 +56,13 @@ All datasets are available in the *data* directory.
 All the result tables and plots are extracted from the files in the *src/anything_tracker/visualization* directory.
 
 * **[Tables for RQ1]** TableAnnoSuppressionResults.py &emsp; Show the comparison with baselines. 
-* **[Tables and Plots for RQ2]** 
+* **[Plots for RQ2]** 
   * PlotAnnoSuppressionResultsAblation.py &emsp; Show the results of the ablation study for disabling different components.
-  * TableContextSizeResults.py &emsp; Show the results of the ablation study for testing different context sizes.
+  * PlotContextSizeResults.py &emsp; Show the results of the ablation study for testing different context sizes.
 * **[Plot for RQ3]** PlotExexutionTimeComparisonDetailed.py &emsp; Show the comparison of execution time with baselines.
 
 ## Reproducing the results in the paper
-Choose between **SLOW MODE**, which runs RegionTracker and baselines to track the datasets, runs the ablation study, and may take more than 30 minutes, including cloning the repositories, depending on the hardware, and **FAST MODE**, which generates the tables and plots (the ones in the RQ answering section) from pre-computed results and should take less than 5 minutes. 
+Choose between **SLOW MODE**, which runs CodeMapper and baselines to track the datasets, runs the ablation study, and may take more than 30 minutes, including cloning the repositories, depending on the hardware, and **FAST MODE**, which generates the tables and plots (the ones in the RQ answering section) from pre-computed results and should take less than 5 minutes. 
 
 **Notes**:
 * By default, the result files are stored in *data/result* and all verifications can be completed normally without modifying any path. 
@@ -69,8 +70,8 @@ Choose between **SLOW MODE**, which runs RegionTracker and baselines to track th
 * Check the [Experiments](#experiments) to locate files.
 
 ### SLOW MODE
-#### RQ1: Effectiveness of RegionTracker. 
-* **RegionTracker**  
+#### RQ1: Effectiveness of CodeMapper. 
+* **CodeMapper**  
   * Tracking
     * Run ComputeCandidatesForAnnoData.py 
     * Run TrackHistoryPairsSuppression.py
@@ -86,7 +87,7 @@ Choose between **SLOW MODE**, which runs RegionTracker and baselines to track th
     * Run MeasureSuppression.py 
 * Run TableAnnoSuppressionResults.py -> Tables 2, 3 and 4.
 
-#### RQ2: Ablation study: Impact of Different Components and Parameters of RegionTracker
+#### RQ2: Ablation study: Impact of Different Components and Parameters of CodeMapper
 * **Disabling components** 
   * Tracking
     * Run DisableComponentAnnodata.py
@@ -102,10 +103,10 @@ Choose between **SLOW MODE**, which runs RegionTracker and baselines to track th
     * ContextMeasureAnnodata.py 
     * ContextMeasureSuppression.py
 
-* Run TableContextSizeResults.py -> Tables 5, 6, and 7.
+* Run PlotContextSizeResults.py -> Figure 9.
 * Run PlotAnnoSuppressionResultsAblation.py -> Figure 10.
 
-#### RQ3: Efficiency of RegionTracker.
+#### RQ3: Efficiency of CodeMapper.
 * The execution time files are already there (*data/results/execution_time*) as the experiments in RQ1 are done. 
 * Run PlotExexutionTimeComparisonDetailed.py   
   -> Figure 11.  
@@ -114,11 +115,11 @@ Choose between **SLOW MODE**, which runs RegionTracker and baselines to track th
 
 ### FAST MODE
 By default, all the results tables and figures are in *data/results/table/plots*.  
-All tables in results: Tables 2--7.  
-All figures in results (exclude the motivation/example figures): Figures 10 and 11.  
+All tables in results: Tables 2, 3, and 4.  
+All figures in results (exclude the motivation/example figures): Figures 9, 10, and 11.  
 The following files are in the *src/anything_tracker/visualization* directory.
 * Run TableAnnoSuppressionResults.py -> Tables 2, 3 and 4.
-* Run TableContextSizeResults.py -> Tables 5, 6, and 7.
+* Run PlotContextSizeResults.py -> Figure 9.
 * Run PlotAnnoSuppressionResultsAblation.py -> Figure 10.
 * Run PlotExexutionTimeComparisonDetailed.py  
   -> Figure 11.  
