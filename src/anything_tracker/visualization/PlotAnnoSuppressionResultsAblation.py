@@ -166,7 +166,7 @@ if __name__=="__main__":
         suppression_data = init.run("suppression", True)
         data = [annodata_a, annodata_b, suppression_data]
         plot_pdf = join(output_dir, "overall_ablation_plot.pdf")
-        titles = ["Annotated data A", "Annotated data B", "Suppression study data"]
+        titles = ["Data A", "Data B", "Suppression study data"]
         plot_all_recall_sets(data, xticklabels, titles, plot_pdf)
 
 
