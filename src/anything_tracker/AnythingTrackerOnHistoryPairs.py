@@ -178,6 +178,9 @@ class AnythingTrackerOnHistoryPairs():
 
         self.target_file_lines = checkout_to_read_file(self.repo_dir, self.target_commit, self.target_file_path)
         self.one_round_time_info = update_time_records(self.one_round_time_info, time.time(), start, "read_source_target_file_time")
+        if not self.target_file_lines:
+            print(f"Identified target_file_path {self.target_file_path} does not exists or has encoding error in target_commit.")
+            return self.dist_based_target_str_list, self.one_round_time_info
 
         # phase 1: compute candidate regions
         candidate_regions = self.compute_candidate_regions()
@@ -339,7 +342,8 @@ def main(*args):
     target_file_path = get_target_file_path(repo_dir, source_commit, target_commit, source_file_path)
     get_target_path_end = time.time()
 
-    if target_file_path == None:
+    one_round_time_info = OneRoundTimeInfo()
+    if target_file_path == "D":
         # the file was deleted
         target_json = {
             "iteration": current_history_pair_idx,
@@ -357,10 +361,13 @@ def main(*args):
         }
         dist_based.append(target_json)
         print("No target file.")
-    else:
+    elif target_file_path:
         dist_based, one_round_time_info = AnythingTrackerOnHistoryPairs(repo_dir, source_commit, source_file_path,\
                 target_commit, target_file_path, source_range, ground_truth_results_dir, current_history_pair_idx, \
                 context_line_num, turn_off_techniques).run()
+    else:
+        print("Uncommon file change types.")
+        one_round_time_info.candidate_numbers = 0
 
     one_round_time_info = update_time_records(one_round_time_info, get_target_path_end, get_target_path_start, "get_target_file_path_time")
     # Add get_target_file_path_time to phrase 1
@@ -384,7 +391,9 @@ def main_suppression(*args): # can be used to start tracking annotation and supp
     get_target_path_start = time.time()
     target_file_path = get_target_file_path(repo_dir, source_commit, target_commit, source_file_path)
     get_target_path_end = time.time()
-    if target_file_path == None:
+
+    one_round_time_info = OneRoundTimeInfo()
+    if target_file_path == "D":
         # the file was deleted
         target_json = {
             "iteration": ground_truth_index,
@@ -402,10 +411,12 @@ def main_suppression(*args): # can be used to start tracking annotation and supp
         }
         dist_based.append(target_json)
         print("No target file.")
-    else:
+    elif target_file_path:
         dist_based, one_round_time_info = AnythingTrackerOnHistoryPairs(repo_dir, source_commit, source_file_path,\
                 target_commit, target_file_path, source_range, results_dir, ground_truth_index, \
                 context_line_num, turn_off_techniques).run()
+    else:
+        print("Uncommon file change types.")
         
     one_round_time_info = update_time_records(one_round_time_info, get_target_path_end, get_target_path_start, "get_target_file_path_time")
     # Add get_target_file_path_time to phrase 1

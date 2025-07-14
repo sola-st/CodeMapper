@@ -1,5 +1,6 @@
 data/* 
 !data/source_repos.txt
+!data/source_repos_java.txt
 !data/annotation
 !data/python_repo.txt
 !data/suppressionb_data

@@ -71,6 +71,13 @@ class SourceRepos():
             repo_dir_to_commit[repo_dir] = commit_id
             print(f"Checked out commit {commit_id} of {repo_dir}")
         return repo_dir_to_commit
+    
+    def checkout_latest_commits_single_project(self, repo_dir) -> Dict[str, str]:
+        repo = Repo(repo_dir)
+        branch = get_name_of_main_branch(repo)
+        latest_commit = next(repo.iter_commits(branch, max_count=1,
+                                                until=self.latest_commit_date))
+        repo.git.checkout(latest_commit, force=True)
 
     def repo_name_to_git_url(self, repo_name: str) -> str:
         with open(self.repo_file) as f:
