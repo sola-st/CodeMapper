@@ -142,6 +142,20 @@ class MeasureAnnotatedData():
             with open(json_results_file, 'r') as f:
                 candidate_regions = json.load(f)
 
+            if not candidate_regions:
+                self.update_results(None, None, None, 0, 0, 0, "W")
+                self.candidate_nums.append(region["all_candidates_num"])
+                self.target_region_indices.append(region["index"])
+                self.predicted_commits.append(expected_commit)
+                self.change.append("")
+                self.expected.append(expected_range)
+                self.predicted.append("wrong target file detection.")
+
+                if self.indices[-1] == repo:
+                    self.indices[-1] = f"{repo} - {i}"
+                else: 
+                    self.indices.append(i)
+
             for region in candidate_regions: 
                 if region["kind"] == "no candidate regions" and "off_diff" in self.results_csv_file:
                     self.update_results(None, None, None, 0, 0, 0, "W")
@@ -167,7 +181,7 @@ class MeasureAnnotatedData():
                 if predicted_file == expected_file or (predicted_file == None and expected_range == None):
                     if predicted_range == expected_range:
                         # result 1: exact matches
-                        self.update_results(None, None, None, 1, 1, 1,"Y")
+                        self.update_results(None, None, None, 1, 1, 1, "Y")
                     else:
                         if not expected_range or (not predicted_range):
                             self.update_results(None, None, None, 0, 0, 0, "W")
