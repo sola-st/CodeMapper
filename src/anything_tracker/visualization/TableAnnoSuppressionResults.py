@@ -159,7 +159,7 @@ def program_element_main(common_folder, program_element, output_dir):
             join(common, f"{file_name_base}_word.csv"),
             join(common, f"{file_name_base}.csv")]
     data = get_data(file_list)
-    caption = f"Results on tracking prior work data ({program_element.split('_', 1)[0])}"
+    caption = f"Results on tracking prior work data ({program_element.split('_', 1)[0]})"
     label = f"results_on_{program_element}"
     makedirs(output_dir, exist_ok=True)
     tex_file = join(output_dir, f"program_element_{program_element}_comparison_table.tex")
