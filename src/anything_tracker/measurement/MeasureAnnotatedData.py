@@ -144,8 +144,8 @@ class MeasureAnnotatedData():
 
             if not candidate_regions:
                 self.update_results(None, None, None, 0, 0, 0, "W")
-                self.candidate_nums.append(region["all_candidates_num"])
-                self.target_region_indices.append(region["index"])
+                self.candidate_nums.append(0)
+                self.target_region_indices.append(0)
                 self.predicted_commits.append(expected_commit)
                 self.change.append("")
                 self.expected.append(expected_range)
@@ -230,10 +230,10 @@ def main_anythingtracker(dataset, oracle_file, results_dir_parent, results_csv_f
 if __name__=="__main__":
     # Run measurement for RegionTracker and Baselines on annotated data A and B
     # change the 'datasets' and 'approaches' to specify the measurement if needed
-    datasets = ["annotation_a", "annotation_b"] 
+    datasets = ["annotation_a", "annotation_b", "variable_test", "block_test", "method_test"] # the desired one or more dataset(s)
     approaches = ["", "line", "word"] # our approach, line-level diff, word-level diff
     for dataset in datasets:
-        oracle_file = join("data", "annotation", f"{dataset}_100.json") # to get the ground truth
+        oracle_file = join("data", "annotation", f"{dataset}.json") # to get the ground truth
         results_dir_parent = join("data", "results", "tracked_maps", dataset) # where the target regions are
         results_csv_file_folder = join("data", "results", "measurement_results", dataset) # to write the measurement results
         os.makedirs(results_csv_file_folder, exist_ok=True)

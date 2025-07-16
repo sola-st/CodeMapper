@@ -96,7 +96,11 @@ class BaselineTracker():
 
         self.target_file_lines = checkout_to_read_file(self.repo_dir, self.target_commit, self.target_file_path)
         self.one_round_time_info = update_time_records(self.one_round_time_info, time.time(), start, "read_source_target_file_time")
-
+        self.one_round_time_info = update_time_records(self.one_round_time_info, time.time(), start, "read_source_target_file_time")
+        if not self.target_file_lines:
+            print(f"Identified target_file_path {self.target_file_path} does not exists or has encoding error in target_commit.")
+            return self.dist_based_target_str_list, self.one_round_time_info
+        
         # phase 1: compute candidate regions
         candidate_regions = self.compute_candidate_regions()
         print(f"Iteration #{self.iteration_index}")
@@ -224,8 +228,17 @@ def main_suppression_annodata(*args): # can be used to start tracking annotation
     target_file_path = get_target_file_path(repo_dir, source_commit, target_commit, source_file_path)
     get_target_path_end = time.time()
     
-    if target_file_path == None:
-        # the file was deleted
+    one_round_time_info = OneRoundTimeInfo()
+    if target_file_path == "D" or target_file_path == None:
+        kind = None
+        if target_file_path: # the file was deleted
+            kind = "no target file (deleted)"
+            print("No target file.")
+        else:
+            one_round_time_info.candidate_numbers = 0
+            kind = "Uncommon file change types."
+            print("Uncommon file change types.")
+
         target_json = {
             "iteration": ground_truth_index,
             "source_commit": source_commit,
@@ -234,12 +247,13 @@ def main_suppression_annodata(*args): # can be used to start tracking annotation
             "target_file": None,
             "source_range": str(source_range),
             "target_range": None,
-            "kind": "no target file (deleted)",
+            "kind": kind,
+            "levenshtein_distance" : None,
             "index": 0, 
-            "all_candidates_num": 1
+            "all_candidates_num": 1,
+            "region_weight": None
         }
         dist_based.append(target_json)
-        print("No target file.")
     else:
         dist_based, one_round_time_info = BaselineTracker(level, repo_dir, source_commit, source_file_path,\
                 target_commit, target_file_path, source_range, results_dir, ground_truth_index).run()

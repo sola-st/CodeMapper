@@ -86,12 +86,12 @@ if __name__ == "__main__":
      * line-level tracking on annotated data B
      * word-level tracking on annotated data B
     '''
-    datasets = ["annotation_a", "annotation_b"]
+    datasets = ["annotation_a", "annotation_b", "variable_test", "block_test", "method_test"] # the desired one or more dataset(s)
     levels = ["line", "word"]
     for dataset in datasets:
         for level in levels:
             result_dir_parent = join("data", "results", "tracked_maps", dataset, f"mapped_regions_{dataset}_{level}")
-            oracle_file = join("data", "annotation", f"{dataset}_100.json")
+            oracle_file = join("data", "annotation", f"{dataset}.json")
             time_file_folder = join("data", "results", "execution_time", dataset)
             makedirs(time_file_folder, exist_ok=True)
             time_file_to_write = join(time_file_folder, f"execution_time_{dataset}_{level}.csv")

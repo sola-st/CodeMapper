@@ -1,5 +1,5 @@
 import json
-from anything_tracker.AnythingTrackerOnHistoryPairs import main_suppression as AnythingTracker
+from anything_tracker.AnythingTrackerOnHistoryPairs import main as AnythingTracker
 from anything_tracker.SpecifyToTurnOffTechniques import SpecifyToTurnOffTechniques
 from anything_tracker.experiments.SourceRepos import SourceRepos
 from os.path import join
@@ -46,6 +46,7 @@ class ComputeCandidatesForAnnoData():
                 mapping["source_commit"],
                 mapping["source_file"],
                 mapping["target_commit"],
+                # mapping["target_file"],
                 character_range_list,
                 result_dir,
                 self.context_line_num,
@@ -95,8 +96,8 @@ def main_anythingtracker(dataset, oracle_file, result_dir_parent, time_file_fold
     ComputeCandidatesForAnnoData(oracle_file, result_dir, context_line_num, time_file_to_write, turn_off_techniques_obj).run()
 
 if __name__ == "__main__":
-    # Run RegionTracker to track annotated data A and B.
-    datasets = ["annotation_a", "annotation_b"] # the desired one or two annotated dataset(s)
+    # Run RegionTracker to track annotated data A and B, and the codetracker data
+    datasets = ["annotation_a", "annotation_b", "variable_test", "block_test", "method_test"] # the desired one or more dataset(s)
     '''
     context_line_num should be a num >=0.
      * 0 means no contexts.
@@ -105,7 +106,7 @@ if __name__ == "__main__":
     context_line_num = 15
     turn_off_techniques = [False, False, False, False] 
     for dataset in datasets:
-        oracle_file = join("data", "annotation", f"{dataset}_100.json")
+        oracle_file = join("data", "annotation", f"{dataset}.json")
         result_dir_parent = join("data", "results", "tracked_maps", dataset)
         time_file_folder = join("data", "results", "execution_time", dataset)
         makedirs(time_file_folder, exist_ok=True)

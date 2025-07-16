@@ -328,21 +328,11 @@ class AnythingTrackerOnHistoryPairs():
             self.dist_based_target_str_list.append(target_json)
 
 
-def main(*args):
-    repo_dir, source_commit, source_file_path, target_commit, source_range, \
-            results_dir, context_line_num, time_file_to_write, turn_off_techniques = args
+def main_with_target_file_path(*args): # can be used to start tracking annotation and suppressions
+    repo_dir, source_commit, source_file_path, target_commit, target_file_path, source_range, results_dir, \
+            context_line_num, time_file_to_write, turn_off_techniques, ground_truth_index, write_mode = args
     dist_based = []
-    tmp = results_dir.split("/")
-    ground_truth_index = tmp[-2] # eg., method/test/15 # the number 16(abs) data in method/test
-    current_history_pair_idx = tmp[-1] # eg., method/test/15/0, the 1st history pair in 15.
-    ground_truth_results_dir = results_dir.rsplit("/", 1)[0]
 
-    # get target file path
-    get_target_path_start = time.time()
-    target_file_path = get_target_file_path(repo_dir, source_commit, target_commit, source_file_path)
-    get_target_path_end = time.time()
-
-    one_round_time_info = OneRoundTimeInfo()
     if target_file_path == "D" or target_file_path == None:
         kind = None
         if target_file_path: # the file was deleted
@@ -354,7 +344,7 @@ def main(*args):
             print("Uncommon file change types.")
 
         target_json = {
-            "iteration": current_history_pair_idx,
+            "iteration": ground_truth_index,
             "source_commit": source_commit,
             "target_commit": target_commit,
             "source_file": source_file_path,
@@ -370,24 +360,14 @@ def main(*args):
         dist_based.append(target_json)
     elif target_file_path:
         dist_based, one_round_time_info = AnythingTrackerOnHistoryPairs(repo_dir, source_commit, source_file_path,\
-                target_commit, target_file_path, source_range, ground_truth_results_dir, current_history_pair_idx, \
+                target_commit, target_file_path, source_range, results_dir, ground_truth_index, \
                 context_line_num, turn_off_techniques).run()
 
-    one_round_time_info = update_time_records(one_round_time_info, get_target_path_end, get_target_path_start, "get_target_file_path_time")
-    # Add get_target_file_path_time to phrase 1
-    one_round_time_info = update_time_records(one_round_time_info, get_target_path_end, get_target_path_start, 0, "compute_candidates_time")
-
-    # write exection times
-    write_mode = "a"
-    if ground_truth_index == "0" and current_history_pair_idx == "0":
-        write_mode = "w"
-    # current_history_pair_idx is used to control where to add an empty line
-    RecordExecutionTimes(write_mode, time_file_to_write, ground_truth_index, \
-            one_round_time_info, current_history_pair_idx).run()
+        RecordExecutionTimes(write_mode, time_file_to_write, ground_truth_index, one_round_time_info).run()
     
     return dist_based
 
-def main_suppression(*args): # can be used to start tracking annotation and suppressions
+def main(*args): # can be used to start tracking annotation and suppressions
     repo_dir, source_commit, source_file_path, target_commit, source_range, results_dir, \
             context_line_num, time_file_to_write, turn_off_techniques, ground_truth_index, write_mode = args
     dist_based = []
@@ -396,7 +376,6 @@ def main_suppression(*args): # can be used to start tracking annotation and supp
     target_file_path = get_target_file_path(repo_dir, source_commit, target_commit, source_file_path)
     get_target_path_end = time.time()
 
-    one_round_time_info = OneRoundTimeInfo()
     one_round_time_info = OneRoundTimeInfo()
     if target_file_path == "D" or target_file_path == None:
         kind = None
@@ -409,7 +388,7 @@ def main_suppression(*args): # can be used to start tracking annotation and supp
             print("Uncommon file change types.")
 
         target_json = {
-            "iteration": current_history_pair_idx,
+            "iteration": ground_truth_index,
             "source_commit": source_commit,
             "target_commit": target_commit,
             "source_file": source_file_path,
