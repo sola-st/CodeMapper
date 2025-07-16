@@ -1,7 +1,7 @@
 from os.path import join
 from os import makedirs
 from anything_tracker.SpecifyToTurnOffTechniques import SpecifyToTurnOffTechniques
-from anything_tracker.experiments.TrackHistoryPairsAnnoData import ComputeCandidatesForAnnoData
+from anything_tracker.experiments.TrackHistoryPairsTrackerData import TrackHistoryPairsTrackerData
 
 
 def main_ablation_study(dataset, oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques):
@@ -11,7 +11,7 @@ def main_ablation_study(dataset, oracle_file, result_dir_parent, time_file_folde
         time_file_to_write = join(time_file_folder, f"execution_time_{dataset}_{setting}.csv")
         turn_off_techniques[i] = True
         turn_off_techniques_obj = SpecifyToTurnOffTechniques(turn_off_techniques)
-        ComputeCandidatesForAnnoData(oracle_file, result_dir, context_line_num, time_file_to_write, turn_off_techniques_obj).run()
+        TrackHistoryPairsTrackerData(oracle_file, result_dir, context_line_num, time_file_to_write, turn_off_techniques_obj).run()
         print(f"[Abaltion] {ablation_settings} done.\n")
         turn_off_techniques = [False, False, False, False] # to start the next iteration
 
@@ -27,7 +27,7 @@ if __name__ == "__main__":
         [off_context] will be done in another ablation study (context size set to 0.)
     '''
     
-    datasets = ["annotation_a", "annotation_b"] # the desired one or two annotated dataset(s)
+    datasets = ["variable_test", "block_test", "method_test"]
     context_line_num = 15 
     turn_off_techniques = [False, False, False, False] 
     for dataset in datasets:

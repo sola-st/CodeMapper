@@ -6,7 +6,7 @@ from os.path import join
 from os import makedirs
 
 
-class ComputeCandidatesForAnnoData():
+class TrackHistoryPairsTrackerData():
     """
     Computes candidate region for all the source regions.
     """
@@ -33,7 +33,7 @@ class ComputeCandidatesForAnnoData():
             url = meta["url"]
             tmp = url.split("/")
             repo_name = tmp[-1]
-            repo_dir = join("data", "repos", repo_name)
+            repo_dir = join("data", "repos_tracker", repo_name)
             result_dir = join(self.result_dir_parent)
 
             mapping:dict = meta["mapping"]
@@ -65,7 +65,7 @@ class ComputeCandidatesForAnnoData():
         repo_folder_suppression = join("data", "repos_tracker")
         source_repo_init = SourceRepos(repo_urls_file, repo_folder_suppression)
         repo_dirs = source_repo_init.get_repo_dirs()
-        source_repo_init.checkout_latest_commits()
+        # source_repo_init.checkout_latest_commits()
         print(f"Found {len(repo_dirs)} repositories.")
 
         args_for_all_maps = self.get_meta_inputs()
@@ -95,11 +95,11 @@ def main_anythingtracker(dataset, oracle_file, result_dir_parent, time_file_fold
         time_file_to_write = time_file_to_write.replace(".csv", f"_{context_line_num}.csv")
 
     turn_off_techniques_obj = SpecifyToTurnOffTechniques(turn_off_techniques)
-    ComputeCandidatesForAnnoData(oracle_file, result_dir, context_line_num, time_file_to_write, turn_off_techniques_obj).run()
+    TrackHistoryPairsTrackerData(oracle_file, result_dir, context_line_num, time_file_to_write, turn_off_techniques_obj).run()
 
 if __name__ == "__main__":
     # Run RegionTracker to track the codetracker data
-    datasets = ["variable_test_outlier"]# ["variable_test", "block_test", "method_test"] # the desired one or more dataset(s)
+    datasets = ["variable_test", "block_test", "method_test"] # the desired one or more dataset(s)
     '''
     context_line_num should be a num >=0.
      * 0 means no contexts.
