@@ -1,19 +1,21 @@
 import json
-from anything_tracker.baselines.BaselineTracker import main_suppression_annodata as AnythingTracker
+from anything_tracker.AnythingTrackerOnHistoryPairs import main as AnythingTracker
+from anything_tracker.SpecifyToTurnOffTechniques import SpecifyToTurnOffTechniques
 from anything_tracker.experiments.SourceRepos import SourceRepos
 from os.path import join
 from os import makedirs
 
 
-class BaselineOnAnnoData():
+class ComputeCandidatesForAnnoData():
     """
     Computes candidate region for all the source regions.
     """
-    def __init__(self, oracle_file, result_dir_parent, time_file_to_write, level):
+    def __init__(self, oracle_file, result_dir_parent, context_line_num, time_file_to_write, turn_off_techniques):
         self.oracle_file = oracle_file
         self.result_dir_parent = result_dir_parent
+        self.context_line_num = context_line_num
         self.time_file_to_write = time_file_to_write
-        self.level = level
+        self.turn_off_techniques = turn_off_techniques
         
     def get_meta_inputs(self):
         """
@@ -40,14 +42,15 @@ class BaselineOnAnnoData():
                 write_mode = "a"
 
             parameter = [
-                self.level,
                 repo_dir,
                 mapping["source_commit"],
                 mapping["source_file"],
                 mapping["target_commit"],
                 character_range_list,
                 result_dir,
+                self.context_line_num,
                 self.time_file_to_write,
+                self.turn_off_techniques,
                 str(i),
                 write_mode
             ]
@@ -67,7 +70,7 @@ class BaselineOnAnnoData():
             target_regions_for_1_data = AnythingTracker(*args)
             source_region_index = args[-2]
             print(f"Compute candidates is done, source region #{source_region_index}.\n")
-            result_dir_with_num = join(args[6], source_region_index)
+            result_dir_with_num = join(args[5], source_region_index)
             self.write_target_regions(result_dir_with_num, target_regions_for_1_data)
 
     def write_target_regions(self, result_dir, target_regions_for_1_data):
@@ -78,22 +81,32 @@ class BaselineOnAnnoData():
             json.dump(target_regions_for_1_data, ds, indent=4, ensure_ascii=False)
 
 
+def main_anythingtracker(dataset, oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques):
+    result_dir = join(result_dir_parent, f"mapped_regions_{dataset}")
+    time_file_to_write = join(time_file_folder, f"execution_time_{dataset}.csv")
+    if context_line_num == 0: # ablation study of techniques
+        result_dir = f"{result_dir}_off_context"
+        time_file_to_write = time_file_to_write.replace(".csv", "_off_context.csv")
+    elif context_line_num != 15:
+        result_dir = f"{result_dir}_{context_line_num}"
+        time_file_to_write = time_file_to_write.replace(".csv", f"_{context_line_num}.csv")
+
+    turn_off_techniques_obj = SpecifyToTurnOffTechniques(turn_off_techniques)
+    ComputeCandidatesForAnnoData(oracle_file, result_dir, context_line_num, time_file_to_write, turn_off_techniques_obj).run()
+
 if __name__ == "__main__":
-    '''
-    Run the following experiments on baselines:
-     * line-level tracking on annotated data A
-     * word-level tracking on annotated data A
-     * line-level tracking on annotated data B
-     * word-level tracking on annotated data B
-    '''
+    # Run RegionTracker to track annotated data A and B
     datasets = ["annotation_a", "annotation_b"] # the desired one or two dataset(s)
-    levels = ["line", "word"]
+    '''
+    context_line_num should be a num >=0.
+     * 0 means no contexts.
+     * >0 means get the corresponding number of lines before and after respectively as contexts.
+    '''
+    context_line_num = 15
+    turn_off_techniques = [False, False, False, False] 
     for dataset in datasets:
-        for level in levels:
-            result_dir_parent = join("data", "results", "tracked_maps", dataset, f"mapped_regions_{dataset}_{level}")
-            oracle_file = join("data", "annotation", f"{dataset}.json")
-            time_file_folder = join("data", "results", "execution_time", dataset)
-            makedirs(time_file_folder, exist_ok=True)
-            time_file_to_write = join(time_file_folder, f"execution_time_{dataset}_{level}.csv")
-            BaselineOnAnnoData(oracle_file, result_dir_parent, time_file_to_write, level).run()
-            print(f"Baseline {level} level done for {dataset}.")
+        oracle_file = join("data", "annotation", f"{dataset}.json")
+        result_dir_parent = join("data", "results", "tracked_maps", dataset)
+        time_file_folder = join("data", "results", "execution_time", dataset)
+        makedirs(time_file_folder, exist_ok=True)
+        main_anythingtracker(dataset, oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques)

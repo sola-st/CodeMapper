@@ -61,7 +61,9 @@ class ComputeCandidatesForAnnoData():
 
     def run(self):
         # prepare repositories
-        source_repo_init = SourceRepos()
+        repo_urls_file = join("data", "source_repos_java.txt") # python projects
+        repo_folder_suppression = join("data", "repos_tracker")
+        source_repo_init = SourceRepos(repo_urls_file, repo_folder_suppression)
         repo_dirs = source_repo_init.get_repo_dirs()
         source_repo_init.checkout_latest_commits()
         print(f"Found {len(repo_dirs)} repositories.")
@@ -96,8 +98,8 @@ def main_anythingtracker(dataset, oracle_file, result_dir_parent, time_file_fold
     ComputeCandidatesForAnnoData(oracle_file, result_dir, context_line_num, time_file_to_write, turn_off_techniques_obj).run()
 
 if __name__ == "__main__":
-    # Run RegionTracker to track annotated data A and B, and the codetracker data
-    datasets = ["annotation_a", "annotation_b", "variable_test", "block_test", "method_test"] # the desired one or more dataset(s)
+    # Run RegionTracker to track the codetracker data
+    datasets = ["variable_test_outlier"]# ["variable_test", "block_test", "method_test"] # the desired one or more dataset(s)
     '''
     context_line_num should be a num >=0.
      * 0 means no contexts.

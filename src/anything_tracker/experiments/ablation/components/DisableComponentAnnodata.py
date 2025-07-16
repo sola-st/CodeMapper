@@ -1,7 +1,7 @@
 from os.path import join
 from os import makedirs
 from anything_tracker.SpecifyToTurnOffTechniques import SpecifyToTurnOffTechniques
-from anything_tracker.experiments.ComputeCandidatesForAnnoData import ComputeCandidatesForAnnoData
+from anything_tracker.experiments.TrackHistoryPairsAnnoData import ComputeCandidatesForAnnoData
 
 
 def main_ablation_study(dataset, oracle_file, result_dir_parent, time_file_folder, context_line_num, turn_off_techniques):
