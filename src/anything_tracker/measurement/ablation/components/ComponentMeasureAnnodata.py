@@ -1,6 +1,6 @@
 import os
 from os.path import join, exists
-from anything_tracker.measurement.MeasureAnnotatedData import MeasureAnnotatedData
+from anything_tracker.measurement.MeasureAnnoTrackerData import MeasureAnnotatedData
 
 
 def main_ablation_study(dataset, oracle_file, results_dir_parent, results_csv_file_folder):

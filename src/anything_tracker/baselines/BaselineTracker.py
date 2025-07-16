@@ -99,7 +99,7 @@ class BaselineTracker():
         self.one_round_time_info = update_time_records(self.one_round_time_info, time.time(), start, "read_source_target_file_time")
         if not self.target_file_lines:
             print(f"Identified target_file_path {self.target_file_path} does not exists or has encoding error in target_commit.")
-            return self.dist_based_target_str_list, self.one_round_time_info
+            return self.target_json_str_list, self.one_round_time_info
         
         # phase 1: compute candidate regions
         candidate_regions = self.compute_candidate_regions()
@@ -171,55 +171,7 @@ class BaselineTracker():
         }
         self.target_json_str_list.append(target_json)
 
-
-def main(*args): # for java elements
-    level, repo_dir, source_commit, source_file_path, target_commit, source_range, \
-            results_dir, time_file_to_write = args
-    dist_based = []
-    tmp = results_dir.split("/")
-    ground_truth_index = tmp[-2] # eg., method/test/15 # the number 16(abs) data in method/test
-    current_history_pair_idx = tmp[-1] # eg., method/test/15/0, the 1st history pair in 15.
-    ground_truth_results_dir = results_dir.rsplit("/", 1)[0]
-
-    # get target file path
-    get_target_path_start = time.time()
-    target_file_path = get_target_file_path(repo_dir, source_commit, target_commit, source_file_path)
-    get_target_path_end = time.time()
-    
-    if target_file_path == None:
-        # the file was deleted
-        target_json = {
-            "iteration": current_history_pair_idx,
-            "source_commit": source_commit,
-            "target_commit": target_commit,
-            "source_file": source_file_path,
-            "target_file": None,
-            "source_range": str(source_range),
-            "target_range": None,
-            "kind": "no target file (deleted)",
-            "index": 0, 
-            "all_candidates_num": 1
-        }
-        dist_based.append(target_json)
-        print("No target file.")
-    else:
-        dist_based, one_round_time_info = BaselineTracker(level, repo_dir, source_commit, source_file_path,\
-                target_commit, target_file_path, source_range, ground_truth_results_dir, current_history_pair_idx).run()
-
-    one_round_time_info = update_time_records(one_round_time_info, get_target_path_end, get_target_path_start, "get_target_file_path_time")
-    one_round_time_info = update_time_records(one_round_time_info, get_target_path_end, get_target_path_start, "compute_candidates_time")
-
-    # write exection times
-    write_mode = "a"
-    if ground_truth_index == "0" and current_history_pair_idx == "0":
-        write_mode = "w"
-    # current_history_pair_idx is used to control where to add an empty line
-    RecordExecutionTimes(write_mode, time_file_to_write, ground_truth_index, \
-            current_history_pair_idx, one_round_time_info).run()
-    
-    return dist_based
-
-def main_suppression_annodata(*args): # can be used to start tracking annotation and suppressions
+def main_suppression_annodata(*args): # can be used to start tracking annotation, suppressions, and codetracker data
     level, repo_dir, source_commit, source_file_path, target_commit, source_range, results_dir, \
             time_file_to_write, ground_truth_index, write_mode = args
     dist_based = []

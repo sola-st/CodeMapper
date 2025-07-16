@@ -99,7 +99,7 @@ def get_target_file_path(repo_dir, source_commit, target_commit, source_file_pat
                 target_file_path = candidate_target_file_paths[0]
             else:
                 target_time = datetime.fromtimestamp(target.committed_date)
-                time_deltas = [abs(target_time - datetime.fromtimestamp(c.committed_date)) for c in corres_commit]
+                time_deltas = [abs(target_time - datetime.fromtimestamp(c.committed_date)) for c in corres_commits]
                 min_del = min(time_deltas)
                 min_idx = time_deltas.index(min_del)
                 # the closest older rename

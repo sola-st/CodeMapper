@@ -1,6 +1,6 @@
 from os.path import join
 from os import makedirs
-from anything_tracker.experiments.ComputeCandidatesForAnnoData import main_anythingtracker
+from anything_tracker.experiments.TrackHistoryPairsAnnoData import main_anythingtracker
 
 
 if __name__ == "__main__":

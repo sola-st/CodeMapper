@@ -5,11 +5,14 @@ from os.path import join
 from os import makedirs
 
 
-class BaselineOnAnnoData():
+class BaselineOnAnnoTrackerData():
     """
     Computes candidate region for all the source regions.
     """
-    def __init__(self, oracle_file, result_dir_parent, time_file_to_write, level):
+    def __init__(self, dataset, oracle_file, result_dir_parent, time_file_to_write, level):
+        self.repo_dir_parent = join("data", "repos")
+        if "_test" in dataset:
+            self.repo_dir_parent = join("data", "repos_tracker")
         self.oracle_file = oracle_file
         self.result_dir_parent = result_dir_parent
         self.time_file_to_write = time_file_to_write
@@ -31,7 +34,7 @@ class BaselineOnAnnoData():
             url = meta["url"]
             tmp = url.split("/")
             repo_name = tmp[-1]
-            repo_dir = join("data", "repos", repo_name)
+            repo_dir = join(self.repo_dir_parent, repo_name)
             result_dir = join(self.result_dir_parent)
 
             mapping:dict = meta["mapping"]
@@ -57,10 +60,7 @@ class BaselineOnAnnoData():
 
     def run(self):
         # prepare repositories
-        # the main difference with 'BaselineOnAnnoData.py': different repos
-        repo_urls_file = join("data", "source_repos_java.txt") # python projects
-        repo_folder_suppression = join("data", "repos_tracker")
-        source_repo_init = SourceRepos(repo_urls_file, repo_folder_suppression)
+        source_repo_init = SourceRepos()
         repo_dirs = source_repo_init.get_repo_dirs()
         source_repo_init.checkout_latest_commits()
         print(f"Found {len(repo_dirs)} repositories.")
@@ -82,7 +82,15 @@ class BaselineOnAnnoData():
 
 
 if __name__ == "__main__":
-    datasets = ["variable_test", "block_test", "method_test"] # the desired one or more dataset(s)
+    '''
+    Run the following experiments on baselines:
+     * line-level tracking on annotated data A
+     * word-level tracking on annotated data A
+     * line-level tracking on annotated data B
+     * word-level tracking on annotated data B
+     * ... 
+    '''
+    datasets = ["annotation_a", "annotation_b", "variable_test", "block_test", "method_test"] # the desired one or more dataset(s)
     levels = ["line", "word"]
     for dataset in datasets:
         for level in levels:
@@ -91,5 +99,5 @@ if __name__ == "__main__":
             time_file_folder = join("data", "results", "execution_time", dataset)
             makedirs(time_file_folder, exist_ok=True)
             time_file_to_write = join(time_file_folder, f"execution_time_{dataset}_{level}.csv")
-            BaselineOnAnnoData(oracle_file, result_dir_parent, time_file_to_write, level).run()
+            BaselineOnAnnoTrackerData(dataset, oracle_file, result_dir_parent, time_file_to_write, level).run()
             print(f"Baseline {level} level done for {dataset}.")

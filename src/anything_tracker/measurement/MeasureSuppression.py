@@ -7,7 +7,7 @@ from os.path import join, exists
 from anything_tracker.SearchLinesToCandidateRegion import get_character_length_of_lines
 from anything_tracker.measurement.CharacterDistanceAndOverlapScore import calculate_overlap
 from anything_tracker.measurement.CountUtils import count_algorithms, count_exact_matches
-from anything_tracker.measurement.MeasureAnnotatedData import calculation_helper
+from anything_tracker.measurement.MeasureAnnoTrackerData import calculation_helper
 from anything_tracker.utils.ReadFile import checkout_to_read_file
 
 

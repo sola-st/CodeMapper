@@ -1,12 +1,12 @@
 from os.path import join
 from os import makedirs
-from anything_tracker.baselines.BaselineOnAnnoData import BaselineOnAnnoData
+from anything_tracker.baselines.BaselineOnAnnoTrackerData import BaselineOnAnnoTrackerData
 
 
 if __name__ == "__main__":
     '''
     This is the entry of running multiple rounds of the tracking.
-    The file for normally run the exeperiment is: baselines.BaselineOnAnnoData.py,
+    The file for normally run the exeperiment is: baselines.BaselineOnAnnoTrackerData.py,
         - run it to get the default/orinal/1st round.
     Here run several more rounds to get the everage execution time.
     '''
@@ -20,5 +20,5 @@ if __name__ == "__main__":
                 time_file_folder = join("data", "results", "execution_time", f"round_{i}", dataset)
                 makedirs(time_file_folder, exist_ok=True)
                 time_file_to_write = join(time_file_folder, f"execution_time_{dataset}_{level}.csv")
-                BaselineOnAnnoData(oracle_file, result_dir_parent, time_file_to_write, level).run()
+                BaselineOnAnnoTrackerData(oracle_file, result_dir_parent, time_file_to_write, level).run()
                 print(f"Round {i}, Baseline {level} level done for {dataset}.\n")
