@@ -1,6 +1,6 @@
 from os.path import join
 from os import makedirs
-from anything_tracker.baselines.BaselineOnAnnoTrackerData import BaselineOnAnnoTrackerData
+from anything_tracker.baselines.BaselineOnTrackerData import BaselineOnAnnoTrackerData
 
 
 if __name__ == "__main__":

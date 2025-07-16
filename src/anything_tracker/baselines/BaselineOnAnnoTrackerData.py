@@ -10,9 +10,9 @@ class BaselineOnAnnoTrackerData():
     Computes candidate region for all the source regions.
     """
     def __init__(self, dataset, oracle_file, result_dir_parent, time_file_to_write, level):
-        self.repo_dir_parent = join("data", "repos")
+        self.repo_folder = join("data", "repos")
         if "_test" in dataset:
-            self.repo_dir_parent = join("data", "repos_tracker")
+            self.repo_folder = join("data", "repos_tracker")
         self.oracle_file = oracle_file
         self.result_dir_parent = result_dir_parent
         self.time_file_to_write = time_file_to_write
@@ -34,7 +34,7 @@ class BaselineOnAnnoTrackerData():
             url = meta["url"]
             tmp = url.split("/")
             repo_name = tmp[-1]
-            repo_dir = join(self.repo_dir_parent, repo_name)
+            repo_dir = join(self.repo_folder, repo_name)
             result_dir = join(self.result_dir_parent)
 
             mapping:dict = meta["mapping"]
@@ -60,7 +60,11 @@ class BaselineOnAnnoTrackerData():
 
     def run(self):
         # prepare repositories
-        source_repo_init = SourceRepos()
+        if "tracker" in self.repo_folder:
+            repo_urls_file = join("data", "source_repos_java.txt")
+            source_repo_init = SourceRepos(repo_urls_file, self.repo_folder)
+        else:
+            source_repo_init = SourceRepos()
         repo_dirs = source_repo_init.get_repo_dirs()
         source_repo_init.checkout_latest_commits()
         print(f"Found {len(repo_dirs)} repositories.")

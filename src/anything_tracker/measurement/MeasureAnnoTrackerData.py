@@ -18,9 +18,9 @@ def calculation_helper(list):
 
 class MeasureAnnotatedData():
     def __init__(self, dataset, oracle_file, results_dir, results_csv_file):
-        self.repo_dir_parent = join("data", "repos")
+        self.repo_folder = join("data", "repos")
         if "_test" in dataset:
-            self.repo_dir_parent = join("data", "repos_tracker")
+            self.repo_folder = join("data", "repos_tracker")
         self.oracle_file = oracle_file
         self.results_dir = results_dir
         self.results_csv_file = results_csv_file
@@ -123,7 +123,7 @@ class MeasureAnnotatedData():
             url = meta["url"]
             tmp = url.split("/")
             repo = tmp[-1]
-            repo_dir = join(self.repo_dir_parent, repo)
+            repo_dir = join(self.repo_folder, repo)
 
             # predicted
             json_results_file = join(self.results_dir, f"{i}/target.json")
