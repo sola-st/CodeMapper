@@ -151,6 +151,21 @@ def suppression_main(common_folder, output_dir):
 
     generate_table(data, caption, label, tex_file)
 
+def program_element_main(common_folder, program_element, output_dir):
+    common = join(common_folder, program_element)
+    file_name_base = f"measurement_results_metrics_{program_element}"
+    file_list = [
+            join(common, f"{file_name_base}_line.csv"),
+            join(common, f"{file_name_base}_word.csv"),
+            join(common, f"{file_name_base}.csv")]
+    data = get_data(file_list)
+    caption = f"Results on tracking prior work data ({program_element.split('_', 1)[0])}"
+    label = f"results_on_{program_element}"
+    makedirs(output_dir, exist_ok=True)
+    tex_file = join(output_dir, f"program_element_{program_element}_comparison_table.tex")
+
+    generate_table(data, caption, label, tex_file)
+
 
 if __name__=="__main__":
     common_folder = join("data", "results", "measurement_results")
@@ -158,3 +173,7 @@ if __name__=="__main__":
     annotated_data_main(common_folder, "a", output_dir)
     annotated_data_main(common_folder, "b", output_dir)
     suppression_main(common_folder, output_dir)
+    
+    datasets = ["variable_test", "block_test", "method_test"] 
+    for e in datasets:
+        program_element_main(common_folder, e, output_dir)
