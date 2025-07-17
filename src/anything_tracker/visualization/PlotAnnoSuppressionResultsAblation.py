@@ -1,6 +1,6 @@
 import csv
 from os import makedirs
-from os.path import join
+from os.path import join, exists
 from matplotlib import pyplot as plt, rc
 import numpy as np
 
@@ -124,7 +124,10 @@ class PlotAnnoSuppressionResultsAblation():
 
         file_list = []
         for suffix in self.file_suffies:
-            file_list.append(join(common_specific_folder, f"{file_name_base}_{suffix}.csv"))
+            file = join(common_specific_folder, f"{file_name_base}_{suffix}.csv")
+            if suffix == "off_context" and not exists(file):
+                file = join(common_specific_folder, f"{file_name_base}_0.csv")
+            file_list.append(file)
         file_list.append(join(common_specific_folder, f"{file_name_base}.csv")) # the one for our approach
 
         data = get_data(file_list)
@@ -161,12 +164,20 @@ if __name__=="__main__":
         init.run("suppression", False)
         print("Plot generation done.")
     else:
-        annodata_a = init.run("annotation_a", True)
-        annodata_b = init.run("annotation_b", True)
-        suppression_data = init.run("suppression", True)
-        data = [annodata_a, annodata_b, suppression_data]
-        plot_pdf = join(output_dir, "overall_ablation_plot.pdf")
-        titles = ["Data A", "Data B", "Suppression study data"]
+        # annodata_a = init.run("annotation_a", True)
+        # annodata_b = init.run("annotation_b", True)
+        # suppression_data = init.run("suppression", True)
+        # data = [annodata_a, annodata_b, suppression_data]
+        # plot_pdf = join(output_dir, "overall_ablation_plot.pdf")
+        # titles = ["Data A", "Data B", "Suppression study data"]
+        # plot_all_recall_sets(data, xticklabels, titles, plot_pdf)
+
+        variable = init.run("variable_test", True)
+        block = init.run("block_test", True)
+        method = init.run("method_test", True)
+        data = [variable, block, method]
+        plot_pdf = join(output_dir, "overall_ablation_plot_codetracker_data.pdf")
+        titles = ["Variable", "Block", "Method"]
         plot_all_recall_sets(data, xticklabels, titles, plot_pdf)
 
 

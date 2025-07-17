@@ -11,16 +11,15 @@ from os.path import join
 def plot_detailed_times_record_ratios(groups, xticklabels, result_pdf):
     all_ratios = []
     # Colors for each segment
-    colors = ["#780C28", "#B3D8A8", "#F08080", "#FAC45A", "#7A70B5", "#C8AAAA"]
+    colors = ["#B3D8A8", "#780C28", "#FAC45A", "#F08080", "#7A70B5", "#C8AAAA"]
     segment_labels = ['Identify target file', 'diff computation', 'Diff-Based Candidate Extraction',
                       'Movement Detection', 'Text Search', 'Target Region Selection']
-    context_size_info = ["5 lines", "10 lines", "15 lines (Default)"] # map with a smaller y
-    # context_size_info = ["5 lines", "10 lines", "15 lines (Default)"] # map with a larger y
+    context_size_info = ["5 lines", "10 lines", "15 lines (Default)"]
 
     # Create the figure and axes
     plt.rcParams["pdf.fonttype"] = 42
-    plt.rcParams.update({'font.size': 10})
-    fig, ax = plt.subplots(figsize=(5, 3))
+    plt.rcParams.update({'font.size': 12})
+    fig, ax = plt.subplots(figsize=(6, 4))
     
     num_groups = len(groups)
     group_last_n = 3  # Last three bars will be grouped under one label
@@ -56,10 +55,8 @@ def plot_detailed_times_record_ratios(groups, xticklabels, result_pdf):
         for subnumber, color, substep in zip(group['subnumbers'], colors, segment_labels):
             ax.bar(x_pos, subnumber, width=bar_width, bottom=bottom, color=color)
             if i > 1 and bottom == 0: # 0 for line diff, 1 for word diff
-                ax.text(x_pos, 10, f"{context_size_info[i-2]}", 
-                        ha='center', va='bottom', color='black', rotation=90) # mapped with a smaller y
-                # ax.text(x_pos, 10, f"{context_size_info[i-2]}", 
-                #         ha='center', va='bottom', fontsize=10, color='black', rotation=90) # mapper with a larger y
+                ax.text(x_pos, 20, f"{context_size_info[i-2]}", 
+                        ha='center', va='bottom', color='black', rotation=90)
 
             bottom += subnumber
             # Compute ratio
@@ -76,7 +73,7 @@ def plot_detailed_times_record_ratios(groups, xticklabels, result_pdf):
     increment = 10**-precision
 
     # Determine the new y-axis upper limit by rounding up
-    new_ylim = math.ceil(max_overall / increment) * increment + 3 * increment # a smaller y
+    new_ylim = math.ceil(max_overall / increment) * increment + 4 * increment # a smaller y
     # new_ylim = math.ceil(max_overall*2 / increment) * increment # a much bigger y
     ax.set_ylim(0, new_ylim)
 
@@ -149,42 +146,43 @@ class PlotExecutionTimeComparisonDetailed():
         self.select_target_time.extend(select_target_time)
 
     def run(self):
-        file_list_annodata_a = []
-        file_list_annodata_b = []
-        file_list_suppression = []
+        file_lists = {
+            "annotation_a": [],
+            "annotation_b": [],
+            "suppression": [],
+            "variable_test": [],
+            "block_test": [],
+            "method_test": []
+        }
 
-        # colloct all execution time files
+        # Collect all execution time files
         for t in data_type:
-            execution_time_file_line = join(execution_time_folder, t, f"execution_time_{t}_line.csv")
-            execution_time_file_word = join(execution_time_folder, t, f"execution_time_{t}_word.csv")
-            execution_time_file_at_5 = join(execution_time_folder, t, f"execution_time_{t}_5.csv")
-            execution_time_file_at_10 = join(execution_time_folder, t, f"execution_time_{t}_10.csv")
-            execution_time_file_at = join(execution_time_folder, t, f"execution_time_{t}.csv")
-                
-            if t == "annotation_a":
-                file_list_annodata_a.append(execution_time_file_line)
-                file_list_annodata_a.append(execution_time_file_word)
-                file_list_annodata_a.append(execution_time_file_at_5)
-                file_list_annodata_a.append(execution_time_file_at_10)
-                file_list_annodata_a.append(execution_time_file_at)
-            elif t == "annotation_b":
-                file_list_annodata_b.append(execution_time_file_line)
-                file_list_annodata_b.append(execution_time_file_word)
-                file_list_annodata_b.append(execution_time_file_at_5)
-                file_list_annodata_b.append(execution_time_file_at_10)
-                file_list_annodata_b.append(execution_time_file_at)
-            else:
-                file_list_suppression.append(execution_time_file_line)
-                file_list_suppression.append(execution_time_file_word)
-                file_list_suppression.append(execution_time_file_at_5)
-                file_list_suppression.append(execution_time_file_at_10)
-                file_list_suppression.append(execution_time_file_at)
-        
+            base_path = join(execution_time_folder, t)
+            file_names = [
+                f"execution_time_{t}_line.csv",
+                f"execution_time_{t}_word.csv",
+                f"execution_time_{t}_5.csv",
+                f"execution_time_{t}_10.csv",
+                f"execution_time_{t}.csv"
+            ]
+            full_paths = [join(base_path, name) for name in file_names]
+
+            if t in file_lists:
+                file_lists[t].extend(full_paths)
+
         groups = []
-        for anno_file_a, anno_file_b, supp_file in zip_longest(file_list_annodata_a, file_list_annodata_b, file_list_suppression):
-            self.get_detailed_execution_time(anno_file_a)
-            self.get_detailed_execution_time(anno_file_b)
-            self.get_detailed_execution_time(supp_file)
+        for files in zip_longest(
+            file_lists["annotation_a"],
+            file_lists["annotation_b"],
+            file_lists["suppression"],
+            file_lists["variable_test"],
+            file_lists["block_test"],
+            file_lists["variable_test"]
+        ):
+            for f in files:
+                if not f: 
+                    print()
+                self.get_detailed_execution_time(f)
 
             # compute the avg numbers
             detailed_avgs = [np.mean(self.identify_target_file_time), np.mean(self.diff_computation_time), \
@@ -203,6 +201,6 @@ if __name__=="__main__":
     # Get execution time comparation plot based on a single round time records
     execution_time_folder = join("data", "results", "execution_time")
     xticklabels = [r'$\text{diff}_{\text{line}}$', r'$\text{diff}_{\text{word}}$', 'CodeMapper-5', 'CodeMapper-10', 'CodeMapper']
-    result_pdf = join("data", "results", "table_plots", "execution_time_baseline_comparison_detailed.pdf")
-    data_type = ["annotation_a", "annotation_b", "suppression"] 
+    result_pdf = join("data", "results", "table_plots", "execution_time_baseline_comparison_detailed_4data.pdf")
+    data_type = ["annotation_a", "annotation_b", "suppression", "variable_test", "block_test", "method_test"] 
     PlotExecutionTimeComparisonDetailed(execution_time_folder, xticklabels, result_pdf, data_type).run()

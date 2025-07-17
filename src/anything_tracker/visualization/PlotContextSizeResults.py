@@ -1,5 +1,5 @@
 import csv
-from os.path import join
+from os.path import join, exists
 from matplotlib import pyplot as plt
 
 def get_f1s(file_list):
@@ -24,11 +24,11 @@ def get_f1s(file_list):
     return f1s
 
 def plot_f1_scores(f1s, labels, context_lines, result_pdf):
-    colors = ["#DE3163", "#2973B2", "#493D9E"]
-    markers = ["o", "s", "^"]
+    colors = ["#DE3163", "#2973B2", "#493D9E", "#0F828C", "#E53888", "#FF9B45" ]
+    markers = ["o", "s", "^", "|", "|", "|"]
     
     plt.rcParams["pdf.fonttype"] = 42
-    plt.rcParams.update({'font.size': 12})
+    plt.rcParams.update({'font.size': 10})
     plt.subplots(figsize=(5.3, 3))
     for f1_list, label, marker, color in zip(f1s, labels, markers, colors):
         plt.plot(context_lines, f1_list, marker=marker, label=label, color=color)
@@ -44,7 +44,7 @@ def plot_f1_scores(f1s, labels, context_lines, result_pdf):
                 plt.text(context_lines[i], f1_list[i], str(f1_list[i]), va='bottom', ha='left', color=color)
 
     plt.xlim(0, 34)
-    plt.ylim(0.65, 0.93)
+    plt.ylim(0.5, 1)
     plt.xlabel('Context size')
     plt.ylabel('F1-sorce')
     plt.grid()
@@ -58,7 +58,7 @@ if __name__=="__main__":
     output_dir = join("data", "results", "table_plots")
     default_context_line = 15
     context_lines = [0, 1, 2, 3, 5, 10, 15, 20, 25, 30]
-    datasets = ["annotation_a", "annotation_b", "suppression"]
+    datasets = ["annotation_a", "annotation_b", "suppression", "variable_test", "method_test", "block_test"]
 
     overall_f1s = []
     overall_labels = []
@@ -70,12 +70,16 @@ if __name__=="__main__":
             if context_line == default_context_line:
                 file_list.append(f"{file_base}.csv")
             elif context_line == 0:
-                file_list.append(f"{file_base}_off_context.csv")
+                file = f"{file_base}_off_context.csv"
+                if exists(file):
+                    file_list.append(file)
+                else:
+                    file_list.append(f"{file_base}_{context_line}.csv")
             else:
                 file_list.append(f"{file_base}_{context_line}.csv")
         f1s = get_f1s(file_list)
         overall_f1s.append(f1s)
-    
-    labels = ["Annotated data A", "Annotated data B", "Suppression data"]
-    result_pdf = join("data", "results", "table_plots", "ablation_context_sizes_f1.pdf")
+
+    labels = ["Annotated data A", "Annotated data B", "Suppression data", "Variable", "Method", "Block"]
+    result_pdf = join("data", "results", "table_plots", "ablation_context_sizes_f1_all.pdf")
     plot_f1_scores(overall_f1s, labels, context_lines, result_pdf)

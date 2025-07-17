@@ -12,15 +12,15 @@ def main_ablation_study_context_size(dataset, oracle_file, results_dir_parent, r
         # this could be a duplicated with 'measurement_results_metrics_{dataset}_0', 
         # since we do not know the order of these two ablations tudies, keep both of them
         results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_{dataset}_{num}.csv")
-        MeasureAnnotatedData(oracle_file, results_dir, results_csv_file).run()
+        MeasureAnnotatedData(dataset, oracle_file, results_dir, results_csv_file).run()
         print(f"Measurement: context size {num} done.")
 
 
 if __name__=="__main__":
     # Run measurement for ablation study (context sizes)
-    datasets = ["annotation_a", "annotation_b"]
+    datasets = ["annotation_a", "annotation_b", "variable_test", "block_test", "method_test"]
     for dataset in datasets:
-        oracle_file = join("data", "annotation", f"{dataset}_100.json") # to get the ground truth
+        oracle_file = join("data", "annotation", f"{dataset}.json") # to get the ground truth
         results_dir_parent = join("data", "results", "tracked_maps", dataset) # where the target regions are recorded
         results_csv_file_folder = join("data", "results", "measurement_results", dataset) # to write the measurement results
         os.makedirs(results_csv_file_folder, exist_ok=True)
