@@ -180,8 +180,6 @@ class PlotExecutionTimeComparisonDetailed():
             file_lists["variable_test"]
         ):
             for f in files:
-                if not f: 
-                    print()
                 self.get_detailed_execution_time(f)
 
             # compute the avg numbers
