@@ -10,8 +10,9 @@ Given a code region in one commit, CodeMapper finds the corresponding region in 
 
 ### Data availability
 All datasets are available in the *data* directory.
-* Subfolder *annotation* &emsp; The annotated datasets.
+* Subfolder *annotation* &emsp; The annotated datasets and CodeTracker data.
 * File source_repo.txt &emsp; The collected 20 repositories (across 10 popular programming languages).
+* File source_repo_java.txt &emsp; The 10 repositories for Java (CodeTracker data).
 * Subfolder *suppression_data* &emsp; The suppression study dataset.
 * File python repos.txt &emsp; The 8 Python repositories.
 * Subfolder *results* &emsp; All the result files.
@@ -24,32 +25,35 @@ All datasets are available in the *data* directory.
 _* Note: Some folders are named 'anything_tracker' instead of 'CodeMapper' because the name was changed during development, but the older name is still used in some parts of the code._
 ### Tracking 
 * **[CodeMapper]** Directory: *src/anything_tracker/experiments*
-  * ComputeCandidatesForAnnoData.py &emsp; Tracking the annotated data A and B. 
+  * TrackHistoryPairsAnnoData.py &emsp; Tracking the annotated data A and B. 
   * TrackHistoryPairsSuppression.py &emsp; Tracking the suppression study data.
+  * TrackHistoryPairsTrackerData.py &emsp; Tracking the CodeTracker data.
 * **[Baselines]** The entry point is located in the *src/anything_tracker/baselines* directory.
-  * BaselineOnAnnoData.py &emsp; Tracking the manually annotated data. 
+  * BaselineOnAnnoTrackerData.py &emsp; Tracking the annotated data and CodeTracker data. 
   * BaselineOnSuppression.py &emsp; Tracking the suppression study data.
 
 * **[Ablation studies]**
   * **[Disabling components]**  Directory: *src/anything_tracker/experiments/ablation/components*
     * DisableComponentAnnodata.py &emsp; Run an abation study to disable each component on the annotated data A and B. 
     * DisableComponentSuppression.py &emsp; Run an abation study to disable each component on the suppression data. 
+    * DisableComponentTrackerData.py &emsp; Run an abation study to disable each component on the CodeTracker data. 
   * **[Various context sizes]**  Directory: *src/anything_tracker/experiments/ablation/context*
     * VariousContextSizesAnnodata.py &emsp; Run an abation study to track with various context sizes on the annotated data A and B. 
     * VariousContextSizesSuppression.py &emsp; Run abation study to track with various context sizes on the suppression data. 
+    * VariousContextSizesTrackerData &emsp; Run abation study to track with various context sizes on the CodeTracker data. 
 
 ### Evaluation
 * **[Evaluation metrics]** Overlapping, Exact matches, Partial overlaps, Character distance, Recall, Precision, and  F1-score.  
 * **[Measurement]** Directory: *src/anything_tracker/measurement*. These two files work for CodeMapper and baselines.
-  * MeasureAnnotatedData.py &emsp; Check the results of the annotated data A and B. 
+  * MeasureAnnoTrackerData.py &emsp; Check the results of the annotated data A and B, and the CodeTracker data. 
   * MeasureSuppression.py &emsp; Check the results of the suppression study data.
 
 * **[Evaluate ablation studies]**
   * **[Components]** Directory: *src/anything_tracker/measurement/ablation/components*
-    * ComponentMeasureAnnodata.py &emsp; Check the ablation study results of the annotated data A and B. 
+    * ComponentMeasureAnnoTrackerData.py &emsp; Check the ablation study results of the annotated data A and B, and the CodeTracker data. 
     * ComponentMeasureSuppression.py &emsp; Check the ablation study results of the suppression study data.
   * **[Context sizes]** Directory: *src/anything_tracker/measurement/ablation/context*
-    * ContextMeasureAnnodata.py &emsp; Check the ablation study results of the annotated data A and B. 
+    * ContextMeasureAnnoTrackerData.py &emsp; Check the ablation study results of the annotated data A and B, and the CodeTracker data. 
     * ContextMeasureSuppression.py &emsp; Check the ablation study results of the suppression study data.
 
 ### Visualization
@@ -73,55 +77,58 @@ Choose between **SLOW MODE**, which runs CodeMapper and baselines to track the d
 #### RQ1: Effectiveness of CodeMapper. 
 * **CodeMapper**  
   * Tracking
-    * Run ComputeCandidatesForAnnoData.py 
+    * Run TrackHistoryPairsAnnoData.py 
     * Run TrackHistoryPairsSuppression.py
+    * Run TrackHistoryPairsTrackerData.py
   * Evaluation
-    * Run MeasureAnnotatedData.py 
+    * Run MeasureAnnoTrackerData.py 
     * Run MeasureSuppression.py 
 * **Baselines**
   * Tracking
-    * BaselineOnAnnoData.py
+    * BaselineOnAnnoTrackerData.py
     * BaselineOnSuppression.py
   * Evaluation  
-    * Run MeasureAnnotatedData.py
+    * Run MeasureAnnoTrackerData.py
     * Run MeasureSuppression.py 
-* Run TableAnnoSuppressionResults.py -> Tables 2, 3 and 4.
+* Run TableAnnoSuppressionResults.py -> Tables 2 and 3.
 
 #### RQ2: Ablation study: Impact of Different Components and Parameters of CodeMapper
 * **Disabling components** 
   * Tracking
     * Run DisableComponentAnnodata.py
     * Run DisableComponentSuppression.py
+    * Run DisableComponentTrackerData.py
   * Evaluation
-    * ComponentMeasureAnnodata.py 
+    * ComponentMeasureAnnoTrackerData.py 
     * ComponentMeasureSuppression.py
 * **Various context sizes** 
   * Tracking 
     * VariousContextSizesAnnodata.py 
     * VariousContextSizesSuppression.py 
+    * VariousContextSizesTrackerData.py
   * Evaluation
-    * ContextMeasureAnnodata.py 
+    * ContextMeasureAnnoTrackerData.py 
     * ContextMeasureSuppression.py
 
-* Run PlotContextSizeResults.py -> Figure 9.
-* Run PlotAnnoSuppressionResultsAblation.py -> Figure 10.
+* Run PlotContextSizeResults.py -> Figure 10.
+* Run PlotAnnoSuppressionResultsAblation.py -> Figure 11.
 
 #### RQ3: Efficiency of CodeMapper.
 * The execution time files are already there (*data/results/execution_time*) as the experiments in RQ1 are done. 
 * Run PlotExexutionTimeComparisonDetailed.py   
-  -> Figure 11.  
-  -> It also generates a .json file (the same folder as Figure 11) which records the ratio of each step.
+  -> Figure 12.  
+  -> It also generates a .json file (the same folder as Figure 12) which records the ratio of each step.
 
 
 ### FAST MODE
 By default, all the results tables and figures are in *data/results/table/plots*.  
-All tables in results: Tables 2, 3, and 4.  
-All figures in results (exclude the motivation/example figures): Figures 9, 10, and 11.  
+All tables in results: Tables 2, 3.  
+All figures in results (exclude the motivation/example figures): Figures 10, 11, and 12.  
 The following files are in the *src/anything_tracker/visualization* directory.
-* Run TableAnnoSuppressionResults.py -> Tables 2, 3 and 4.
-* Run PlotContextSizeResults.py -> Figure 9.
-* Run PlotAnnoSuppressionResultsAblation.py -> Figure 10.
+* Run TableAnnoSuppressionResults.py -> Tables 2 and 3.
+* Run PlotContextSizeResults.py -> Figure 10.
+* Run PlotAnnoSuppressionResultsAblation.py -> Figure 11.
 * Run PlotExexutionTimeComparisonDetailed.py  
-  -> Figure 11.  
-  -> It also generates a .json file (the same folder as Figure 11) which records the ration of each step.
+  -> Figure 12.  
+  -> It also generates a .json file (the same folder as Figure 12) which records the ration of each step.
 
