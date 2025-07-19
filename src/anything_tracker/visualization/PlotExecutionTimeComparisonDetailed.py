@@ -19,7 +19,7 @@ def plot_detailed_times_record_ratios(groups, xticklabels, result_pdf):
     # Create the figure and axes
     plt.rcParams["pdf.fonttype"] = 42
     plt.rcParams.update({'font.size': 12})
-    fig, ax = plt.subplots(figsize=(6, 4))
+    fig, ax = plt.subplots(figsize=(7, 3))
     
     num_groups = len(groups)
     group_last_n = 3  # Last three bars will be grouped under one label
@@ -55,7 +55,7 @@ def plot_detailed_times_record_ratios(groups, xticklabels, result_pdf):
         for subnumber, color, substep in zip(group['subnumbers'], colors, segment_labels):
             ax.bar(x_pos, subnumber, width=bar_width, bottom=bottom, color=color)
             if i > 1 and bottom == 0: # 0 for line diff, 1 for word diff
-                ax.text(x_pos, 20, f"{context_size_info[i-2]}", 
+                ax.text(x_pos, 40, f"{context_size_info[i-2]}", 
                         ha='center', va='bottom', color='black', rotation=90)
 
             bottom += subnumber
@@ -177,7 +177,7 @@ class PlotExecutionTimeComparisonDetailed():
             file_lists["suppression"],
             file_lists["variable_test"],
             file_lists["block_test"],
-            file_lists["variable_test"]
+            file_lists["method_test"]
         ):
             for f in files:
                 self.get_detailed_execution_time(f)

@@ -91,7 +91,7 @@ def plot_all_recall_sets(datasets, xticklabels, titles, output_pdf):
     fig, axes = plt.subplots(1, len(datasets), figsize=(12, 4), sharey=True)  # Share Y-axis labels
 
     for i, (data, title) in enumerate(zip(datasets, titles)):
-        plot_recall_sets_sub_plot(axes[i], data, xticklabels, title, show_yticks=(i == 2))  # Show y-labels only once
+        plot_recall_sets_sub_plot(axes[i], data, xticklabels, title, show_yticks=(i == 3))  # Show y-labels only once
 
     plt.tight_layout()
     plt.savefig(output_pdf)
@@ -118,19 +118,33 @@ class PlotAnnoSuppressionResultsAblation():
         self.xticklabels = xticklabels
         self.output_dir = output_dir
 
-    def run(self, dataset, overall_plot=True):
-        common_specific_folder = join(self.common_file_folder, dataset)
-        file_name_base = f"measurement_results_metrics_{dataset}"
+    def run(self, datasets, overall_plot=True):
+        merged_data = []
+        for dataset in datasets:
+            common_specific_folder = join(self.common_file_folder, dataset)
+            file_name_base = f"measurement_results_metrics_{dataset}"
 
-        file_list = []
-        for suffix in self.file_suffies:
-            file = join(common_specific_folder, f"{file_name_base}_{suffix}.csv")
-            if suffix == "off_context" and not exists(file):
-                file = join(common_specific_folder, f"{file_name_base}_0.csv")
-            file_list.append(file)
-        file_list.append(join(common_specific_folder, f"{file_name_base}.csv")) # the one for our approach
+            file_list = []
+            for suffix in self.file_suffies:
+                file = join(common_specific_folder, f"{file_name_base}_{suffix}.csv")
+                if suffix == "off_context" and not exists(file):
+                    file = join(common_specific_folder, f"{file_name_base}_0.csv")
+                file_list.append(file)
+            file_list.append(join(common_specific_folder, f"{file_name_base}.csv")) # the one for our approach
 
-        data = get_data(file_list)
+            data = get_data(file_list)
+            merged_data.append(data)
+
+        if len(datasets) > 1:
+            avg = [
+                [
+                    sum(values) / len(values)
+                    for values in zip(*rows)
+                ]
+                for rows in zip(*merged_data)
+            ]
+            data = avg
+
         if overall_plot:
             return data
         else:
@@ -140,11 +154,12 @@ class PlotAnnoSuppressionResultsAblation():
 
 if __name__=="__main__":
     '''
-    Two options for visualizing ablation study results:
+    Three options for visualizing ablation study results:
      1. generate a single plot for each dataset
      2. generate an overall plot for all datasets
+     3. Genrate an overall plot for the four datasets
     '''
-    option = 2
+    option = 3
 
     file_suffies = ["off_diff",  "off_fine", "off_move", "off_search", "off_context"]
     common_file_folder = join("data", "results", "measurement_results")
@@ -163,14 +178,14 @@ if __name__=="__main__":
         init.run("annotation_b", False)
         init.run("suppression", False)
         print("Plot generation done.")
-    else:
-        # annodata_a = init.run("annotation_a", True)
-        # annodata_b = init.run("annotation_b", True)
-        # suppression_data = init.run("suppression", True)
-        # data = [annodata_a, annodata_b, suppression_data]
-        # plot_pdf = join(output_dir, "overall_ablation_plot.pdf")
-        # titles = ["Data A", "Data B", "Suppression study data"]
-        # plot_all_recall_sets(data, xticklabels, titles, plot_pdf)
+    elif option == 2:
+        annodata_a = init.run("annotation_a", True)
+        annodata_b = init.run("annotation_b", True)
+        suppression_data = init.run("suppression", True)
+        data = [annodata_a, annodata_b, suppression_data]
+        plot_pdf = join(output_dir, "overall_ablation_plot.pdf")
+        titles = ["Data A", "Data B", "Suppression study data"]
+        plot_all_recall_sets(data, xticklabels, titles, plot_pdf)
 
         variable = init.run("variable_test", True)
         block = init.run("block_test", True)
@@ -178,6 +193,15 @@ if __name__=="__main__":
         data = [variable, block, method]
         plot_pdf = join(output_dir, "overall_ablation_plot_codetracker_data.pdf")
         titles = ["Variable", "Block", "Method"]
+        plot_all_recall_sets(data, xticklabels, titles, plot_pdf)
+    else:
+        annodata_a = init.run(["annotation_a"], True)
+        annodata_b = init.run(["annotation_b"], True)
+        suppression_data = init.run(["suppression"], True)
+        merged = init.run(["variable_test", "block_test", "method_test"], True)
+        data = [annodata_a, annodata_b, suppression_data, merged]
+        plot_pdf = join(output_dir, "overall_ablation_plot_merged.pdf")
+        titles = ["Data A", "Data B", "Suppression study data", "CodeTracker data"]
         plot_all_recall_sets(data, xticklabels, titles, plot_pdf)
 
 

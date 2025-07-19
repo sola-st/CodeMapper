@@ -75,7 +75,26 @@ def get_target_file_path(repo_dir, source_commit, target_commit, source_file_pat
             corres_commits = []
             # get all copies and renames
             for idx, line in enumerate(to_check_item):
-                if re.match(r"^R\d{3}\t", line) or re.match(r"^C\d{3}\t", line):
+                if line.startswith("D\t"): # if deletion exists, it comes at the top
+                    del_commit_str = to_check_item[0].split(" ")[1][:8]
+                    del_commit = repo.commit(del_commit_str)
+                    target_time = datetime.fromtimestamp(target.committed_date)
+                    time_deltas = target_time - datetime.fromtimestamp(del_commit.committed_date)
+                    if time_deltas.seconds > 0: # the file was deleted before the target commit
+                        get_renamed_files_command = f"git diff --name-status --diff-filter=RC {source_commit} {target_commit}"
+                        renames = run_command(get_renamed_files_command, repo_dir)
+                        if renames:
+                            to_check_list = renames.strip().split("\n")
+                            for to_check in to_check_list:
+                                # R094    src/traverse.py src/common/traverse.py
+                                tmp = to_check.split("\t")
+                                if tmp[1] == source_file_path:
+                                    target_file_path = tmp[2]
+                                    break
+                            if target_file_path:
+                                break
+
+                elif re.match(r"^R\d{3}\t", line) or re.match(r"^C\d{3}\t", line):
                     corres_commit = None
                     while not corres_commit:
                         idx -= 1
@@ -93,16 +112,17 @@ def get_target_file_path(repo_dir, source_commit, target_commit, source_file_pat
                     else:
                         break
             
-            if not corres_commits:
-                target_file_path = source_file_path
-            elif len(corres_commits) == 1:
-                target_file_path = candidate_target_file_paths[0]
-            else:
-                target_time = datetime.fromtimestamp(target.committed_date)
-                time_deltas = [abs(target_time - datetime.fromtimestamp(c.committed_date)) for c in corres_commits]
-                min_del = min(time_deltas)
-                min_idx = time_deltas.index(min_del)
-                # the closest older rename
-                target_file_path = candidate_target_file_paths[min_idx]
+            if not target_file_path:
+                if not corres_commits:
+                    target_file_path = source_file_path
+                elif len(corres_commits) == 1:
+                    target_file_path = candidate_target_file_paths[0]
+                else:
+                    target_time = datetime.fromtimestamp(target.committed_date)
+                    time_deltas = [abs(target_time - datetime.fromtimestamp(c.committed_date)) for c in corres_commits]
+                    min_del = min(time_deltas)
+                    min_idx = time_deltas.index(min_del)
+                    # the closest older rename
+                    target_file_path = candidate_target_file_paths[min_idx]
 
     return target_file_path

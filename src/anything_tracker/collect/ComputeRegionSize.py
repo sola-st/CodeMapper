@@ -24,7 +24,7 @@ class ComputeRegionSize():
         self.overall_target_size = []
         self.overall_commit_distance = []
         
-    def get_region_zises_annodata(self):
+    def get_region_sizes_anno_tracker_data(self, repo_folder):
         with open(self.oracle_file) as f:
             maps = json.load(f)
 
@@ -32,16 +32,18 @@ class ComputeRegionSize():
             url = meta["url"]
             tmp = url.split("/")
             repo_name = tmp[-1]
-            repo_dir = join("data", "repos", repo_name)
+            repo_dir = join(repo_folder, repo_name)
             mapping:dict = meta["mapping"]
             # source
+            source_region_size = 0
             source_file = mapping["source_file"]
             source_commit = mapping["source_commit"]
             character_range_list = json.loads(mapping["source_range"])
             file_lines = checkout_to_read_file(repo_dir, source_commit, source_file)
-            interest_character_range = CharacterRange(character_range_list)
-            source_region_characters = get_source_and_expected_region_characters(file_lines, interest_character_range)
-            source_region_size = len("".join(source_region_characters))
+            if file_lines:
+                interest_character_range = CharacterRange(character_range_list)
+                source_region_characters = get_source_and_expected_region_characters(file_lines, interest_character_range)
+                source_region_size = len("".join(source_region_characters))
 
             # target
             target_region_characters = None
@@ -51,9 +53,10 @@ class ComputeRegionSize():
                 target_commit = mapping["target_commit"]
                 targte_character_range_list = json.loads(mapping["target_range"])
                 target_file_lines = checkout_to_read_file(repo_dir, target_commit, target_file)
-                target_character_range = CharacterRange(targte_character_range_list)
-                target_region_characters = get_source_and_expected_region_characters(target_file_lines, target_character_range)
-                target_region_size = len("".join(target_region_characters))
+                if target_file_lines:
+                    target_character_range = CharacterRange(targte_character_range_list)
+                    target_region_characters = get_source_and_expected_region_characters(target_file_lines, target_character_range)
+                    target_region_size = len("".join(target_region_characters))
 
             # commit siatance
             commit_distance = mapping["kind"]
@@ -70,7 +73,7 @@ class ComputeRegionSize():
         self.write_json_strings()
         self.compute_and_write_sizes()
             
-    def get_region_zises_suppression(self, repo_dirs):
+    def get_region_sizes_suppression(self, repo_dirs):
         for repo_dir in repo_dirs:
             repo_name = repo_dir.rsplit("/", 1)[1]
             oracle_folder = join(self.oracle_file, repo_name)
@@ -137,7 +140,7 @@ class ComputeRegionSize():
         self.overall_source_size.append(avg_source_size)
         self.overall_target_size.append(avg_target_size)
 
-        if self.dataset == "annodata":
+        if self.dataset != "suppression":
             avg_commit_distance = compute_list_avg(self.overall_commit_distance)
             self.overall_commit_distance.append(avg_commit_distance)
         self.write_sizes()
@@ -164,24 +167,35 @@ class ComputeRegionSize():
             repo_dirs = source_repo_init.get_repo_dirs()
             source_repo_init.checkout_latest_commits()
             print(f"Found {len(repo_dirs)} repositories.")
-            self.get_region_zises_suppression(repo_dirs)
-        else: # self.dataset == "annotaion_a", "annotaion_b"
+            self.get_region_sizes_suppression(repo_dirs)
+        elif self.dataset in ["annotaion_a", "annotaion_b"]:
             # prepare repositories
             source_repo_init = SourceRepos()
             repo_dirs = source_repo_init.get_repo_dirs()
             source_repo_init.checkout_latest_commits()
             print(f"Found {len(repo_dirs)} repositories.")
-            self.get_region_zises_annodata()
+            self.get_region_sizes_anno_tracker_data(join("data", "repos"))
+        else:
+            repo_urls_file = join("data", "source_repos_java.txt")
+            repo_folder = join("data", "repos_tracker")
+            source_repo_init = SourceRepos(repo_urls_file, repo_folder)
+            repo_dirs = source_repo_init.get_repo_dirs()
+            source_repo_init.checkout_latest_commits()
+            print(f"Found {len(repo_dirs)} repositories.")
+            self.get_region_sizes_anno_tracker_data(repo_folder)
+
 
 
 if __name__ == "__main__":
-    dataset = "annotation_a" # can be "annotation_a", "annotation_b", and "suppression"
+    datasets = ["annotation_a", "annotation_b", "suppression", "variable", "block_test", "method_test"]
     results_file_folder = join("data", "results", "table_plots")
     makedirs(results_file_folder, exist_ok=True)
-    oracle_file = None
-    if dataset == "annodata":
-        oracle_file = join("data", "suppression_data") # it is a folder
-    else:
-        oracle_file = join("data", "annotation", f"{dataset}_100.json")
-        
-    ComputeRegionSize(oracle_file, results_file_folder, dataset).run()
+
+    for dataset in datasets:
+        oracle_file = None
+        if dataset == "suppression":
+            oracle_file = join("data", "suppression_data") # it is a folder
+        else:
+            oracle_file = join("data", "annotation", f"{dataset}.json")
+            
+        ComputeRegionSize(oracle_file, results_file_folder, dataset).run()
