@@ -1,7 +1,7 @@
 import csv
 import json
 from os import makedirs
-from os.path import join
+from os.path import join, exists
 
 def get_main_table_contents_util(data):
     the_higher_the_better = [True, True, False, True, True, True]
@@ -119,14 +119,17 @@ def generate_table(data, caption, label, tex_file):
 
     with open(tex_file, "w") as f:
         f.write(latex_table + "\n")
+    print(f"* Write table: {tex_file}")
 
 def annotated_data_main(common_folder, version, output_dir):
     common = join(common_folder, f"annotation_{version}")
     file_name_base = f"measurement_results_metrics_annotation_{version}"
+    tmp = join(common, f"{file_name_base}.csv")
+    approach_file = tmp if exists(tmp) else join(common, f"{file_name_base}_15.csv")
     file_list = [
             join(common, f"{file_name_base}_line.csv"),
             join(common, f"{file_name_base}_word.csv"),
-            join(common, f"{file_name_base}.csv")]
+            approach_file]
     data = get_data(file_list)
     caption = f"Results on tracking annotated data {version.upper()}"
     label = f"results_on_annotated_data_{version}"
@@ -139,10 +142,12 @@ def suppression_main(common_folder, output_dir):
     # suppression data
     common = join(common_folder, "suppression")
     file_name_base = "measurement_results_metrics_suppression"
+    tmp = join(common, f"{file_name_base}.csv")
+    approach_file = tmp if exists(tmp) else join(common, f"{file_name_base}_15.csv")
     file_list = [
             join(common, f"{file_name_base}_line.csv"),
             join(common, f"{file_name_base}_word.csv"),
-            join(common, f"{file_name_base}.csv")]
+            approach_file]
     data = get_data(file_list)
     caption = "Results on tracking Python suppressions"
     label = "results_on_suppression"
@@ -154,10 +159,12 @@ def suppression_main(common_folder, output_dir):
 def program_element_main(common_folder, program_element, output_dir):
     common = join(common_folder, program_element)
     file_name_base = f"measurement_results_metrics_{program_element}"
+    tmp = join(common, f"{file_name_base}.csv")
+    approach_file = tmp if exists(tmp) else join(common, f"{file_name_base}_15.csv")
     file_list = [
             join(common, f"{file_name_base}_line.csv"),
             join(common, f"{file_name_base}_word.csv"),
-            join(common, f"{file_name_base}.csv")]
+            approach_file]
     data = get_data(file_list)
     caption = f"Results on tracking prior work data ({program_element.split('_', 1)[0]})"
     label = f"results_on_{program_element}"

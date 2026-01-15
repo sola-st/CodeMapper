@@ -51,6 +51,7 @@ def plot_f1_scores(f1s, labels, context_lines, result_pdf):
     plt.tight_layout(pad=0)
     plt.legend(loc='lower right')
     plt.savefig(result_pdf)
+    print(f"* Generate plot: {result_pdf}")
 
 
 if __name__=="__main__":
@@ -68,7 +69,9 @@ if __name__=="__main__":
         file_list = []
         for context_line in context_lines:
             if context_line == default_context_line:
-                file_list.append(f"{file_base}.csv")
+                tmp = f"{file_base}.csv"
+                approach_file = tmp if exists(tmp) else f"{file_base}_15.csv"
+                file_list.append(approach_file)
             elif context_line == 0:
                 file = f"{file_base}_off_context.csv"
                 if exists(file):

@@ -5,7 +5,7 @@ import math
 from matplotlib import patches
 import matplotlib.pyplot as plt
 import numpy as np
-from os.path import join
+from os.path import join, exists
 
 
 def plot_detailed_times_record_ratios(groups, xticklabels, result_pdf):
@@ -18,8 +18,8 @@ def plot_detailed_times_record_ratios(groups, xticklabels, result_pdf):
 
     # Create the figure and axes
     plt.rcParams["pdf.fonttype"] = 42
-    plt.rcParams.update({'font.size': 12})
-    fig, ax = plt.subplots(figsize=(7, 3))
+    plt.rcParams.update({'font.size': 10})
+    fig, ax = plt.subplots(figsize=(7, 5))
     
     num_groups = len(groups)
     group_last_n = 3  # Last three bars will be grouped under one label
@@ -85,11 +85,13 @@ def plot_detailed_times_record_ratios(groups, xticklabels, result_pdf):
 
     plt.tight_layout()
     plt.savefig(result_pdf)
+    print(f"* Generate plot: {result_pdf}")
 
 
     ratio_record_file = result_pdf.replace(".pdf", "_ratios.json")
     with open(ratio_record_file, "w") as ds:
         json.dump(all_ratios, ds, indent=4, ensure_ascii=False)
+    print(f"* Write Json: {result_pdf}")
     
 class PlotExecutionTimeComparisonDetailed():
     def __init__(self, execution_time_folder, xticklabels, result_pdf, data_type):
@@ -163,8 +165,11 @@ class PlotExecutionTimeComparisonDetailed():
                 f"execution_time_{t}_word.csv",
                 f"execution_time_{t}_5.csv",
                 f"execution_time_{t}_10.csv",
-                f"execution_time_{t}.csv"
+                # f"execution_time_{t}.csv"
             ]
+            tmp = f"execution_time_{t}.csv"
+            approach_file = tmp if exists(join(base_path, tmp)) else join(base_path, f"execution_time_{t}_15.csv")
+            file_names.append(approach_file)
             full_paths = [join(base_path, name) for name in file_names]
 
             if t in file_lists:
@@ -198,7 +203,7 @@ class PlotExecutionTimeComparisonDetailed():
 if __name__=="__main__":
     # Get execution time comparation plot based on a single round time records
     execution_time_folder = join("data", "results", "execution_time")
-    xticklabels = [r'$\text{diff}_{\text{line}}$', r'$\text{diff}_{\text{word}}$', 'CodeMapper-5', 'CodeMapper-10', 'CodeMapper']
+    xticklabels = [r'$diff_{line}$', r'$diff_{word}$', 'CodeMapper-5', 'CodeMapper-10', 'CodeMapper']
     result_pdf = join("data", "results", "table_plots", "execution_time_baseline_comparison_detailed_4data.pdf")
     data_type = ["annotation_a", "annotation_b", "suppression", "variable_test", "block_test", "method_test"] 
     PlotExecutionTimeComparisonDetailed(execution_time_folder, xticklabels, result_pdf, data_type).run()

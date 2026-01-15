@@ -95,6 +95,7 @@ def plot_all_recall_sets(datasets, xticklabels, titles, output_pdf):
 
     plt.tight_layout()
     plt.savefig(output_pdf)
+    print(f"* Generate plot: {output_pdf}")
 
 
 def autolabel(ax, rects):
@@ -130,7 +131,9 @@ class PlotAnnoSuppressionResultsAblation():
                 if suffix == "off_context" and not exists(file):
                     file = join(common_specific_folder, f"{file_name_base}_0.csv")
                 file_list.append(file)
-            file_list.append(join(common_specific_folder, f"{file_name_base}.csv")) # the one for our approach
+            tmp = join(common_specific_folder, f"{file_name_base}.csv")
+            approach_file = tmp if exists(tmp) else join(common_specific_folder, f"{file_name_base}_15.csv")  
+            file_list.append(approach_file) # the one for our approach
 
             data = get_data(file_list)
             merged_data.append(data)
