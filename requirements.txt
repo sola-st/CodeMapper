@@ -9,3 +9,7 @@ tree-sitter-ruby
 tree-sitter-typescript
 tree-sitter-php
 tree-sitter-html
+GitPython~=3.1.31
+fast_edit_distance
+numpy
+matplotlib

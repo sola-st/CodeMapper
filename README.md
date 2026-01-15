@@ -7,7 +7,8 @@ Choose one of the following options to set up the project:
 
 **Option 1: Run locally**  
 If you prefer to run the code locally, make sure you have python>=3.7, and run the following from the root directory of this project:
-  1. `pip install -r requirements.txt`
+  1. `pip install -r requirements.txt`  
+    For [fast mode](###FAST-MODE), the requirements can be reduced to only `numpy` and `matplotlib`.
   2. `pip install -e .`
 
 **Option 2: Run with Docker**  

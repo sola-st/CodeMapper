@@ -95,7 +95,6 @@ def plot_all_recall_sets(datasets, xticklabels, titles, output_pdf):
 
     plt.tight_layout()
     plt.savefig(output_pdf)
-    print(f"* Generate plot: {output_pdf}")
 
 
 def autolabel(ax, rects):
