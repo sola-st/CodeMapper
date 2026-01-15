@@ -1,5 +1,5 @@
 import os
-from os.path import join
+from os.path import join, exists
 from anything_tracker.measurement.MeasureAnnoTrackerData import MeasureAnnotatedData
 
 
@@ -8,9 +8,9 @@ def main_ablation_study_context_size(dataset, oracle_file, results_dir_parent, r
     for num in context_line_num_list:
         results_dir = join(results_dir_parent, f"mapped_regions_{dataset}_{num}")
         if num == 0: 
-            results_dir = join(results_dir_parent, f"mapped_regions_{dataset}_off_context")
+            results_dir = results_dir if exists(results_dir) else join(results_dir_parent, f"mapped_regions_{dataset}_off_context")
         # this could be a duplicated with 'measurement_results_metrics_{dataset}_0', 
-        # since we do not know the order of these two ablations tudies, keep both of them
+        # since we do not know the order of these two ablations studies, keep both of them
         results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_{dataset}_{num}.csv")
         MeasureAnnotatedData(dataset, oracle_file, results_dir, results_csv_file).run()
         print(f"Measurement: context size {num} done.")

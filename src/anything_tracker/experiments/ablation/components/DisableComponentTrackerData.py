@@ -21,7 +21,7 @@ if __name__ == "__main__":
      * [off_diff] Disabling the diff-based candidate extraction
      * [off_move] Disabling the movement detection
      * [off_search] Disabling the text search
-     * [off_fine] Disabling the refinment of candidate regions
+     * [off_fine] Disabling the refinement of candidate regions
      These 4 components can be optionally turned off, support turn off one or multiple at a time.
      * ! also consider [off_context] Disabling the context-aware similarity computation.
         [off_context] will be done in another ablation study (context size set to 0.)

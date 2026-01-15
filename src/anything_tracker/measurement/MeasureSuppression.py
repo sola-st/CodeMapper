@@ -225,12 +225,13 @@ class MeasureSuppression():
 
 
 def main_anythingtracker(dataset, oracle_file, results_dir_parent, results_csv_file_folder, approach):
-    results_dir = join(results_dir_parent, f"mapped_regions_{dataset}")
+    results_dir_tmp = join(results_dir_parent, f"mapped_regions_{dataset}")
+    results_dir = results_dir_tmp if results_dir_tmp else join(results_dir_parent, f"mapped_regions_{dataset}_15")
     results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_{dataset}.csv")
     if approach:
-        results_dir = f"{results_dir}_{approach}"
-        results_csv_file = results_csv_file.replace(".csv", f"_{approach}.csv")
-    MeasureSuppression(oracle_file, results_dir, results_csv_file).run()      
+        results_dir = join(results_dir_parent, f"mapped_regions_{dataset}_{approach}")
+        results_csv_file = join(results_csv_file_folder, f"measurement_results_metrics_{dataset}_{approach}.csv")
+    MeasureSuppression(dataset, oracle_file, results_dir, results_csv_file).run()   
 
 if __name__=="__main__":
     # change the 'approaches' to specify the measurement if needed
@@ -242,4 +243,4 @@ if __name__=="__main__":
     os.makedirs(results_csv_file_folder, exist_ok=True)
     for approach in approaches:
         main_anythingtracker(dataset, oracle_file_folder, results_dir_parent, results_csv_file_folder, approach)
-        print(f"Measurement for approach {approach} done.")
+        print(f"Measurement for approach '{approach}' done.")

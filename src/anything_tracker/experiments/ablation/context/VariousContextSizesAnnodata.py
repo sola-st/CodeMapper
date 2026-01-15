@@ -8,7 +8,7 @@ if __name__ == "__main__":
     datasets = ["annotation_a", "annotation_b"] # the desired one or two annotated dataset(s)
     turn_off_techniques = [False, False, False, False] 
     for dataset in datasets:
-        oracle_file = join("data", "annotation", f"{dataset}_100.json")
+        oracle_file = join("data", "annotation", f"{dataset}.json")
         result_dir_parent = join("data", "results", "tracked_maps", dataset)
         time_file_folder = join("data", "results", "execution_time", dataset)
         makedirs(time_file_folder, exist_ok=True)

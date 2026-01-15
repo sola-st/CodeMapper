@@ -411,7 +411,7 @@ def main(*args): # can be used to start tracking annotation and suppressions
     # Add get_target_file_path_time to phrase 1
     one_round_time_info = update_time_records(one_round_time_info, get_target_path_end, get_target_path_start, "compute_candidates_time")
 
-    # write exection times
+    # write execution times
     # The total time calculated from individual steps may be slightly larger than the overall time for "phrase 1."  
     # This happens because we round each step's time to two decimal places using ".2f", which results in a small loss of precision.
     RecordExecutionTimes(write_mode, time_file_to_write, ground_truth_index, one_round_time_info).run()
