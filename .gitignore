@@ -8,5 +8,4 @@ data/annotation/*_outlier*
 local/
 *__pycache_*
 .vscode/settings.json
-pyproject.toml
 jparser/lib

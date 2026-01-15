@@ -2,11 +2,21 @@
 
 CodeMapper address the code mapping problem in a way that is independent of specific program elements and programming languages. Given a code region in one commit, CodeMapper finds the corresponding region in another commit. To have a comprehensive understanding of this work, you can check out our [research paper](https://software-lab.org/publications/icse2026_CodeMapper.pdf) here.
 
-**Dependencies:**
-  * Python = ">=3.7"
-  * GitPython~=3.1.31
-  * tree-sitter 
-    * Run ```pip install -r requirements.txt``` in the root directory of this project.
+### Setup
+Choose one of the following options to set up the project:
+
+**Option 1: Run locally**  
+If you prefer to run the code locally, make sure you have python>=3.7, and run the following from the root directory of this project:
+  1. `pip install -r requirements.txt`
+  2. `pip install -e .`
+
+**Option 2: Run with Docker**  
+If you prefer to isolate the packages that you install during the reproduction, use Docker.
+If you prefer to isolate the packages that you install during the reproduction, use Docker.
+1. Install Docker (if it is your first time using Docker, [Docker Desktop](https://docs.docker.com/desktop/) is recommended)
+2. Build the image: `docker build -t codemapper .`  
+3. Run the container with files editable: `docker run -it -v $(pwd):/codemapper_home codemapper`
+    <!-- * With files non-editable: `docker run -it codemapper` -->
 
 ### Data availability
 All datasets are available in the *data* directory.
