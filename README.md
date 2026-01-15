@@ -1,6 +1,8 @@
 # CodeMapper: A Language-Agnostic Approach to Mapping Code Regions Across Commits
 
-CodeMapper address the code mapping problem in a way that is independent of specific program elements and programming languages. Given a code region in one commit, CodeMapper finds the corresponding region in another commit. To have a comprehensive understanding of this work, you can check out our [research paper](https://software-lab.org/publications/icse2026_CodeMapper.pdf) here.
+CodeMapper address the code mapping problem in a way that is independent of specific program elements and programming languages. Given a code region in one commit, CodeMapper finds the corresponding region in another commit. 
+To have a comprehensive understanding of this work, you can check out our [research paper](https://software-lab.org/publications/icse2026_CodeMapper.pdf) here.
+The artifact has been archived on Zenodo to ensure long-term availability and can be accessed at: 
 
 ### Setup
 Choose one of the following options to set up the project:
@@ -25,7 +27,7 @@ All datasets are available in the *data* directory.
 * File source_repo_java.txt &emsp; The 10 repositories for Java (CodeTracker data).
 * Subfolder *suppression_data* &emsp; The suppression study dataset.
 * File python repos.txt &emsp; The 8 Python repositories.
-* Subfolder *results* &emsp; All the result files.
+* Subfolder **results** &emsp; [Load pre-computed results](#load-pre-computed-results) &emsp; All the result files.
   * tracked_maps &emsp; Meta files of tracking results. 
   * execution_time &emsp; Meta files of execution times.
   * measurement_results &emsp; Files containing evaluation results.
@@ -76,11 +78,11 @@ All the result tables and plots are extracted from the files in the *src/anythin
 * **[Plot for RQ3]** PlotExexutionTimeComparisonDetailed.py &emsp; Show the comparison of execution time with baselines.
 
 ## Reproducing the results in the paper
-Choose between **SLOW MODE**, which runs CodeMapper and baselines to track the datasets, runs the ablation study, and may take more than 30 minutes, including cloning the repositories, depending on the hardware, and **FAST MODE**, which generates the tables and plots (the ones in the RQ answering section) from pre-computed results and should take less than 5 minutes. 
+Choose between **SLOW MODE**, which runs CodeMapper and baselines to track the datasets, runs the ablation study, and may take serveral hours, including cloning the repositories, depending on the hardware, and **FAST MODE**, which generates the tables and plots (the ones in the RQ answering section) from pre-computed results and should take less than 5 minutes. 
 
 **Notes**:
 * By default, the result files are stored in *data/result* and all verifications can be completed normally without modifying any path. 
-* By default, all the results tables and figures are in *data/results/table/plots*. 
+* By default, all the results tables and figures are in *data/results/table_plots*. 
 * Check the [Experiments](#experiments) to locate files.
 
 ### SLOW MODE
@@ -131,7 +133,14 @@ Choose between **SLOW MODE**, which runs CodeMapper and baselines to track the d
 
 
 ### FAST MODE
-By default, all the results tables and figures are in *data/results/table/plots*.  
+**Load pre-computed results**  
+Before generate the table and plots, load the pre-computed results. Here are two options:
+
+* [Option 1] Run LoadPreComputedResults.py, it will automatically load and place the results folder in the correct location.
+* [Option 2] Manually download results.zip from the latest release and extract it into the data folder.
+You can check the structure of data/results here.
+
+By default, all the results tables and figures are in *data/results/table_plots*.  
 All tables in results: Tables 2, 3.  
 All figures in results (exclude the motivation/example figures): Figures 10, 11, and 12.  
 The following files are in the *src/anything_tracker/visualization* directory.
