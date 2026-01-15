@@ -8,11 +8,10 @@ Choose one of the following options to set up the project:
 **Option 1: Run locally**  
 If you prefer to run the code locally, make sure you have python>=3.7, and run the following from the root directory of this project:
   1. `pip install -r requirements.txt`  
-    For [fast mode](###FAST-MODE), the requirements can be reduced to only `numpy` and `matplotlib`.
+    For [fast mode](#fast-mode), the requirements can be reduced to only `numpy` and `matplotlib`.
   2. `pip install -e .`
 
 **Option 2: Run with Docker**  
-If you prefer to isolate the packages that you install during the reproduction, use Docker.
 If you prefer to isolate the packages that you install during the reproduction, use Docker.
 1. Install Docker (if it is your first time using Docker, [Docker Desktop](https://docs.docker.com/desktop/) is recommended)
 2. Build the image: `docker build -t codemapper .`  
