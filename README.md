@@ -2,7 +2,7 @@
 
 CodeMapper address the code mapping problem in a way that is independent of specific program elements and programming languages. Given a code region in one commit, CodeMapper finds the corresponding region in another commit. 
 To have a comprehensive understanding of this work, you can check out our [research paper](https://software-lab.org/publications/icse2026_CodeMapper.pdf) here.
-The artifact has been archived on Zenodo to ensure long-term availability and can be accessed at: 
+<!-- The artifact has been archived on Zenodo to ensure long-term availability and can be accessed at:  -->
 
 ### Setup
 Choose one of the following options to set up the project:
@@ -78,7 +78,7 @@ All the result tables and plots are extracted from the files in the *src/anythin
 * **[Plot for RQ3]** PlotExexutionTimeComparisonDetailed.py &emsp; Show the comparison of execution time with baselines.
 
 ## Reproducing the results in the paper
-Choose between **SLOW MODE**, which runs CodeMapper and baselines to track the datasets, runs the ablation study, and may take serveral hours, including cloning the repositories, depending on the hardware, and **FAST MODE**, which generates the tables and plots (the ones in the RQ answering section) from pre-computed results and should take less than 5 minutes. 
+Choose between **SLOW MODE**, which runs CodeMapper and baselines to track the datasets, runs the ablation study, and may take more than one hour, including cloning the repositories, depending on the hardware, and **FAST MODE**, which generates the tables and plots (the ones in the RQ answering section) from pre-computed results and should take less than 5 minutes. 
 
 **Notes**:
 * By default, the result files are stored in *data/result* and all verifications can be completed normally without modifying any path. 
