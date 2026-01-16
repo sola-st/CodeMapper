@@ -4,7 +4,7 @@ import zipfile
 from io import BytesIO
 
 
-GITHUB_RELEASE_URL = "https://github.com/sola-st/CodeMapper/releases/tag/v1.0.1/results.zip"  
+GITHUB_RELEASE_URL = "https://github.com/sola-st/CodeMapper/releases/download/v1.0.2/results.zip"  
 DESTINATION_FOLDER = "./data" # save the results folder inside the "data" folder (data/results).
 os.makedirs(DESTINATION_FOLDER, exist_ok=True)
 
